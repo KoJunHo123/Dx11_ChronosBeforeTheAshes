@@ -13,6 +13,8 @@ CMesh::CMesh(const CMesh & Prototype)
 
 HRESULT CMesh::Initialize_Prototype(CModel::TYPE eType, const aiMesh * pAIMesh, _fmatrix PreTransformMatrix)
 {
+	m_eType = eType;
+
 	m_iMaterialIndex = pAIMesh->mMaterialIndex;
 	m_iNumVertexBuffers = 1;
 	m_iNumVertices = pAIMesh->mNumVertices;
@@ -67,47 +69,6 @@ HRESULT CMesh::Initialize_Prototype(CModel::TYPE eType, const aiMesh * pAIMesh, 
 
 HRESULT CMesh::Initialize(void * pArg)
 {
-	return S_OK;
-}
-
-HRESULT CMesh::Add_Save_NonAnimData()
-{
-	m_pBuffers = new MODEL_BUFFER_DESC[m_iNumVertices];
-
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {};
-	HRESULT hr = m_pContext->Map(m_pVB, 0, D3D11_MAP_READ, 0, &MappedResource);
-	if (FAILED(hr)) 
-		return E_FAIL;
-	
-	VTXMESH* pVertices = reinterpret_cast<VTXMESH*>(MappedResource.pData);
-	
-	for (size_t i = 0; i < m_iNumVertices; ++i)
-	{
-		// À§Ä¡
-		m_pBuffers[i].pX = (_float)pVertices[i].vPosition.x;
-		m_pBuffers[i].pY = (_float)pVertices[i].vPosition.y;
-		m_pBuffers[i].pZ = (_float)pVertices[i].vPosition.z;
-
-		// ¹ý¼±
-		m_pBuffers[i].nX = (_float)pVertices[i].vNormal.x;
-		m_pBuffers[i].nY = (_float)pVertices[i].vNormal.y;
-		m_pBuffers[i].nZ = (_float)pVertices[i].vNormal.z;
-		
-		// ÅØ½ºÃ³ ÁÂÇ¥
-		m_pBuffers[i].texX = (_float)pVertices[i].vTexcoord.x;
-		m_pBuffers[i].texY = (_float)pVertices[i].vTexcoord.y;
-
-		// ÅºÁ¨Æ®
-		m_pBuffers[i].tanX = (_float)pVertices[i].vTangent.x;
-		m_pBuffers[i].tanY = (_float)pVertices[i].vTangent.y;
-		m_pBuffers[i].tanZ = (_float)pVertices[i].vTangent.z;
-	}
-
-	m_pGameInstance->Add_SaveData(m_pBuffers, m_iNumVertices * sizeof(VTXMESH));
-	m_pGameInstance->Add_SaveData(&m_iMaterialIndex, sizeof(m_iMaterialIndex));
-	m_pGameInstance->Add_SaveData(&m_iNumVertices, sizeof(m_iNumVertices));
-	m_pGameInstance->Add_SaveData(&m_iNumIndices, sizeof(m_iNumIndices));
-
 	return S_OK;
 }
 

@@ -84,6 +84,15 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
+#pragma region FILE_MANAGER
+	size_t	Get_LoadedDataCount();
+	void	Add_SaveData(void* pArg, _uint iSize);
+	SEPARATOR_DESC*	Get_LoadedData(_uint iIndex);
+	void	Clear();
+	HRESULT Save_File(_wstring strFileName, _wstring strExt);
+	HRESULT Load_File(_wstring strFileName, _wstring strExt);
+#pragma endregion
+
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
 	class CInput_Device*			m_pInput_Device = { nullptr };
@@ -94,7 +103,8 @@ private:
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
-	class CKeyManager*				m_pKeyManager = { nullptr };
+	class CKeyManager*				m_pKey_Manager = { nullptr };
+	class CFile_Manager*			m_pFile_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

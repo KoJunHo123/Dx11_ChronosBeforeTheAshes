@@ -34,8 +34,8 @@ public:
 	virtual HRESULT Initialize_Prototype(CModel::TYPE eType, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
 
-	HRESULT Add_Save_NonAnimData();
-	HRESULT Clear_Buffer() {
+	HRESULT Add_SaveData();
+	void Clear_Buffer() {
 		Safe_Delete_Array(m_pBuffers);
 	}
 	
@@ -44,10 +44,12 @@ private:
 	_uint				m_iNumBones = { 0 };
 
 	MODEL_BUFFER_DESC*	m_pBuffers = { nullptr };
+	CModel::TYPE m_eType = { CModel::TYPE_END };
 
 private:
 	HRESULT Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
 	HRESULT Ready_VertexBuffer_Anim(const aiMesh* pAIMesh);
+
 
 public:
 	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, CModel::TYPE eType, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);

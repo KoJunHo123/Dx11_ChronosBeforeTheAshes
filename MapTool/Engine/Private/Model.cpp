@@ -80,57 +80,6 @@ HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTe
 	return m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType]->Bind_ShadeResource(pShader, pConstantName, 0);
 }
 
-HRESULT CModel::Save_Meshes_NonAnim(_wstring strFileName)
-{
-	for (auto& mesh : m_Meshes)
-		mesh->Add_Save_NonAnimData();
-
-	m_pGameInstance->Save_File(strFileName, TEXT("mesh"));
-
-	for (auto& mesh : m_Meshes)
-		mesh->Clear_Buffer();
-
-	return S_OK;
-}
-
-HRESULT CModel::Load_Meshes_NonAnim(_wstring strFileName)
-{
-	m_pGameInstance->Load_File(strFileName, TEXT("mesh"));
-	for (size_t i = 0; i < m_pGameInstance->Get_LoadedDataCount();)
-	{
-#pragma region 이것도 싹 다 mesh로 옮기자(?)
-		// 아예 Mesh::Create()부터 다시 만들 것.
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 정점 버퍼
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 머테리얼 인덱스
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 버텍스 정점 개수
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 인덱스 정점 개수
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-#pragma endregion
-	}
-
-	return S_OK;
-}
-
-
-HRESULT CModel::Save_Materials()
-{
-	for (auto& material : m_Materials)
-	{
-		material.pMaterialTextures;
-	}
-
-	return S_OK;
-}
 
 
 HRESULT CModel::Ready_Meshes()
@@ -188,6 +137,7 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 			_tchar				szFinalPath[MAX_PATH] = TEXT("");
 
 			MultiByteToWideChar(CP_ACP, 0, szTexturePath, strlen(szTexturePath), szFinalPath, MAX_PATH);
+
 
 #pragma endregion
 			// 걍 경로 냅다 넣으면 ok임.

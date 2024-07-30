@@ -27,6 +27,10 @@ public:
 public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
 
+	HRESULT Save_Meshes(_wstring strFileName);
+
+	HRESULT Save_Materials(_wstring strFileName);
+
 private:
 	/* 내가 넣어준 경로에 해당하는 파일의 정보를 읽어서 aiScene객체에 저장해준다. */
 	Assimp::Importer				m_Importer;
@@ -43,7 +47,7 @@ private: /* 메시의 정보를 저장한다. */
 private: 
 	_uint							m_iNumMaterials = { 0 };
 	vector<MESH_MATERIAL>			m_Materials;
-
+	vector<_tchar*>				m_MaterialPathes;
 
 private:
 	HRESULT	Ready_Meshes();
