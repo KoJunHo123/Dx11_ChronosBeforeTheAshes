@@ -41,6 +41,13 @@ void CFreeCamera::Priority_Update(_float fTimeDelta)
 	if (m_pGameInstance->Get_DIKeyState(DIK_D) & 0x80)
 		m_pTransformCom->Go_Right(fTimeDelta);
 
+	if (m_pGameInstance->Get_DIKeyState(DIK_SPACE) & 0x80)
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 15.f * fTimeDelta, 0.f, 0.f));
+
+	if (m_pGameInstance->Get_DIKeyState(DIK_LCONTROL) & 0x80)
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) - XMVectorSet(0.f, 15.f * fTimeDelta, 0.f, 0.f));
+
+
 	_long		MouseMove = { 0 };
 
 

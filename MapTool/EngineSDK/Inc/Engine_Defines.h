@@ -1,5 +1,7 @@
 #pragma once
 
+#define VK_MAX	0xff
+
 #pragma warning (disable : 4251)
 
 #include <d3d11.h>

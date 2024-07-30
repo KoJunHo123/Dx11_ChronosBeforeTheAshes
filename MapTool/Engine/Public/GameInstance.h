@@ -19,7 +19,8 @@ private:
 	virtual ~CGameInstance() = default;
 
 public:
-	HRESULT Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext);
+	HRESULT Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext,
+		_wstring strSavePath = TEXT("../../Client/Bin/SaveResources/"));
 	void Update_Engine(_float fTimeDelta);
 	HRESULT Draw_Engine();
 	HRESULT Clear(_uint iLevelIndex);
@@ -73,9 +74,24 @@ public:
 #pragma endregion
 
 #pragma region PICKING
-	//void Transform_MouseRay_ToLocalSpace(const _float4x4& WorldMatrix);	
-	//_bool isPicked_InLocalSpace(const _float3& vPointA, const _float3& vPointB, const _float3& vPointC, _float3* pOut);
+	void Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix);
+	_bool isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+#pragma endregion
 
+#pragma region KEY_MANAGER
+	_bool	Key_Pressing(int _iKey);
+	_bool	Key_Down(int _iKey);
+	_bool	Key_Up(int _iKey);
+#pragma endregion
+
+#pragma region FILE_MANAGER
+	size_t	Get_LoadedDataCount();
+	void	Add_SaveData(void* pArg, _uint iSize);
+	SEPARATOR_DESC*	Get_LoadedData(_uint iIndex);
+	void	Clear();
+	HRESULT Save_File(_wstring strFileName, _wstring strExt);
+	HRESULT Load_File(_wstring strFileName, _wstring strExt);
 #pragma endregion
 
 private:
@@ -87,6 +103,9 @@ private:
 	class CTimer_Manager*			m_pTimer_Manager = { nullptr };
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
+	class CPicking*					m_pPicking = { nullptr };
+	class CKeyManager*				m_pKey_Manager = { nullptr };
+	class CFile_Manager*			m_pFile_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

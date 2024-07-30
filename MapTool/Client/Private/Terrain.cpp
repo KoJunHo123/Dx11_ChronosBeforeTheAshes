@@ -20,11 +20,13 @@ HRESULT CTerrain::Initialize_Prototype()
 
 HRESULT CTerrain::Initialize(void * pArg)
 {
-	CGameObject::GAMEOBJECT_DESC		Desc{};
+	TERRAIN_DESC*		Desc = static_cast<TERRAIN_DESC*>(pArg);
 	
 	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
 	if (FAILED(__super::Initialize(&Desc)))
 		return E_FAIL;
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, Desc->vPos);
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
@@ -60,13 +62,12 @@ HRESULT CTerrain::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
-	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 1)))
+	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
-
-
+	 
 	if (FAILED(m_pVIBufferCom->Bind_Buffers()))
 		return E_FAIL;
 	if (FAILED(m_pVIBufferCom->Render()))
@@ -107,8 +108,6 @@ CTerrain * CTerrain::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pConte
 
 	return pInstance;
 }
-
-
 
 CGameObject * CTerrain::Clone(void * pArg)
 {

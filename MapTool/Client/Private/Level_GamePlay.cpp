@@ -1,8 +1,15 @@
 #include "stdafx.h"
-#include "..\Public\Level_GamePlay.h"
 
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_win32.h"
+#include "ImGui/imgui_impl_dx11.h"
+
+#include "..\Public\Level_GamePlay.h"
 #include "FreeCamera.h"
 #include "GameInstance.h"
+
+#include "Monster.h"
+#include "Terrain.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -11,22 +18,23 @@ CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 
 HRESULT CLevel_GamePlay::Initialize()
 {
-	if (FAILED(Ready_Lights()))
-		return E_FAIL;
 
 	if (FAILED(Ready_Layer_Camera()))
 		return E_FAIL;
 	if (FAILED(Ready_Layer_BackGround()))
 		return E_FAIL;
-	if (FAILED(Ready_Layer_Effect()))
-		return E_FAIL;
-	if (FAILED(Ready_Layer_Monster()))
-		return E_FAIL;
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
 
-	
-	if (FAILED(Ready_LandObjects()))
-		return E_FAIL;
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplWin32_Init(g_hWnd);
+	ImGui_ImplDX11_Init(m_pDevice, m_pContext);
+
+	m_vScale = { 1.f, 1.f, 1.f, 0.f };
+	m_vRotationAxis = { 1.f, 0.f, 0.f, 0.f };
+	m_fRotationAngle = { 90.f };
 
 	return S_OK;
 }
@@ -39,16 +47,47 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 HRESULT CLevel_GamePlay::Render()
 {
 	SetWindowText(g_hWnd, TEXT("게임플레이레벨입니다."));
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	bool bDemo = true;
+	ImGui::ShowDemoWindow(&bDemo);
+
+	ImGui::Begin("Map Editor");
+
+	// 어떤 모델 부를지 선택
+	const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	static int item_current = 1;
+	ImGui::ListBox("listbox", &item_current, items, IM_ARRAYSIZE(items), 8);
+
+	// 크기
+	ImGui::InputFloat3("Scale", (_float*)&m_vScale);
+	// 회전축
+	ImGui::InputFloat3("Rotation_Axis", (_float*)&m_vRotationAxis);
+	// 회전 각도
+	ImGui::InputFloat("Rotation_Angle", &m_fRotationAngle, 0.01f, 1.0f, "%.3f");
+
+	if (m_pGameInstance->Key_Down(VK_LBUTTON))
+	{
+		PICKING_CHECK PickCheck = IsPicking();
+		if (true == PickCheck.isPick)
+		{
+			Add_Monster(PickCheck.vPickPos);
+		}
+	}
+
+
+	ImGui::End();
+
+	ImGui::Render();
+
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Lights()
-{
-	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
-	
-
-	return S_OK;
-}
 
 HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 {
@@ -73,74 +112,55 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 
 HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 {
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Terrain"))))
+	CTerrain::TERRAIN_DESC desc{};
+	desc.vPos = XMVectorSet(-168.f, 4.725f, 157.f, 0.f);
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 0.f;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Terrain"), &desc)))
 		return E_FAIL;
 
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+		return E_FAIL;
 
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_Effect()
+CLevel_GamePlay::PICKING_CHECK CLevel_GamePlay::IsPicking()
 {
-	//for (size_t i = 0; i < 50; i++)
-	//{
-	//	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Effect"))))
-	//		return E_FAIL;
-	//}
-	
+	PICKING_CHECK PickCheck = {};
+	PickCheck.isPick = false;
 
-	return S_OK;
-}
-
-HRESULT CLevel_GamePlay::Ready_Layer_Monster()
-{
-	for (size_t i = 0; i < 10; i++)
+	CTransform* pTerrainTransform = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), g_strTransformTag, 0));
+	CVIBuffer_Terrain* pTerrainVIBuffer = static_cast<CVIBuffer_Terrain*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"),
+		TEXT("Com_VIBuffer"), 0));
+	if (true == pTerrainVIBuffer->isPicking(pTerrainTransform->Get_WorldMatrix(), &PickCheck.vPickPos))
 	{
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Monster"))))
-			return E_FAIL;
+		PickCheck.isPick = true;
 	}
-	
 
-	return S_OK;
+	return PickCheck;
 }
 
-HRESULT CLevel_GamePlay::Ready_LandObjects()
+HRESULT CLevel_GamePlay::Add_Monster(_vector vPos)
 {
-//	CLandObject::LANDOBJECT_DESC	Desc = {};
-//
-//	Desc.pTerrainTransform = dynamic_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Com_Transform")));
-//	Desc.pTerrainVIBuffer = dynamic_cast<CVIBuffer_Terrain*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Com_VIBuffer")));
-//
-//	if (FAILED(Ready_Layer_Player(Desc)))
-//		return E_FAIL;
-//
-//	if (FAILED(Ready_Layer_Monster(Desc)))
-//		return E_FAIL;
-//
+	if (0.f == m_vRotationAxis.x && 0.f == m_vRotationAxis.y && 0.f == m_vRotationAxis.z)
+		return E_FAIL;
+
+	CMonster::MONSTER_DESC desc = {};
+
+	desc.vPos = vPos;
+	desc.vScale = m_vScale;
+	desc.vRotationAxis = XMLoadFloat4(&m_vRotationAxis);
+	desc.fRotationAngle = m_fRotationAngle;
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 0.f;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Monster"), &desc)))
+		return E_FAIL;
+
 	return S_OK;
 }
-
-//HRESULT CLevel_GamePlay::Ready_Layer_Player(CLandObject::LANDOBJECT_DESC& LandObjectDesc)
-//{
-//	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), TEXT("Prototype_GameObject_Player"), &LandObjectDesc)))
-//		return E_FAIL;
-//
-//	return S_OK;
-//}
-
-//
-//HRESULT CLevel_GamePlay::Ready_Layer_Monster(CLandObject::LANDOBJECT_DESC& LandObjectDesc)
-//{
-//	for (size_t i = 0; i < 20; i++)
-//	{
-//		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Monster"), &LandObjectDesc)))
-//			return E_FAIL;
-//	}
-//
-//	return S_OK;
-//}
 
 CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
@@ -158,5 +178,10 @@ CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceCon
 void CLevel_GamePlay::Free()
 {
 	__super::Free();
+
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 
 }

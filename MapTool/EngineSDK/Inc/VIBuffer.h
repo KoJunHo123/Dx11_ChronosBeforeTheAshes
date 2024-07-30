@@ -19,6 +19,9 @@ public:
 	virtual HRESULT Bind_Buffers();
 	virtual HRESULT Render();
 
+public:
+	virtual _bool isPicking(const _matrix& WorldMatrix, _vector* pOut) { return false; }
+
 protected:
 	ID3D11Buffer*				m_pVB = { nullptr };
 	ID3D11Buffer*				m_pIB = { nullptr };

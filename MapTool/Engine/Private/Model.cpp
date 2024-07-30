@@ -3,6 +3,8 @@
 #include "Texture.h"
 #include "GameInstance.h"
 
+
+
 CModel::CModel(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CComponent { pDevice, pContext }
 {
@@ -23,16 +25,12 @@ CModel::CModel(const CModel & Prototype)
 
 	for (auto& pMesh : m_Meshes)	
 		Safe_AddRef(pMesh);
-	
-
 }
 
 HRESULT CModel::Initialize_Prototype(TYPE eType, const _char * pModelFilePath, _fmatrix PreTransformMatrix)
 {
 	_uint		iFlag = { 0 };
 
-	
-	
 	/* 이전 : 모든 메시가 다 원점을 기준으로 그렺니다. */
 	/* 이후 : 모델을 구성하는 모든 메시들을 각각 정해진 상태(메시를 배치하기위한 뼈대의 위치에 맞춰서)대로 미리 변환해준다.*/
 
@@ -56,8 +54,6 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _char * pModelFilePath, _
 	if (FAILED(Ready_Materials(pModelFilePath)))
 		return E_FAIL;
 
-
-
 	return S_OK;
 }
 
@@ -67,27 +63,75 @@ HRESULT CModel::Initialize(void * pArg)
 	return S_OK;
 }
 
-HRESULT CModel::Render(CShader* pShader)
+HRESULT CModel::Render(_uint iMeshIndex)
 {
-	for (size_t i = 0; i < m_iNumMeshes; ++i)
+	m_Meshes[iMeshIndex]->Bind_Buffers();
+	m_Meshes[iMeshIndex]->Render();
+
+	return S_OK;
+}
+
+HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex)
+{
+	// iMeshIndex : 어떤 인덱스에 인데 어차피 다 돌거임.
+	_uint iMaterialIndex = m_Meshes[iMeshIndex]->Get_MaterialIndex();
+
+	// 머테리얼이 가지고 있는 텍스처 중 어떤 텍스처(enum:aiTextureType)를 바인딩 할 지 정해줌.
+	return m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType]->Bind_ShadeResource(pShader, pConstantName, 0);
+}
+
+HRESULT CModel::Save_Meshes_NonAnim(_wstring strFileName)
+{
+	for (auto& mesh : m_Meshes)
+		mesh->Add_Save_NonAnimData();
+
+	m_pGameInstance->Save_File(strFileName, TEXT("mesh"));
+
+	for (auto& mesh : m_Meshes)
+		mesh->Clear_Buffer();
+
+	return S_OK;
+}
+
+HRESULT CModel::Load_Meshes_NonAnim(_wstring strFileName)
+{
+	m_pGameInstance->Load_File(strFileName, TEXT("mesh"));
+	for (size_t i = 0; i < m_pGameInstance->Get_LoadedDataCount();)
 	{
-		for (auto& elem : m_Materials[i].pMaterialTextures)
-		{
-			if (nullptr == elem)
-				continue;
-			if (FAILED(elem->Bind_ShadeResource(pShader, "g_Texture", 0)))
-				return E_FAIL;;
-		}
+#pragma region 이것도 싹 다 mesh로 옮기자(?)
+		// 아예 Mesh::Create()부터 다시 만들 것.
+		m_pGameInstance->Get_LoadedData(i)->pArg;	// 정점 버퍼
+		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
+		++i;
 
-		if (FAILED(pShader->Begin(0)))
-			return E_FAIL;
+		m_pGameInstance->Get_LoadedData(i)->pArg;	// 머테리얼 인덱스
+		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
+		++i;
 
-		m_Meshes[i]->Bind_Buffers();
-		m_Meshes[i]->Render();
+		m_pGameInstance->Get_LoadedData(i)->pArg;	// 버텍스 정점 개수
+		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
+		++i;
+
+		m_pGameInstance->Get_LoadedData(i)->pArg;	// 인덱스 정점 개수
+		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
+		++i;
+#pragma endregion
 	}
 
 	return S_OK;
 }
+
+
+HRESULT CModel::Save_Materials()
+{
+	for (auto& material : m_Materials)
+	{
+		material.pMaterialTextures;
+	}
+
+	return S_OK;
+}
+
 
 HRESULT CModel::Ready_Meshes()
 {
@@ -95,7 +139,8 @@ HRESULT CModel::Ready_Meshes()
 
 	for (size_t i = 0; i < m_iNumMeshes; i++)
 	{
-		CMesh*		pMesh = CMesh::Create(m_pDevice, m_pContext, m_pAIScene->mMeshes[i], XMLoadFloat4x4(&m_PreTransformMatrix));
+		// aiMesh 대신 정점 정보 전달.
+		CMesh*		pMesh = CMesh::Create(m_pDevice, m_pContext, m_eType, m_pAIScene->mMeshes[i], XMLoadFloat4x4(&m_PreTransformMatrix));
 		if (nullptr == pMesh)
 			return E_FAIL;
 
@@ -105,8 +150,10 @@ HRESULT CModel::Ready_Meshes()
 	return S_OK;
 }
 
+
 HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 {
+#pragma region 경로 얻어오려고 똥꼬쇼 하는 부분
 	m_iNumMaterials = m_pAIScene->mNumMaterials;
 
 	for (size_t i = 0; i < m_iNumMaterials; i++)
@@ -142,9 +189,11 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 
 			MultiByteToWideChar(CP_ACP, 0, szTexturePath, strlen(szTexturePath), szFinalPath, MAX_PATH);
 
+#pragma endregion
+			// 걍 경로 냅다 넣으면 ok임.
 			MeshMaterial.pMaterialTextures[j] = CTexture::Create(m_pDevice, m_pContext, szFinalPath, 1);
 			if (nullptr == MeshMaterial.pMaterialTextures[j])
-				return E_FAIL;			
+				return E_FAIL;
 		}
 
 		m_Materials.emplace_back(MeshMaterial);

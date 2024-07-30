@@ -10,9 +10,6 @@
     <Filter Include="99.Defines">
       <UniqueIdentifier>{56bf5752-e9e5-4d3c-a7be-20759e1e6ff5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Utility\99.SuperClass">
-      <UniqueIdentifier>{e97e1dd4-2f50-4559-928e-fdb087e05027}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Utility\00.GameInstance">
       <UniqueIdentifier>{bfce8578-ad6b-4b0e-836f-ad7248cf1308}</UniqueIdentifier>
     </Filter>
@@ -90,6 +87,18 @@
     </Filter>
     <Filter Include="01.Utility\03.Components\Model\Mesh">
       <UniqueIdentifier>{d972a303-957a-4df6-84e0-4035d663f9d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\06.Picking">
+      <UniqueIdentifier>{6e56ab36-79a5-420e-a42f-e1e2c43c70b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.System\01.Device\Input\KeyManager">
+      <UniqueIdentifier>{6b3c5fc4-59d6-4f43-8286-27a69c48e1a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\07.FileManager">
+      <UniqueIdentifier>{eb6005c2-360d-4455-943e-6c192b9ecec1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\99.SuperClass">
+      <UniqueIdentifier>{e97e1dd4-2f50-4559-928e-fdb087e05027}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +182,15 @@
     </ClCompile>
     <ClCompile Include="..\private\Mesh.cpp">
       <Filter>01.Utility\03.Components\Model\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Picking.cpp">
+      <Filter>01.Utility\06.Picking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\KeyManager.cpp">
+      <Filter>00.System\01.Device\Input\KeyManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FileManager.cpp">
+      <Filter>01.Utility\07.FileManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -268,6 +286,15 @@
     </ClInclude>
     <ClInclude Include="..\public\Mesh.h">
       <Filter>01.Utility\03.Components\Model\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Picking.h">
+      <Filter>01.Utility\06.Picking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\KeyManager.h">
+      <Filter>00.System\01.Device\Input\KeyManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FileManager.h">
+      <Filter>01.Utility\07.FileManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

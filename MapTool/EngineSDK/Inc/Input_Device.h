@@ -14,8 +14,6 @@ public:
 	_byte	Get_DIKeyState(_ubyte byKeyID)			{ 
 		return m_byKeyState[byKeyID]; }
 
-	
-
 	_byte	Get_DIMouseState(MOUSEKEYSTATE eMouse) 	{ 	
 		return m_tMouseState.rgbButtons[eMouse]; 	
 	}

@@ -2,7 +2,7 @@
 /* float2 float3 float4 == vector */
 
 matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
-texture2D		g_Texture;
+texture2D		g_DiffuseTexture;
 
 sampler LinearSampler = sampler_state 
 {
@@ -58,12 +58,13 @@ PS_OUT PS_MAIN(PS_IN In)
 	PS_OUT			Out = (PS_OUT)0;
 	
 	// 최종 픽셀을 결정하는 옵션 필터.
-    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
+    Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
 
+	if(Out.vColor.a < 0.3f)
+        discard;
+	
 	return Out;
 }
-
-
 
 technique11	DefaultTechnique
 {

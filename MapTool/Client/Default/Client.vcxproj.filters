@@ -40,8 +40,14 @@
     <Filter Include="02.GameObjects\99.Camera">
       <UniqueIdentifier>{aae6caeb-858d-4707-9718-e4b878cdd9de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\02.Monster">
+    <Filter Include="02.GameObjects\02.Labyrinth">
       <UniqueIdentifier>{0083e25f-5f57-4f81-8604-c0d79a304e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{1d2ddf69-8812-4d12-96dd-65023810af16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Monster">
+      <UniqueIdentifier>{936de04e-9d12-4455-945f-796fe6d8d862}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -84,8 +90,35 @@
     <ClInclude Include="..\public\FreeCamera.h">
       <Filter>02.GameObjects\99.Camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Monster.h">
-      <Filter>02.GameObjects\02.Monster</Filter>
+    <ClInclude Include="..\Public\Labyrinth.h">
+      <Filter>02.GameObjects\02.Labyrinth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imconfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imgui_impl_dx11.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imgui_impl_win32.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imstb_rectpack.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imstb_textedit.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui\imstb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Monster.h">
+      <Filter>02.GameObjects\03.Monster</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,8 +152,32 @@
     <ClCompile Include="..\private\FreeCamera.cpp">
       <Filter>02.GameObjects\99.Camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Monster.cpp">
-      <Filter>02.GameObjects\02.Monster</Filter>
+    <ClCompile Include="..\Private\Labyrinth.cpp">
+      <Filter>02.GameObjects\02.Labyrinth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_demo.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_impl_dx11.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_impl_win32.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Public\ImGui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Monster.cpp">
+      <Filter>02.GameObjects\03.Monster</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +206,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

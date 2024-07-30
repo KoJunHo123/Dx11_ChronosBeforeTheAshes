@@ -3,7 +3,6 @@
 #include "VIBuffer.h"
 
 BEGIN(Engine)
-
 class ENGINE_DLL CVIBuffer_Rect final : public CVIBuffer
 {
 private:
@@ -20,6 +19,4 @@ public:
 	virtual CComponent* Clone(void* pArg) override;
 	virtual void Free() override;
 };
-
-
 END

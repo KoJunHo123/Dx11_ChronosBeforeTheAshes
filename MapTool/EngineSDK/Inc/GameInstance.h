@@ -73,9 +73,15 @@ public:
 #pragma endregion
 
 #pragma region PICKING
-	//void Transform_MouseRay_ToLocalSpace(const _float4x4& WorldMatrix);	
-	//_bool isPicked_InLocalSpace(const _float3& vPointA, const _float3& vPointB, const _float3& vPointC, _float3* pOut);
+	void Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix);
+	_bool isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+#pragma endregion
 
+#pragma region KEY_MANAGER
+	_bool	Key_Pressing(int _iKey);
+	_bool	Key_Down(int _iKey);
+	_bool	Key_Up(int _iKey);
 #pragma endregion
 
 private:
@@ -87,6 +93,8 @@ private:
 	class CTimer_Manager*			m_pTimer_Manager = { nullptr };
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
+	class CPicking*					m_pPicking = { nullptr };
+	class CKeyManager*				m_pKeyManager = { nullptr };
 
 public:	
 	void Release_Engine();

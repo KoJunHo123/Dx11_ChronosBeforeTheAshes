@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "imgui_impl_win32.h"
 #include "Client.h"
 #include "MainApp.h"
 #include "GameInstance.h"
@@ -13,6 +14,8 @@ HINSTANCE g_hInst;                                // 현재 인스턴스입니다.
 HWND	g_hWnd;
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -145,7 +148,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    RECT		rcWindowed = { 0, 0, g_iWinSizeX, g_iWinSizeY };
 
-   AdjustWindowRect(&rcWindowed, WS_OVERLAPPED, TRUE);
+   AdjustWindowRect(&rcWindowed, WS_OVERLAPPEDWINDOW, FALSE);
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, rcWindowed.right - rcWindowed.left, rcWindowed.bottom - rcWindowed.top, nullptr, nullptr, hInstance, nullptr);
@@ -175,6 +178,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
+
     switch (message)
     {
     case WM_COMMAND:

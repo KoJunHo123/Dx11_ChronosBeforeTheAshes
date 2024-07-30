@@ -14,10 +14,23 @@ private:
 	virtual ~CModel() = default;
 
 public:
+	_uint Get_NumMeshes() const {
+		return m_iNumMeshes;
+	}
+
+public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
 
-	virtual HRESULT Render(class CShader* pShader);
+	virtual HRESULT Render(_uint iMeshIndex);
+
+public:
+	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
+
+	HRESULT Save_Meshes_NonAnim(_wstring strFileName);
+	HRESULT Load_Meshes_NonAnim(_wstring strFileName);
+
+	HRESULT Save_Materials();
 
 private:
 	/* 내가 넣어준 경로에 해당하는 파일의 정보를 읽어서 aiScene객체에 저장해준다. */

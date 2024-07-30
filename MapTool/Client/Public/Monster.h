@@ -12,6 +12,15 @@ BEGIN(Client)
 
 class CMonster final : public CGameObject
 {
+public:
+	typedef struct : public CGameObject::GAMEOBJECT_DESC
+	{
+		_vector vPos;
+		_float4 vScale;
+		_vector vRotationAxis;
+		_float fRotationAngle;
+	}MONSTER_DESC;
+
 private:
 	CMonster(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CMonster(const CMonster& Prototype);
@@ -26,8 +35,8 @@ public:
 	virtual HRESULT Render() override;
 
 public:
-	class CShader*				m_pShaderCom = { nullptr };	
-	class CModel*				m_pModelCom = { nullptr };
+	class CShader* m_pShaderCom = { nullptr };
+	class CModel* m_pModelCom = { nullptr };
 
 private:
 	HRESULT Ready_Components();

@@ -39,7 +39,6 @@ VS_OUT VS_MAIN(/*Á¤Á¡*/VS_IN In)
 	return Out;
 }
 
-
 struct PS_IN
 {
 	float4 vPosition : SV_POSITION;

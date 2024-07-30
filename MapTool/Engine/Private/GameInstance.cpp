@@ -4,6 +4,9 @@
 #include "Object_Manager.h"
 #include "Timer_Manager.h"
 #include "Input_Device.h"
+#include "Picking.h"
+#include "KeyManager.h"
+#include "FileManager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -12,7 +15,8 @@ CGameInstance::CGameInstance()
 
 }
 
-HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext)
+HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext,
+	_wstring strSavePath)
 {
 	/* 그래픽 카드를 초기화하낟. */
 	m_pGraphic_Device = CGraphic_Device::Create(EngineDesc.hWnd, EngineDesc.isWindowsed, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY, ppDevice, ppContext);
@@ -39,9 +43,13 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pInput_Device)
 		return E_FAIL;
 
-	//m_pPicking = CPicking::Create(*ppDevice, EngineDesc.hWnd, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY);
-	//if (nullptr == m_pPicking)
-	//	return E_FAIL;
+	m_pKey_Manager = CKeyManager::Create();
+	if (nullptr == m_pKey_Manager)
+		return E_FAIL;
+
+	m_pPicking = CPicking::Create(*ppDevice, *ppContext, EngineDesc.hWnd, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY);
+	if (nullptr == m_pPicking)
+		return E_FAIL;
 
 	/* 여러가지 매니져를 초기화하낟. */
 	m_pLevel_Manager = CLevel_Manager::Create();
@@ -56,6 +64,9 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pComponent_Manager)
 		return E_FAIL;
 
+	m_pFile_Manager = CFile_Manager::Create(strSavePath);
+	if (nullptr == m_pFile_Manager)
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -67,20 +78,22 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	/* 현재 키보드와 마우스의 상태를 받아올꺼야. */
 	m_pInput_Device->Update();
 
-	m_pObject_Manager->Priority_Update(fTimeDelta);	
+	m_pPicking->Update();
+
+	m_pObject_Manager->Priority_Update(fTimeDelta);
 
 	m_pPipeLine->Update();
 
 	m_pObject_Manager->Update(fTimeDelta);
-	
+
 	m_pObject_Manager->Late_Update(fTimeDelta);
-	
-	m_pLevel_Manager->Update(fTimeDelta);		
+
+	m_pLevel_Manager->Update(fTimeDelta);
 }
 
 HRESULT CGameInstance::Draw_Engine()
 {
-	
+
 	m_pRenderer->Draw();
 
 	return m_pLevel_Manager->Render();
@@ -102,7 +115,7 @@ void CGameInstance::Render_Begin()
 	/*m_pGraphic_Device->Render_Begin();*/
 	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
-	
+
 
 }
 
@@ -111,13 +124,13 @@ void CGameInstance::Render_End()
 	/*m_pGraphic_Device->Render_End(hWnd);*/
 
 	m_pGraphic_Device->Present();
-	
-	
+
+
 }
 #pragma region INPUT_DEVICE
 _byte CGameInstance::Get_DIKeyState(_ubyte byKeyID)
 {
-	return m_pInput_Device->Get_DIKeyState(byKeyID);	
+	return m_pInput_Device->Get_DIKeyState(byKeyID);
 }
 
 _byte CGameInstance::Get_DIMouseState(MOUSEKEYSTATE eMouse)
@@ -134,41 +147,41 @@ _long CGameInstance::Get_DIMouseMove(MOUSEMOVESTATE eMouseState)
 
 #pragma region LEVEL_MANAGER
 
-HRESULT CGameInstance::Change_Level(_uint iLevelIndex, CLevel * pNextLevel)
+HRESULT CGameInstance::Change_Level(_uint iLevelIndex, CLevel* pNextLevel)
 {
-	return m_pLevel_Manager->Change_Level(iLevelIndex, pNextLevel);	
+	return m_pLevel_Manager->Change_Level(iLevelIndex, pNextLevel);
 }
 
 #pragma endregion
 
 #pragma region OBJECT_MANAGER
 
-HRESULT CGameInstance::Add_Prototype(const _wstring & strPrototypeTag, CGameObject * pPrototype)
+HRESULT CGameInstance::Add_Prototype(const _wstring& strPrototypeTag, CGameObject* pPrototype)
 {
 	return m_pObject_Manager->Add_Prototype(strPrototypeTag, pPrototype);
 }
 
 
-HRESULT CGameInstance::Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring & strLayerTag, const _wstring & strPrototypeTag, void * pArg)
+HRESULT CGameInstance::Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, void* pArg)
 {
 	return m_pObject_Manager->Add_CloneObject_ToLayer(iLevelIndex, strLayerTag, strPrototypeTag, pArg);
 }
 
-CComponent * CGameInstance::Find_Component(_uint iLevelIndex, const _wstring & strLayerTag, const _wstring & strComponentTag, _uint iIndex)
+CComponent* CGameInstance::Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex)
 {
-	return m_pObject_Manager->Find_Component(iLevelIndex, strLayerTag, strComponentTag, iIndex);	
+	return m_pObject_Manager->Find_Component(iLevelIndex, strLayerTag, strComponentTag, iIndex);
 }
 
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER
 
-HRESULT CGameInstance::Add_Prototype(_uint iLevelIndex, const _wstring & strPrototypeTag, CComponent * pPrototype)
+HRESULT CGameInstance::Add_Prototype(_uint iLevelIndex, const _wstring& strPrototypeTag, CComponent* pPrototype)
 {
-	return m_pComponent_Manager->Add_Prototype(iLevelIndex, strPrototypeTag, pPrototype);	
+	return m_pComponent_Manager->Add_Prototype(iLevelIndex, strPrototypeTag, pPrototype);
 }
 
-CComponent * CGameInstance::Clone_Component(_uint iLevelIndex, const _wstring & strPrototypeTag, void * pArg)
+CComponent* CGameInstance::Clone_Component(_uint iLevelIndex, const _wstring& strPrototypeTag, void* pArg)
 {
 	return m_pComponent_Manager->Clone_Component(iLevelIndex, strPrototypeTag, pArg);
 }
@@ -177,12 +190,12 @@ CComponent * CGameInstance::Clone_Component(_uint iLevelIndex, const _wstring & 
 
 #pragma region TIMER_MANAGER
 
-HRESULT CGameInstance::Add_Timer(const _wstring & strTimerTag)
+HRESULT CGameInstance::Add_Timer(const _wstring& strTimerTag)
 {
 	return m_pTimer_Manager->Add_Timer(strTimerTag);
 }
 
-_float CGameInstance::Compute_TimeDelta(const _wstring & strTimerTag)
+_float CGameInstance::Compute_TimeDelta(const _wstring& strTimerTag)
 {
 	return m_pTimer_Manager->Compute_TimeDelta(strTimerTag);
 }
@@ -192,7 +205,7 @@ _float CGameInstance::Compute_TimeDelta(const _wstring & strTimerTag)
 
 #pragma region RENDERER
 
-HRESULT CGameInstance::Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, CGameObject * pRenderObject)
+HRESULT CGameInstance::Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, CGameObject* pRenderObject)
 {
 	return m_pRenderer->Add_RenderObject(eRenderGroupID, pRenderObject);
 }
@@ -230,8 +243,65 @@ _vector CGameInstance::Get_CamPosition_Vector() const
 }
 #pragma endregion
 
+#pragma region PICKING
+void CGameInstance::Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix)
+{
+	return m_pPicking->Transform_ToLocalSpace(WorldMatrix);
+}
+_bool CGameInstance::isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
+{
+	return m_pPicking->isPicked_InWorldSpace(vPointA, vPointB, vPointC, pOut);
+}
+_bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
+{
+	return m_pPicking->isPicked_InLocalSpace(vPointA, vPointB, vPointC, pOut);
+}
+#pragma endregion
+
+#pragma region KEY_MANAGER
+_bool CGameInstance::Key_Pressing(int _iKey)
+{
+	return m_pKey_Manager->Key_Pressing(_iKey);
+}
+_bool CGameInstance::Key_Down(int _iKey)
+{
+	return m_pKey_Manager->Key_Down(_iKey);
+}
+_bool CGameInstance::Key_Up(int _iKey)
+{
+	return m_pKey_Manager->Key_Up(_iKey);
+}
+#pragma endregion
+
+#pragma region FILE_MANAGER
+size_t CGameInstance::Get_LoadedDataCount()
+{
+	return m_pFile_Manager->Get_LoadedDataCount();
+}
+void CGameInstance::Add_SaveData(void* pArg, _uint iSize)
+{
+	return m_pFile_Manager->Add_SaveData(pArg, iSize);
+}
+SEPARATOR_DESC* CGameInstance::Get_LoadedData(_uint iIndex)
+{
+	return m_pFile_Manager->Get_LoadedData(iIndex);
+}
+void CGameInstance::Clear()
+{
+	return m_pFile_Manager->Clear();
+}
+HRESULT CGameInstance::Save_File(_wstring strFileName, _wstring strExt)
+{
+	return m_pFile_Manager->Save_File(strFileName, strExt);
+}
+HRESULT CGameInstance::Load_File(_wstring strFileName, _wstring strExt)
+{
+	return m_pFile_Manager->Load_File(strFileName, strExt);
+}
+#pragma endregion
+
 void CGameInstance::Release_Engine()
-{	
+{
 	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pRenderer);
 	Safe_Release(m_pTimer_Manager);
@@ -239,13 +309,16 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pObject_Manager);
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pInput_Device);
+	Safe_Release(m_pPicking);
+	Safe_Release(m_pKey_Manager);
+	Safe_Release(m_pFile_Manager);
 	Safe_Release(m_pGraphic_Device);
 
-	CGameInstance::Get_Instance()->Destroy_Instance();	
+	CGameInstance::Get_Instance()->Destroy_Instance();
 }
 
 void CGameInstance::Free()
-{	
+{
 	__super::Free();
 
 }

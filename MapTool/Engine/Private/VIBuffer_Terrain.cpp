@@ -1,4 +1,5 @@
 #include "..\Public\VIBuffer_Terrain.h"
+#include "GameInstance.h"
 
 CVIBuffer_Terrain::CVIBuffer_Terrain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CVIBuffer { pDevice, pContext }
@@ -9,12 +10,13 @@ CVIBuffer_Terrain::CVIBuffer_Terrain(const CVIBuffer_Terrain & Prototype)
 	: CVIBuffer{ Prototype }
 	, m_iNumVerticesX { Prototype.m_iNumVerticesX }
 	, m_iNumVerticesZ { Prototype.m_iNumVerticesZ }
-
+	, m_pVerticesPos{ Prototype.m_pVerticesPos }
 {
 }
 
 HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeightMapFilePath)
 {
+	m_fDistancePerVertex = 4.4375f;
 	_ulong			dwByte = {};
 
 	HANDLE			hFile = CreateFile(pHeightMapFilePath, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -45,6 +47,7 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeightMapFilePath
 #pragma region VERTEX_BUFFER
 	/* 정점버퍼에 채워줄 값들을 만들기위해서 임시적으로 공간을 할당한다. */
 	VTXNORTEX*			pVertices = new VTXNORTEX[m_iNumVertices];
+	m_pVerticesPos = new _float4[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXNORTEX) * m_iNumVertices);
 
 	for (size_t i = 0; i < m_iNumVerticesZ; i++)
@@ -53,9 +56,12 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeightMapFilePath
 		{
 			_uint			iIndex = i * m_iNumVerticesX + j;
 
-			pVertices[iIndex].vPosition = _float3(j, (pPixel[iIndex] & 0x000000ff) / 10.0f, i);
+			pVertices[iIndex].vPosition = _float3(j * m_fDistancePerVertex, (pPixel[iIndex] & 0x000000ff) / 10.0f, i * m_fDistancePerVertex);
 			pVertices[iIndex].vNormal = _float3(0.f, 0.f, 0.f);
 			pVertices[iIndex].vTexcoord = _float2(j / (m_iNumVerticesX - 1.f), i / (m_iNumVerticesZ - 1.f));
+
+			_vector vPos = XMVectorSetW(XMLoadFloat3(&pVertices[iIndex].vPosition), 1.f);
+			XMStoreFloat4(m_pVerticesPos + iIndex, vPos);
 		}
 	}
 #pragma endregion
@@ -155,6 +161,54 @@ HRESULT CVIBuffer_Terrain::Initialize(void * pArg)
 	return S_OK;
 }
 
+_bool CVIBuffer_Terrain::isPicking(const _matrix& WorldMatrix, _vector* pOut)
+{
+	/* 마우스 레이와 레이포스를 로컬로 던졌다. */
+	m_pGameInstance->Transform_MouseRay_ToLocalSpace(WorldMatrix);
+
+	for (size_t i = 0; i < m_iNumVerticesZ - 1; i++)
+	{
+		for (size_t j = 0; j < m_iNumVerticesX - 1; j++)
+		{
+			_uint		iIndex = i * m_iNumVerticesX + j;
+
+			_uint		iIndices[4] = {
+				iIndex + m_iNumVerticesX, /* 왼위*/
+				iIndex + m_iNumVerticesX + 1, /* 오위 */
+				iIndex + 1, /* 오아 */
+				iIndex /* 왼아 */
+			};
+
+			_vector pVecticesVec[4] = {
+				XMLoadFloat4(&m_pVerticesPos[iIndices[0]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[1]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[2]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[3]])
+			};
+
+			/* 오른쪽 위 삼각형 */
+			if (true == m_pGameInstance->isPicked_InLocalSpace(pVecticesVec[0],
+				pVecticesVec[1],
+				pVecticesVec[2],
+				pOut))
+				goto Compute_WorldPos;
+
+
+			/* 왼쪽 아래 삼각형 */
+			if (true == m_pGameInstance->isPicked_InLocalSpace(pVecticesVec[0],
+				pVecticesVec[2],
+				pVecticesVec[3],
+				pOut))
+				goto Compute_WorldPos;
+		}
+	}
+	return false;
+
+Compute_WorldPos:
+	*pOut = XMVector4Transform(*pOut, WorldMatrix);
+	return true;
+}
+
 CVIBuffer_Terrain * CVIBuffer_Terrain::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar* pHeightMapFilePath)
 {
 	CVIBuffer_Terrain*		pInstance = new CVIBuffer_Terrain(pDevice, pContext);
@@ -186,5 +240,6 @@ CComponent * CVIBuffer_Terrain::Clone(void * pArg)
 void CVIBuffer_Terrain::Free()
 {
 	__super::Free();
-
+	if (false == m_isCloned)
+		Safe_Delete_Array(m_pVerticesPos);
 }
