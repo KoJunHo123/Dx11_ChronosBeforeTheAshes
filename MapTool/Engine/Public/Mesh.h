@@ -11,19 +11,10 @@ BEGIN(Engine)
 
 class CMesh final : public CVIBuffer
 {
-public:
-	typedef struct 
-	{
-		_float pX, pY, pZ;
-		_float nX, nY, nZ;
-		_float texX, texY;
-		_float tanX, tanY, tanZ;
-	}MODEL_BUFFER_DESC;
-
 private:
 	CMesh(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CMesh(const CMesh& Prototype);
-	virtual ~CMesh() = default;	
+	virtual ~CMesh() = default;
 
 public:
 	_uint Get_MaterialIndex() const {
@@ -31,28 +22,29 @@ public:
 	}
 
 public:
-	virtual HRESULT Initialize_Prototype(CModel::TYPE eType, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
+	virtual HRESULT Initialize_Prototype(const CModel* pModel, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
 
-	HRESULT Add_SaveData();
-	void Clear_Buffer() {
-		Safe_Delete_Array(m_pBuffers);
-	}
-	
+public:
+	HRESULT Bind_BoneMatrices(const CModel* pModel, class CShader* pShader, const _char* pConstantName);
+
 private:
 	_uint				m_iMaterialIndex = { 0 };
+
 	_uint				m_iNumBones = { 0 };
 
-	MODEL_BUFFER_DESC*	m_pBuffers = { nullptr };
-	CModel::TYPE m_eType = { CModel::TYPE_END };
+	/* uint : 모델에 로드해놓은 전체 뼈 중의 인덱스를 이야기한다. */
+	vector<_uint>		m_BoneIndices;
+
+	_float4x4			m_BoneMatrices[g_iMaxMeshBones] = {};
 
 private:
-	HRESULT Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
-	HRESULT Ready_VertexBuffer_Anim(const aiMesh* pAIMesh);
+	HRESULT	Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
+	HRESULT	Ready_VertexBuffer_Anim(const CModel* pModel, const aiMesh* pAIMesh);
 
 
 public:
-	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, CModel::TYPE eType, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
+	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CModel* pModel, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
 	virtual CComponent* Clone(void* pArg);
 	virtual void Free() override;
 };

@@ -84,6 +84,18 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
+#pragma region FILE_MANAGER
+	size_t Get_LoadedDataCount();
+	void Set_SaveFilePath(_wstring strFilePath);
+	void Add_SaveData(void* pArg, _uint iSize);
+	SEPARATOR_DESC* Get_LoadedData(_uint iIndex);
+	void Clear_Separators();
+	// 확장자까지 받아야 함.
+	HRESULT Save_File(_wstring strFileName, _wstring strExt);
+	HRESULT Load_File(_wstring strFileName, _wstring strExt);
+
+#pragma endregion
+
 
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
@@ -96,6 +108,7 @@ private:
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
 	class CKeyManager*				m_pKey_Manager = { nullptr };
+	class CFile_Manager*			m_pFile_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

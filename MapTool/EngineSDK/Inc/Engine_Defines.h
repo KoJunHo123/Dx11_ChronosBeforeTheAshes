@@ -45,6 +45,7 @@ using namespace std;
 namespace Engine
 {
 	const _wstring		g_strTransformTag = TEXT("Com_Transform");
+	const _uint			g_iMaxMeshBones = 512;
 
 	enum MOUSEKEYSTATE { DIMK_LBUTTON, DIMK_RBUTTON, DIMK_WHEEL, DIMK_END };
 	enum MOUSEMOVESTATE { DIMM_X, DIMM_Y, DIMM_WHEEL, DIMM_END };

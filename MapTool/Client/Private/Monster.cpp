@@ -69,6 +69,9 @@ HRESULT CMonster::Render()
 
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
+		if (FAILED(m_pModelCom->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
+			return E_FAIL;
+
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 

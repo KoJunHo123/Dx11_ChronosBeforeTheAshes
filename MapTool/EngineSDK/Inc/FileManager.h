@@ -20,8 +20,12 @@ public:
 		return m_SeparatorDescs.size();
 	}
 
+	void Set_SaveFilePath(_wstring strFilePath) {
+		m_SavePath = strFilePath;
+	}
+
 public:
-	HRESULT Initialize(_wstring pSavePath);
+	HRESULT Initialize();
 	void Add_SaveData(void* pArg, _uint iSize);
 	SEPARATOR_DESC* Get_LoadedData(_uint iIndex);
 	void Clear();
@@ -34,9 +38,10 @@ public:
 private:
 	path m_SavePath = TEXT("");
 	vector<SEPARATOR_DESC*> m_SeparatorDescs;
+	_uint					m_iSaveCount = { 0 };
 
 public:
-	static CFile_Manager* Create(_wstring pSavePath);
+	static CFile_Manager* Create();
 	virtual void Free();
 };
 END
