@@ -53,6 +53,29 @@ CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iInd
 	return (*iter)->Find_Component(strComponentTag);	
 }
 
+HRESULT CLayer::Save_GameObjects(ofstream* pOutFile)
+{
+	for (auto& GameObject : m_GameObjects)
+	{
+		GameObject->Save_Data(pOutFile);
+	}
+
+	return S_OK;
+}
+
+HRESULT CLayer::Load_GameObjects(ifstream* pInFile)
+{
+	return m_GameObjects.back()->Load_Data(pInFile);
+}
+
+void CLayer::Clear()
+{
+	for (auto& pGameObject : m_GameObjects)
+		Safe_Release(pGameObject);
+	m_GameObjects.clear();
+}
+
+
 CLayer * CLayer::Create()
 {
 	return new CLayer();

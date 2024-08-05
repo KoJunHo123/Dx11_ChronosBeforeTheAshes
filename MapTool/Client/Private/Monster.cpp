@@ -25,9 +25,8 @@ HRESULT CMonster::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(&Desc)))
 		return E_FAIL;
 
-	
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, Desc->vPos);
-	m_pTransformCom->Set_Scaled(Desc->vScale.x, Desc->vScale.y, Desc->vScale.z);
+	// m_pTransformCom->Set_Scaled(Desc->vScale.x, Desc->vScale.y, Desc->vScale.z);
 	m_pTransformCom->Rotation(Desc->vRotationAxis, XMConvertToRadians(Desc->fRotationAngle));
 
 	if (FAILED(Ready_Components()))
@@ -38,20 +37,17 @@ HRESULT CMonster::Initialize(void* pArg)
 
 void CMonster::Priority_Update(_float fTimeDelta)
 {
-	int a = 10;
 }
 
 void CMonster::Update(_float fTimeDelta)
 {
-	int a = 10;
+	m_pModelCom->Play_Animation(fTimeDelta);
 }
 
 void CMonster::Late_Update(_float fTimeDelta)
 {
 	/* 직교투영을 위한 월드행렬까지 셋팅하게 된다. */
 	__super::Late_Update(fTimeDelta);
-
-
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
@@ -69,7 +65,7 @@ HRESULT CMonster::Render()
 
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
-		if (FAILED(m_pModelCom->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
+		if (FAILED(m_pModelCom->Bine_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
@@ -85,15 +81,31 @@ HRESULT CMonster::Render()
 	return S_OK;
 }
 
+HRESULT CMonster::Save_Data(ofstream* pOutFile)
+{
+	pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_float4x4));
+
+	return S_OK;
+}
+
+HRESULT CMonster::Load_Data(ifstream* pInFile)
+{
+	_float4x4 WorldMatrix = {};
+	pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_float4x4));
+	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&WorldMatrix));
+
+	return S_OK;
+}
+
 HRESULT CMonster::Ready_Components()
 {
 	/* FOR.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxModel"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxAnimModel"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
 	/* FOR.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 
@@ -112,8 +124,6 @@ CMonster* CMonster::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 
 	return pInstance;
 }
-
-
 
 CGameObject* CMonster::Clone(void* pArg)
 {

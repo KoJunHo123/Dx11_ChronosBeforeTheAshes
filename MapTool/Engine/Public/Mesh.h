@@ -22,13 +22,14 @@ public:
 	}
 
 public:
-	virtual HRESULT Initialize_Prototype(const CModel* pModel, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
+	virtual HRESULT Initialize_Prototype(const CModel* pModel, ifstream* pInfile, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
 
 public:
 	HRESULT Bind_BoneMatrices(const CModel* pModel, class CShader* pShader, const _char* pConstantName);
 
 private:
+	_char				m_szName[MAX_PATH];
 	_uint				m_iMaterialIndex = { 0 };
 
 	_uint				m_iNumBones = { 0 };
@@ -37,14 +38,15 @@ private:
 	vector<_uint>		m_BoneIndices;
 
 	_float4x4			m_BoneMatrices[g_iMaxMeshBones] = {};
+	vector<_float4x4>	m_OffsetMatrices;
 
 private:
-	HRESULT	Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
-	HRESULT	Ready_VertexBuffer_Anim(const CModel* pModel, const aiMesh* pAIMesh);
+	HRESULT	Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransformMatrix);
+	HRESULT	Ready_VertexBuffer_Anim(const CModel* pModel, ifstream* pInfile);
 
 
 public:
-	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CModel* pModel, const aiMesh* pAIMesh, _fmatrix PreTransformMatrix);
+	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CModel* pModel,ifstream* pInfile, _fmatrix PreTransformMatrix);
 	virtual CComponent* Clone(void* pArg);
 	virtual void Free() override;
 };

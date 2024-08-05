@@ -44,6 +44,10 @@ public:
 	HRESULT Add_Prototype(const _wstring& strPrototypeTag, class CGameObject* pPrototype);
 	HRESULT Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, void* pArg = nullptr);
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex = 0);
+	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
+	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
+	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 #pragma endregion
 
 
@@ -84,17 +88,7 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
-#pragma region FILE_MANAGER
-	size_t Get_LoadedDataCount();
-	void Set_SaveFilePath(_wstring strFilePath);
-	void Add_SaveData(void* pArg, _uint iSize);
-	SEPARATOR_DESC* Get_LoadedData(_uint iIndex);
-	void Clear_Separators();
-	// 확장자까지 받아야 함.
-	HRESULT Save_File(_wstring strFileName, _wstring strExt);
-	HRESULT Load_File(_wstring strFileName, _wstring strExt);
 
-#pragma endregion
 
 
 private:
@@ -108,7 +102,6 @@ private:
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
 	class CKeyManager*				m_pKey_Manager = { nullptr };
-	class CFile_Manager*			m_pFile_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

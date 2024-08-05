@@ -20,7 +20,9 @@ public:
 	}
 
 public:
-	HRESULT Initialize(const aiNode* pAIBone);
+	HRESULT Initialize(ifstream* infile);
+	void Update_CombinedTransformationMatrix(const vector<CBone*>& Bones, _fmatrix PreTransformMatrix);
+
 
 private:
 	_char				m_szName[MAX_PATH] = {};
@@ -32,10 +34,11 @@ private:
 	/* m_TransformationMatrix * Parent`s m_CombinedTransformationMatrix */
 	_float4x4			m_CombinedTransformationMatrix = {};
 
+	_int				m_iParentBoneIndex = { 0 };
 
 
 public:
-	static CBone* Create(const aiNode* pAIBone);
+	static CBone* Create(ifstream* infile);
 	virtual void Free() override;
 };
 

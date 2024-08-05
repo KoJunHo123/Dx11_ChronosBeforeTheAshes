@@ -97,11 +97,14 @@
     <Filter Include="01.Utility\99.SuperClass">
       <UniqueIdentifier>{e97e1dd4-2f50-4559-928e-fdb087e05027}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Utility\07.FileManager">
-      <UniqueIdentifier>{fde8dec5-1b73-480f-a256-38756878a674}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Utility\03.Components\Model\Bone">
       <UniqueIdentifier>{f0e69d90-eb26-47ac-b60a-776b15455d41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Model\Animation">
+      <UniqueIdentifier>{be024907-c0b2-4d74-a2fa-7a36a20bc037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Model\Animation\Channel">
+      <UniqueIdentifier>{fca651f5-259a-4ed9-8bb7-94b714fd54a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -192,11 +195,14 @@
     <ClCompile Include="..\Private\KeyManager.cpp">
       <Filter>00.System\01.Device\Input\KeyManager</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\FileManager.cpp">
-      <Filter>01.Utility\07.FileManager</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Bone.cpp">
       <Filter>01.Utility\03.Components\Model\Bone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Animation.cpp">
+      <Filter>01.Utility\03.Components\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Channel.cpp">
+      <Filter>01.Utility\03.Components\Model\Animation\Channel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,11 +305,14 @@
     <ClInclude Include="..\Public\KeyManager.h">
       <Filter>00.System\01.Device\Input\KeyManager</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\FileManager.h">
-      <Filter>01.Utility\07.FileManager</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Bone.h">
       <Filter>01.Utility\03.Components\Model\Bone</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Animation.h">
+      <Filter>01.Utility\03.Components\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Channel.h">
+      <Filter>01.Utility\03.Components\Model\Animation\Channel</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

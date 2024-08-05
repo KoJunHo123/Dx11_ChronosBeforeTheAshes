@@ -40,6 +40,11 @@ VS_OUT VS_MAIN(/*Á¤Á¡*/VS_IN In)
 	return Out;
 }
 
+RasterizerState rsWireframe
+{
+    FillMode = WireFrame;
+};
+
 
 struct PS_IN
 {
@@ -71,6 +76,7 @@ technique11	DefaultTechnique
 	pass Model
 	{
 		VertexShader = compile vs_5_0 VS_MAIN();
+        // SetRasterizerState(rsWireframe);
 		PixelShader = compile ps_5_0 PS_MAIN();
 	}
 }

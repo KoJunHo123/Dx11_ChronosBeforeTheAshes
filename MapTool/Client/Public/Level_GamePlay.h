@@ -34,6 +34,9 @@ private:
 
 	HRESULT Add_Monster(_vector vPos);
 
+	HRESULT Save_Monsters();
+	HRESULT Load_Monsters();
+
 private:
 	// 현재 선택한 객체 인덱스..?
 	_float4 m_vScale = {};

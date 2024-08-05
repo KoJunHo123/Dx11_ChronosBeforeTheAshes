@@ -10,6 +10,7 @@
 
 #include "Monster.h"
 #include "Terrain.h"
+#include "Layer.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -33,8 +34,8 @@ HRESULT CLevel_GamePlay::Initialize()
 	ImGui_ImplDX11_Init(m_pDevice, m_pContext);
 
 	m_vScale = { 1.f, 1.f, 1.f, 0.f };
-	m_vRotationAxis = { 1.f, 0.f, 0.f, 0.f };
-	m_fRotationAngle = { 90.f };
+	m_vRotationAxis = { 0.f, 1.f, 0.f, 0.f };
+	m_fRotationAngle = { 0.f };
 
 	return S_OK;
 }
@@ -78,7 +79,23 @@ HRESULT CLevel_GamePlay::Render()
 		}
 	}
 
+	if (ImGui::Button("Clear"))
+	{
+		m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+	}
 
+	if (ImGui::Button("Save"))
+	{
+		if (FAILED(Save_Monsters()))
+			MSG_BOX(TEXT("Save Failed"));
+	}
+
+	if (ImGui::Button("Load"))
+	{
+		if (FAILED(Load_Monsters()))
+			MSG_BOX(TEXT("Load Failed"));
+
+	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -109,7 +126,6 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 	return S_OK;
 }
 
-
 HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 {
 	CTerrain::TERRAIN_DESC desc{};
@@ -120,8 +136,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Terrain"), &desc)))
 		return E_FAIL;
 
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -150,7 +166,7 @@ HRESULT CLevel_GamePlay::Add_Monster(_vector vPos)
 	CMonster::MONSTER_DESC desc = {};
 
 	desc.vPos = vPos;
-	desc.vScale = m_vScale;
+	// desc.vScale = m_vScale;
 	desc.vRotationAxis = XMLoadFloat4(&m_vRotationAxis);
 	desc.fRotationAngle = m_fRotationAngle;
 	desc.fRotationPerSec = 0.f;
@@ -158,6 +174,42 @@ HRESULT CLevel_GamePlay::Add_Monster(_vector vPos)
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Monster"), &desc)))
 		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Save_Monsters()
+{
+	_char MaterialFilePath[MAX_PATH]{"../Bin/SaveData/Monster.dat"};
+	ofstream outfile(MaterialFilePath, ios::binary);
+
+	if (!outfile.is_open())
+		return E_FAIL;
+	m_pGameInstance->Save_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), &outfile);
+	outfile.close();
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Load_Monsters()
+{
+	m_pGameInstance->Create_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Monster.dat" };
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+	while(true)
+	{
+		Add_Monster(XMVectorSet(0.f, 0.f, 0.f, 0.f));
+		m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), &infile);
+
+		if (infile.fail())
+			break;
+	}
+
+	infile.close();
 
 	return S_OK;
 }
