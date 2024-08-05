@@ -1,28 +1,32 @@
 #include "..\Public\Mesh.h"
-#include "GameInstance.h"
 
-CMesh::CMesh(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
-	: CVIBuffer { pDevice, pContext }
+#include "Model.h"
+#include "Shader.h"
+
+CMesh::CMesh(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+	: CVIBuffer{ pDevice, pContext }
 {
 }
 
-CMesh::CMesh(const CMesh & Prototype)
+CMesh::CMesh(const CMesh& Prototype)
 	: CVIBuffer{ Prototype }
 {
 }
 
-HRESULT CMesh::Initialize_Prototype(CModel::TYPE eType, const aiMesh * pAIMesh, _fmatrix PreTransformMatrix)
+HRESULT CMesh::Initialize_Prototype(const CModel* pModel, ifstream* pInfile, _fmatrix PreTransformMatrix)
 {
-	m_iMaterialIndex = pAIMesh->mMaterialIndex;
+	pInfile->read(reinterpret_cast<char*>(m_szName), sizeof(_char) * MAX_PATH);
+	pInfile->read(reinterpret_cast<char*>(&m_iMaterialIndex), sizeof(_uint));
+	pInfile->read(reinterpret_cast<char*>(&m_iNumVertices), sizeof(_uint));
+	pInfile->read(reinterpret_cast<char*>(&m_iNumIndices), sizeof(_uint));
+
 	m_iNumVertexBuffers = 1;
-	m_iNumVertices = pAIMesh->mNumVertices;
-	m_iNumIndices = pAIMesh->mNumFaces * 3;
 	m_iIndexStride = 4;
 	m_eIndexFormat = DXGI_FORMAT_R32_UINT;
 	m_eTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 #pragma region VERTEX_BUFFER
-	HRESULT hr = eType == CModel::TYPE_NONANIM ? Ready_VertexBuffer_NonAnim(pAIMesh, PreTransformMatrix) : Ready_VertexBuffer_Anim(pAIMesh);
+	HRESULT hr = pModel->Get_ModelType() == CModel::TYPE_NONANIM ? Ready_VertexBuffer_NonAnim(pInfile, PreTransformMatrix) : Ready_VertexBuffer_Anim(pModel, pInfile);
 	if (FAILED(hr))
 		return E_FAIL;
 #pragma endregion
@@ -37,18 +41,16 @@ HRESULT CMesh::Initialize_Prototype(CModel::TYPE eType, const aiMesh * pAIMesh, 
 	m_BufferDesc.MiscFlags = 0;
 	m_BufferDesc.StructureByteStride = m_iIndexStride;
 
-	_uint*		pIndices = new _uint[m_iNumIndices];
+	_uint* pIndices = new _uint[m_iNumIndices];
 	ZeroMemory(pIndices, sizeof(_uint) * m_iNumIndices);
 
 	_uint		iNumIndices = { 0 };
 
-	for (size_t i = 0; i < pAIMesh->mNumFaces; i++)
+	for (size_t i = 0; i < m_iNumIndices / 3; i++)
 	{
-		aiFace		AIFace = pAIMesh->mFaces[i];
-
-		pIndices[iNumIndices++] = AIFace.mIndices[0];
-		pIndices[iNumIndices++] = AIFace.mIndices[1];
-		pIndices[iNumIndices++] = AIFace.mIndices[2];
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -59,62 +61,37 @@ HRESULT CMesh::Initialize_Prototype(CModel::TYPE eType, const aiMesh * pAIMesh, 
 		return E_FAIL;
 
 	Safe_Delete_Array(pIndices);
+
 #pragma endregion
 
 
 	return S_OK;
 }
 
-HRESULT CMesh::Initialize(void * pArg)
+HRESULT CMesh::Initialize(void* pArg)
 {
 	return S_OK;
 }
 
-HRESULT CMesh::Add_Save_NonAnimData()
+HRESULT CMesh::Bind_BoneMatrices(const CModel* pModel, CShader* pShader, const _char* pConstantName)
 {
-	m_pBuffers = new MODEL_BUFFER_DESC[m_iNumVertices];
+	// 일단 행렬들 싹다 초기화
+	ZeroMemory(m_BoneMatrices, sizeof(_float4x4) * g_iMaxMeshBones);
 
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {};
-	HRESULT hr = m_pContext->Map(m_pVB, 0, D3D11_MAP_READ, 0, &MappedResource);
-	if (FAILED(hr)) 
-		return E_FAIL;
-	
-	VTXMESH* pVertices = reinterpret_cast<VTXMESH*>(MappedResource.pData);
-	
-	for (size_t i = 0; i < m_iNumVertices; ++i)
+	// 애님 메쉬 점 찍을 때 저장해둔 뼈의 개수.
+	for (size_t i = 0; i < m_iNumBones; ++i)
 	{
-		// 위치
-		m_pBuffers[i].pX = (_float)pVertices[i].vPosition.x;
-		m_pBuffers[i].pY = (_float)pVertices[i].vPosition.y;
-		m_pBuffers[i].pZ = (_float)pVertices[i].vPosition.z;
-
-		// 법선
-		m_pBuffers[i].nX = (_float)pVertices[i].vNormal.x;
-		m_pBuffers[i].nY = (_float)pVertices[i].vNormal.y;
-		m_pBuffers[i].nZ = (_float)pVertices[i].vNormal.z;
-		
-		// 텍스처 좌표
-		m_pBuffers[i].texX = (_float)pVertices[i].vTexcoord.x;
-		m_pBuffers[i].texY = (_float)pVertices[i].vTexcoord.y;
-
-		// 탄젠트
-		m_pBuffers[i].tanX = (_float)pVertices[i].vTangent.x;
-		m_pBuffers[i].tanY = (_float)pVertices[i].vTangent.y;
-		m_pBuffers[i].tanZ = (_float)pVertices[i].vTangent.z;
+		XMStoreFloat4x4(&m_BoneMatrices[i], XMLoadFloat4x4(&m_OffsetMatrices[i]) * pModel->Get_BoneCombindTransformationMatrix(m_BoneIndices[i]));
 	}
 
-	m_pGameInstance->Add_SaveData(m_pBuffers, m_iNumVertices * sizeof(VTXMESH));
-	m_pGameInstance->Add_SaveData(&m_iMaterialIndex, sizeof(m_iMaterialIndex));
-	m_pGameInstance->Add_SaveData(&m_iNumVertices, sizeof(m_iNumVertices));
-	m_pGameInstance->Add_SaveData(&m_iNumIndices, sizeof(m_iNumIndices));
-
-	return S_OK;
+	return pShader->Bind_Matrices(pConstantName, m_BoneMatrices, m_iNumBones);
 }
 
 
-HRESULT CMesh::Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTransformMatrix)
+HRESULT CMesh::Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransformMatrix)
 {
 	m_iVertexStride = sizeof(VTXMESH);
+
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iVertexStride * m_iNumVertices;
 	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; /* 정적버퍼로 생성한다. */
@@ -129,12 +106,8 @@ HRESULT CMesh::Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTra
 
 	for (size_t i = 0; i < m_iNumVertices; i++)
 	{
-		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));
+		pInfile->read(reinterpret_cast<char*>(&pVertices[i]), sizeof(VTXMESH));
 		XMStoreFloat3(&pVertices[i].vPosition, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vPosition), PreTransformMatrix));
-
-		memcpy(&pVertices[i].vNormal, &pAIMesh->mNormals[i], sizeof(_float3));
-		memcpy(&pVertices[i].vTexcoord, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&pVertices[i].vTangent, &pAIMesh->mTangents[i], sizeof(_float3));
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -149,10 +122,10 @@ HRESULT CMesh::Ready_VertexBuffer_NonAnim(const aiMesh* pAIMesh, _fmatrix PreTra
 	return S_OK;
 }
 
-
-HRESULT CMesh::Ready_VertexBuffer_Anim(const aiMesh* pAIMesh)
+HRESULT CMesh::Ready_VertexBuffer_Anim(const CModel* pModel, ifstream* pInfile)
 {
 	m_iVertexStride = sizeof(VTXANIMMESH);
+
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iVertexStride * m_iNumVertices;
 	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; /* 정적버퍼로 생성한다. */
@@ -165,44 +138,54 @@ HRESULT CMesh::Ready_VertexBuffer_Anim(const aiMesh* pAIMesh)
 	VTXANIMMESH* pVertices = new VTXANIMMESH[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXANIMMESH) * m_iNumVertices);
 
-	// 정점 돌면서 세팅
 	for (size_t i = 0; i < m_iNumVertices; i++)
 	{
-		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));
-		memcpy(&pVertices[i].vNormal, &pAIMesh->mNormals[i], sizeof(_float3));
-		memcpy(&pVertices[i].vTexcoord, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&pVertices[i].vTangent, &pAIMesh->mTangents[i], sizeof(_float3));
+		pInfile->read(reinterpret_cast<char*>(&pVertices[i]), sizeof(VTXANIMMESH));
 	}
 
-	// 뼈 돌면서 세팅
-	m_iNumBones = pAIMesh->mNumBones;
+	/* 모델 전체의 뼈가 아닌 이 메시하나에 영향을 주는 뼈의 갯수. */
+	pInfile->read(reinterpret_cast<char*>(&m_iNumBones), sizeof(_uint));
+	m_OffsetMatrices.resize(m_iNumBones);
 
-	// 뼈를 돌면서
-	for (size_t i = 0; i < m_iNumBones; ++i)
+	for (size_t i = 0; i < m_iNumBones; i++)
 	{
-		aiBone* pAIBone = pAIMesh->mBones[i];
-		// 뼈가 영향을 주는 정점들에 가중치 할당.
-		for (size_t j = 0; j < pAIBone->mNumWeights; ++j)
+		_char szBoneName[MAX_PATH] = {};
+		_uint iNumWeights = { 0 };
+
+		pInfile->read(reinterpret_cast<char*>(&m_OffsetMatrices[i]), sizeof(_float4x4));
+		pInfile->read(reinterpret_cast<char*>(szBoneName), sizeof(_char) * MAX_PATH);
+		pInfile->read(reinterpret_cast<char*>(&iNumWeights), sizeof(_uint));
+
+		m_BoneIndices.emplace_back(pModel->Get_BoneIndex(szBoneName));
+
+		/* 이 뼈는 몇개(mNumWeights) 정점에게 영향을 주는가? */
+		for (size_t j = 0; j < iNumWeights; j++)
 		{
-			if (0.f == pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.x)
+			_uint iVertexID = { 0 };
+			_float fWeight = { 0.f };
+			pInfile->read(reinterpret_cast<char*>(&iVertexID), sizeof(_uint));
+			pInfile->read(reinterpret_cast<char*>(&fWeight), sizeof(_float));
+
+			/* 이 뼈가 영향을 주는 j번째 정점의 인덱스(pAIBone->mWeights[j].mVertexId)*/
+			if (0.f == pVertices[iVertexID].vBlendWeights.x)
 			{
-				pVertices[pAIBone->mWeights->mVertexId].vBlendIndices.x = i;
-				pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.x = pAIBone->mWeights->mWeight;
+				pVertices[iVertexID].vBlendIndices.x = i;
+				pVertices[iVertexID].vBlendWeights.x = fWeight;
 			}
-			else if (0.f == pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.y)
+			else if (0.f == pVertices[iVertexID].vBlendWeights.y)
 			{
-				pVertices[pAIBone->mWeights->mVertexId].vBlendIndices.y= i;
-				pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.y = pAIBone->mWeights->mWeight;
+				pVertices[iVertexID].vBlendIndices.y = i;
+				pVertices[iVertexID].vBlendWeights.y = fWeight;
 			}
-			else if (0.f == pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.z)
+			else if (0.f == pVertices[iVertexID].vBlendWeights.z)
 			{
-				pVertices[pAIBone->mWeights->mVertexId].vBlendIndices.z = i;
-				pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.z= pAIBone->mWeights->mWeight;
+				pVertices[iVertexID].vBlendIndices.z = i;
+				pVertices[iVertexID].vBlendWeights.z = fWeight;
 			}
 			else
 			{
-				pVertices[pAIBone->mWeights->mVertexId].vBlendIndices.w = i;
-				pVertices[pAIBone->mWeights->mVertexId].vBlendWeights.w = pAIBone->mWeights->mWeight;
+				pVertices[iVertexID].vBlendIndices.w = i;
+				pVertices[iVertexID].vBlendWeights.w = fWeight;
 			}
 		}
 	}
@@ -210,6 +193,12 @@ HRESULT CMesh::Ready_VertexBuffer_Anim(const aiMesh* pAIMesh)
 	if (0 == m_iNumBones)
 	{
 		m_iNumBones = 1;
+
+		m_BoneIndices.emplace_back(pModel->Get_BoneIndex(m_szName));
+
+		_float4x4	OffsetMatrix;
+		XMStoreFloat4x4(&OffsetMatrix, XMMatrixIdentity());
+		m_OffsetMatrices.emplace_back(OffsetMatrix);
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -225,11 +214,11 @@ HRESULT CMesh::Ready_VertexBuffer_Anim(const aiMesh* pAIMesh)
 }
 
 
-CMesh * CMesh::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CModel::TYPE eType, const aiMesh * pAIMesh, _fmatrix PreTransformMatrix)
+CMesh* CMesh::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CModel* pModel, ifstream* pInfile, _fmatrix PreTransformMatrix)
 {
-	CMesh*		pInstance = new CMesh(pDevice, pContext);
+	CMesh* pInstance = new CMesh(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pAIMesh, PreTransformMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(pModel, pInfile, PreTransformMatrix)))
 	{
 		MSG_BOX(TEXT("Failed to Created : CMesh"));
 		Safe_Release(pInstance);
@@ -240,9 +229,9 @@ CMesh * CMesh::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CM
 
 
 
-CComponent * CMesh::Clone(void * pArg)
+CComponent* CMesh::Clone(void* pArg)
 {
-	CMesh*		pInstance = new CMesh(*this);
+	CMesh* pInstance = new CMesh(*this);
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{

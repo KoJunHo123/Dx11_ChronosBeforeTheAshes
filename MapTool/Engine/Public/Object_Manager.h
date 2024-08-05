@@ -24,7 +24,13 @@ public:
 	void Clear(_uint iLevelIndex);
 
 public:
+	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex);
+	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+
+	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
+	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
 
 private:
 
@@ -38,7 +44,6 @@ private:
 
 private:
 	class CGameObject* Find_Prototype(const _wstring& strPrototypeTag);
-	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 
 public:
 	static CObject_Manager* Create(_uint iNumLevels);

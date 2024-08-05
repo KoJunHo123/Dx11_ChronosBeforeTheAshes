@@ -23,6 +23,10 @@ public:
 		XMStoreFloat3((_float3*)&m_WorldMatrix.m[eState][0], vState);
 	}
 
+	void Set_WorldMatrix(_matrix WorldMatrix) {
+		XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
+	}
+
 	_vector Get_State(STATE eState) {
 		return XMLoadFloat4x4(&m_WorldMatrix).r[eState];
 	}

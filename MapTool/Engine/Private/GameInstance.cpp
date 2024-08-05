@@ -6,7 +6,6 @@
 #include "Input_Device.h"
 #include "Picking.h"
 #include "KeyManager.h"
-#include "FileManager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -15,8 +14,7 @@ CGameInstance::CGameInstance()
 
 }
 
-HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext,
-	_wstring strSavePath)
+HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext)
 {
 	/* 그래픽 카드를 초기화하낟. */
 	m_pGraphic_Device = CGraphic_Device::Create(EngineDesc.hWnd, EngineDesc.isWindowsed, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY, ppDevice, ppContext);
@@ -64,9 +62,6 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pComponent_Manager)
 		return E_FAIL;
 
-	m_pFile_Manager = CFile_Manager::Create(strSavePath);
-	if (nullptr == m_pFile_Manager)
-		return E_FAIL;
 
 	return S_OK;
 }
@@ -172,6 +167,23 @@ CComponent* CGameInstance::Find_Component(_uint iLevelIndex, const _wstring& str
 	return m_pObject_Manager->Find_Component(iLevelIndex, strLayerTag, strComponentTag, iIndex);
 }
 
+HRESULT CGameInstance::Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	return m_pObject_Manager->Create_Layer(iLevelIndex, strLayerTag);
+}
+
+HRESULT CGameInstance::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile)
+{
+	return m_pObject_Manager->Save_Layer(iLevelIndex, strLayerTag, pOutFile);
+}
+HRESULT CGameInstance::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
+{
+	return m_pObject_Manager->Load_Layer(iLevelIndex, strLayerTag, pInFile);
+}
+void CGameInstance::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	m_pObject_Manager->Clear_Layer(iLevelIndex, strLayerTag);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER
@@ -273,33 +285,6 @@ _bool CGameInstance::Key_Up(int _iKey)
 }
 #pragma endregion
 
-#pragma region FILE_MANAGER
-size_t CGameInstance::Get_LoadedDataCount()
-{
-	return m_pFile_Manager->Get_LoadedDataCount();
-}
-void CGameInstance::Add_SaveData(void* pArg, _uint iSize)
-{
-	return m_pFile_Manager->Add_SaveData(pArg, iSize);
-}
-SEPARATOR_DESC* CGameInstance::Get_LoadedData(_uint iIndex)
-{
-	return m_pFile_Manager->Get_LoadedData(iIndex);
-}
-void CGameInstance::Clear()
-{
-	return m_pFile_Manager->Clear();
-}
-HRESULT CGameInstance::Save_File(_wstring strFileName, _wstring strExt)
-{
-	return m_pFile_Manager->Save_File(strFileName, strExt);
-}
-HRESULT CGameInstance::Load_File(_wstring strFileName, _wstring strExt)
-{
-	return m_pFile_Manager->Load_File(strFileName, strExt);
-}
-#pragma endregion
-
 void CGameInstance::Release_Engine()
 {
 	Safe_Release(m_pPipeLine);
@@ -311,7 +296,6 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pInput_Device);
 	Safe_Release(m_pPicking);
 	Safe_Release(m_pKey_Manager);
-	Safe_Release(m_pFile_Manager);
 	Safe_Release(m_pGraphic_Device);
 
 	CGameInstance::Get_Instance()->Destroy_Instance();

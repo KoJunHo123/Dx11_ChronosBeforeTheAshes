@@ -4,9 +4,9 @@ CFile_Manager::CFile_Manager()
 {
 }
 
-HRESULT CFile_Manager::Initialize(_wstring pSavePath)
+HRESULT CFile_Manager::Initialize()
 {
-    m_SavePath = pSavePath;
+    m_SavePath = TEXT("../Bin/Resources/Models/");
     return S_OK;
 }
 
@@ -29,8 +29,9 @@ SEPARATOR_DESC* CFile_Manager::Get_LoadedData(_uint iIndex)
 
 void CFile_Manager::Clear()
 {
+    m_SavePath = TEXT("../Bin/Resources/Models/");
     for (auto& desc : m_SeparatorDescs)
-        Safe_Release(desc);
+        Safe_Delete(desc);
     m_SeparatorDescs.clear();
 }
 
@@ -67,10 +68,10 @@ HRESULT CFile_Manager::Save_File(_wstring strFileName, _wstring strExt)
     _uint iCount = m_SeparatorDescs.size();
     if (outfile.is_open())
     {
-        outfile.write(reinterpret_cast<const char*>(iCount), sizeof(iCount));
+        outfile.write(reinterpret_cast<const char*>(&iCount), sizeof(iCount));
         for(auto& elem : m_SeparatorDescs)
         {
-            outfile.write(reinterpret_cast<const char*>(&elem->iSize), sizeof(elem->iSize));
+            outfile.write(reinterpret_cast<const char*>(&elem->iSize), sizeof(_uint));
             outfile.write(reinterpret_cast<const char*>(elem->pArg), elem->iSize);
         }
         outfile.close();
@@ -98,10 +99,10 @@ HRESULT CFile_Manager::Load_File(_wstring strFileName , _wstring strExt)
 
     if (infile.is_open())
     {
-        _uint iSaveCount = { 0 };
-        infile.read(reinterpret_cast<char*>(&iSaveCount), sizeof(iSaveCount));
+        infile.seekg(0, ios::beg);
+        infile.read(reinterpret_cast<char*>(&m_iSaveCount), sizeof(m_iSaveCount));
         
-        for(_uint i = 0; i < iSaveCount; ++i)
+        for(_uint i = 0; i < m_iSaveCount; ++i)
         {
             SEPARATOR_DESC* pDesc = new SEPARATOR_DESC;
             
@@ -119,11 +120,11 @@ HRESULT CFile_Manager::Load_File(_wstring strFileName , _wstring strExt)
     return S_OK;
 }
 
-CFile_Manager* CFile_Manager::Create(_wstring pSavePath)
+CFile_Manager* CFile_Manager::Create()
 {
     CFile_Manager* pInstance = new CFile_Manager();
 
-    if (FAILED(pInstance->Initialize(pSavePath)))
+    if (FAILED(pInstance->Initialize()))
     {
         MSG_BOX(TEXT("Failed to Create : CFile_Manager"));
         Safe_Release(pInstance);

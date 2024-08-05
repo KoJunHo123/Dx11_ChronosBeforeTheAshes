@@ -20,6 +20,9 @@ public:
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag, _uint iIndex);
+	HRESULT Save_GameObjects(ofstream* pOutFile);
+	HRESULT Load_GameObjects(ifstream* pInFile);
+	void Clear();
 
 private:
 	list<class CGameObject*>			m_GameObjects;

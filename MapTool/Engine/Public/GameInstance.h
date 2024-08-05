@@ -19,8 +19,7 @@ private:
 	virtual ~CGameInstance() = default;
 
 public:
-	HRESULT Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext,
-		_wstring strSavePath = TEXT("../../Client/Bin/SaveResources/"));
+	HRESULT Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, const ENGINE_DESC& EngineDesc, _Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext);
 	void Update_Engine(_float fTimeDelta);
 	HRESULT Draw_Engine();
 	HRESULT Clear(_uint iLevelIndex);
@@ -45,6 +44,10 @@ public:
 	HRESULT Add_Prototype(const _wstring& strPrototypeTag, class CGameObject* pPrototype);
 	HRESULT Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, void* pArg = nullptr);
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex = 0);
+	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
+	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
+	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 #pragma endregion
 
 
@@ -85,14 +88,8 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
-#pragma region FILE_MANAGER
-	size_t	Get_LoadedDataCount();
-	void	Add_SaveData(void* pArg, _uint iSize);
-	SEPARATOR_DESC*	Get_LoadedData(_uint iIndex);
-	void	Clear();
-	HRESULT Save_File(_wstring strFileName, _wstring strExt);
-	HRESULT Load_File(_wstring strFileName, _wstring strExt);
-#pragma endregion
+
+
 
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
@@ -105,7 +102,6 @@ private:
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
 	class CKeyManager*				m_pKey_Manager = { nullptr };
-	class CFile_Manager*			m_pFile_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

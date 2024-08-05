@@ -66,6 +66,8 @@ HRESULT CObject_Manager::Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstri
 	return S_OK;
 }
 
+
+
 HRESULT CObject_Manager::Priority_Update(_float fTimeDelta)
 {
 	for (size_t i = 0; i < m_iNumLevels; i++)
@@ -119,6 +121,46 @@ CComponent * CObject_Manager::Find_Component(_uint iLevelIndex, const _wstring &
 
 	return pLayer->Find_Component(strComponentTag, iIndex);	
 }
+
+HRESULT CObject_Manager::Create_Layer(_uint iLevelIndex, const _wstring & strLayerTag)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+	{
+		pLayer = CLayer::Create();
+		m_pLayers[iLevelIndex].emplace(strLayerTag, pLayer);
+	}
+
+	return S_OK;
+}
+
+void CObject_Manager::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	pLayer->Clear();
+}
+
+HRESULT CObject_Manager::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+		return E_FAIL;
+
+	pLayer->Save_GameObjects(pOutFile);
+
+	return S_OK;
+}
+
+HRESULT CObject_Manager::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+		return E_FAIL;
+
+	pLayer->Load_GameObjects(pInFile);
+	return S_OK;
+}
+
 
 CGameObject * CObject_Manager::Find_Prototype(const _wstring & strPrototypeTag)
 {

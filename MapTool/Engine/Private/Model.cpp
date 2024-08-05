@@ -1,21 +1,26 @@
 #include "..\Public\Model.h"
 #include "Mesh.h"
+#include "Shader.h"
 #include "Texture.h"
-#include "GameInstance.h"
+#include "Bone.h"
+#include "Animation.h"
 
-
-
-CModel::CModel(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
-	: CComponent { pDevice, pContext }
+CModel::CModel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+	: CComponent{ pDevice, pContext }
 {
 
 }
 
-CModel::CModel(const CModel & Prototype)
+CModel::CModel(const CModel& Prototype)
 	: CComponent{ Prototype }
-	, m_iNumMeshes { Prototype.m_iNumMeshes } 
+	, m_iNumMeshes{ Prototype.m_iNumMeshes }
 	, m_Meshes{ Prototype.m_Meshes }
-	, m_Materials { Prototype.m_Materials}
+	, m_PreTransformMatrix( Prototype.m_PreTransformMatrix )
+	, m_iNumMaterials{ Prototype.m_iNumMaterials }
+	, m_Materials{ Prototype.m_Materials }
+	, m_Bones { Prototype.m_Bones }
+	, m_iNumAnimations {Prototype.m_iNumAnimations}
+	, m_Animations{Prototype.m_Animations}
 {
 	for (auto& Material : m_Materials)
 	{
@@ -23,41 +28,58 @@ CModel::CModel(const CModel & Prototype)
 			Safe_AddRef(pTexture);
 	}
 
-	for (auto& pMesh : m_Meshes)	
+	for (auto& pMesh : m_Meshes)
 		Safe_AddRef(pMesh);
+
+	for (auto& pBone : m_Bones)
+		Safe_AddRef(pBone);
+
+	for (auto& pAnimation : m_Animations)
+		Safe_AddRef(pAnimation);
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const _char * pModelFilePath, _fmatrix PreTransformMatrix)
+_uint CModel::Get_BoneIndex(const _char* pBoneName) const
 {
-	_uint		iFlag = { 0 };
+	_uint iBoneIndex = { 0 };
+	// 이름 비교해서 참 나올때까지 반복문
+	auto iter = find_if(m_Bones.begin(), m_Bones.end(), [&](CBone* pBone)->_bool
+		{
+			if (0 == strcmp(pBone->Get_Name(), pBoneName))
+				return true;
+			++iBoneIndex;
+			return false;
+		});
 
+	return iBoneIndex;
+}
+
+HRESULT CModel::Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix)
+{
 	/* 이전 : 모든 메시가 다 원점을 기준으로 그렺니다. */
 	/* 이후 : 모델을 구성하는 모든 메시들을 각각 정해진 상태(메시를 배치하기위한 뼈대의 위치에 맞춰서)대로 미리 변환해준다.*/
-
-	iFlag = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_Fast;	
-
-	/*aiProcess_GlobalScale*/
-
-	if (eType == TYPE_NONANIM)
-		iFlag |= aiProcess_PreTransformVertices;	
-
-	m_pAIScene = m_Importer.ReadFile(pModelFilePath, iFlag);
-	if (nullptr == m_pAIScene)
-		return E_FAIL;
 
 	XMStoreFloat4x4(&m_PreTransformMatrix, PreTransformMatrix);
 	m_eType = eType;
 
-	if (FAILED(Ready_Meshes()))
-		return E_FAIL;	
+	strcpy_s(m_szModelFilePath, pModelFilePath);
 
-	if (FAILED(Ready_Materials(pModelFilePath)))
+	// 뼈는 무조건 메쉬보다 먼저.
+	if (FAILED(Ready_Bones()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Meshes()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Materials()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Animations()))
 		return E_FAIL;
 
 	return S_OK;
 }
 
-HRESULT CModel::Initialize(void * pArg)
+HRESULT CModel::Initialize(void* pArg)
 {
 
 	return S_OK;
@@ -73,99 +95,71 @@ HRESULT CModel::Render(_uint iMeshIndex)
 
 HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex)
 {
-	// iMeshIndex : 어떤 인덱스에 인데 어차피 다 돌거임.
 	_uint iMaterialIndex = m_Meshes[iMeshIndex]->Get_MaterialIndex();
 
-	// 머테리얼이 가지고 있는 텍스처 중 어떤 텍스처(enum:aiTextureType)를 바인딩 할 지 정해줌.
 	return m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType]->Bind_ShadeResource(pShader, pConstantName, 0);
 }
 
-HRESULT CModel::Save_Meshes_NonAnim(_wstring strFileName)
+HRESULT CModel::Bine_MeshBoneMatrices(CShader* pShader, const _char* pConstantName, _uint iMeshIndex)
 {
-	for (auto& mesh : m_Meshes)
-		mesh->Add_Save_NonAnimData();
-
-	m_pGameInstance->Save_File(strFileName, TEXT("mesh"));
-
-	for (auto& mesh : m_Meshes)
-		mesh->Clear_Buffer();
-
-	return S_OK;
+	return 	m_Meshes[iMeshIndex]->Bind_BoneMatrices(this, pShader, pConstantName);
 }
 
-HRESULT CModel::Load_Meshes_NonAnim(_wstring strFileName)
+void CModel::Play_Animation(_float fTimeDelta)
 {
-	m_pGameInstance->Load_File(strFileName, TEXT("mesh"));
-	for (size_t i = 0; i < m_pGameInstance->Get_LoadedDataCount();)
+	for (auto& Bone : m_Bones)
 	{
-#pragma region 이것도 싹 다 mesh로 옮기자(?)
-		// 아예 Mesh::Create()부터 다시 만들 것.
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 정점 버퍼
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 머테리얼 인덱스
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 버텍스 정점 개수
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-
-		m_pGameInstance->Get_LoadedData(i)->pArg;	// 인덱스 정점 개수
-		m_pGameInstance->Get_LoadedData(i)->iSize;	// 크기
-		++i;
-#pragma endregion
+		Bone->Update_CombinedTransformationMatrix(m_Bones, XMLoadFloat4x4(&m_PreTransformMatrix));
 	}
-
-	return S_OK;
 }
-
-
-HRESULT CModel::Save_Materials()
-{
-	for (auto& material : m_Materials)
-	{
-		material.pMaterialTextures;
-	}
-
-	return S_OK;
-}
-
 
 HRESULT CModel::Ready_Meshes()
 {
-	m_iNumMeshes = m_pAIScene->mNumMeshes;
+	_char MeshFilePath[MAX_PATH]{};
+	strcpy_s(MeshFilePath, m_szModelFilePath);
+	strcat_s(MeshFilePath, ".mesh");
+
+	ifstream infile(MeshFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	infile.read(reinterpret_cast<_char*>(&m_iNumMeshes), sizeof(_uint));
 
 	for (size_t i = 0; i < m_iNumMeshes; i++)
 	{
-		// aiMesh 대신 정점 정보 전달.
-		CMesh*		pMesh = CMesh::Create(m_pDevice, m_pContext, m_eType, m_pAIScene->mMeshes[i], XMLoadFloat4x4(&m_PreTransformMatrix));
+		CMesh* pMesh = CMesh::Create(m_pDevice, m_pContext, this, &infile, XMLoadFloat4x4(&m_PreTransformMatrix));
 		if (nullptr == pMesh)
 			return E_FAIL;
 
 		m_Meshes.emplace_back(pMesh);
 	}
 
+	infile.close();
 	return S_OK;
 }
 
-
-HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
+HRESULT CModel::Ready_Materials()
 {
-#pragma region 경로 얻어오려고 똥꼬쇼 하는 부분
-	m_iNumMaterials = m_pAIScene->mNumMaterials;
+	_char MaterialFilePath[MAX_PATH]{};
+	strcpy_s(MaterialFilePath, m_szModelFilePath);
+	strcat_s(MaterialFilePath, ".material");
+
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	infile.read(reinterpret_cast<char*>(&m_iNumMaterials), sizeof(_uint));
 
 	for (size_t i = 0; i < m_iNumMaterials; i++)
 	{
 		MESH_MATERIAL		MeshMaterial{};
 
-		aiMaterial* pAIMaterial = m_pAIScene->mMaterials[i];
-
 		for (size_t j = 1; j < AI_TEXTURE_TYPE_MAX; j++)
-		{			
+		{
 			// pAIMaterial->GetTextureCount(j);
-			aiString			strTexturePath;
+			_char				strTexturePath[MAX_PATH];
 
 			_char				szDrive[MAX_PATH] = "";
 			_char				szDirectory[MAX_PATH] = "";
@@ -174,11 +168,15 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 
 			_char				szTexturePath[MAX_PATH] = "";
 
-			if (FAILED(pAIMaterial->GetTexture(aiTextureType(j), 0, &strTexturePath)))
+
+			infile.read(reinterpret_cast<_char*>(strTexturePath), sizeof(_char) * MAX_PATH);
+
+			if (0 == strTexturePath[0])
 				continue;
 
-			_splitpath_s(pModelFilePath, szDrive, MAX_PATH, szDirectory, MAX_PATH, nullptr, 0, nullptr, 0);
-			_splitpath_s(strTexturePath.data, nullptr, 0, nullptr, 0, szFileName, MAX_PATH, szExt, MAX_PATH);
+			_splitpath_s(m_szModelFilePath, szDrive, MAX_PATH, szDirectory, MAX_PATH, nullptr, 0, nullptr, 0);
+			_splitpath_s(strTexturePath, nullptr, 0, nullptr, 0, szFileName, MAX_PATH, szExt, MAX_PATH);
+
 
 			strcpy_s(szTexturePath, szDrive);
 			strcat_s(szTexturePath, szDirectory);
@@ -188,9 +186,7 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 			_tchar				szFinalPath[MAX_PATH] = TEXT("");
 
 			MultiByteToWideChar(CP_ACP, 0, szTexturePath, strlen(szTexturePath), szFinalPath, MAX_PATH);
-
-#pragma endregion
-			// 걍 경로 냅다 넣으면 ok임.
+			
 			MeshMaterial.pMaterialTextures[j] = CTexture::Create(m_pDevice, m_pContext, szFinalPath, 1);
 			if (nullptr == MeshMaterial.pMaterialTextures[j])
 				return E_FAIL;
@@ -198,14 +194,65 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath)
 
 		m_Materials.emplace_back(MeshMaterial);
 	}
+	infile.close();
 
 	return S_OK;
 }
 
-
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _char * pModelFilePath, _fmatrix PreTransformMatrix)
+HRESULT CModel::Ready_Bones()
 {
-	CModel*		pInstance = new CModel(pDevice, pContext);
+	_char MaterialFilePath[MAX_PATH]{};
+	strcpy_s(MaterialFilePath, m_szModelFilePath);
+	strcat_s(MaterialFilePath, ".bone");
+
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	// 일단 뼈 만듬.
+	_uint iBoneSize = 0;
+	infile.read(reinterpret_cast<_char*>(&iBoneSize), sizeof(_uint));
+	for (size_t i = 0; i < iBoneSize; ++i)
+	{
+		CBone* pBone = CBone::Create(&infile);
+		if (nullptr == pBone)
+			return E_FAIL;
+
+		m_Bones.emplace_back(pBone);
+	}
+
+	return S_OK;
+}
+
+HRESULT CModel::Ready_Animations()
+{
+	_char MaterialFilePath[MAX_PATH]{};
+	strcpy_s(MaterialFilePath, m_szModelFilePath);
+	strcat_s(MaterialFilePath, ".animation");
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	infile.read(reinterpret_cast<_char*>(&m_iNumAnimations), sizeof(_uint));
+	for (size_t i = 0; i < m_iNumAnimations; i++)
+	{
+		CAnimation* pAnimation = CAnimation::Create(&infile);
+		if (nullptr == pAnimation)
+			return E_FAIL;
+
+		m_Animations.emplace_back(pAnimation);
+	}
+
+	infile.close();
+
+	return S_OK;
+}
+
+CModel* CModel::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix)
+{
+	CModel* pInstance = new CModel(pDevice, pContext);
 
 	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, PreTransformMatrix)))
 	{
@@ -216,9 +263,9 @@ CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, 
 	return pInstance;
 }
 
-CComponent * CModel::Clone(void * pArg)
+CComponent* CModel::Clone(void* pArg)
 {
-	CModel*		pInstance = new CModel(*this);
+	CModel* pInstance = new CModel(*this);
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
@@ -246,4 +293,16 @@ void CModel::Free()
 		Safe_Release(pMesh);
 	}
 	m_Meshes.clear();
+
+	for (auto& pBone : m_Bones)
+	{
+		Safe_Release(pBone);
+	}
+	m_Bones.clear();
+
+	for (auto& pAnimation : m_Animations)
+	{
+		Safe_Release(pAnimation);
+	}
+	m_Animations.clear();
 }

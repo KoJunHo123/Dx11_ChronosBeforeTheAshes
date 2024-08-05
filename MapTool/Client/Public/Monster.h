@@ -34,6 +34,10 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+	virtual HRESULT Save_Data(ofstream* pOutFile) override;
+	virtual HRESULT Load_Data(ifstream* pInFile) override;
+
+
 public:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };

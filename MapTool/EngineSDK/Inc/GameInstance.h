@@ -44,6 +44,10 @@ public:
 	HRESULT Add_Prototype(const _wstring& strPrototypeTag, class CGameObject* pPrototype);
 	HRESULT Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, void* pArg = nullptr);
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex = 0);
+	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
+	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
+	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 #pragma endregion
 
 
@@ -84,6 +88,9 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
+
+
+
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
 	class CInput_Device*			m_pInput_Device = { nullptr };
@@ -94,7 +101,7 @@ private:
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
-	class CKeyManager*				m_pKeyManager = { nullptr };
+	class CKeyManager*				m_pKey_Manager = { nullptr };
 
 public:	
 	void Release_Engine();
