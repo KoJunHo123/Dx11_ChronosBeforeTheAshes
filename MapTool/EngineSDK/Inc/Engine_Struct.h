@@ -20,7 +20,7 @@ namespace Engine
 		XMFLOAT3 vScale;
 		XMFLOAT4 vRotation;
 		XMFLOAT3 vTranslation;
-		float	fTrackPsition;
+		_double	TrackPosition;
 	} KEYFRAME;
 
 	typedef struct ENGINE_DLL
