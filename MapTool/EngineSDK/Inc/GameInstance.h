@@ -23,7 +23,15 @@ public:
 	void Update_Engine(_float fTimeDelta);
 	HRESULT Draw_Engine();
 	HRESULT Clear(_uint iLevelIndex);
-	
+
+	_float Get_Random_Normal() const {
+		return (_float)rand() / RAND_MAX;
+	}
+
+	_float Get_Random(_float fMin, _float fMax) const {
+		return fMin + Get_Random_Normal() * (fMax - fMin);
+	}
+
 #pragma region GRAPHIC_DEVICE
 public:
 	void Render_Begin();

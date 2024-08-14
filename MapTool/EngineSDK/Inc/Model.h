@@ -36,18 +36,27 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
+	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false) {
+		m_iNextAnimIndex = iAnimationIndex;
+		m_isLoop = isLoop;
+		XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
+	}
+
+	_bool Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged);
+
+
+public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
 	HRESULT Bine_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex);
 
-	void Play_Animation(_float fTimeDelta);
 
 private:
 	TYPE							m_eType = { TYPE_END };
 
 private: /* 메시의 정보를 저장한다. */
 	_uint							m_iNumMeshes = { 0 };
-	vector<class CMesh*>			m_Meshes;
 	_float4x4						m_PreTransformMatrix = {};
+	vector<class CMesh*>			m_Meshes;
 
 private:
 	_uint							m_iNumMaterials = { 0 };
@@ -57,11 +66,17 @@ private:
 	vector<class CBone*>			m_Bones;
 
 private:
+	_bool							m_isLoop = { false };
+	
+	_uint							m_iCurrentAnimIndex = { 0 };
+	_uint							m_iNextAnimIndex = { 0 };
 	_uint							m_iNumAnimations = { 0 };
 	vector<class CAnimation*>		m_Animations;
 
 private:
 	_char m_szModelFilePath[MAX_PATH] = {};
+	_float4 m_vTranslationChange = {};
+
 
 private:
 	HRESULT	Ready_Meshes();
