@@ -8,7 +8,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Model.h"
-
+#include "FSM.h"
 
 
 /* 컴포넌트의 원형을 레벨별로 보관한다. */

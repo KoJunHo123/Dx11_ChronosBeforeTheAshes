@@ -25,13 +25,9 @@ HRESULT CMonster::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(&Desc)))
 		return E_FAIL;
 
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, Desc->vPos);
-	m_pTransformCom->Set_Scaled(Desc->vScale.x, Desc->vScale.y, Desc->vScale.z);
-	m_pTransformCom->Rotation(Desc->vRotationAxis, XMConvertToRadians(Desc->fRotationAngle));
-
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
-	//m_iCurrentAnimationIndex = (_uint)m_pGameInstance->Get_Random(0.f, 20.f);
+
 	m_iCurrentAnimationIndex = 34;
 	m_pModelCom->SetUp_Animation(m_iCurrentAnimationIndex, false);
 
@@ -40,14 +36,7 @@ HRESULT CMonster::Initialize(void* pArg)
 
 void CMonster::Priority_Update(_float fTimeDelta)
 {
-	if (m_pGameInstance->Key_Down(VK_RIGHT))
-		m_pModelCom->SetUp_Animation(++m_iCurrentAnimationIndex, false);
 
-	if (m_pGameInstance->Key_Down(VK_LEFT))
-	{
-		if(0 < m_iCurrentAnimationIndex)
-			m_pModelCom->SetUp_Animation(--m_iCurrentAnimationIndex, false);
-	}
 }
 
 void CMonster::Update(_float fTimeDelta)
@@ -78,7 +67,7 @@ HRESULT CMonster::Render()
 
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
-		if (FAILED(m_pModelCom->Bine_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
+		if (FAILED(m_pModelCom->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
@@ -94,18 +83,13 @@ HRESULT CMonster::Render()
 	return S_OK;
 }
 
-HRESULT CMonster::Save_Data(ofstream* pOutFile)
-{
-	pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_float4x4));
-
-	return S_OK;
-}
 
 HRESULT CMonster::Load_Data(ifstream* pInFile)
 {
-	_float4x4 WorldMatrix = {};
-	pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_float4x4));
-	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&WorldMatrix));
+	_matrix WorldMatrix = {};
+	if (!pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_matrix)))
+		return E_FAIL;
+	m_pTransformCom->Set_WorldMatrix(WorldMatrix);
 
 	return S_OK;
 }

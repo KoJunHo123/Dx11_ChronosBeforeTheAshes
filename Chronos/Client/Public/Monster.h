@@ -9,7 +9,6 @@ class CModel;
 END
 
 BEGIN(Client)
-
 class CMonster final : public CGameObject
 {
 public:
@@ -34,7 +33,6 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-	virtual HRESULT Save_Data(ofstream* pOutFile) override;
 	virtual HRESULT Load_Data(ifstream* pInFile) override;
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <process.h>
+#include "Client_Enum.h"
 
 namespace Client
 {

@@ -43,14 +43,32 @@
     <Filter Include="02.GameObjects\02.Labyrinth">
       <UniqueIdentifier>{0083e25f-5f57-4f81-8604-c0d79a304e39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ImGui">
-      <UniqueIdentifier>{1d2ddf69-8812-4d12-96dd-65023810af16}</UniqueIdentifier>
+    <Filter Include="02.GameObjects\03.Player">
+      <UniqueIdentifier>{2d8b8844-068e-4f05-87b9-423e449a3382}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\03.Monster">
+    <Filter Include="02.GameObjects\04.Monster">
       <UniqueIdentifier>{936de04e-9d12-4455-945f-796fe6d8d862}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\04.Player">
-      <UniqueIdentifier>{2d8b8844-068e-4f05-87b9-423e449a3382}</UniqueIdentifier>
+    <Filter Include="02.GameObjects\03.Player\Player_State">
+      <UniqueIdentifier>{6e5f7819-5ed8-47bc-9c8c-1b8f5b6caa10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Attack">
+      <UniqueIdentifier>{6336888e-a3ca-4858-b204-33214ff894fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Move">
+      <UniqueIdentifier>{144458ad-8706-4f9f-8914-c1dc8edcb0ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Block">
+      <UniqueIdentifier>{c9bdc206-78c2-4f39-a558-aecbc47be9b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Jump">
+      <UniqueIdentifier>{d5e509d9-f22d-42c1-a755-6e7d5001e55e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Action">
+      <UniqueIdentifier>{6b9a920e-5470-4485-ac5d-40bf8d161507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Impact">
+      <UniqueIdentifier>{e72ecd44-5525-4600-ad12-52981c648867}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -96,35 +114,35 @@
     <ClInclude Include="..\Public\Labyrinth.h">
       <Filter>02.GameObjects\02.Labyrinth</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imconfig.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imgui.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imgui_impl_dx11.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imgui_impl_win32.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imgui_internal.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imstb_textedit.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\ImGui\imstb_truetype.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Monster.h">
-      <Filter>02.GameObjects\03.Monster</Filter>
+      <Filter>02.GameObjects\04.Monster</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Player.h">
-      <Filter>02.GameObjects\04.Player</Filter>
+      <Filter>02.GameObjects\03.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Client_Enum.h">
+      <Filter>99.Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_State.h">
+      <Filter>02.GameObjects\03.Player\Player_State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Attack.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Move.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Move</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Block.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Block</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Jump.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Action.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Action</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Impact.h">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Impact</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,32 +179,32 @@
     <ClCompile Include="..\Private\Labyrinth.cpp">
       <Filter>02.GameObjects\02.Labyrinth</Filter>
     </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_impl_dx11.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_impl_win32.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Public\ImGui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Monster.cpp">
-      <Filter>02.GameObjects\03.Monster</Filter>
+      <Filter>02.GameObjects\04.Monster</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Player.cpp">
-      <Filter>02.GameObjects\04.Player</Filter>
+      <Filter>02.GameObjects\03.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_State.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Attack.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Move.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Move</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Block.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Block</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Jump.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Jump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Action.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Action</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Impact.cpp">
+      <Filter>02.GameObjects\03.Player\Player_State\Player_Impact</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

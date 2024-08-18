@@ -13,7 +13,6 @@ unsigned int CBase::Release()
 {
 	if (0 == m_iRefCnt)
 	{
-		int a = 10;
 		Free();
 
 		delete this;

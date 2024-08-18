@@ -2,6 +2,12 @@
 #include "Player.h"
 #include "GameInstance.h"
 
+#include "Player_Action.h"
+#include "Player_Attack.h"
+#include "Player_Block.h"
+#include "Player_Impact.h"
+#include "Player_Jump.h"
+#include "Player_Move.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CGameObject{ pDevice, pContext }
@@ -9,7 +15,7 @@ CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 }
 
 CPlayer::CPlayer(const CPlayer& Prototype)
-    : CGameObject{ Prototype }
+    : CGameObject( Prototype )
 {
 }
 
@@ -23,94 +29,56 @@ HRESULT CPlayer::Initialize(void* pArg)
     PLAYER_DESC* Desc = static_cast<PLAYER_DESC*>(pArg);
 
     /* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
-    if (FAILED(__super::Initialize(&Desc)))
+    if (FAILED(__super::Initialize(Desc)))
         return E_FAIL;
-
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, Desc->vPos);
-    m_pTransformCom->Set_Scaled(Desc->vScale.x, Desc->vScale.y, Desc->vScale.z);
-    m_pTransformCom->Rotation(Desc->vRotationAxis, XMConvertToRadians(Desc->fRotationAngle));
 
     if (FAILED(Ready_Components()))
         return E_FAIL;
-    m_iCurrentAnimationIndex = 34;
-    m_pModelCom->SetUp_Animation(m_iCurrentAnimationIndex, false);
+
+    if (FAILED(Ready_States()))
+        return E_FAIL;
+
+    m_pFSM->Set_State(STATE_MOVE);
+
+    m_fSpeed = 3.f;
 
     return S_OK;
 }
 
 void CPlayer::Priority_Update(_float fTimeDelta)
 {
-    if (m_pGameInstance->Key_Down(VK_RIGHT))
-        m_pModelCom->SetUp_Animation(++m_iCurrentAnimationIndex, false);
-
-    if (m_pGameInstance->Key_Down(VK_LEFT))
-    {
-        if (0 < m_iCurrentAnimationIndex)
-            m_pModelCom->SetUp_Animation(--m_iCurrentAnimationIndex, false);
-    }
-
+    m_pFSM->Priority_Update(fTimeDelta);
 }
 
 void CPlayer::Update(_float fTimeDelta)
 {
-    _vector vStateChange{};
-    m_pModelCom->Play_Animation(fTimeDelta, vStateChange);
+    m_pFSM->Update(fTimeDelta);
 
-    vStateChange = Get_Rotation(m_pTransformCom->Get_WorldMatrix(), vStateChange);
+    if (m_pGameInstance->Key_Pressing('T'))
+        m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * 0.05f);
 
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + vStateChange);
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {	
-    /* 직교투영을 위한 월드행렬까지 셋팅하게 된다. */
-    __super::Late_Update(fTimeDelta);
+    m_pFSM->Late_Update(fTimeDelta);
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
 HRESULT CPlayer::Render()
 {
-    if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
+    if (FAILED(m_pFSM->Render()))
         return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
-        return E_FAIL;
-
-    _uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
-
-    for (size_t i = 0; i < iNumMeshes; i++)
-    {
-        if (FAILED(m_pModelCom->Bine_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))
-            return E_FAIL;
-
-        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
-            return E_FAIL;
-
-        if (FAILED(m_pShaderCom->Begin(0)))
-            return E_FAIL;
-
-        if (FAILED(m_pModelCom->Render(i)))
-            return E_FAIL;
-    }
-
     return S_OK;
 }
 
-HRESULT CPlayer::Save_Data(ofstream* pOutFile)
-{
-    pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_float4x4));
-
-    return S_OK;
-}
 
 HRESULT CPlayer::Load_Data(ifstream* pInFile)
 {
-    _float4x4 WorldMatrix = {};
-    pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_float4x4));
-    m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&WorldMatrix));
-
+    _matrix WorldMatrix = {};
+    if (false == (_bool)pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_matrix)))
+        return E_FAIL;
+    m_pTransformCom->Set_WorldMatrix(WorldMatrix);
 
     return S_OK;
 }
@@ -127,32 +95,37 @@ HRESULT CPlayer::Ready_Components()
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
         return E_FAIL;
 
+    /* FOR.Com_FSM */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_FSM"),
+        TEXT("Com_FSM"), reinterpret_cast<CComponent**>(&m_pFSM))))
+        return E_FAIL;
+
     return S_OK;
 }
 
-_vector CPlayer::Get_Rotation(_matrix WorldMatrix, _vector vExist)
+HRESULT CPlayer::Ready_States()
 {
-    _vector vScale, vRotationQuat, vTranslation;
-    XMMatrixDecompose(&vScale, &vRotationQuat, &vTranslation, WorldMatrix);
+    CPlayer_State::PLAYER_STATE_DESC desc{};
+    desc.pFSM = m_pFSM;
+    desc.pModelCom = m_pModelCom;
+    desc.pShaderCom = m_pShaderCom;
+    desc.pTransformCom = m_pTransformCom;
+    desc.pSpeed = &m_fSpeed;
+    
+    if(FAILED(m_pFSM->Add_State(CPlayer_Move::Create(&desc))))
+        return E_FAIL;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&desc))))
+        return E_FAIL;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Jump::Create(&desc))))
+        return E_FAIL;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Block::Create(&desc))))
+        return E_FAIL;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Impact::Create(&desc))))
+        return E_FAIL;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&desc))))
+        return E_FAIL;
 
-    // 1번 방법
-    // 회전 행렬 생성 (쿼터니언을 회전 행렬로 변환)
-    XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(vRotationQuat);
-    // 회전 행렬을 벡터 v에 적용
-    return XMVector3TransformNormal(vExist, rotationMatrix);
-
-    // 2번 방법 : 이거 뭔가 이상하게 됨.
-    //// 쿼터니언의 역수 계산
-    //_vector qInverse = XMQuaternionInverse(vRotationQuat);
-
-    //// v를 쿼터니언으로 변환 (w=0, x, y, z = 벡터 값)
-    //_vector vQuat = XMVectorSet(XMVectorGetX(vExist), XMVectorGetY(vExist), XMVectorGetZ(vExist), 0.0f);
-
-    //// 회전 적용: v' = q * v * q^-1
-    //_vector rotatedVQuat = XMQuaternionMultiply(XMQuaternionMultiply(vRotationQuat, vQuat), qInverse);
-
-    //// 회전된 벡터 추출 (x, y, z)
-    //return XMVectorSet(XMVectorGetX(rotatedVQuat), XMVectorGetY(rotatedVQuat), XMVectorGetZ(rotatedVQuat), 0.0f);
+    return S_OK;
 }
 
 CPlayer* CPlayer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -187,4 +160,6 @@ void CPlayer::Free()
 
     Safe_Release(m_pModelCom);
     Safe_Release(m_pShaderCom);
+    Safe_Release(m_pFSM);
+
 }

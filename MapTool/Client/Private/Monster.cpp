@@ -96,16 +96,17 @@ HRESULT CMonster::Render()
 
 HRESULT CMonster::Save_Data(ofstream* pOutFile)
 {
-	pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_float4x4));
+	pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_matrix));
 
 	return S_OK;
 }
 
 HRESULT CMonster::Load_Data(ifstream* pInFile)
 {
-	_float4x4 WorldMatrix = {};
-	pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_float4x4));
-	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&WorldMatrix));
+	_matrix WorldMatrix = {};
+	if(!pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_matrix)))
+		return E_FAIL;
+	m_pTransformCom->Set_WorldMatrix(WorldMatrix);
 
 	return S_OK;
 }

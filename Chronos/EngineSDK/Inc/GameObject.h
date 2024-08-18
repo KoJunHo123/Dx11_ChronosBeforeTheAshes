@@ -40,7 +40,7 @@ protected:
 	class CTransform*			m_pTransformCom = { nullptr };
 	class CGameInstance*		m_pGameInstance = { nullptr };
 
-
+	_bool	m_isCloned = { false };
 
 protected:
 	map<const _wstring, class CComponent*>			m_Components;
