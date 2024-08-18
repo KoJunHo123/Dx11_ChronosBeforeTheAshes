@@ -39,16 +39,21 @@ public:
 	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false) {
 		m_iNextAnimIndex = iAnimationIndex;
 		m_isLoop = isLoop;
-		XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
+		// 딱 변경될 때 한번만.
 	}
-
+	_uint Get_KeyFrameIndex();
+	_uint Get_CuttenrAnimIndex() {
+		return m_iCurrentAnimIndex;
+	}
 	_bool Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged);
-
+	_bool Change_Animation(_float fTimeDelta, _vector& vRootBoneChanged, _float& m_fChangeRate);
 
 public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
-	HRESULT Bine_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex);
+	HRESULT Bind_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex);
 
+private:
+	void Update_CombinedTransformationMatrix(_vector& vRootBoneChanged);
 
 private:
 	TYPE							m_eType = { TYPE_END };
@@ -76,7 +81,7 @@ private:
 private:
 	_char m_szModelFilePath[MAX_PATH] = {};
 	_float4 m_vTranslationChange = {};
-
+	_bool m_isChangeStart = { false };
 
 private:
 	HRESULT	Ready_Meshes();

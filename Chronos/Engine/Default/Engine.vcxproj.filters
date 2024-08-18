@@ -106,6 +106,18 @@
     <Filter Include="01.Utility\03.Components\Model\Animation\Channel">
       <UniqueIdentifier>{fca651f5-259a-4ed9-8bb7-94b714fd54a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="00.System\01.Device\Sound">
+      <UniqueIdentifier>{e8dafeb2-4e10-4341-998a-addd27148d4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.System\01.Device\Sound\SoundManager">
+      <UniqueIdentifier>{ba379854-ce84-443e-9c26-7a12b296c633}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\FSM">
+      <UniqueIdentifier>{7c555e94-5ffe-4543-8ab0-ebcc80cd044a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\FSM\State">
+      <UniqueIdentifier>{d9639c7e-ce68-4b1f-842a-2ea984ddf8bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -203,6 +215,15 @@
     </ClCompile>
     <ClCompile Include="..\private\Channel.cpp">
       <Filter>01.Utility\03.Components\Model\Animation\Channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\FSM.cpp">
+      <Filter>01.Utility\03.Components\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\State.cpp">
+      <Filter>01.Utility\03.Components\FSM\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sound_Manager.cpp">
+      <Filter>00.System\01.Device\Sound\SoundManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -313,6 +334,15 @@
     </ClInclude>
     <ClInclude Include="..\public\Channel.h">
       <Filter>01.Utility\03.Components\Model\Animation\Channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\FSM.h">
+      <Filter>01.Utility\03.Components\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\State.h">
+      <Filter>01.Utility\03.Components\FSM\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sound_Manager.h">
+      <Filter>00.System\01.Device\Sound\SoundManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

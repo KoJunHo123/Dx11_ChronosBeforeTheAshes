@@ -27,44 +27,40 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	if (FAILED(__super::Initialize(pDesc)))
 		return E_FAIL;
 
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 10.f, 100.f, 1.f));
+	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
+	Safe_AddRef(m_pPlayerTransformCom);
+
+
+	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+	vCameraPos += XMVectorSet(0.f, 10.f, -10.f, 0.f);
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos);
 
 	return S_OK;
 }
 
 void CFreeCamera::Priority_Update(_float fTimeDelta)
 {
-	if (m_pGameInstance->Get_DIKeyState(DIK_W) & 0x80)
-		m_pTransformCom->Go_Straight(fTimeDelta);
-	if (m_pGameInstance->Get_DIKeyState(DIK_S) & 0x80)
-		m_pTransformCom->Go_Backward(fTimeDelta);
-	if (m_pGameInstance->Get_DIKeyState(DIK_A) & 0x80)
-		m_pTransformCom->Go_Left(fTimeDelta);
-	if (m_pGameInstance->Get_DIKeyState(DIK_D) & 0x80)
-		m_pTransformCom->Go_Right(fTimeDelta);
-
-	if (m_pGameInstance->Get_DIKeyState(DIK_SPACE) & 0x80)
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 15.f * fTimeDelta, 0.f, 0.f));
-
-	if (m_pGameInstance->Get_DIKeyState(DIK_LCONTROL) & 0x80)
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) - XMVectorSet(0.f, 15.f * fTimeDelta, 0.f, 0.f));
-
-
 	_long		MouseMove = { 0 };
-
-
-	if(m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
+		
+	/*if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
 	{
-		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
-		{
-			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * m_fSensor);
-		}
+		m_fAngle += (_float)MouseMove * 0.1f;
+		m_pTransformCom->Orbit(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 15.f,
+			XMConvertToRadians(m_fAngle), XMVectorSet(0.f, 1.f, 0.f, 0.f));
+	}*/
 
-		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
-		{
-			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * m_fSensor);
-		}
-	}
+	//if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
+	//{
+	//	m_fAngle += (_float)MouseMove * 0.1f;
+	//	m_pTransformCom->Orbit(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 15.f,
+	//		XMConvertToRadians(m_fAngle), m_pTransformCom->Get_State(CTransform::STATE_RIGHT));
+	//}
+
+
+	Camera_Move();
+
+	//Cursor_To_Center();
+
 
 	__super::Priority_Update(fTimeDelta);
 }
@@ -80,6 +76,22 @@ void CFreeCamera::Late_Update(_float fTimeDelta)
 HRESULT CFreeCamera::Render()
 {
 	return S_OK;
+}
+
+void CFreeCamera::Cursor_To_Center()
+{
+	POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
+	ClientToScreen(g_hWnd, &pt);
+	SetCursorPos(pt.x, pt.y);
+}
+
+void CFreeCamera::Camera_Move()
+{
+	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+	vCameraPos += XMVectorSet(0.f, 20.f, -20.f, 0.f);
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos);
+
+	m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 }
 
 CFreeCamera * CFreeCamera::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
@@ -113,5 +125,6 @@ CGameObject * CFreeCamera::Clone(void * pArg)
 void CFreeCamera::Free()
 {
 	__super::Free();
-
+	Safe_Release(m_pPlayerTransformCom);
+	Safe_Release(m_pTargetTransformCom);
 }

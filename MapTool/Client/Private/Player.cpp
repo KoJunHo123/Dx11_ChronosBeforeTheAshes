@@ -32,7 +32,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     if (FAILED(Ready_Components()))
         return E_FAIL;
-    m_iCurrentAnimationIndex = 34;
+    m_iCurrentAnimationIndex = 46;
     m_pModelCom->SetUp_Animation(m_iCurrentAnimationIndex, false);
 
     return S_OK;
@@ -100,16 +100,17 @@ HRESULT CPlayer::Render()
 
 HRESULT CPlayer::Save_Data(ofstream* pOutFile)
 {
-    pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_float4x4));
+    pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_matrix));
 
     return S_OK;
 }
 
 HRESULT CPlayer::Load_Data(ifstream* pInFile)
 {
-    _float4x4 WorldMatrix = {};
-    pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_float4x4));
-    m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&WorldMatrix));
+    _matrix WorldMatrix = {};
+    if(false == (_bool)pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_matrix)))
+        return E_FAIL;
+    m_pTransformCom->Set_WorldMatrix(WorldMatrix);
 
 
     return S_OK;

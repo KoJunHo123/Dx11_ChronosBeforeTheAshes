@@ -184,6 +184,10 @@ void CGameInstance::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
 {
 	m_pObject_Manager->Clear_Layer(iLevelIndex, strLayerTag);
 }
+void CGameInstance::Release_Object(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	m_pObject_Manager->Release_Object(iLevelIndex, strLayerTag);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER

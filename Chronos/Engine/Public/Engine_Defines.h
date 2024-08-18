@@ -1,5 +1,8 @@
 #pragma once
 
+#define OBJ_NOEVENT     0
+#define OBJ_DEAD        1
+
 #define VK_MAX	0xff
 #define OFFSET	0x0000
 
@@ -32,7 +35,8 @@ using namespace DirectX;
 #include <vector>
 #include <algorithm>
 #include <string>
-
+#include <iostream>
+#include <io.h>
 
 using namespace std;
 
@@ -80,6 +84,9 @@ namespace Engine
 
 using namespace Engine;
 
+#include "fmod.hpp"
+
+using namespace FMOD;
 
 
 #ifdef _DEBUG

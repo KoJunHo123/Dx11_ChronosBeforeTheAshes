@@ -68,6 +68,15 @@ HRESULT CLayer::Load_GameObjects(ifstream* pInFile)
 	return m_GameObjects.back()->Load_Data(pInFile);
 }
 
+void CLayer::Release_Object()
+{
+	if (true == m_GameObjects.empty())
+		return;
+
+	Safe_Release(m_GameObjects.back());
+	m_GameObjects.pop_back();
+}
+
 void CLayer::Clear()
 {
 	for (auto& pGameObject : m_GameObjects)

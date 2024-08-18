@@ -26,30 +26,33 @@ _bool CKeyManager::Key_Down(int _iKey)
     if ((!m_bKeyState[_iKey]) && (GetAsyncKeyState(_iKey) & 0x8000))
     {
         m_bKeyState[_iKey] = !m_bKeyState[_iKey];
+
         return true;
     }
     else
     {
-        m_bKeyState[_iKey] = GetAsyncKeyState(_iKey);
+        // key 상태 복원
+        for (int i = 0; i < VK_MAX; ++i)
+        {
+            if ((m_bKeyState[i]) && !(GetAsyncKeyState(i) & 0x8000))
+                m_bKeyState[i] = !m_bKeyState[i];
+        }
     }
+
     return false;
 }
 
 _bool CKeyManager::Key_Up(int _iKey)
 {
     // 이전에 눌린 적이 있고, 현재는 눌리지 않은 상태
-
     if ((m_bKeyState[_iKey]) && !(GetAsyncKeyState(_iKey) & 0x8000))
     {
-        m_bKeyState[_iKey] = !m_bKeyState[_iKey];
+        m_bKeyState[_iKey] = false;
         return true;
     }
-
-    // key 상태 복원
-    for (int i = 0; i < VK_MAX; ++i)
+    else
     {
-        if ((!m_bKeyState[i]) && (GetAsyncKeyState(_iKey) & 0x8000))
-            m_bKeyState[i] = !m_bKeyState[i];
+        m_bKeyState[_iKey] = GetAsyncKeyState(_iKey);
     }
 
     return false;

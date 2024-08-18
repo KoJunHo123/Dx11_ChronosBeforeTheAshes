@@ -65,7 +65,21 @@ HRESULT CLayer::Save_GameObjects(ofstream* pOutFile)
 
 HRESULT CLayer::Load_GameObjects(ifstream* pInFile)
 {
-	return m_GameObjects.back()->Load_Data(pInFile);
+	if (FAILED(m_GameObjects.back()->Load_Data(pInFile)))
+	{
+		Release_Object();
+		return E_FAIL;
+	}
+	return S_OK;
+}
+
+void CLayer::Release_Object()
+{
+	if (true == m_GameObjects.empty())
+		return;
+
+	Safe_Release(m_GameObjects.back());
+	m_GameObjects.pop_back();
 }
 
 void CLayer::Clear()

@@ -141,6 +141,15 @@ void CObject_Manager::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag
 		pLayer->Clear();
 }
 
+void CObject_Manager::Release_Object(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+		return;
+
+	pLayer->Release_Object();
+}
+
 HRESULT CObject_Manager::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile)
 {
 	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
@@ -158,8 +167,7 @@ HRESULT CObject_Manager::Load_Layer(_uint iLevelIndex, const _wstring& strLayerT
 	if (nullptr == pLayer)
 		return E_FAIL;
 
-	pLayer->Load_GameObjects(pInFile);
-	return S_OK;
+	return pLayer->Load_GameObjects(pInFile);
 }
 
 

@@ -18,6 +18,14 @@ public:
 		return m_iBoneIndex;
 	}
 
+	_uint Get_KeyFrameSize() {
+		return (_uint)m_KeyFrames.size();
+	}
+
+	_float Get_Ratio() {
+		return (_float)m_Ratio;
+	}
+
 private:
 	_char m_szName[MAX_PATH] = {};
 
@@ -25,6 +33,7 @@ private:
 	_uint m_iBoneIndex = { 0 };
 	vector<KEYFRAME> m_KeyFrames;
 
+	_double m_Ratio = { 0.f };
 
 public:
 	static CChannel* Create(ifstream* infile, const class CModel* pModel);

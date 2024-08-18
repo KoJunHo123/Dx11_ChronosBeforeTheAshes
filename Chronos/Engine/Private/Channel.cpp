@@ -73,9 +73,6 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 
 _bool CChannel::Update_ChangeChannel(CChannel* pChannel, const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition)
 {
-	if (0.0 == CurrentTrackPosition)
-		*pCurrentKeyFrameIndex = 0;
-
 	_vector vScale{}, vRotation{}, vTranslation{};
 
 	_vector vSourScale = XMLoadFloat3(&m_KeyFrames[*pCurrentKeyFrameIndex].vScale);
@@ -89,24 +86,26 @@ _bool CChannel::Update_ChangeChannel(CChannel* pChannel, const vector<class CBon
 
 	// 몇 개의 키프레임을 걸쳐서 보간할 것인가?
 	_double InterFrame = 5.;
-	// 현재 키프레임과 다음 키프레임 사이의 현재 프레임의 비율 구하기
-	_double		Ratio = (CurrentTrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition) / InterFrame;
+
+	// 현재 키프레임과 다음 키프레임 사이의 현재 프레 임의 비율 구하기
+	m_Ratio = (CurrentTrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition) / InterFrame;
 
 	// 보간 해주는 함수
-	vScale = XMVectorLerp(vSourScale, vDestScale, (_float)Ratio);
+	vScale = XMVectorLerp(vSourScale, vDestScale, (_float)m_Ratio);
 	// 쿼터니언 보간 해주는 함수
-	vRotation = XMQuaternionSlerp(vSourRotation, vDestRotation, (_float)Ratio);
+	vRotation = XMQuaternionSlerp(vSourRotation, vDestRotation, (_float)m_Ratio);
 	if (1 == m_iBoneIndex)
 		vTranslation = vDestRotation;
 	else 
-		vTranslation = XMVectorLerp(vSourTranslation, vDestTranslation, (_float)Ratio);
+		vTranslation = XMVectorLerp(vSourTranslation, vDestTranslation, (_float)m_Ratio);
 
 	_matrix TransformationMatrix = XMMatrixAffineTransformation(vScale, XMVectorSet(0.f, 0.f, 0.f, 1.f), vRotation, vTranslation);
+
 
 	// 이렇게 만든 뼈의 행렬을 해당하는 인덱스를 통해 넣어줌.
 	Bones[m_iBoneIndex]->Set_TransformationMatrix(TransformationMatrix);
 
-	if (Ratio > 1.)
+	if (m_Ratio > 1.)
 		return true;
 
 	return false;
@@ -131,3 +130,4 @@ void CChannel::Free()
 {
 	__super::Free();
 }
+

@@ -47,13 +47,20 @@ public:
 	
 public:
 	void Set_Scaled(_float fX, _float fY, _float fZ);
+
 	void LookAt(_fvector vAt);
+	void LookDir(_fvector vDir);
+
 	void Go_Straight(_float fTimeDelta);
 	void Go_Backward(_float fTimeDelta);
 	void Go_Left(_float fTimeDelta);
 	void Go_Right(_float fTimeDelta);
+
+	void Orbit(_vector vCenter, _float fDistance, _float fAngle, _vector vAxis);
+
 	void Turn(_fvector vAxis, _float fTimeDelta);	
 	void Turn(_float fX, _float fY, _float fZ, _float fTimeDelta);
+
 	void Rotation(_fvector vAxis, _float fRadian);
 	void Rotation(_float fX, _float fY, _float fZ, _float fRadian);
 

@@ -19,6 +19,7 @@ CGameObject::CGameObject(const CGameObject & Prototype)
 	Safe_AddRef(m_pGameInstance);
 	Safe_AddRef(m_pDevice);
 	Safe_AddRef(m_pContext);
+	m_isCloned = true;
 }
 
 HRESULT CGameObject::Initialize_Prototype()

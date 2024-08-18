@@ -29,6 +29,7 @@ public:
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
 	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
 	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
 

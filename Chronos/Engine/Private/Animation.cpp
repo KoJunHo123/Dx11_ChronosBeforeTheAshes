@@ -41,11 +41,15 @@ HRESULT CAnimation::Initialize(ifstream* infile, const class CModel* pModel, _ui
 
 _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bones, _bool isLoop, _float fTimeDelta)
 {
-	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
+	if (m_CurrentTrackPosition == 0.)
+		m_isFinished = false;
 
-	if (m_CurrentTrackPosition >= m_Duration)	// 현재 트랙 위치가 최대를 넘으면
+ 	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
+
+	if (m_CurrentTrackPosition >= m_Duration && false == m_isFinished)	// 현재 트랙 위치가 최대를 넘으면
 	{
 		m_CurrentTrackPosition = 0.;
+		m_isFinished = true;
 		if (false == isLoop)	// 루프 안할거면 반환
 		{
 			for (_uint& iIndex : m_CurrentKeyFrameIndices)
@@ -63,14 +67,28 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 	return false;
 }
 
-_bool CAnimation::Update_ChangeAnimation(CAnimation* pAnimation, const vector<class CBone*>& Bones,_float fTimeDelta)
+_bool CAnimation::Update_ChangeAnimation(CAnimation* pAnimation, const vector<class CBone*>& Bones, _float fTimeDelta, _float& m_fChangeRate)
 {
+	if (0. == m_CurrentTrackPosition && true == m_isFinished)
+	{
+		//m_CurrentKeyFrameIndices : 이거는 각 채널당 키프레임의 현재 인덱스의 배열.
+		_uint iIndex = m_Channels[0]->Get_KeyFrameSize() - 1;
+
+		for (auto& elem : m_CurrentKeyFrameIndices)
+			elem = iIndex;
+
+		m_CurrentTrackPosition = (_double)m_CurrentKeyFrameIndices[0];
+	}
+
 	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
 
 	_bool isChanged = false;
 	for (size_t i = 0; i < m_iNumChannels; ++i)
 	{
 		isChanged = m_Channels[i]->Update_ChangeChannel(pAnimation->m_Channels[i], Bones, &m_CurrentKeyFrameIndices[i], m_CurrentTrackPosition);
+
+		if (1 == m_Channels[i]->Get_BoneIndex())
+			m_fChangeRate = m_Channels[i]->Get_Ratio();
 	}
 
 	if (true == isChanged)
@@ -81,6 +99,18 @@ _bool CAnimation::Update_ChangeAnimation(CAnimation* pAnimation, const vector<cl
 	}
 
 	return isChanged;
+}
+
+_uint CAnimation::Find_RootBoneIndex()
+{
+	_uint iRootBoneIndex = 0;
+	for (size_t i = 0; i < m_iNumChannels; ++i)
+	{
+		if (1 == m_Channels[i]->Get_BoneIndex())
+			iRootBoneIndex = i;
+	}
+
+	return iRootBoneIndex;
 }
 
 CAnimation* CAnimation::Create(ifstream* infile, const class CModel* pModel, _uint iBoneNum)

@@ -103,7 +103,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../EngineSDK/Inc/;../Public/;../Public/ImGui/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../EngineSDK/Inc/;../Public/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,7 +145,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../EngineSDK/Inc/;../Public/;../Public/ImGui/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../EngineSDK/Inc/;../Public/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -169,15 +169,8 @@
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
+    <ClInclude Include="..\Public\Client_Enum.h" />
     <ClInclude Include="..\public\FreeCamera.h" />
-    <ClInclude Include="..\Public\ImGui\imconfig.h" />
-    <ClInclude Include="..\Public\ImGui\imgui.h" />
-    <ClInclude Include="..\Public\ImGui\imgui_impl_dx11.h" />
-    <ClInclude Include="..\Public\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="..\Public\ImGui\imgui_internal.h" />
-    <ClInclude Include="..\Public\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="..\Public\ImGui\imstb_textedit.h" />
-    <ClInclude Include="..\Public\ImGui\imstb_truetype.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
     <ClInclude Include="..\Public\Level_Loading.h" />
     <ClInclude Include="..\Public\Level_Logo.h" />
@@ -186,6 +179,13 @@
     <ClInclude Include="..\Public\Labyrinth.h" />
     <ClInclude Include="..\public\Monster.h" />
     <ClInclude Include="..\public\Player.h" />
+    <ClInclude Include="..\public\Player_Action.h" />
+    <ClInclude Include="..\public\Player_Attack.h" />
+    <ClInclude Include="..\public\Player_Block.h" />
+    <ClInclude Include="..\public\Player_Impact.h" />
+    <ClInclude Include="..\public\Player_Jump.h" />
+    <ClInclude Include="..\public\Player_Move.h" />
+    <ClInclude Include="..\public\Player_State.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
@@ -203,14 +203,14 @@
     <ClCompile Include="..\Private\Labyrinth.cpp" />
     <ClCompile Include="..\private\Monster.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
+    <ClCompile Include="..\private\Player_Action.cpp" />
+    <ClCompile Include="..\private\Player_Attack.cpp" />
+    <ClCompile Include="..\private\Player_Block.cpp" />
+    <ClCompile Include="..\private\Player_Impact.cpp" />
+    <ClCompile Include="..\private\Player_Jump.cpp" />
+    <ClCompile Include="..\private\Player_Move.cpp" />
+    <ClCompile Include="..\private\Player_State.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_demo.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="..\Public\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -259,7 +259,7 @@ HRESULT CLevel_GamePlay::Add_Player(_vector vPos)
 
 HRESULT CLevel_GamePlay::Save_Monsters()
 {
-	_char MaterialFilePath[MAX_PATH]{"../Bin/SaveData/Monster.dat"};
+	_char MaterialFilePath[MAX_PATH]{"../../../Chronos/Client/Bin/SaveData/Monster.dat"};
 	ofstream outfile(MaterialFilePath, ios::binary);
 
 	if (!outfile.is_open())
@@ -270,11 +270,12 @@ HRESULT CLevel_GamePlay::Save_Monsters()
 	return S_OK;
 }
 
+// ¸ÊÅø
 HRESULT CLevel_GamePlay::Load_Monsters()
 {
 	m_pGameInstance->Create_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
 
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Monster.dat" };
+	_char MaterialFilePath[MAX_PATH]{ "../../../Chronos/Client/Bin/SaveData/Monster.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
 	if (!infile.is_open())
@@ -282,10 +283,11 @@ HRESULT CLevel_GamePlay::Load_Monsters()
 	while(true)
 	{
 		Add_Monster(XMVectorSet(0.f, 0.f, 0.f, 0.f));
-		m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), &infile);
-
-		if (infile.fail())
+		if(FAILED(m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), &infile)))
+		{
+			m_pGameInstance->Release_Object(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
 			break;
+		}
 	}
 
 	infile.close();
@@ -295,7 +297,7 @@ HRESULT CLevel_GamePlay::Load_Monsters()
 
 HRESULT CLevel_GamePlay::Save_Player()
 {
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Player.dat" };
+	_char MaterialFilePath[MAX_PATH]{ "../../../Chronos/Client/Bin/SaveData/Player.dat" };
 	ofstream outfile(MaterialFilePath, ios::binary);
 	 
 	if (!outfile.is_open())
@@ -310,7 +312,7 @@ HRESULT CLevel_GamePlay::Load_Player()
 {
 	m_pGameInstance->Create_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Player"));
 
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Player.dat" };
+	_char MaterialFilePath[MAX_PATH]{ "../../../Chronos/Client/Bin/SaveData/Player.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
 	if (!infile.is_open())
@@ -318,10 +320,11 @@ HRESULT CLevel_GamePlay::Load_Player()
 	while (true)
 	{
 		Add_Player(XMVectorSet(0.f, 0.f, 0.f, 0.f));
-		m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), &infile);
-
-		if (infile.fail())
+		if(FAILED(m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), &infile)))
+		{
+			m_pGameInstance->Release_Object(LEVEL_GAMEPLAY, TEXT("Layer_Player"));
 			break;
+		}
 	}
 
 	infile.close();
