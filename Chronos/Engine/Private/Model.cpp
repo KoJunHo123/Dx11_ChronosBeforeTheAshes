@@ -39,7 +39,6 @@ CModel::CModel(const CModel& Prototype)
 	for (auto& pMesh : m_Meshes)
 		Safe_AddRef(pMesh);
 
-
 }
 
 _uint CModel::Get_BoneIndex(const _char* pBoneName) const
