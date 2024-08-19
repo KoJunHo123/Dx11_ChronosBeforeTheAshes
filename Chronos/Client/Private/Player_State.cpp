@@ -137,17 +137,14 @@ void CPlayer_State::Change_Animation(_float fTimeDelta)
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + vStateChange);
 }
 
-void CPlayer_State::SetUp_Animation(ANIM_PLAYER eNextPlayerAnim, _bool isLoop)
+_bool CPlayer_State::SetUp_Animation(ANIM_PLAYER eNextPlayerAnim, _bool isLoop)
 {
-    _bool isChanging = m_AnimDesc.eNextPlayerAnim != eNextPlayerAnim;
-    if (true == IsChanging() && true == isChanging)
-         int a = 0;
-
     if (true == IsChanging())
-        return;
+         return false;
 
     m_AnimDesc.eNextPlayerAnim = eNextPlayerAnim;
     m_pModelCom->SetUp_Animation(eNextPlayerAnim, isLoop);
+    return true;
 }
 
 void CPlayer_State::Look_CameraDir()

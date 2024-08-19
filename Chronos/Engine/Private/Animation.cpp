@@ -69,15 +69,18 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 
 _bool CAnimation::Update_ChangeAnimation(CAnimation* pAnimation, const vector<class CBone*>& Bones, _float fTimeDelta, _float& m_fChangeRate)
 {
-	if (0. == m_CurrentTrackPosition && true == m_isFinished)
+	if (0. == m_CurrentTrackPosition)
 	{
-		//m_CurrentKeyFrameIndices : 이거는 각 채널당 키프레임의 현재 인덱스의 배열.
-		_uint iIndex = m_Channels[0]->Get_KeyFrameSize() - 1;
+		if(true == m_isFinished)
+		{
+			//m_CurrentKeyFrameIndices : 이거는 각 채널당 키프레임의 현재 인덱스의 배열.
+			_uint iIndex = m_Channels[0]->Get_KeyFrameSize() - 1;
 
-		for (auto& elem : m_CurrentKeyFrameIndices)
-			elem = iIndex;
+			for (auto& elem : m_CurrentKeyFrameIndices)
+				elem = iIndex;
 
-		m_CurrentTrackPosition = (_double)m_CurrentKeyFrameIndices[0];
+			m_CurrentTrackPosition = m_Duration;
+		}
 	}
 
 	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;

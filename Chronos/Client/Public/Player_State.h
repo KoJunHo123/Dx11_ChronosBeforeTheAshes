@@ -45,7 +45,7 @@ protected:
 	_vector Get_Rotation(_matrix WorldMatrix, _vector vExist);
 	void Play_Animation(_float fTimeDelta);
 	void Change_Animation(_float fTimeDelta);
-	void SetUp_Animation(ANIM_PLAYER eNextPlayerAnim, _bool isLoop = false);
+	_bool SetUp_Animation(ANIM_PLAYER eNextPlayerAnim, _bool isLoop = false);
 
 	_bool IsChanging() {
 		if (m_AnimDesc.eCurrentPlayerAnim != m_AnimDesc.eNextPlayerAnim)

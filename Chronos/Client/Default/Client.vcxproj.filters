@@ -64,11 +64,11 @@
     <Filter Include="02.GameObjects\03.Player\Player_State\Player_Jump">
       <UniqueIdentifier>{d5e509d9-f22d-42c1-a755-6e7d5001e55e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Action">
-      <UniqueIdentifier>{6b9a920e-5470-4485-ac5d-40bf8d161507}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\03.Player\Player_State\Player_Impact">
       <UniqueIdentifier>{e72ecd44-5525-4600-ad12-52981c648867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_State\Player_Action">
+      <UniqueIdentifier>{6b9a920e-5470-4485-ac5d-40bf8d161507}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

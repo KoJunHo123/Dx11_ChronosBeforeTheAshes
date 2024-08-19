@@ -46,16 +46,16 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 			else
 				Power_Attack();
 		}
-		else if (m_pGameInstance->Key_Pressing(VK_LBUTTON))
+		else if (m_pGameInstance->Key_Pressing(VK_LBUTTON) && m_pGameInstance->Key_Pressing(VK_SHIFT))
 		{
 			m_fAttackDelay += fTimeDelta;
 
-			if (0 == m_iAttackCount)
+			if (0 == m_iAttackCount && m_fAttackDelay)
 			{
 				m_eAttackState = ATTACK_POWER_CHARGE;
 				SetUp_Animation(PLAYER_ATK_POWER_01_CHARGE);
 			}
-			else if (1 == m_iAttackCount)
+			else if (1 == m_iAttackCount && m_fAttackDelay)
 			{
 				m_eAttackState = ATTACK_POWER_CHARGE;
 				SetUp_Animation(PLAYER_ATK_POWER_02_CHARGE);
