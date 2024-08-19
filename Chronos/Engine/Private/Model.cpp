@@ -19,7 +19,7 @@ CModel::CModel(const CModel& Prototype)
 	, m_iNumMaterials{ Prototype.m_iNumMaterials }
 	, m_Materials{ Prototype.m_Materials }
 	, m_iCurrentAnimIndex{ Prototype.m_iCurrentAnimIndex }
-	, m_iNextAnimIndex { Prototype.m_iNextAnimIndex }
+	, m_iPreAnimIndex { Prototype.m_iPreAnimIndex }
 	, m_iNumAnimations {Prototype.m_iNumAnimations}
 	, m_vTranslationChange { Prototype.m_vTranslationChange }
 {
@@ -108,8 +108,17 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 	// 해당하는 애니메이션 인덱스를 업데이트
 	_bool isFinished = { false };
 
-	if (m_iNextAnimIndex == m_iCurrentAnimIndex)
-		isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(m_Bones, m_isLoop, fTimeDelta);
+	_bool bChangeStart = false;
+	if (m_iPreAnimIndex != m_iCurrentAnimIndex)
+	{
+		m_isChange = true;
+		bChangeStart = true;
+		m_iPreAnimIndex = m_iCurrentAnimIndex;
+
+		XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
+	}
+	
+	isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(m_Bones, m_isLoop, fTimeDelta, bChangeStart, m_isChange);
 
 	if (true == isFinished)
 		XMStoreFloat4(&m_vTranslationChange, XMVectorSet(0.f, 0.f, 0.f, 1.f));
@@ -117,32 +126,6 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 	Update_CombinedTransformationMatrix(vRootBoneChanged);
 
 	return isFinished;
-}
-
-_bool CModel::Change_Animation(_float fTimeDelta, _vector& vRootBoneChanged, _float& m_fChangeRate)
-{
-	_bool isChanged = { false };
-
-	if (m_iNextAnimIndex != m_iCurrentAnimIndex)
-	{
-		if (false == m_isChangeStart)
-		{
-			XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
-			m_isChangeStart = true;
-		}
-
-		isChanged = m_Animations[m_iCurrentAnimIndex]->Update_ChangeAnimation(m_Animations[m_iNextAnimIndex], m_Bones, fTimeDelta, m_fChangeRate);
-
-		if (true == isChanged)
-		{
-			m_iCurrentAnimIndex = m_iNextAnimIndex;
-			m_isChangeStart = false;
-		}
-	}
-
-	Update_CombinedTransformationMatrix(vRootBoneChanged);
-
-	return isChanged;
 }
 
 HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex)
@@ -161,7 +144,6 @@ void CModel::Update_CombinedTransformationMatrix(_vector& vRootBoneChanged)
 {	
 	// 이동량 구해주고
 	vRootBoneChanged = m_Bones[1]->Get_TransformationMatrix().r[3] - XMLoadFloat4(&m_vTranslationChange);
-
 	// 이전 채널을 현재 채널로 하고
 	XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
 	// 현재 루트 본을 항등으로.

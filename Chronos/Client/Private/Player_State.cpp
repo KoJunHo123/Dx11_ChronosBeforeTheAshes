@@ -31,18 +31,13 @@ HRESULT CPlayer_State::StartState(void** pArg)
     if (nullptr == pArg)
         return E_FAIL;
 
-    m_AnimDesc = *static_cast<PLAYER_ANIM_DESC*>(*pArg);
 
     return S_OK;
 }
 
 void CPlayer_State::Priority_Update(_float fTimeDelta)
 {
-    if (true == m_isChanged)
-    {
-        m_AnimDesc.eCurrentPlayerAnim = m_AnimDesc.eNextPlayerAnim;
-        m_isChanged = false;
-    }
+
 }
 
 void CPlayer_State::Update(_float fTimeDelta)
@@ -86,9 +81,7 @@ HRESULT CPlayer_State::Render()
 
 HRESULT CPlayer_State::ExitState(void** pArg)
 {
-    *pArg = &m_AnimDesc;
     m_isFinished = false;
-
     return S_OK;
 }
 
@@ -127,24 +120,6 @@ void CPlayer_State::Play_Animation(_float fTimeDelta)
     m_isFinished = m_pModelCom->Play_Animation(fTimeDelta, vStateChange);
     vStateChange = Get_Rotation(m_pTransformCom->Get_WorldMatrix(), vStateChange);
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + vStateChange);
-}
-
-void CPlayer_State::Change_Animation(_float fTimeDelta)
-{
-    _vector vStateChange{};
-    m_isChanged = m_pModelCom->Change_Animation(fTimeDelta, vStateChange, m_fChangeRate);
-    vStateChange = Get_Rotation(m_pTransformCom->Get_WorldMatrix(), vStateChange);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) + vStateChange);
-}
-
-_bool CPlayer_State::SetUp_Animation(ANIM_PLAYER eNextPlayerAnim, _bool isLoop)
-{
-    if (true == IsChanging())
-         return false;
-
-    m_AnimDesc.eNextPlayerAnim = eNextPlayerAnim;
-    m_pModelCom->SetUp_Animation(eNextPlayerAnim, isLoop);
-    return true;
 }
 
 void CPlayer_State::Look_CameraDir()

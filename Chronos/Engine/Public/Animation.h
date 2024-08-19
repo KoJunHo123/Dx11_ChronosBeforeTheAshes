@@ -10,8 +10,7 @@ private:
 	virtual ~CAnimation() = default;
 public:
 	HRESULT Initialize(ifstream* infile, const class CModel* pModel, _uint iBoneNum);
-	_bool Update_TransformationMatrices(const vector<class CBone*>& Bones, _bool isLoop, _float fTimeDelta);
-	_bool Update_ChangeAnimation(CAnimation* pAnimation , const vector<class CBone*>& Bones,_float fTimeDelta, _float& m_fChangeRate);
+	_bool Update_TransformationMatrices(const vector<class CBone*>& Bones, _bool isLoop, _float fTimeDelta, _bool bChangeStart, _bool& isChange);
 
 public :
 	_uint Get_CurrentKeyFrameIndex() {
@@ -32,7 +31,7 @@ private:
 	_uint m_iNumChannels = { 0 };
 
 	_float4 m_vPreTranslation = {};
-	_bool m_isFinished = { false };
+	_bool m_isFirst = { false };
 
 	vector<_uint>				m_CurrentKeyFrameIndices = { 0 };
 	vector<class CChannel*>		m_Channels;

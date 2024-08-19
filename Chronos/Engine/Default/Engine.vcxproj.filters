@@ -118,6 +118,12 @@
     <Filter Include="01.Utility\03.Components\FSM\State">
       <UniqueIdentifier>{d9639c7e-ce68-4b1f-842a-2ea984ddf8bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\02.GameObjects\04.ContainerObject">
+      <UniqueIdentifier>{9bb03ae2-fbbd-4dfc-ae87-9a79fdd4d3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\02.GameObjects\04.ContainerObject\CPartObject">
+      <UniqueIdentifier>{e4ee1d5e-f967-4822-952a-223851fed8ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -224,6 +230,12 @@
     </ClCompile>
     <ClCompile Include="..\Private\Sound_Manager.cpp">
       <Filter>00.System\01.Device\Sound\SoundManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ContainerObject.cpp">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\PartObject.cpp">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject\CPartObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +355,12 @@
     </ClInclude>
     <ClInclude Include="..\Public\Sound_Manager.h">
       <Filter>00.System\01.Device\Sound\SoundManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ContainerObject.h">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\PartObject.h">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject\CPartObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

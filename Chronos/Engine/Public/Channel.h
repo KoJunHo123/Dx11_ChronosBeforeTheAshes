@@ -11,8 +11,7 @@ private:
 
 public:
 	HRESULT Initialize(ifstream* infile, const class CModel* pModel);
-	void Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition);
-	_bool Update_ChangeChannel(CChannel* pChannel, const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition);
+	void Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition, _bool isChange);
 
 	_uint Get_BoneIndex() {
 		return m_iBoneIndex;
@@ -34,6 +33,8 @@ private:
 	vector<KEYFRAME> m_KeyFrames;
 
 	_double m_Ratio = { 0.f };
+
+	_float4 m_vSourScale{}, m_vSourRotation{}, m_vSourTranslation{};
 
 public:
 	static CChannel* Create(ifstream* infile, const class CModel* pModel);

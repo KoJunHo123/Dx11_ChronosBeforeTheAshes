@@ -170,6 +170,19 @@ HRESULT CObject_Manager::Load_Layer(_uint iLevelIndex, const _wstring& strLayerT
 	return pLayer->Load_GameObjects(pInFile);
 }
 
+CGameObject* CObject_Manager::Clone_GameObject(const _wstring& strPrototypeTag, void* pArg)
+{
+	CGameObject* pGameObject = Find_Prototype(strPrototypeTag);
+	if (nullptr == pGameObject)
+		return nullptr;
+
+	CGameObject* pCloneObject = pGameObject->Clone(pArg);
+	if (nullptr == pCloneObject)
+		return nullptr;
+
+	return pCloneObject;
+}
+
 
 CGameObject * CObject_Manager::Find_Prototype(const _wstring & strPrototypeTag)
 {

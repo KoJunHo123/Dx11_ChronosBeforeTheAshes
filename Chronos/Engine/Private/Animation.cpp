@@ -34,22 +34,30 @@ HRESULT CAnimation::Initialize(ifstream* infile, const class CModel* pModel, _ui
 
 		m_Channels.emplace_back(pChannel);
 	}
-	
 
 	return S_OK;
 }
 
-_bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bones, _bool isLoop, _float fTimeDelta)
+_bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bones, _bool isLoop, _float fTimeDelta, _bool bChangeStart, _bool& isChange)
 {
-	if (m_CurrentTrackPosition == 0.)
-		m_isFinished = false;
-
  	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
 
-	if (m_CurrentTrackPosition >= m_Duration && false == m_isFinished)	// 현재 트랙 위치가 최대를 넘으면
+	if (true == isChange)
+	{
+		if (true == bChangeStart)
+		{
+			m_CurrentTrackPosition = 0.;
+		}
+
+		if (m_CurrentTrackPosition > 5.)
+		{
+			m_CurrentTrackPosition = 0.;
+			isChange = false;
+		}
+	}
+	else if (m_CurrentTrackPosition >= m_Duration)	// 현재 트랙 위치가 최대를 넘으면
 	{
 		m_CurrentTrackPosition = 0.;
-		m_isFinished = true;
 		if (false == isLoop)	// 루프 안할거면 반환
 		{
 			for (_uint& iIndex : m_CurrentKeyFrameIndices)
@@ -59,49 +67,14 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 	}
 
 	_uint		iChannelIndex = { 0 };
-	_vector vTranslation = XMLoadFloat4(&m_vPreTranslation);
+	_vector		vTranslation = XMLoadFloat4(&m_vPreTranslation);
+
 	for(auto& pChannel : m_Channels)
-		pChannel->Update_TransformationMatrix(Bones, &m_CurrentKeyFrameIndices[iChannelIndex++], m_CurrentTrackPosition);
+		pChannel->Update_TransformationMatrix(Bones, &m_CurrentKeyFrameIndices[iChannelIndex++], m_CurrentTrackPosition, isChange);
+
 	XMStoreFloat4(&m_vPreTranslation, vTranslation);
 
 	return false;
-}
-
-_bool CAnimation::Update_ChangeAnimation(CAnimation* pAnimation, const vector<class CBone*>& Bones, _float fTimeDelta, _float& m_fChangeRate)
-{
-	if (0. == m_CurrentTrackPosition)
-	{
-		if(true == m_isFinished)
-		{
-			//m_CurrentKeyFrameIndices : 이거는 각 채널당 키프레임의 현재 인덱스의 배열.
-			_uint iIndex = m_Channels[0]->Get_KeyFrameSize() - 1;
-
-			for (auto& elem : m_CurrentKeyFrameIndices)
-				elem = iIndex;
-
-			m_CurrentTrackPosition = m_Duration;
-		}
-	}
-
-	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
-
-	_bool isChanged = false;
-	for (size_t i = 0; i < m_iNumChannels; ++i)
-	{
-		isChanged = m_Channels[i]->Update_ChangeChannel(pAnimation->m_Channels[i], Bones, &m_CurrentKeyFrameIndices[i], m_CurrentTrackPosition);
-
-		if (1 == m_Channels[i]->Get_BoneIndex())
-			m_fChangeRate = m_Channels[i]->Get_Ratio();
-	}
-
-	if (true == isChanged)
-	{
-		m_CurrentTrackPosition = 0.;
-		for (_uint& iIndex : m_CurrentKeyFrameIndices)
-			iIndex = 0;
-	}
-
-	return isChanged;
 }
 
 _uint CAnimation::Find_RootBoneIndex()

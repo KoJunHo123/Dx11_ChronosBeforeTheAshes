@@ -32,10 +32,10 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 
 	if(false == m_bMotionLock)
 	{
-		if (PLAYER_MOVE_DODGE_F == m_AnimDesc.eCurrentPlayerAnim)
+		if (PLAYER_MOVE_DODGE_F == m_pModelCom->Get_CuttenrAnimIndex())
 		{
 			m_eAttackState = ATTACK_RUN;
-			SetUp_Animation(PLAYER_ATK_RUN);
+			m_pModelCom->SetUp_Animation(PLAYER_ATK_RUN);
 			true == m_bMotionLock;
 		}
 		else if(m_pGameInstance->Key_Up(VK_LBUTTON))
@@ -53,12 +53,12 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 			if (0 == m_iAttackCount && m_fAttackDelay)
 			{
 				m_eAttackState = ATTACK_POWER_CHARGE;
-				SetUp_Animation(PLAYER_ATK_POWER_01_CHARGE);
+				m_pModelCom->SetUp_Animation(PLAYER_ATK_POWER_01_CHARGE);
 			}
 			else if (1 == m_iAttackCount && m_fAttackDelay)
 			{
 				m_eAttackState = ATTACK_POWER_CHARGE;
-				SetUp_Animation(PLAYER_ATK_POWER_02_CHARGE);
+				m_pModelCom->SetUp_Animation(PLAYER_ATK_POWER_02_CHARGE);
 			}
 
 			if (true == m_isFinished)
@@ -89,16 +89,10 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 		|| (ATTACK_LIGHT == m_eAttackState && m_iAttackCount >= m_iMaxLight))
 		m_iAttackCount = 0;
 
-	if (false == IsChanging())
-	{
-		Play_Animation(fTimeDelta);
-	}
-	else
-	{
-		Change_Animation(fTimeDelta);
-	}
+	Play_Animation(fTimeDelta);
 
-	if (ATTACK_POWER_CHARGE != m_eAttackState && false == IsChanging())
+
+	if (ATTACK_POWER_CHARGE != m_eAttackState)
 	{
 		if (true == m_isFinished)
 		{
@@ -134,20 +128,24 @@ void CPlayer_Attack::Light_Attack()
 	switch (m_iAttackCount)
 	{
 	case 0:
-		SetUp_Animation(PLAYER_ATK_LIGHT_01);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_LIGHT_01);
 		m_bMotionLock = true;
+		m_fAttackDelay = 0.f;
 		break;
 	case 1:
-		SetUp_Animation(PLAYER_ATK_LIGHT_02);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_LIGHT_02);
 		m_bMotionLock = true;
+		m_fAttackDelay = 0.f;
 		break;
 	case 2:
-		SetUp_Animation(PLAYER_ATK_LIGHT_03);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_LIGHT_03);
 		m_bMotionLock = true;
+		m_fAttackDelay = 0.f;
 		break;
 	case 3:
-		SetUp_Animation(PLAYER_ATK_LIGHT_04);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_LIGHT_04);
 		m_bMotionLock = true;
+		m_fAttackDelay = 0.f;
 		break;
 	default:
 		break;
@@ -162,12 +160,12 @@ void CPlayer_Attack::Power_Attack()
 	switch (m_iAttackCount)
 	{
 	case 0:
-		SetUp_Animation(PLAYER_ATK_POWER_01);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_POWER_01);
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
 		break;
 	case 1:
-		SetUp_Animation(PLAYER_ATK_POWER_02);
+		m_pModelCom->SetUp_Animation(PLAYER_ATK_POWER_02);
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
 		break;

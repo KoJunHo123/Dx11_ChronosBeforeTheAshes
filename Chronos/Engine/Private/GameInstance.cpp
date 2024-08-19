@@ -188,6 +188,10 @@ void CGameInstance::Release_Object(_uint iLevelIndex, const _wstring& strLayerTa
 {
 	m_pObject_Manager->Release_Object(iLevelIndex, strLayerTag);
 }
+CGameObject* CGameInstance::Clone_GameObject(const _wstring& strPrototypeTag, void* pArg)
+{
+	return m_pObject_Manager->Clone_GameObject(strPrototypeTag, pArg);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER

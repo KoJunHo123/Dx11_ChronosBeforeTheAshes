@@ -47,15 +47,7 @@ void CPlayer_Block::Update(_float fTimeDelta)
 		}
 	}
 
-	if (false == IsChanging())
-	{
-		Play_Animation(fTimeDelta);
-
-	}
-	else
-	{
-		Change_Animation(fTimeDelta);
-	}
+	Play_Animation(fTimeDelta);
 
 }
 
@@ -84,7 +76,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 
 	if (m_pGameInstance->Key_Pressing('W'))
 	{
-		SetUp_Animation(PLAYER_BLOCK_WALK_F);
+		m_pModelCom->SetUp_Animation(PLAYER_BLOCK_WALK_F);
 		m_eBlockState = BLOCK_WALK;
 
 		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 0.7f));
@@ -92,7 +84,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('A'))
 	{
-		SetUp_Animation(PLAYER_BLOCK_WALK_L);
+		m_pModelCom->SetUp_Animation(PLAYER_BLOCK_WALK_L);
 		m_eBlockState = BLOCK_WALK;
 
 		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 0.7f));
@@ -100,7 +92,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('S'))
 	{
-		SetUp_Animation(PLAYER_BLOCK_WALK_B);
+		m_pModelCom->SetUp_Animation(PLAYER_BLOCK_WALK_B);
 		m_eBlockState = BLOCK_WALK;
 
 		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 0.7f));
@@ -108,7 +100,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('D'))
 	{
-		SetUp_Animation(PLAYER_BLOCK_WALK_R);
+		m_pModelCom->SetUp_Animation(PLAYER_BLOCK_WALK_R);
 		m_eBlockState = BLOCK_WALK;
 
 		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 0.7f));
@@ -116,7 +108,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 	}
 	else
 	{
-		SetUp_Animation(PLAYER_BLOCK_IDLE, true);
+		m_pModelCom->SetUp_Animation(PLAYER_BLOCK_IDLE, true);
 		m_eBlockState = BLOCK_IDLE;
 	}
 

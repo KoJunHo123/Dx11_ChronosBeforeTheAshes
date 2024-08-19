@@ -37,7 +37,7 @@ public:
 
 public:
 	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false) {
-		m_iNextAnimIndex = iAnimationIndex;
+		m_iCurrentAnimIndex = iAnimationIndex;
 		m_isLoop = isLoop;
 		// 딱 변경될 때 한번만.
 	}
@@ -46,7 +46,6 @@ public:
 		return m_iCurrentAnimIndex;
 	}
 	_bool Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged);
-	_bool Change_Animation(_float fTimeDelta, _vector& vRootBoneChanged, _float& m_fChangeRate);
 
 public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
@@ -72,9 +71,10 @@ private:
 
 private:
 	_bool							m_isLoop = { false };
+	_bool							m_isChange = { false };
 	
 	_uint							m_iCurrentAnimIndex = { 0 };
-	_uint							m_iNextAnimIndex = { 0 };
+	_uint							m_iPreAnimIndex = { 0 };
 	_uint							m_iNumAnimations = { 0 };
 	vector<class CAnimation*>		m_Animations;
 

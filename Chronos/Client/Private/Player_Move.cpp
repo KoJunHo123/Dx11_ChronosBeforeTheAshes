@@ -18,12 +18,6 @@ HRESULT CPlayer_Move::StartState(void** pArg)
 {
 	__super::StartState(pArg);
 
-	if (PLAYER_ATK_RUN == m_AnimDesc.eCurrentPlayerAnim)
-	{
-		SetUp_Animation(PLAYER_MOVE_IDLE);
-		m_eMoveState = MOVE_IDLE;
-	}
-
 	return S_OK;
 }
 
@@ -42,15 +36,8 @@ void CPlayer_Move::Update(_float fTimeDelta)
 		Change_State();
 	}
 
-	if(false == IsChanging())
-	{
-		Play_Animation(fTimeDelta);
-	}
-	else
-	{
-		Change_Animation(fTimeDelta);
-		//Move_In_Change(fTimeDelta);
-	}
+
+	Play_Animation(fTimeDelta);
 
 	Dodge_Control();
 }
@@ -98,7 +85,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 {
 	if (m_pGameInstance->Key_Pressing('W'))
 	{
-		SetUp_Animation(PLAYER_MOVE_WALK_F);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_WALK_F);
 		m_eMoveState = MOVE_WALK;
 
 		m_pTransformCom->Go_Straight(fTimeDelta * *m_pSpeed);
@@ -106,7 +93,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('A'))
 	{
-		SetUp_Animation(PLAYER_MOVE_WALK_L);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_WALK_L);
 		m_eMoveState = MOVE_WALK;
 
 		m_pTransformCom->Go_Left(fTimeDelta * *m_pSpeed);
@@ -114,7 +101,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('S'))
 	{
-		SetUp_Animation(PLAYER_MOVE_WALK_B);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_WALK_B);
 		m_eMoveState = MOVE_WALK;
 		
 		m_pTransformCom->Go_Backward(fTimeDelta * *m_pSpeed);
@@ -122,7 +109,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('D'))
 	{
-		SetUp_Animation(PLAYER_MOVE_WALK_R);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_WALK_R);
 		m_eMoveState = MOVE_WALK;
 		
 		m_pTransformCom->Go_Right(fTimeDelta * *m_pSpeed);
@@ -132,7 +119,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 	{
 		if(MOVE_DODGE != m_eMoveState)
 		{
-			SetUp_Animation(PLAYER_MOVE_IDLE, true);
+			m_pModelCom->SetUp_Animation(PLAYER_MOVE_IDLE, true);
 			m_eMoveState = MOVE_IDLE;
 		}
 	}
@@ -142,7 +129,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 {
 	if(m_pGameInstance->Key_Pressing('W'))
 	{
-		SetUp_Animation(PLAYER_MOVE_JOG_F);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_JOG_F);
 		m_eMoveState = MOVE_JOG;
 		
 		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
@@ -150,7 +137,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('A'))
 	{
-		SetUp_Animation(PLAYER_MOVE_JOG_L);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_JOG_L);
 		m_eMoveState = MOVE_JOG;
 
 		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
@@ -158,7 +145,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('S'))
 	{
-		SetUp_Animation(PLAYER_MOVE_JOG_B);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_JOG_B);
 		m_eMoveState = MOVE_JOG;
 
 		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
@@ -166,7 +153,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 	}
 	else if (m_pGameInstance->Key_Pressing('D'))
 	{
-		SetUp_Animation(PLAYER_MOVE_JOG_R);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_JOG_R);
 		m_eMoveState = MOVE_JOG;
 
 		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
@@ -175,7 +162,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 	{
 		if(MOVE_DODGE != m_eMoveState)
 		{
-			SetUp_Animation(PLAYER_MOVE_IDLE, true);
+			m_pModelCom->SetUp_Animation(PLAYER_MOVE_IDLE, true);
 			m_eMoveState = MOVE_IDLE;
 		}
 	}
@@ -186,32 +173,34 @@ void CPlayer_Move::Dodge()
 {
 	if (m_pGameInstance->Key_Pressing('A'))
 	{
-		m_bMotionLock = SetUp_Animation(PLAYER_MOVE_DODGE_L);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_DODGE_L);
+		m_bMotionLock = true;
 	}
 	else if (m_pGameInstance->Key_Pressing('S'))
 	{
-		m_bMotionLock = SetUp_Animation(PLAYER_MOVE_DODGE_B);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_DODGE_B);
+		m_bMotionLock = true;
 	}
 	else if (m_pGameInstance->Key_Pressing('D'))
 	{
-		m_bMotionLock = SetUp_Animation(PLAYER_MOVE_DODGE_R);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_DODGE_R);
+		m_bMotionLock = true;
 	}
 	else
 	{
-		m_bMotionLock = SetUp_Animation(PLAYER_MOVE_DODGE_F);
+		m_pModelCom->SetUp_Animation(PLAYER_MOVE_DODGE_F);
+		m_bMotionLock = true;
 	}
-
-	if (true == m_bMotionLock)
-		m_eMoveState = MOVE_DODGE;
+	m_eMoveState = MOVE_DODGE;
 }
 
 void CPlayer_Move::Dodge_Control()
 {
-	if (MOVE_DODGE == m_eMoveState && false == IsChanging())
+	if (MOVE_DODGE == m_eMoveState)
 	{
 		if (true == m_isFinished)
 		{
-			SetUp_Animation(PLAYER_MOVE_IDLE, true);
+			m_pModelCom->SetUp_Animation(PLAYER_MOVE_IDLE, true);
 			m_eMoveState = MOVE_IDLE;
 		}
 		if (15 < m_pModelCom->Get_KeyFrameIndex())
@@ -219,43 +208,6 @@ void CPlayer_Move::Dodge_Control()
 			m_bMotionLock = false;
 			m_fDodgeDelay = 0.f;
 		}
-	}
-}
-
-void CPlayer_Move::Move_In_Change(_float fTimeDelta)
-{
-	if (PLAYER_MOVE_WALK_F == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * m_fChangeRate));
-	}
-	if (PLAYER_MOVE_WALK_L == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * m_fChangeRate));
-	}
-	if (PLAYER_MOVE_WALK_B == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * m_fChangeRate));
-	}
-	if (PLAYER_MOVE_WALK_R == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * m_fChangeRate));
-	}
-
-	if (PLAYER_MOVE_JOG_F == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * (1.f + (0.3f * m_fChangeRate))));
-	}
-	if (PLAYER_MOVE_JOG_L == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * (1.f + (0.3f * m_fChangeRate))));
-	}
-	if (PLAYER_MOVE_JOG_B == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * (1.f + (0.3f * m_fChangeRate))));
-	}
-	if (PLAYER_MOVE_JOG_R == m_AnimDesc.eNextPlayerAnim)
-	{
-		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * (1.f + (0.3f * m_fChangeRate))));
 	}
 }
 
