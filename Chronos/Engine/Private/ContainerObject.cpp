@@ -1,5 +1,6 @@
 #include "ContainerObject.h"
 #include "GameInstance.h"
+#include "PartObject.h"
 
 CContainerObject::CContainerObject(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CGameObject{pDevice, pContext}
@@ -45,7 +46,7 @@ HRESULT CContainerObject::Add_PartObject(_uint iPartID, const _wstring& strProto
 	if (nullptr == pPartObject)
 		return E_FAIL;
 
-	m_Parts[iPartID] = pPartObject;
+	m_Parts[iPartID] = static_cast<CPartObject*>(pPartObject);
 
 	return S_OK;
 }
@@ -53,4 +54,5 @@ HRESULT CContainerObject::Add_PartObject(_uint iPartID, const _wstring& strProto
 
 void CContainerObject::Free()
 {
+	__super::Free();
 }

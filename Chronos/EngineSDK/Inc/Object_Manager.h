@@ -27,11 +27,11 @@ public:
 	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex);
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
-
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
 	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
 	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
+	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
 
 private:
 

@@ -57,6 +57,8 @@ public:
 	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
+	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
+
 #pragma endregion
 
 
