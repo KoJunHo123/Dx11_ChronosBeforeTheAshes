@@ -25,7 +25,6 @@ private:
 	void Jog(_float fTimeDelta);
 	void Dodge();
 	void Dodge_Control();
-	void Move_In_Change(_float fTimeDelta);
 
 
 	void Change_State();

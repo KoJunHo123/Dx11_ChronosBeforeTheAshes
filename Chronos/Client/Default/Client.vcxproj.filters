@@ -70,6 +70,24 @@
     <Filter Include="02.GameObjects\03.Player\Player_State\Player_Action">
       <UniqueIdentifier>{6b9a920e-5470-4485-ac5d-40bf8d161507}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part">
+      <UniqueIdentifier>{1f44ca9e-1b00-4be7-8445-849a60946189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Body">
+      <UniqueIdentifier>{8d9eb51e-fb93-4cc6-92c0-188aab3b4c15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Weapon">
+      <UniqueIdentifier>{05f84767-01c5-4c54-9d9a-014d9765064a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Item">
+      <UniqueIdentifier>{0b1cd144-885f-4e47-8f83-4f5e0fa33a6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Shield">
+      <UniqueIdentifier>{0f693bd8-432d-4a04-87a2-70c2f74e8946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Effect">
+      <UniqueIdentifier>{5aadc0e1-a328-4a82-9dcf-179a3890e613}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -144,6 +162,15 @@
     <ClInclude Include="..\public\Player_Impact.h">
       <Filter>02.GameObjects\03.Player\Player_State\Player_Impact</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Player_Part.h">
+      <Filter>02.GameObjects\03.Player\Player_Part</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Body.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Weapon.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -205,6 +232,15 @@
     </ClCompile>
     <ClCompile Include="..\private\Player_Impact.cpp">
       <Filter>02.GameObjects\03.Player\Player_State\Player_Impact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Part.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Body.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Weapon.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

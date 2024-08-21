@@ -26,7 +26,6 @@ void CPlayer_Action::Priority_Update(_float fTimeDelta)
 
 void CPlayer_Action::Update(_float fTimeDelta)
 {
-	Play_Animation(fTimeDelta);
 	__super::Update(fTimeDelta);
 }
 

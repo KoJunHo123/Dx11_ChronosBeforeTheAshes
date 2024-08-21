@@ -19,6 +19,8 @@ HRESULT CContainerObject::Initialize_Prototype()
 
 HRESULT CContainerObject::Initialize(void* pArg)
 {
+	__super::Initialize(pArg);
+
 	return S_OK;
 }
 

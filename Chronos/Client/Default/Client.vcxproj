@@ -182,10 +182,13 @@
     <ClInclude Include="..\public\Player_Action.h" />
     <ClInclude Include="..\public\Player_Attack.h" />
     <ClInclude Include="..\public\Player_Block.h" />
+    <ClInclude Include="..\public\Player_Body.h" />
     <ClInclude Include="..\public\Player_Impact.h" />
     <ClInclude Include="..\public\Player_Jump.h" />
     <ClInclude Include="..\public\Player_Move.h" />
+    <ClInclude Include="..\public\Player_Part.h" />
     <ClInclude Include="..\public\Player_State.h" />
+    <ClInclude Include="..\public\Player_Weapon.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
@@ -206,10 +209,13 @@
     <ClCompile Include="..\private\Player_Action.cpp" />
     <ClCompile Include="..\private\Player_Attack.cpp" />
     <ClCompile Include="..\private\Player_Block.cpp" />
+    <ClCompile Include="..\private\Player_Body.cpp" />
     <ClCompile Include="..\private\Player_Impact.cpp" />
     <ClCompile Include="..\private\Player_Jump.cpp" />
     <ClCompile Include="..\private\Player_Move.cpp" />
+    <ClCompile Include="..\private\Player_Part.cpp" />
     <ClCompile Include="..\private\Player_State.cpp" />
+    <ClCompile Include="..\private\Player_Weapon.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">

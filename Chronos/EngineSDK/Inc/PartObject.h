@@ -8,7 +8,7 @@ BEGIN(Engine)
 class ENGINE_DLL CPartObject abstract : public CGameObject
 {
 public:
-	typedef struct
+	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
 		const _float4x4* pParentWorldMatrix = { nullptr };
 	}PARTOBJ_DESC;
@@ -27,7 +27,12 @@ public:
 
 protected:
 	/* m_pTransformCom->m_WorldMatrix * 부모의 월드 */
+	const _float4x4*		m_pParentMatrix = { nullptr };
+
 	_float4x4				m_WorldMatrix = {};	// 이게 자기 월드 행렬이 될 것.
+
+protected:
+	HRESULT Bind_WorldMatrix(class CShader* pShader, const _char* pContantName);
 
 public:
 	virtual CGameObject* Clone(void* pArg) = 0;

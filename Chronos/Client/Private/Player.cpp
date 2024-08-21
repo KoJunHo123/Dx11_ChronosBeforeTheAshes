@@ -9,13 +9,15 @@
 #include "Player_Jump.h"
 #include "Player_Move.h"
 
+#include "Player_Body.h"
+
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CGameObject{ pDevice, pContext }
+    : CContainerObject{ pDevice, pContext }
 {
 }
 
 CPlayer::CPlayer(const CPlayer& Prototype)
-    : CGameObject( Prototype )
+    : CContainerObject( Prototype )
 {
 }
 
@@ -35,8 +37,13 @@ HRESULT CPlayer::Initialize(void* pArg)
     if (FAILED(Ready_Components()))
         return E_FAIL;
 
+    if (FAILED(Ready_Parts()))
+        return E_FAIL;
+
     if (FAILED(Ready_States()))
         return E_FAIL;
+
+
 
     m_pFSM->Set_State(STATE_MOVE);
 
@@ -85,16 +92,6 @@ HRESULT CPlayer::Load_Data(ifstream* pInFile)
 
 HRESULT CPlayer::Ready_Components()
 {
-    /* FOR.Com_Shader */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxAnimModel"),
-        TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
-        return E_FAIL;
-
-    /* FOR.Com_Model */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player"),
-        TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
-        return E_FAIL;
-
     /* FOR.Com_FSM */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_FSM"),
         TEXT("Com_FSM"), reinterpret_cast<CComponent**>(&m_pFSM))))
@@ -107,11 +104,13 @@ HRESULT CPlayer::Ready_States()
 {
     CPlayer_State::PLAYER_STATE_DESC desc{};
     desc.pFSM = m_pFSM;
-    desc.pModelCom = m_pModelCom;
-    desc.pShaderCom = m_pShaderCom;
     desc.pTransformCom = m_pTransformCom;
+    desc.Parts = &m_Parts;
+
+    desc.pIsFinished = &m_isFinished;
+    desc.pPlayerAnim = &m_ePlayerAnim;
     desc.pSpeed = &m_fSpeed;
-    
+
     if(FAILED(m_pFSM->Add_State(CPlayer_Move::Create(&desc))))
         return E_FAIL;
     if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&desc))))
@@ -124,6 +123,41 @@ HRESULT CPlayer::Ready_States()
         return E_FAIL;
     if(FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&desc))))
         return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CPlayer::Ready_Parts()
+{
+    /* 실제 추가하고 싶은 파트오브젝트의 갯수만큼 밸류를 셋팅해놓자. */
+    m_Parts.resize(PART_END);
+
+    CPlayer_Body::PLAYER_BODY_DESC desc = {};
+    desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+    desc.pFSM = m_pFSM;
+    desc.pPlayerTransformCom = m_pTransformCom;
+
+    desc.pIsFinished = &m_isFinished;
+    desc.pPlayerAnim = &m_ePlayerAnim;
+    desc.pSpeed = &m_fSpeed;
+
+    if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Player_Body"), &desc)))
+        return E_FAIL;
+
+    //CBody_Player::BODY_DESC		BodyDesc{};
+    //BodyDesc.pParentState = &m_iState;
+    //BodyDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    //if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Body_Player"), &BodyDesc)))
+    //    return E_FAIL;
+
+    //CWeapon::WEAPON_DESC		WeaponDesc{};
+    //WeaponDesc.pParentState = &m_iState;
+    //WeaponDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    //WeaponDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("SWORD");
+
+    //if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon"), &WeaponDesc)))
+    //    return E_FAIL;
 
     return S_OK;
 }
@@ -158,8 +192,6 @@ void CPlayer::Free()
 {
     __super::Free();
 
-    Safe_Release(m_pModelCom);
-    Safe_Release(m_pShaderCom);
     Safe_Release(m_pFSM);
 
 }

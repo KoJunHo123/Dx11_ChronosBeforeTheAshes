@@ -8,6 +8,7 @@ BEGIN(Engine)
 class CShader;
 class CModel;
 class CTransform;
+class CPartObject;
 END
 
 BEGIN(Client)
@@ -17,9 +18,12 @@ public:
 	typedef struct : public CState::STATE_DESC
 	{
 		class CTransform* pTransformCom = { nullptr };
-		class CShader* pShaderCom = { nullptr };
-		class CModel* pModelCom = { nullptr };
+		
+		vector<class CPartObject*>* Parts = { nullptr };
+
+		PLAYER_ANIM* pPlayerAnim = { nullptr };
 		_float* pSpeed = { nullptr };
+		_bool* pIsFinished = { nullptr };
 	}PLAYER_STATE_DESC;
 
 protected:
@@ -36,29 +40,20 @@ public:
 	virtual HRESULT ExitState(void** pArg) override;
 
 protected:
-	_vector Get_Rotation(_matrix WorldMatrix, _vector vExist);
-	void Play_Animation(_float fTimeDelta);
-
 	void Look_CameraDir();
 
 protected:
 	class CTransform* m_pTransformCom = { nullptr };
-	class CShader* m_pShaderCom = { nullptr };
-	class CModel* m_pModelCom = { nullptr };
-	_float* m_pSpeed = { nullptr };
 
-	ANIM_PLAYER m_ePlayerAnim = { PLAYER_ANIM_END };
+	vector<class CPartObject*>			m_Parts;
 
-	// 애니메이션 종료시
-	_bool m_isFinished = { false };
 	// 애니메이션 돌아가는 동안 입력 안받는 용도
 	_bool m_bMotionLock = { false };
 
-	// 애니메이션이 변경될 떄 어느 정도 변경되었는지.
-	_float m_fChangeRate = { 0.f };
-
-	// 애니메이션 테스트
-	_float4 m_vTest = {};
+	// 파츠와 공유해야 하는 변수.
+	PLAYER_ANIM* m_pPlayerAnim = { nullptr };
+	_float* m_pSpeed = { nullptr };
+	_bool* m_pIsFinished = { false };
 
 public:
 	virtual void Free();

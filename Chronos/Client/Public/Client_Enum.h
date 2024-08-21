@@ -3,7 +3,7 @@
 
 namespace Client
 {
-	enum ANIM_PLAYER{
+	enum PLAYER_ANIM{
 		PLAYER_IMPACT_DEFLECT_R,
 
 		PLAYER_ACTION_DRAGONHEART,
