@@ -83,6 +83,7 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 
 	}
 
+
 	if (true == *m_pIsFinished)
 	{
 		m_pFSM->Set_State(CPlayer::STATE_MOVE);
@@ -101,10 +102,12 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 		}
 
 		_uint KeyFrameIndex = static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex();
+		_uint CurrentAnimIndex = static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_CurrentAnimIndex();
 
-		if (15 < KeyFrameIndex)
+		if (15 < KeyFrameIndex && *m_pPlayerAnim == CurrentAnimIndex)
 			m_bMotionLock = false;
 	}
+
 }
 
 void CPlayer_Attack::Late_Update(_float fTimeDelta)

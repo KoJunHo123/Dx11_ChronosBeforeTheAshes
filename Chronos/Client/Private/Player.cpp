@@ -10,6 +10,7 @@
 #include "Player_Move.h"
 
 #include "Player_Body.h"
+#include "Player_Weapon.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -42,8 +43,6 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     if (FAILED(Ready_States()))
         return E_FAIL;
-
-
 
     m_pFSM->Set_State(STATE_MOVE);
 
@@ -132,32 +131,59 @@ HRESULT CPlayer::Ready_Parts()
     /* 실제 추가하고 싶은 파트오브젝트의 갯수만큼 밸류를 셋팅해놓자. */
     m_Parts.resize(PART_END);
 
-    CPlayer_Body::PLAYER_BODY_DESC desc = {};
-    desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-
+    CPlayer_Part::PLAYER_PART_DESC desc = {};
+    desc.fRotationPerSec = 90.f;
+    desc.fSpeedPerSec = 1.f;
     desc.pFSM = m_pFSM;
-    desc.pPlayerTransformCom = m_pTransformCom;
-
     desc.pIsFinished = &m_isFinished;
     desc.pPlayerAnim = &m_ePlayerAnim;
     desc.pSpeed = &m_fSpeed;
+    desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    
+    if(FAILED(Ready_Body(desc)))
+        return E_FAIL;
+
+    if(FAILED(Ready_Weapon(desc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CPlayer::Ready_Body(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
+{
+    CPlayer_Body::PLAYER_BODY_DESC desc = {};
+    desc.fRotationPerSec = BaseDesc.fRotationPerSec;
+    desc.fSpeedPerSec = BaseDesc.fSpeedPerSec;
+    desc.pFSM = BaseDesc.pFSM;
+    desc.pIsFinished = BaseDesc.pIsFinished;
+    desc.pParentWorldMatrix = BaseDesc.pParentWorldMatrix;
+    desc.pPlayerAnim = BaseDesc.pPlayerAnim;
+    desc.pSpeed = BaseDesc.pSpeed;
+
+    desc.pPlayerTransformCom = m_pTransformCom;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Player_Body"), &desc)))
         return E_FAIL;
 
-    //CBody_Player::BODY_DESC		BodyDesc{};
-    //BodyDesc.pParentState = &m_iState;
-    //BodyDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    //if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Body_Player"), &BodyDesc)))
-    //    return E_FAIL;
+    return S_OK;
+}
 
-    //CWeapon::WEAPON_DESC		WeaponDesc{};
-    //WeaponDesc.pParentState = &m_iState;
-    //WeaponDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    //WeaponDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("SWORD");
+HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
+{
+    CPlayer_Weapon::PLAYER_WEAPON_DESC desc = {};
+    desc.fRotationPerSec = BaseDesc.fRotationPerSec;
+    desc.fSpeedPerSec = BaseDesc.fSpeedPerSec;
+    desc.pFSM = BaseDesc.pFSM;
+    desc.pIsFinished = BaseDesc.pIsFinished;
+    desc.pParentWorldMatrix = BaseDesc.pParentWorldMatrix;
+    desc.pPlayerAnim = BaseDesc.pPlayerAnim;
+    desc.pSpeed = BaseDesc.pSpeed;
 
-    //if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon"), &WeaponDesc)))
-    //    return E_FAIL;
+    desc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
+    desc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
+
+    if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
+        return E_FAIL;
 
     return S_OK;
 }
@@ -193,5 +219,8 @@ void CPlayer::Free()
     __super::Free();
 
     Safe_Release(m_pFSM);
+
+    for (auto& Part : m_Parts)
+        Safe_Release(Part);
 
 }

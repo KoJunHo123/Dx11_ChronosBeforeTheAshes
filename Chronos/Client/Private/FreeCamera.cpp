@@ -88,7 +88,7 @@ void CFreeCamera::Cursor_To_Center()
 void CFreeCamera::Camera_Move()
 {
 	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-	vCameraPos += XMVectorSet(0.f, 20.f, -20.f, 0.f);
+	vCameraPos += XMVectorSet(0.f, 10.f, -10.f, 0.f);
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos);
 
 	m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));

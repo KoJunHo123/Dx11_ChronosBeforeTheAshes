@@ -81,7 +81,6 @@ HRESULT CPlayer_Body::Render()
 	}
 
 	return S_OK;
-
 }
 
 void CPlayer_Body::Play_Animation(_float fTimeDelta)
@@ -113,8 +112,19 @@ _uint CPlayer_Body::Get_FrameIndex()
 	return m_pModelCom->Get_KeyFrameIndex();
 }
 
+_uint CPlayer_Body::Get_CurrentAnimIndex()
+{
+	return m_pModelCom->Get_CuttenrAnimIndex();
+}
+
+const _float4x4* CPlayer_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
+{
+	return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
+}
+
 HRESULT CPlayer_Body::Ready_Components()
-{    /* FOR.Com_Shader */
+{    
+	/* FOR.Com_Shader */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxAnimModel"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
