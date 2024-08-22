@@ -3,6 +3,8 @@
 #include "Client_Defines.h"
 #include "ContainerObject.h"
 
+#include "Player_Part.h"
+
 BEGIN(Engine)
 class CFSM;
 class CState;
@@ -49,6 +51,10 @@ private:
 	HRESULT Ready_Components();
 	HRESULT Ready_States();
 	HRESULT Ready_Parts();
+
+private:
+	HRESULT Ready_Body(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
+	HRESULT Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

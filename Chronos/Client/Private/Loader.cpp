@@ -14,6 +14,7 @@
 
 #include "Player.h"
 #include "Player_Body.h"
+#include "Player_Weapon.h"
 
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
@@ -128,6 +129,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Models/Player/Player",PreTransformMatrix))))
 		 return E_FAIL;
 
+	 /* For. Prototype_Component_Model_Player_Sword*/
+	 PreTransformMatrix = XMMatrixIdentity();
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Sword"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Player/Player_Sword/Player_Sword", PreTransformMatrix))))
+		 return E_FAIL;
 
 	 /* For. Prototype_Component_Model_Labyrinth*/
 	// PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(0.f));
@@ -188,6 +194,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Player_Body */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Body"),
 		CPlayer_Body::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Player_Weapon */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Weapon"),
+		CPlayer_Weapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));

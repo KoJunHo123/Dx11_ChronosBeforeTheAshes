@@ -30,6 +30,11 @@ public:
 		return m_Bones[iBoneIndex]->Get_CombinedTransformationMatrix();
 	}
 
+	const _float4x4* Get_BoneCombindTransformationMatrix_Ptr(const _char* pBoneName) const {
+		return m_Bones[Get_BoneIndex(pBoneName)]->Get_CombinedTransformationMatrix_Ptr();
+	}
+
+
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
