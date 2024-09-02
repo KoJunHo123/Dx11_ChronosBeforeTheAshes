@@ -111,11 +111,13 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 	_bool bChangeStart = false;
 	if (m_iPreAnimIndex != m_iCurrentAnimIndex)
 	{
-		m_isChange = true;
-		bChangeStart = true;
+		if (false == m_bNonInterpolate)
+		{
+			m_isChange = true;
+			bChangeStart = true;
+		}
 		m_iPreAnimIndex = m_iCurrentAnimIndex;
-
-		XMStoreFloat4(&m_vTranslationChange, m_Bones[1]->Get_TransformationMatrix().r[3]);
+		XMStoreFloat4(&m_vTranslationChange, XMVectorSet(0.f, 0.f, 0.f, 1.f));
 	}
 	
 	isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(m_Bones, m_isLoop, fTimeDelta, bChangeStart, m_isChange);

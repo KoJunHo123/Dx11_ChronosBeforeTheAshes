@@ -39,8 +39,6 @@ protected:
 	DXGI_FORMAT					m_eIndexFormat = {};
 	D3D11_PRIMITIVE_TOPOLOGY	m_eTopology = {};
 
-
-
 protected:
 	/* 정점, 인덱스 버퍼를 할당한다. */
 	HRESULT Create_Buffer(ID3D11Buffer** ppOut);

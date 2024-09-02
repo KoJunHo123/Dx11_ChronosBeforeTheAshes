@@ -30,10 +30,13 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
 	Safe_AddRef(m_pPlayerTransformCom);
 
-
 	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 	vCameraPos += XMVectorSet(0.f, 10.f, -10.f, 0.f);
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos);
+
+	m_fOffset = 5.f;
+	m_fDistance = 10.f;
+	m_fLimit = 0.3f;
 
 	return S_OK;
 }
@@ -41,25 +44,28 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 void CFreeCamera::Priority_Update(_float fTimeDelta)
 {
 	_long		MouseMove = { 0 };
-		
-	/*if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
+	
+	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+
+	vPlayerPos.m128_f32[1] += m_fOffset;
+	
+	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
 	{
-		m_fAngle += (_float)MouseMove * 0.1f;
-		m_pTransformCom->Orbit(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 15.f,
-			XMConvertToRadians(m_fAngle), XMVectorSet(0.f, 1.f, 0.f, 0.f));
-	}*/
+		m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fDistance, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+	}
+	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
+	{
+		m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fDistance, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+	}
+	
+	_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vLook * m_fDistance));
 
-	//if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
-	//{
-	//	m_fAngle += (_float)MouseMove * 0.1f;
-	//	m_pTransformCom->Orbit(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 15.f,
-	//		XMConvertToRadians(m_fAngle), m_pTransformCom->Get_State(CTransform::STATE_RIGHT));
-	//}
+	m_pTransformCom->LookAt(vPlayerPos);
 
-
-	Camera_Move();
-
-	//Cursor_To_Center();
+	POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
+	ClientToScreen(g_hWnd, &pt);
+	SetCursorPos(pt.x, pt.y);
 
 
 	__super::Priority_Update(fTimeDelta);
@@ -76,22 +82,6 @@ void CFreeCamera::Late_Update(_float fTimeDelta)
 HRESULT CFreeCamera::Render()
 {
 	return S_OK;
-}
-
-void CFreeCamera::Cursor_To_Center()
-{
-	POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
-	ClientToScreen(g_hWnd, &pt);
-	SetCursorPos(pt.x, pt.y);
-}
-
-void CFreeCamera::Camera_Move()
-{
-	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-	vCameraPos += XMVectorSet(0.f, 10.f, -10.f, 0.f);
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos);
-
-	m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 }
 
 CFreeCamera * CFreeCamera::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)

@@ -11,7 +11,7 @@ private:
 
 public:
 	HRESULT Initialize(ifstream* infile, const class CModel* pModel);
-	void Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition, _bool isChange);
+	void Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition, _bool isChange, _double RatioMax);
 
 	_uint Get_BoneIndex() {
 		return m_iBoneIndex;

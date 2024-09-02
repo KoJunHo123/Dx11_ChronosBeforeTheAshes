@@ -35,6 +35,9 @@ public:
 		return XMLoadFloat4x4(&m_WorldMatrix);
 	}
 
+	const _float4x4* Get_WorldMatrix_Ptr() const {
+		return &m_WorldMatrix;
+	}
 	_float3 Get_Scaled() const;
 
 	_matrix Get_WorldMatrix_Inverse() const {
@@ -53,9 +56,9 @@ public:
 	void Go_Left(_float fTimeDelta);
 	void Go_Right(_float fTimeDelta);
 	void Turn(_fvector vAxis, _float fTimeDelta);	
-	void Turn(_float fX, _float fY, _float fZ, _float fTimeDelta);
+	void Turn(_bool isRotationX, _bool isRotationY, _bool isRotationZ, _float fTimeDelta);
 	void Rotation(_fvector vAxis, _float fRadian);
-	void Rotation(_float fX, _float fY, _float fZ, _float fRadian);
+	void Rotation(_float fX, _float fY, _float fZ);
 
 	
 public:

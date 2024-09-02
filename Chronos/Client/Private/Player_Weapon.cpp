@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player_Weapon.h"
 #include "GameInstance.h"
+#include "Player.h"
 
 CPlayer_Weapon::CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPlayer_Part(pDevice, pContext)
@@ -36,6 +37,10 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 
 void CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 {
+	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
+		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
+	else
+		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
 }
 
 void CPlayer_Weapon::Update(_float fTimeDelta)
@@ -117,7 +122,6 @@ HRESULT CPlayer_Weapon::Ready_Components()
 	return S_OK;
 }
 
-
 CPlayer_Weapon* CPlayer_Weapon::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
 	CPlayer_Weapon* pInstance = new CPlayer_Weapon(pDevice, pContext);
@@ -150,5 +154,4 @@ void CPlayer_Weapon::Free()
 
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
-
 }

@@ -171,15 +171,6 @@ HRESULT CGameInstance::Create_Layer(_uint iLevelIndex, const _wstring& strLayerT
 {
 	return m_pObject_Manager->Create_Layer(iLevelIndex, strLayerTag);
 }
-
-HRESULT CGameInstance::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile)
-{
-	return m_pObject_Manager->Save_Layer(iLevelIndex, strLayerTag, pOutFile);
-}
-HRESULT CGameInstance::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
-{
-	return m_pObject_Manager->Load_Layer(iLevelIndex, strLayerTag, pInFile);
-}
 void CGameInstance::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
 {
 	m_pObject_Manager->Clear_Layer(iLevelIndex, strLayerTag);

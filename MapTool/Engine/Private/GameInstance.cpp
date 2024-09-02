@@ -176,10 +176,6 @@ HRESULT CGameInstance::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag
 {
 	return m_pObject_Manager->Save_Layer(iLevelIndex, strLayerTag, pOutFile);
 }
-HRESULT CGameInstance::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
-{
-	return m_pObject_Manager->Load_Layer(iLevelIndex, strLayerTag, pInFile);
-}
 void CGameInstance::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
 {
 	m_pObject_Manager->Clear_Layer(iLevelIndex, strLayerTag);
@@ -187,6 +183,14 @@ void CGameInstance::Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
 void CGameInstance::Release_Object(_uint iLevelIndex, const _wstring& strLayerTag)
 {
 	m_pObject_Manager->Release_Object(iLevelIndex, strLayerTag);
+}
+CLayer* CGameInstance::Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	return m_pObject_Manager->Find_Layer(iLevelIndex, strLayerTag);
+}
+vector<_wstring> CGameInstance::Get_PrototypeKeys()
+{
+	return m_pObject_Manager->Get_PrototypeKeys();
 }
 #pragma endregion
 
@@ -271,6 +275,10 @@ _bool CGameInstance::isPicked_InWorldSpace(const _fvector& vPointA, const _fvect
 _bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
 {
 	return m_pPicking->isPicked_InLocalSpace(vPointA, vPointB, vPointC, pOut);
+}
+_bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut, _float* pDist)
+{
+	return m_pPicking->isPicked_InLocalSpace(vPointA, vPointB, vPointC, pOut, pDist);
 }
 #pragma endregion
 

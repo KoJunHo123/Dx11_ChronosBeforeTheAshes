@@ -35,11 +35,11 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 
 	if(false == m_bMotionLock)
 	{
-		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim)
+		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Key_Up(VK_LBUTTON))
 		{
 			m_eAttackState = ATTACK_RUN;
 			*m_pPlayerAnim = PLAYER_ATK_RUN;
-			true == m_bMotionLock;
+			m_bMotionLock = true;
 		}
 		else if(m_pGameInstance->Key_Up(VK_LBUTTON))
 		{
@@ -70,19 +70,19 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 				*m_pIsFinished = false;
 			}
 		}
-		
-		if (m_pGameInstance->Key_Down('W')
-			|| m_pGameInstance->Key_Down('A')
-			|| m_pGameInstance->Key_Down('S')
-			|| m_pGameInstance->Key_Down('D')
-			|| m_pGameInstance->Key_Down(VK_SPACE))
-			m_pFSM->Set_State(CPlayer::STATE_MOVE);
+		else if(20 < static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex())
+		{
+			if (m_pGameInstance->Key_Pressing('W')
+				|| m_pGameInstance->Key_Pressing('A')
+				|| m_pGameInstance->Key_Pressing('S')
+				|| m_pGameInstance->Key_Pressing('D')
+				|| m_pGameInstance->Key_Down(VK_SPACE))
+				m_pFSM->Set_State(CPlayer::STATE_MOVE);
 
-		if (m_pGameInstance->Key_Pressing(VK_RBUTTON) && true == *m_pIsFinished)
-			m_pFSM->Set_State(CPlayer::STATE_BLOCK);
-
+			if (m_pGameInstance->Key_Pressing(VK_RBUTTON) && true == *m_pIsFinished)
+				m_pFSM->Set_State(CPlayer::STATE_BLOCK);
+		}
 	}
-
 
 	if (true == *m_pIsFinished)
 	{
@@ -138,21 +138,25 @@ void CPlayer_Attack::Light_Attack()
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_01;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 1:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_02;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 2:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_03;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 3:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_04;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	default:
 		break;
@@ -170,11 +174,13 @@ void CPlayer_Attack::Power_Attack()
 		*m_pPlayerAnim = PLAYER_ATK_POWER_01;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 1:
 		*m_pPlayerAnim = PLAYER_ATK_POWER_02;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	default:
 		break;

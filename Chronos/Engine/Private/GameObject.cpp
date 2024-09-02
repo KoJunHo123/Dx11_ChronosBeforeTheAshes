@@ -70,15 +70,6 @@ CComponent * CGameObject::Find_Component(const _wstring & strComponentTag)
 	return iter->second;
 }
 
-HRESULT CGameObject::Save_Data(ofstream* pOutFile)
-{
-	return S_OK;
-}
-
-HRESULT CGameObject::Load_Data(ifstream* pInFile)
-{
-	return S_OK;
-}
 
 HRESULT CGameObject::Add_Component(_uint iLevelIndex, const _wstring & strPrototypeTag, const _wstring & strComponentTag, CComponent** ppOut, void * pArg)
 {

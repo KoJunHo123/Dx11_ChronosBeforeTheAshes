@@ -88,6 +88,18 @@
     <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Effect">
       <UniqueIdentifier>{5aadc0e1-a328-4a82-9dcf-179a3890e613}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Boss_Lab">
+      <UniqueIdentifier>{79ea67db-7d88-4879-8231-df375e3b9e97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body">
+      <UniqueIdentifier>{dbec92f0-62cf-48e3-a0dc-01eb2270cf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\05.Puzzle">
+      <UniqueIdentifier>{a9bd7027-5ab4-4348-82ec-f08fcb5e482a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\05.Puzzle\PuzzlePart">
+      <UniqueIdentifier>{6e0c7cde-7dbc-4560-85f0-7cedd0d13ded}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -171,6 +183,21 @@
     <ClInclude Include="..\public\Player_Weapon.h">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab.h">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab_Body.h">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Shield.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Shield</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\PuzzleBase.h">
+      <Filter>02.GameObjects\05.Puzzle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\PuzzlePart.h">
+      <Filter>02.GameObjects\05.Puzzle\PuzzlePart</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -241,6 +268,21 @@
     </ClCompile>
     <ClCompile Include="..\private\Player_Weapon.cpp">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab_Body.cpp">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab.cpp">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Shield.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Shield</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\PuzzleBase.cpp">
+      <Filter>02.GameObjects\05.Puzzle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\PuzzlePart.cpp">
+      <Filter>02.GameObjects\05.Puzzle\PuzzlePart</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

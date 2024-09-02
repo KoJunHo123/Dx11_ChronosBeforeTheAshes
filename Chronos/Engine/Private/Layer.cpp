@@ -53,25 +53,6 @@ CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iInd
 	return (*iter)->Find_Component(strComponentTag);	
 }
 
-HRESULT CLayer::Save_GameObjects(ofstream* pOutFile)
-{
-	for (auto& GameObject : m_GameObjects)
-	{
-		GameObject->Save_Data(pOutFile);
-	}
-
-	return S_OK;
-}
-
-HRESULT CLayer::Load_GameObjects(ifstream* pInFile)
-{
-	if (FAILED(m_GameObjects.back()->Load_Data(pInFile)))
-	{
-		Release_Object();
-		return E_FAIL;
-	}
-	return S_OK;
-}
 
 void CLayer::Release_Object()
 {

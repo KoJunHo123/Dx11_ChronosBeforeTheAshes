@@ -186,6 +186,7 @@
     <ClInclude Include="..\Public\Labyrinth.h" />
     <ClInclude Include="..\public\Monster.h" />
     <ClInclude Include="..\public\Player.h" />
+    <ClInclude Include="..\public\PuzzleBase.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="..\Private\Labyrinth.cpp" />
     <ClCompile Include="..\private\Monster.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
+    <ClCompile Include="..\private\PuzzleBase.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="..\Public\ImGui\imgui.cpp" />
     <ClCompile Include="..\Public\ImGui\imgui_demo.cpp" />

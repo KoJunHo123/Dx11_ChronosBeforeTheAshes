@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Client_Defines.h"
-#include "GameObject.h"
+#include "ContainerObject.h"
 
 BEGIN(Engine)
 class CShader;
@@ -9,18 +9,19 @@ class CModel;
 END
 
 BEGIN(Client)
-class CMonster final : public CGameObject
+class CMonster abstract : public CContainerObject
 {
 public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
-		_vector vPos;
-		_float4 vScale;
-		_vector vRotationAxis;
-		_float fRotationAngle;
+		_float3 vPos;
+		_float3 vScale;
+		_float3 vRotation;
+
+		_int iStartCellIndex;
 	}MONSTER_DESC;
 
-private:
+protected:
 	CMonster(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CMonster(const CMonster& Prototype);
 	virtual ~CMonster() = default;
@@ -33,21 +34,17 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-	virtual HRESULT Load_Data(ifstream* pInFile) override;
-
-
-public:
-	class CShader* m_pShaderCom = { nullptr };
-	class CModel* m_pModelCom = { nullptr };
-
+protected:
 	_uint m_iCurrentAnimationIndex = { 0 };
 
-private:
-	HRESULT Ready_Components();
+	class CNavigation* m_pNavigationCom = { nullptr };
+
+protected:
+	virtual HRESULT Ready_Components(_int iStartCellIndex);
 
 public:
-	static CMonster* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	virtual CGameObject* Clone(void* pArg);
+	
+	virtual CGameObject* Clone(void* pArg) = 0;
 	virtual void Free() override;
 
 };

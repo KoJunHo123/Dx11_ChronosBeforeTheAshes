@@ -3,13 +3,15 @@
 #include "Model.h"
 #include "Shader.h"
 
+#include "GameInstance.h"
+
 CMesh::CMesh(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-	: CVIBuffer{ pDevice, pContext }
+	: CVIBuffer(pDevice, pContext)
 {
 }
 
 CMesh::CMesh(const CMesh& Prototype)
-	: CVIBuffer{ Prototype }
+	: CVIBuffer( Prototype )
 {
 }
 
@@ -42,15 +44,25 @@ HRESULT CMesh::Initialize_Prototype(const CModel* pModel, ifstream* pInfile, _fm
 	m_BufferDesc.StructureByteStride = m_iIndexStride;
 
 	_uint* pIndices = new _uint[m_iNumIndices];
+	m_pIndices = new _uint[m_iNumIndices];
+
 	ZeroMemory(pIndices, sizeof(_uint) * m_iNumIndices);
 
 	_uint		iNumIndices = { 0 };
 
 	for (size_t i = 0; i < m_iNumIndices / 3; i++)
 	{
-		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
-		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
-		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices++]), sizeof(_uint));
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices]), sizeof(_uint));
+		m_pIndices[iNumIndices] = pIndices[iNumIndices];
+		++iNumIndices;
+
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices]), sizeof(_uint));
+		m_pIndices[iNumIndices] = pIndices[iNumIndices];
+		++iNumIndices;
+
+		pInfile->read(reinterpret_cast<char*>(&pIndices[iNumIndices]), sizeof(_uint));
+		m_pIndices[iNumIndices] = pIndices[iNumIndices];
+		++iNumIndices;
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -87,6 +99,61 @@ HRESULT CMesh::Bind_BoneMatrices(const CModel* pModel, CShader* pShader, const _
 	return pShader->Bind_Matrices(pConstantName, m_BoneMatrices, m_iNumBones);
 }
 
+_bool CMesh::isPicking(const _matrix& WorldMatrix, _vector* pOut, _float* pDist)
+{
+	/* 마우스 레이와 레이포스를 로컬로 던졌다. */
+	m_pGameInstance->Transform_MouseRay_ToLocalSpace(WorldMatrix);
+
+	_uint iIndex = { 0 };
+	_bool isPicking = { false };
+
+	for (size_t i = 0; i < m_iNumIndices/3 - 1; i++)
+	{
+		_vector pVecticesVec[3] = {
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]]),
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]]),
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]])
+		};
+
+		/* 오른쪽 위 삼각형 */
+		if (true == m_pGameInstance->isPicked_InLocalSpace(pVecticesVec[0],
+			pVecticesVec[1],
+			pVecticesVec[2],
+			pOut,
+			pDist))
+		{
+			*pOut = XMVector4Transform(*pOut, WorldMatrix);
+			isPicking = true;
+		}
+
+	}
+	return isPicking;
+}
+
+void CMesh::Create_Cells(CNavigation* pNavigation, _fvector vTerrainPos)
+{
+	_uint iIndex = { 0 };
+	_bool isPicking = { false };
+
+	for (size_t i = 0; i < m_iNumIndices / 3 - 1; i++)
+	{
+		_vector pVecticesVec[3] = {
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]]),
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]]),
+			XMLoadFloat4(&m_pVerticesPos[m_pIndices[iIndex++]])
+		};
+
+		_float aY = pVecticesVec[0].m128_f32[1];
+		_float bY = pVecticesVec[1].m128_f32[1];
+		_float cY = pVecticesVec[2].m128_f32[1];
+
+		if(abs(aY - bY) < 0.01f && abs(cY - bY) < 0.01f && abs(aY - cY) < 0.01f)
+		{
+			if(aY > 4.724f && aY < 37.f)
+				pNavigation->Add_Cell(pVecticesVec[0] + vTerrainPos, pVecticesVec[1] + vTerrainPos, pVecticesVec[2] + vTerrainPos);
+		}
+	}
+}
 
 HRESULT CMesh::Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransformMatrix)
 {
@@ -102,12 +169,16 @@ HRESULT CMesh::Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransfo
 
 	/* 정점버퍼에 채워줄 값들을 만들기위해서 임시적으로 공간을 할당한다. */
 	VTXMESH* pVertices = new VTXMESH[m_iNumVertices];
+	m_pVerticesPos = new _float4[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXMESH) * m_iNumVertices);
 
 	for (size_t i = 0; i < m_iNumVertices; i++)
 	{
 		pInfile->read(reinterpret_cast<char*>(&pVertices[i]), sizeof(VTXMESH));
 		XMStoreFloat3(&pVertices[i].vPosition, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vPosition), PreTransformMatrix));
+		
+		_vector vPos = XMVectorSetW(XMLoadFloat3(&pVertices[i].vPosition), 1.f);
+		XMStoreFloat4(m_pVerticesPos + i, vPos);
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -246,4 +317,6 @@ void CMesh::Free()
 {
 	__super::Free();
 
+	Safe_Delete_Array(m_pVerticesPos);
+	Safe_Delete_Array(m_pIndices);
 }

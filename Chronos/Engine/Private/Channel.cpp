@@ -21,7 +21,7 @@ HRESULT CChannel::Initialize(ifstream* infile, const class CModel* pModel)
 
 	return S_OK;
 }
-void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition, _bool isChange)
+void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, _double CurrentTrackPosition, _bool isChange, _double RatioMax)
 {
 	if (0.0 == CurrentTrackPosition)
 		*pCurrentKeyFrameIndex = 0;
@@ -53,7 +53,7 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 		vDestTranslation	= XMVectorSetW(XMLoadFloat3(&m_KeyFrames[0].vTranslation), 1.f);
 
 		// 현재 키프레임과 다음 키프레임 사이의 현재 프레임의 비율 구하기
-		Ratio = CurrentTrackPosition / 5.;
+		Ratio = CurrentTrackPosition / RatioMax;
 	}
 	else
 	{
@@ -69,7 +69,7 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 		// 보간이 필요한 경우
 		else
 		{
-			if (CurrentTrackPosition >= m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition)	// 다음 프레임으로 넘어가면
+			while (CurrentTrackPosition >= m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition)	// 다음 프레임으로 넘어가면
 				++*pCurrentKeyFrameIndex;
 
 			vSourScale = XMLoadFloat3(&m_KeyFrames[*pCurrentKeyFrameIndex].vScale);

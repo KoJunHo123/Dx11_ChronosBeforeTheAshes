@@ -15,10 +15,11 @@ class CMonster final : public CGameObject
 public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
-		_vector vPos;
-		_float4 vScale;
-		_vector vRotationAxis;
-		_float fRotationAngle;
+		_float3 vPos;
+		_float3 vScale;
+		_float3 vRotation;
+
+		_int iStartCellIndex;
 	}MONSTER_DESC;
 
 private:
@@ -35,7 +36,6 @@ public:
 	virtual HRESULT Render() override;
 
 	virtual HRESULT Save_Data(ofstream* pOutFile) override;
-	virtual HRESULT Load_Data(ifstream* pInFile) override;
 
 
 public:
@@ -43,6 +43,8 @@ public:
 	class CModel* m_pModelCom = { nullptr };
 
 	_uint m_iCurrentAnimationIndex = { 0 };
+
+	MONSTER_DESC m_Desc = {};
 
 private:
 	HRESULT Ready_Components();

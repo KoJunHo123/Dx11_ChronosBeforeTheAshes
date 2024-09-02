@@ -53,26 +53,6 @@ HRESULT CShader::Initialize_Prototype(const _tchar * pShaderFilePath, const D3D1
 
 		pPass->GetDesc(&PassDesc);
 
-		/*  
-		LPCSTR SemanticName;
-		UINT SemanticIndex;
-		DXGI_FORMAT Format;
-		UINT InputSlot;
-		UINT AlignedByteOffset;
-		D3D11_INPUT_CLASSIFICATION InputSlotClass;
-		UINT InstanceDataStepRate;
-		*/
-
-		
-
-		/* D3D11_INPUT_ELEMENT_DESC : 정점을 구성하는 멤버변수 하나의 정보를 표현하는 구조체 .*/
-		
-		//D3D11_INPUT_ELEMENT_DESC	ElementDesc[] =
-		//{
-		//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//};
-		
 		ID3D11InputLayout*			pInputLayout;
 
 		if (FAILED(m_pDevice->CreateInputLayout(pElementDesc, iNumElements, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &pInputLayout)))
@@ -155,7 +135,7 @@ HRESULT CShader::Bind_SRV(const _char * pConstantName, ID3D11ShaderResourceView 
 	if (nullptr == pSRVariable)
 		return E_FAIL;
 	
-	return pSRVariable->SetResource(pSRV);	
+	return pSRVariable->SetResource(pSRV);
 }
 
 HRESULT CShader::Bind_SRVs(const _char * pConstantName, ID3D11ShaderResourceView ** ppSRVs, _uint iNumSRVs)

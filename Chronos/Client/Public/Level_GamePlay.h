@@ -20,16 +20,13 @@ public:
 	virtual void Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-public:
+private:
 	HRESULT Ready_Layer_Camera();	
 	HRESULT Ready_Layer_BackGround();
-	
-private:
 	HRESULT Ready_Layer_Player();
 	HRESULT Ready_Layer_Monster();
+	HRESULT Ready_Layer_Interaction();
 
-	HRESULT Load_Player();
-	HRESULT Load_Monsters();
 
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

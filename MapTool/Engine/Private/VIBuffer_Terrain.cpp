@@ -16,7 +16,7 @@ CVIBuffer_Terrain::CVIBuffer_Terrain(const CVIBuffer_Terrain & Prototype)
 
 HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeightMapFilePath)
 {
-	m_fDistancePerVertex = 4.4375f;
+	m_fDistancePerVertex = 8.875f;
 	_ulong			dwByte = {};
 
 	HANDLE			hFile = CreateFile(pHeightMapFilePath, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -34,7 +34,7 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeightMapFilePath
 	_uint*						pPixel = new _uint[m_iNumVerticesX * m_iNumVerticesZ];
 	ReadFile(hFile, pPixel, sizeof(_uint) * m_iNumVerticesX * m_iNumVerticesZ, &dwByte, nullptr);
 
-	CloseHandle(hFile);	
+	CloseHandle(hFile);
 
 	m_iNumVertexBuffers = 1;
 	m_iNumVertices = m_iNumVerticesX * m_iNumVerticesZ;
@@ -207,6 +207,65 @@ _bool CVIBuffer_Terrain::isPicking(const _matrix& WorldMatrix, _vector* pOut)
 Compute_WorldPos:
 	*pOut = XMVector4Transform(*pOut, WorldMatrix);
 	return true;
+}
+
+void CVIBuffer_Terrain::Create_Cells(CNavigation* pNavigation, _fvector vTerrainPos)
+{
+	for (size_t i = 0; i < m_iNumVerticesZ - 1; i++)
+	{
+		for (size_t j = 0; j < m_iNumVerticesX - 1; j++)
+		{
+			if (i < 1 || i > 45)
+				continue;
+
+			_uint		iIndex = i * m_iNumVerticesX + j;
+
+			_uint		iIndices[4] = {
+				iIndex + m_iNumVerticesX, /* ¿ÞÀ§*/
+				iIndex + m_iNumVerticesX + 1, /* ¿ÀÀ§ */
+				iIndex + 1, /* ¿À¾Æ */
+				iIndex /* ¿Þ¾Æ */
+			};
+
+			_vector pVecticesVec[4] = {
+				XMLoadFloat4(&m_pVerticesPos[iIndices[0]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[1]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[2]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[3]])
+			};
+
+			pNavigation->Add_Cell(pVecticesVec[0] + vTerrainPos, pVecticesVec[1] + vTerrainPos, pVecticesVec[2] + vTerrainPos);
+			pNavigation->Add_Cell(pVecticesVec[0] + vTerrainPos, pVecticesVec[2] + vTerrainPos, pVecticesVec[3] + vTerrainPos);
+		}
+	}
+
+	for (size_t i = 0; i < m_iNumVerticesZ - 1; i++)
+	{
+		for (size_t j = 0; j < m_iNumVerticesX - 1; j++)
+		{
+			if (i >= 1 && i <= 45)
+				continue;
+
+			_uint		iIndex = i * m_iNumVerticesX + j;
+
+			_uint		iIndices[4] = {
+				iIndex + m_iNumVerticesX, /* ¿ÞÀ§*/
+				iIndex + m_iNumVerticesX + 1, /* ¿ÀÀ§ */
+				iIndex + 1, /* ¿À¾Æ */
+				iIndex /* ¿Þ¾Æ */
+			};
+
+			_vector pVecticesVec[4] = {
+				XMLoadFloat4(&m_pVerticesPos[iIndices[0]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[1]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[2]]),
+				XMLoadFloat4(&m_pVerticesPos[iIndices[3]])
+			};
+
+			pNavigation->Add_Cell(pVecticesVec[0] + vTerrainPos, pVecticesVec[1] + vTerrainPos, pVecticesVec[2] + vTerrainPos);
+			pNavigation->Add_Cell(pVecticesVec[0] + vTerrainPos, pVecticesVec[2] + vTerrainPos, pVecticesVec[3] + vTerrainPos);
+		}
+	}
 }
 
 CVIBuffer_Terrain * CVIBuffer_Terrain::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar* pHeightMapFilePath)

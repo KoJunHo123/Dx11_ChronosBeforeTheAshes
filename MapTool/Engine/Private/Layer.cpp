@@ -53,6 +53,19 @@ CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iInd
 	return (*iter)->Find_Component(strComponentTag);	
 }
 
+CGameObject* CLayer::Find_GameObject(_uint iIndex)
+{
+	if (iIndex >= m_GameObjects.size())
+		return nullptr;
+
+	auto	iter = m_GameObjects.begin();
+
+	for (size_t i = 0; i < iIndex; i++)
+		++iter;
+
+	return *iter;
+}
+
 HRESULT CLayer::Save_GameObjects(ofstream* pOutFile)
 {
 	for (auto& GameObject : m_GameObjects)
@@ -61,11 +74,6 @@ HRESULT CLayer::Save_GameObjects(ofstream* pOutFile)
 	}
 
 	return S_OK;
-}
-
-HRESULT CLayer::Load_GameObjects(ifstream* pInFile)
-{
-	return m_GameObjects.back()->Load_Data(pInFile);
 }
 
 void CLayer::Release_Object()

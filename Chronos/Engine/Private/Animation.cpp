@@ -42,6 +42,16 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 {
  	m_CurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
 
+	_double RatioMax = 5.;
+
+	if (1. == m_Duration)
+	{
+		if (false == isChange)
+			m_CurrentTrackPosition = 0.;
+		else
+			RatioMax = 1.;
+	}
+
 	if (true == isChange)
 	{
 		if (true == bChangeStart)
@@ -49,7 +59,7 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 			m_CurrentTrackPosition = 0.;
 		}
 
-		if (m_CurrentTrackPosition > 5.)
+		if (m_CurrentTrackPosition > RatioMax)
 		{
 			m_CurrentTrackPosition = 0.;
 			isChange = false;
@@ -70,7 +80,7 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 	_vector		vTranslation = XMLoadFloat4(&m_vPreTranslation);
 
 	for(auto& pChannel : m_Channels)
-		pChannel->Update_TransformationMatrix(Bones, &m_CurrentKeyFrameIndices[iChannelIndex++], m_CurrentTrackPosition, isChange);
+		pChannel->Update_TransformationMatrix(Bones, &m_CurrentKeyFrameIndices[iChannelIndex++], m_CurrentTrackPosition, isChange, RatioMax);
 
 	XMStoreFloat4(&m_vPreTranslation, vTranslation);
 

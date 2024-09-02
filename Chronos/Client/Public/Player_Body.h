@@ -15,7 +15,9 @@ public:
 	typedef struct : public CPlayer_Part::PLAYER_PART_DESC
 	{
 		class CTransform* pPlayerTransformCom = { nullptr };
+		class CNavigation* pNavigationCom = { nullptr };
 	}PLAYER_BODY_DESC;
+
 private:
 	CPlayer_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CPlayer_Body(const CPlayer_Body& Prototype);
@@ -36,6 +38,7 @@ public:
 
 private:
 	class CTransform* m_pPlayerTransformCom = { nullptr };
+	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 

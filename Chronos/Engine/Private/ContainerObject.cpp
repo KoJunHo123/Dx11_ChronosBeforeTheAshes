@@ -53,8 +53,10 @@ HRESULT CContainerObject::Add_PartObject(_uint iPartID, const _wstring& strProto
 	return S_OK;
 }
 
-
 void CContainerObject::Free()
 {
 	__super::Free();
+
+	for (auto& Part : m_Parts)
+		Safe_Release(Part);
 }

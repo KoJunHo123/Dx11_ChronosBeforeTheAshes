@@ -46,9 +46,6 @@ void CTerrain::Update(_float fTimeDelta)
 
 void CTerrain::Late_Update(_float fTimeDelta)
 {
-	/* 직교투영을 위한 월드행렬까지 셋팅하게 된다. */
-	__super::Late_Update(fTimeDelta);
-	
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
@@ -73,6 +70,10 @@ HRESULT CTerrain::Render()
 	if (FAILED(m_pVIBufferCom->Render()))
 		return E_FAIL;
 
+#ifdef _DEBUG
+	m_pNavigationCom->Render();
+#endif
+
 	return S_OK;
 }
 
@@ -91,6 +92,11 @@ HRESULT CTerrain::Ready_Components()
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
+		return E_FAIL;
+
+	/* FOR.Com_Navigation */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
+		TEXT("Com_Navigation"), reinterpret_cast<CComponent**>(&m_pNavigationCom))))
 		return E_FAIL;
 
 	return S_OK;
@@ -129,4 +135,5 @@ void CTerrain::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pVIBufferCom);
+	Safe_Release(m_pNavigationCom);
 }

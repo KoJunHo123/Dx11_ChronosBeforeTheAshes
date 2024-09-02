@@ -9,7 +9,7 @@
 #include "Shader.h"
 #include "Model.h"
 #include "FSM.h"
-
+#include "Navigation.h"
 
 /* 컴포넌트의 원형을 레벨별로 보관한다. */
 /* 복제하여 리턴한다.*/

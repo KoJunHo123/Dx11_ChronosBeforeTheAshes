@@ -26,6 +26,7 @@ HRESULT CAnimation::Initialize(ifstream* infile, const class CModel* pModel, _ui
 
 	m_CurrentKeyFrameIndices.resize(m_iNumChannels);
 
+
 	for (size_t i = 0; i < m_iNumChannels; ++i)
 	{
 		CChannel* pChannel = CChannel::Create(infile, pModel);
@@ -34,7 +35,6 @@ HRESULT CAnimation::Initialize(ifstream* infile, const class CModel* pModel, _ui
 
 		m_Channels.emplace_back(pChannel);
 	}
-	
 
 	return S_OK;
 }
