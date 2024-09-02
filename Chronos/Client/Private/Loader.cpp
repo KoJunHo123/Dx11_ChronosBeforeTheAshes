@@ -4,17 +4,29 @@
 #include "GameInstance.h"
 
 // 오브젝트
+
+// 지형
 #include "BackGround.h"
 #include "Labyrinth.h"
 #include "Terrain.h"
 
+// 퍼즐
+#include "PuzzleBase.h"
+#include "PuzzlePart.h"
+
+// 카메라
 #include "FreeCamera.h"
 
-#include "Monster.h"
+// 보스몬스터
+#include "Boss_Lab.h"
+#include "Boss_Lab_Body.h"
 
+// 플레이어
 #include "Player.h"
 #include "Player_Body.h"
 #include "Player_Weapon.h"
+#include "Player_Shield.h"
+
 
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
@@ -117,12 +129,82 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
+#pragma region LABYRINTH
 	/* For. Prototype_Component_VIBuffer_Terrain*/
  	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
 		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Height.bmp")))))
 		return E_FAIL;
 
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
+
+	/* For. Prototype_Component_Model_Labyrinth*/
+	// PreTransformMatrix = XMMatrixIdentity();
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+	//	return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Base */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Base"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Base", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_00 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_00"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_00", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_01 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_01"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_01", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_02 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_02"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_02", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_10 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_10"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_10", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_11 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_11"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_11", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_12 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_12"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_12", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_21 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_21"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_21", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_Piece_22 */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Piece_22"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_Piece_22", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Puzzle_ReplacementPiece */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_ReplacementPiece"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Puzzle/Puzzle_ReplacementPiece", PreTransformMatrix))))
+		return E_FAIL;
+
+#pragma endregion
+#pragma region PLAYER
 	/* For. Prototype_Component_Model_Player*/
 	 PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
 	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player"),
@@ -135,13 +217,23 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Player/Player_Sword/Player_Sword", PreTransformMatrix))))
 		 return E_FAIL;
 
-	 /* For. Prototype_Component_Model_Labyrinth*/
-	// PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(0.f));
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth", PreTransformMatrix))))
-	//	return E_FAIL;
+	 /* For. Prototype_Component_Model_Player_Shield*/
+	 PreTransformMatrix = XMMatrixIdentity();
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Shield"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Player/Player_Shield/Player_Shield", PreTransformMatrix))))
+		 return E_FAIL;
+#pragma endregion
+#pragma region MONSTER
+	 /* For. Prototype_Component_Model_Monster_Boss_Lab*/
+	 PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Monster_Boss_Lab"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Models/Monster/Boss_Lab/Boss_Lab", PreTransformMatrix))))
+		 return E_FAIL;
+#pragma endregion
+
 
 	lstrcpy(m_szLoadingText, TEXT("셰이더을(를) 로딩중입니다."));
+#pragma region SHADER
 	/* For. Prototype_Component_Shader_VtxNorTex*/
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxNorTex"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxNorTex.hlsl"), VTXNORTEX::Elements, VTXNORTEX::iNumElements))))
@@ -156,16 +248,31 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxAnimModel"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxAnimModel.hlsl"), VTXANIMMESH::Elements, VTXANIMMESH::iNumElements))))
 		return E_FAIL;
+#pragma endregion
+
 
 	lstrcpy(m_szLoadingText, TEXT("FSM을(를) 로딩중입니다."));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_FSM"),
 		CFSM::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	lstrcpy(m_szLoadingText, TEXT("네비게이션을(를) 로딩중입니다."));
+	/* For. Prototype_Component_Navigation*/
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
+		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/SaveData/Navigation.dat")))))
+		return E_FAIL;
+
 	lstrcpy(m_szLoadingText, TEXT("사운드을(를) 로딩중입니다."));
 
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
+#pragma region CAMERA
+	/* For. Prototype_GameObject_FreeCamera */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FreeCamera"),
+		CFreeCamera::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region LABYRINTH
 	/* For. Prototype_GameObject_Terrain */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Terrain"),
 		CTerrain::Create(m_pDevice, m_pContext))))
@@ -176,16 +283,28 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CLabyrinth::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	/* For. Prototype_GameObject_FreeCamera */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FreeCamera"),
-		CFreeCamera::Create(m_pDevice, m_pContext))))
+	/* For. Prototype_GameObject_PuzzleBase */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_PuzzleBase"),
+		CPuzzleBase::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	/* For. Prototype_GameObject_Monster */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Monster"),
-		CMonster::Create(m_pDevice, m_pContext))))
+	/* For. Prototype_GameObject_PuzzlePart */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_PuzzlePart"),
+		CPuzzlePart::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region BOSS
+	/* For. Prototype_GameObject_Boss_Lab */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab"),
+		CBoss_Lab::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Boss_Lab_Body */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Body"),
+		CBoss_Lab_Body::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region PLAYER
 	/* For. Prototype_GameObject_Player */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player"),
 		CPlayer::Create(m_pDevice, m_pContext))))
@@ -201,6 +320,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CPlayer_Weapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Player_Shield */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Shield"),
+		CPlayer_Shield::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
 	m_isFinished = true;

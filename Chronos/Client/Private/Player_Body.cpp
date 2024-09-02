@@ -23,7 +23,10 @@ HRESULT CPlayer_Body::Initialize(void* pArg)
 	PLAYER_BODY_DESC* pDesc = static_cast<PLAYER_BODY_DESC*>(pArg);
 
 	m_pPlayerTransformCom = pDesc->pPlayerTransformCom;
+	m_pNavigationCom = pDesc->pNavigationCom;
+
 	Safe_AddRef(m_pPlayerTransformCom);
+	Safe_AddRef(m_pNavigationCom);
 
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
@@ -36,7 +39,7 @@ HRESULT CPlayer_Body::Initialize(void* pArg)
 
 void CPlayer_Body::Priority_Update(_float fTimeDelta)
 {
-
+	
 }
 
 void CPlayer_Body::Update(_float fTimeDelta)
@@ -44,6 +47,7 @@ void CPlayer_Body::Update(_float fTimeDelta)
 	m_pModelCom->SetUp_Animation(*m_pPlayerAnim);
 
 	Play_Animation(fTimeDelta);
+	*m_pFrameIndex = Get_FrameIndex();
 }
 
 void CPlayer_Body::Late_Update(_float fTimeDelta)
@@ -89,10 +93,35 @@ void CPlayer_Body::Play_Animation(_float fTimeDelta)
 	
 	*m_pIsFinished = m_pModelCom->Play_Animation(fTimeDelta, vStateChange);
 
-	vStateChange = Get_Rotation(XMLoadFloat4x4(m_pParentMatrix), vStateChange);
+	vStateChange = m_pPlayerTransformCom->Get_Rotated_Vector(vStateChange);
+	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 
-	m_pPlayerTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION) + vStateChange);
+	_vector vMovePosition = vPlayerPos + vStateChange;
 
+	_vector vLine = {};
+
+	if (nullptr == m_pNavigationCom || true == m_pNavigationCom->isMove(vMovePosition, &vLine))
+	{
+		m_pPlayerTransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+	}
+	else
+	{
+		vLine = XMVector3Normalize(vLine);
+
+		_float fDot = XMVectorGetX(XMVector3Dot(vLine, vStateChange));
+
+		if (fDot < 0.f)
+		{
+			vLine *= -1.f;
+			fDot = XMVectorGetX(XMVector3Dot(vLine, vStateChange));
+		}
+
+		vStateChange = vLine * fDot;
+		vMovePosition = vPlayerPos + vStateChange;
+
+		if (true == m_pNavigationCom->isMove(vMovePosition, &vLine))
+			m_pPlayerTransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+	}
 }
 
 _vector CPlayer_Body::Get_Rotation(_matrix WorldMatrix, _vector vExist)
@@ -170,4 +199,5 @@ void CPlayer_Body::Free()
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pPlayerTransformCom);
+	Safe_Release(m_pNavigationCom);
 }

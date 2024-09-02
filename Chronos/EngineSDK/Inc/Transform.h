@@ -45,6 +45,9 @@ public:
 		return XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_WorldMatrix));
 	}
 
+	// 벡터를 월드 메트릭스의 회전 값만큼 돌려서 반환하는 함수.
+	_vector Get_Rotated_Vector(_vector vExist, _bool isTurned = true);
+
 public:	
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
@@ -55,20 +58,23 @@ public:
 	void LookAt(_fvector vAt);
 	void LookDir(_fvector vDir);
 
-	void Go_Straight(_float fTimeDelta);
-	void Go_Backward(_float fTimeDelta);
-	void Go_Left(_float fTimeDelta);
-	void Go_Right(_float fTimeDelta);
-
-	void Orbit(_vector vCenter, _float fDistance, _float fAngle, _vector vAxis);
+	void Go_Straight(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
+	void Go_Backward(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
+	void Go_Left(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
+	void Go_Right(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
 
 	void Turn(_fvector vAxis, _float fTimeDelta);	
-	void Turn(_float fX, _float fY, _float fZ, _float fTimeDelta);
+	void Turn(_bool isRotationX, _bool isRotationY, _bool isRotationZ, _float fTimeDelta);
 
 	void Rotation(_fvector vAxis, _float fRadian);
-	void Rotation(_float fX, _float fY, _float fZ, _float fRadian);
+	void Rotation(_float fX, _float fY, _float fZ);
 
+	void SetUp_OnCell(class CNavigation* pNavigation);
 	
+	void Orbit(_fvector vAxis, _fvector vCenter, _float fDistance, _float fLimit, _float fTimeDelta);
+
+	_bool MoveTo(_fvector vTargetPos, _float fTimeDelta);
+
 public:
 	HRESULT Bind_ShaderResource(class CShader* pShader, const _char* pConstantName);
 

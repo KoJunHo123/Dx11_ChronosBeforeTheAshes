@@ -40,7 +40,7 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 	// 보간이 필요한 경우
 	else
 	{
-		if (CurrentTrackPosition >= m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition)	// 다음 프레임으로 넘어가면
+		while (CurrentTrackPosition >= m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition)	// 다음 프레임으로 넘어가면
 			++*pCurrentKeyFrameIndex;
 
 		_vector vSourScale = XMLoadFloat3(&m_KeyFrames[*pCurrentKeyFrameIndex].vScale);

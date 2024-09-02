@@ -17,14 +17,15 @@ public:
 
 public:
 	virtual _bool isPicking(const _matrix& WorldMatrix, _vector* pOut) override;
+	void Create_Cells(class CNavigation* pNavigation, _fvector vTerrainPos);
 
 private:
 	_uint			m_iNumVerticesX = {};
 	_uint			m_iNumVerticesZ = {};
 
-	_float4* m_pVerticesPos = {};
+	_float4*		m_pVerticesPos = {};
 
-	_float m_fDistancePerVertex = {};
+	_float			m_fDistancePerVertex = {};
 
 public:
 	static CVIBuffer_Terrain* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pHeightMapFilePath);

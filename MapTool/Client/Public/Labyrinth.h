@@ -6,6 +6,7 @@
 BEGIN(Engine)
 class CShader;
 class CModel;
+class CCollider;
 END
 
 BEGIN(Client)
@@ -25,9 +26,26 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+	HRESULT Add_Collider(_fvector vPos, _fvector vExtents);
+	void Release_LastCollider();
+
+	_uint Get_ColliderCount() {
+		return m_ColliderComs.size();
+	}
+
+private:
+	HRESULT Set_Rasterizer();
+
 public:
 	class CShader*				m_pShaderCom = { nullptr };	
 	class CModel*				m_pModelCom = { nullptr };
+	
+	vector<class CCollider*>	m_ColliderComs;
+
+	ID3D11RasterizerState*		m_pWireFrameRS = { nullptr };
+	ID3D11RasterizerState*		m_pSolidFrameRS = { nullptr };
+
+
 
 private:
 	HRESULT Ready_Components();

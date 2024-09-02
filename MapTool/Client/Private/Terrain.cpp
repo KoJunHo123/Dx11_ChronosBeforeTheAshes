@@ -2,6 +2,7 @@
 #include "..\Public\Terrain.h"
 
 #include "GameInstance.h"
+#include "Cell.h"
 
 CTerrain::CTerrain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject{ pDevice, pContext }
@@ -31,17 +32,23 @@ HRESULT CTerrain::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	if (FAILED(Set_Rasterizer()))
+		return E_FAIL;
+
 	return S_OK;
 }
 
 void CTerrain::Priority_Update(_float fTimeDelta)
 {
 	int a = 10;
-}
+}                                                                                                                                                                                                                                                                                                                  
 
 void CTerrain::Update(_float fTimeDelta)
 {
+	// m_pNavigationCom->Update(m_pTransformCom->Get_WorldMatrix());
 	int a = 10;
+
+	m_pNavigationCom->Set_CellType(89, CCell::TYPE_FALL);
 }
 
 void CTerrain::Late_Update(_float fTimeDelta)
@@ -55,6 +62,8 @@ void CTerrain::Late_Update(_float fTimeDelta)
 
 HRESULT CTerrain::Render()
 {
+	//m_pContext->RSSetState(m_pWireFrameRS);
+
 	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))		
 		return E_FAIL;
 
@@ -72,6 +81,12 @@ HRESULT CTerrain::Render()
 		return E_FAIL;
 	if (FAILED(m_pVIBufferCom->Render()))
 		return E_FAIL;
+
+	//m_pContext->RSSetState(m_pSolidFrameRS);
+
+#ifdef _DEBUG
+	m_pNavigationCom->Render();
+#endif
 
 	return S_OK;
 }
@@ -91,6 +106,29 @@ HRESULT CTerrain::Ready_Components()
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
+		return E_FAIL;
+
+	/* FOR.Com_Navigation */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
+		TEXT("Com_Navigation"), reinterpret_cast<CComponent**>(&m_pNavigationCom))))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CTerrain::Set_Rasterizer()
+{
+	D3D11_RASTERIZER_DESC desc = {};
+	desc.FillMode = D3D11_FILL_WIREFRAME;
+	desc.CullMode = D3D11_CULL_NONE;
+	desc.DepthClipEnable = true;
+
+	if (FAILED(m_pDevice->CreateRasterizerState(&desc, &m_pWireFrameRS)))
+		return E_FAIL;
+
+	desc.FillMode = D3D11_FILL_SOLID;
+
+	if (FAILED(m_pDevice->CreateRasterizerState(&desc, &m_pSolidFrameRS)))
 		return E_FAIL;
 
 	return S_OK;
@@ -129,4 +167,9 @@ void CTerrain::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pVIBufferCom);
+	Safe_Release(m_pNavigationCom);
+
+	Safe_Release(m_pWireFrameRS);
+	Safe_Release(m_pSolidFrameRS);
+
 }

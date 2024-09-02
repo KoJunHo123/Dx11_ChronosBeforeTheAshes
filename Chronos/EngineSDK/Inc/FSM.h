@@ -16,6 +16,11 @@ public:
 		m_iNextStateIndex = iNextState;
 	}
 
+	_uint Get_State() {
+		return m_iNextStateIndex;
+	}
+
+
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);

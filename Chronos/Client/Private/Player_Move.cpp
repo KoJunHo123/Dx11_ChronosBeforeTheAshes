@@ -83,39 +83,49 @@ void CPlayer_Move::Move_Control(_float fTimeDelta)
 
 void CPlayer_Move::Walk(_float fTimeDelta)
 {
+	_bool bKeyPress = { false };
+
 	if (m_pGameInstance->Key_Pressing('W'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_F;
 		m_eMoveState = MOVE_WALK;
 
-		m_pTransformCom->Go_Straight(fTimeDelta * *m_pSpeed);
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Straight(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
+		bKeyPress = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('A'))
-	{
-		*m_pPlayerAnim = PLAYER_MOVE_WALK_F;		
-		m_eMoveState = MOVE_WALK;
-
-		m_pTransformCom->Go_Left(fTimeDelta * *m_pSpeed);
-
-	}
-	else if (m_pGameInstance->Key_Pressing('S'))
+	if (m_pGameInstance->Key_Pressing('S'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_B;
 		m_eMoveState = MOVE_WALK;
-		
-		m_pTransformCom->Go_Backward(fTimeDelta * *m_pSpeed);
 
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Backward(fTimeDelta * *m_pSpeed, m_pNavigationCom);
+
+		bKeyPress = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('D'))
+	if (m_pGameInstance->Key_Pressing('A'))
+	{
+		*m_pPlayerAnim = PLAYER_MOVE_WALK_L;		
+		m_eMoveState = MOVE_WALK;
+
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Left(fTimeDelta * *m_pSpeed, m_pNavigationCom);
+
+		bKeyPress = true;
+	}
+	if (m_pGameInstance->Key_Pressing('D'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_R;
 		m_eMoveState = MOVE_WALK;
 		
-		m_pTransformCom->Go_Right(fTimeDelta * *m_pSpeed);
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Right(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
+		bKeyPress = true;
 	}
-	else
+	if(false == bKeyPress)
 	{
 		if(MOVE_DODGE != m_eMoveState)
 		{
@@ -127,38 +137,48 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 
 void CPlayer_Move::Jog(_float fTimeDelta)
 {
+	_bool bKeyPress = { false };
 	if(m_pGameInstance->Key_Pressing('W'))
 	{
-		*m_pPlayerAnim = PLAYER_MOVE_JOG_F;
+ 		*m_pPlayerAnim = PLAYER_MOVE_JOG_F;
 		m_eMoveState = MOVE_JOG;
 		
-		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
+		bKeyPress = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('A'))
-	{
-		*m_pPlayerAnim = PLAYER_MOVE_JOG_L;
-		m_eMoveState = MOVE_JOG;
-
-		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
-
-	}
-	else if (m_pGameInstance->Key_Pressing('S'))
+	if (m_pGameInstance->Key_Pressing('S'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_B;
 		m_eMoveState = MOVE_JOG;
 
-		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
+		bKeyPress = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('D'))
+	if (m_pGameInstance->Key_Pressing('A'))
+	{
+		*m_pPlayerAnim = PLAYER_MOVE_JOG_L;
+		m_eMoveState = MOVE_JOG;
+
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+
+		bKeyPress = true;
+	}
+	if (m_pGameInstance->Key_Pressing('D'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_R;
 		m_eMoveState = MOVE_JOG;
 
-		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.f);
+		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+
+		bKeyPress = true;
 	}
-	else
+	if(false == bKeyPress)
 	{
 		if(MOVE_DODGE != m_eMoveState)
 		{
@@ -206,11 +226,17 @@ void CPlayer_Move::Dodge_Control()
 
 		_uint KeyFrameIndex = static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex();
 
+		if (10 < KeyFrameIndex)
+		{
+			if (m_pGameInstance->Key_Down(VK_LBUTTON))
+				m_pFSM->Set_State(CPlayer::STATE_ATTACK);
+		}
 		if (15 < KeyFrameIndex)
 		{
 			m_bMotionLock = false;
 			m_fDodgeDelay = 0.f;
 		}
+		
 	}
 }
 

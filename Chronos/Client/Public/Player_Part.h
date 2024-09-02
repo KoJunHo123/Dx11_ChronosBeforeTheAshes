@@ -5,6 +5,7 @@
 
 BEGIN(Engine)
 class CFSM;
+class CNavigation;
 END
 
 BEGIN(Client)
@@ -17,7 +18,7 @@ public:
 		PLAYER_ANIM* pPlayerAnim = { nullptr };
 		_float* pSpeed = { nullptr };
 		_bool* pIsFinished = { false };
-
+		_uint* pFrameIndex = { nullptr };
 	}PLAYER_PART_DESC;
 
 protected:
@@ -40,11 +41,10 @@ protected:
 	PLAYER_ANIM* m_pPlayerAnim = { nullptr };
 	_float* m_pSpeed = { nullptr };
 	_bool* m_pIsFinished = { false };
-
+	_uint* m_pFrameIndex = { nullptr };
 
 public:
 	virtual CGameObject* Clone(void* pArg) = 0;
 	virtual void Free() override;
 };
-
 END

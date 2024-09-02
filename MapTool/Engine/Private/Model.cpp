@@ -13,6 +13,7 @@ CModel::CModel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 
 CModel::CModel(const CModel& Prototype)
 	: CComponent{ Prototype }
+	, m_eType{Prototype.m_eType}
 	, m_iNumMeshes{ Prototype.m_iNumMeshes }
 	, m_Meshes{ Prototype.m_Meshes }
 	, m_PreTransformMatrix( Prototype.m_PreTransformMatrix )
@@ -92,10 +93,33 @@ HRESULT CModel::Initialize(void* pArg)
 
 HRESULT CModel::Render(_uint iMeshIndex)
 {
-	m_Meshes[iMeshIndex]->Bind_Buffers();
-	m_Meshes[iMeshIndex]->Render();
+		if(true == m_isRender)
+		{
+			m_Meshes[iMeshIndex]->Bind_Buffers();
+			m_Meshes[iMeshIndex]->Render();
+		}
 
 	return S_OK;
+}
+
+void CModel::Create_Cells(CNavigation* pNavigation, _fvector vTerrainPos)
+{
+	for (auto& Mesh : m_Meshes)
+	{
+		if (0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r04_merge_floor")
+			|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r05_merge_floor_A")
+			|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor")
+			|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor_B")
+			|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r07_merge_props")
+			|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_rBoosroom_merge"))
+		{
+			if (TYPE_NONANIM == m_eType)
+			{
+				Mesh->Create_Cells(pNavigation, vTerrainPos);
+			}
+		}
+	}
+
 }
 
 _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
@@ -142,6 +166,36 @@ HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTe
 HRESULT CModel::Bine_MeshBoneMatrices(CShader* pShader, const _char* pConstantName, _uint iMeshIndex)
 {
 	return 	m_Meshes[iMeshIndex]->Bind_BoneMatrices(this, pShader, pConstantName);
+}
+
+_bool CModel::isPicking(const _matrix& WorldMatrix, _vector* pOut, _uint* pMeshIndex)
+{
+	// || 0 == strcmp(Mesh->Get_Name(), )
+	_float fDist = { 10000.f };
+	_bool isPicking = { false };
+
+	_int iMeshIndex = 0;
+
+	for (auto& Mesh : m_Meshes)
+	{
+		/*if(0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r04_merge_floor")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r05_merge_floor_A")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor_B")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floorchunk")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r07_merge_props")
+		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_rBoosroom_merge"))	*/
+		if (TYPE_NONANIM == m_eType)
+		{
+			if (true == Mesh->isPicking(WorldMatrix, pOut, &fDist))
+			{
+				isPicking = true;
+				*pMeshIndex = iMeshIndex;
+			}
+		}
+		++iMeshIndex;
+	}
+	return isPicking;
 }
 
 HRESULT CModel::Ready_Meshes()

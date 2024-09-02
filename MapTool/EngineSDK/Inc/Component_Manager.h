@@ -8,6 +8,8 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Model.h"
+#include "Navigation.h"
+#include "Collider.h"
 
 
 

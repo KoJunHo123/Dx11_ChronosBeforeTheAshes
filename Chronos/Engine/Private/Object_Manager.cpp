@@ -21,6 +21,9 @@ HRESULT CObject_Manager::Initialize(_uint iNumLevels)
 
 HRESULT CObject_Manager::Add_Prototype(const _wstring & strPrototypeTag, CGameObject * pPrototype)
 {
+	if (nullptr == pPrototype)
+		return E_FAIL;
+
 	if (nullptr != Find_Prototype(strPrototypeTag))
 	{
 		Safe_Release(pPrototype);
@@ -150,25 +153,6 @@ void CObject_Manager::Release_Object(_uint iLevelIndex, const _wstring& strLayer
 	pLayer->Release_Object();
 }
 
-HRESULT CObject_Manager::Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile)
-{
-	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
-	if (nullptr == pLayer)
-		return E_FAIL;
-
-	pLayer->Save_GameObjects(pOutFile);
-
-	return S_OK;
-}
-
-HRESULT CObject_Manager::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
-{
-	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
-	if (nullptr == pLayer)
-		return E_FAIL;
-
-	return pLayer->Load_GameObjects(pInFile);
-}
 
 CGameObject* CObject_Manager::Clone_GameObject(const _wstring& strPrototypeTag, void* pArg)
 {

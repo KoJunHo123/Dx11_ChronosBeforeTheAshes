@@ -17,13 +17,17 @@ HRESULT CPlayer_State::Initialize(void* pArg)
     __super::Initialize(pArg);
 
     m_pTransformCom = pDesc->pTransformCom;
+    m_pNavigationCom = pDesc->pNavigationCom;
+
     Safe_AddRef(m_pTransformCom);
-    
+    Safe_AddRef(m_pNavigationCom);
+
     m_Parts = *pDesc->Parts;
 
     m_pSpeed = pDesc->pSpeed;
     m_pPlayerAnim = pDesc->pPlayerAnim;
     m_pIsFinished = pDesc->pIsFinished;
+    m_pCameraLook = pDesc->pCameraLook;
 
     return S_OK;
 }
@@ -75,6 +79,8 @@ HRESULT CPlayer_State::Render()
 
 HRESULT CPlayer_State::ExitState(void** pArg)
 {
+    m_bMotionLock = false;
+
     return S_OK;
 }
 
@@ -94,4 +100,5 @@ void CPlayer_State::Free()
     __super::Free();
 
     Safe_Release(m_pTransformCom);
+    Safe_Release(m_pNavigationCom);
 }

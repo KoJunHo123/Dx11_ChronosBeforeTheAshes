@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Terrain.h"
 #include "Layer.h"
+#include "PuzzleBase.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -16,21 +17,26 @@ CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 
 HRESULT CLevel_GamePlay::Initialize()
 {
-	if (FAILED(Load_Player()))
+	if (FAILED(Ready_Layer_Player()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Monster()))
 		return E_FAIL;
 
 	if (FAILED(Ready_Layer_Camera()))
 		return E_FAIL;
+	
 	if (FAILED(Ready_Layer_BackGround()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_Interaction()))
+		return E_FAIL;
 
 	return S_OK;
 }
 
 void CLevel_GamePlay::Update(_float fTimeDelta)
 {
-	
 }
 
 HRESULT CLevel_GamePlay::Render()
@@ -44,7 +50,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 {
 	CFreeCamera::CAMERA_FREE_DESC		Desc{};
 
-	Desc.fSensor = 0.2f;
+	Desc.fSensor = 0.1f;
 	Desc.vEye = _float4(0.f, 10.f, -10.f, 1.f);
 	Desc.vAt = _float4(0.f, 0.f, 0.f, 1.f);
 	Desc.fFovy = XMConvertToRadians(60.0f);
@@ -78,34 +84,6 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Player()
 {
-	CPlayer::PLAYER_DESC desc = {};
-
-	desc.fRotationPerSec = 90.f;
-	desc.fSpeedPerSec = 1.f;
-
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), TEXT("Prototype_GameObject_Player"), &desc)))
-		return E_FAIL;
-
-	return S_OK;
-}
-
-HRESULT CLevel_GamePlay::Ready_Layer_Monster()
-{
-	CMonster::MONSTER_DESC desc = {};
-
-	desc.fRotationPerSec = 0.f;
-	desc.fSpeedPerSec = 0.f;
-
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Monster"), &desc)))
-		return E_FAIL;
-
-	return S_OK;
-}
-
-HRESULT CLevel_GamePlay::Load_Player()
-{
-	m_pGameInstance->Create_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Player"));
-
 	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Player.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
@@ -113,11 +91,18 @@ HRESULT CLevel_GamePlay::Load_Player()
 		return E_FAIL;
 	while (true)
 	{
-		if (FAILED(Ready_Layer_Player()))
+		CPlayer::PLAYER_DESC desc{};
+
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CPlayer::PLAYER_DESC));
+
+		if (true == infile.eof())
+			break;
+
+		desc.fRotationPerSec = XMConvertToRadians(90.0f);
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), TEXT("Prototype_GameObject_Player"), &desc)))
 			return E_FAIL;
 
-		if(FAILED(m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Player"), &infile)))
-			break;
 	}
 
 	infile.close();
@@ -125,30 +110,59 @@ HRESULT CLevel_GamePlay::Load_Player()
 	return S_OK;
 }
 
-// Å¬¶ó
-HRESULT CLevel_GamePlay::Load_Monsters()
+HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 {
-	m_pGameInstance->Create_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
-
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Monster.dat" };
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Boss_Lab.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
 	if (!infile.is_open())
 		return E_FAIL;
-	while(true)
+	while (true)
 	{
-		if (FAILED(Ready_Layer_Monster()))
-			return E_FAIL;
+		CMonster::MONSTER_DESC desc{};
 
-		if (FAILED(m_pGameInstance->Load_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), &infile)))
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CMonster::MONSTER_DESC));
+
+		if (true == infile.eof())
 			break;
+
+		desc.fRotationPerSec = XMConvertToRadians(90.0f);
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
+			return E_FAIL;
 	}
 
 	infile.close();
-
 	return S_OK;
 }
 
+HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
+{
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/PuzzleBase.dat" };
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	while (true)
+	{
+		CPuzzleBase::PUZZLEBASE_DESC desc = {};
+
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CPuzzleBase::PUZZLEBASE_DESC));
+
+		if (true == infile.eof())
+			break;
+
+		desc.fRotationPerSec = XMConvertToRadians(90.0f);
+		desc.fSpeedPerSec = 1.f;
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_PuzzleBase"), &desc)))
+			return E_FAIL;
+	}
+
+	infile.close();
+	return S_OK;
+}
 
 CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

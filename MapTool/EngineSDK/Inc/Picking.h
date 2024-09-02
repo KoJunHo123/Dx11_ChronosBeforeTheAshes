@@ -16,6 +16,7 @@ public:
 	void Transform_ToLocalSpace(const _matrix& WorldMatrix);
 	_bool isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
 	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut, _float* pDist);
 
 private:
 	ID3D11Device*				m_pDevice = { nullptr };

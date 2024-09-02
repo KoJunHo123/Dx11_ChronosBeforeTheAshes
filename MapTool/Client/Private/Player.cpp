@@ -26,13 +26,15 @@ HRESULT CPlayer::Initialize(void* pArg)
     if (FAILED(__super::Initialize(&Desc)))
         return E_FAIL;
 
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, Desc->vPos);
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&Desc->vPos), 1.f));
     m_pTransformCom->Set_Scaled(Desc->vScale.x, Desc->vScale.y, Desc->vScale.z);
-    m_pTransformCom->Rotation(Desc->vRotationAxis, XMConvertToRadians(Desc->fRotationAngle));
+    m_pTransformCom->Rotation(XMConvertToRadians(Desc->vRotation.x), XMConvertToRadians(Desc->vRotation.y), XMConvertToRadians(Desc->vRotation.z));
+   
+    m_Desc = *Desc;
 
     if (FAILED(Ready_Components()))
         return E_FAIL;
-    m_iCurrentAnimationIndex = 46;
+    m_iCurrentAnimationIndex = 49;
     m_pModelCom->SetUp_Animation(m_iCurrentAnimationIndex, false);
 
     return S_OK;
@@ -100,21 +102,11 @@ HRESULT CPlayer::Render()
 
 HRESULT CPlayer::Save_Data(ofstream* pOutFile)
 {
-    pOutFile->write(reinterpret_cast<const _char*>(&m_pTransformCom->Get_WorldMatrix()), sizeof(_matrix));
+    pOutFile->write(reinterpret_cast<const _char*>(&m_Desc), sizeof(PLAYER_DESC));
 
     return S_OK;
 }
 
-HRESULT CPlayer::Load_Data(ifstream* pInFile)
-{
-    _matrix WorldMatrix = {};
-    if(false == (_bool)pInFile->read(reinterpret_cast<_char*>(&WorldMatrix), sizeof(_matrix)))
-        return E_FAIL;
-    m_pTransformCom->Set_WorldMatrix(WorldMatrix);
-
-
-    return S_OK;
-}
 
 HRESULT CPlayer::Ready_Components()
 {

@@ -29,17 +29,20 @@ HRESULT CLabyrinth::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	Set_Rasterizer();
+
 	return S_OK;
 }
 
 void CLabyrinth::Priority_Update(_float fTimeDelta)
 {
-	int a = 10;
+
 }
 
 void CLabyrinth::Update(_float fTimeDelta)
 {
-	int a = 10;
+	for (auto& Collider : m_ColliderComs)
+		Collider->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CLabyrinth::Late_Update(_float fTimeDelta)
@@ -53,6 +56,8 @@ void CLabyrinth::Late_Update(_float fTimeDelta)
 
 HRESULT CLabyrinth::Render()
 {
+	//m_pContext->RSSetState(m_pWireFrameRS);
+
 	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))		
 		return E_FAIL;
 
@@ -74,8 +79,65 @@ HRESULT CLabyrinth::Render()
 		if (FAILED(m_pModelCom->Render(i)))
 			return E_FAIL;
 	}
+
+	//m_pContext->RSSetState(m_pSolidFrameRS);
+
+#ifdef _DEBUG
+	for(auto& Collider : m_ColliderComs)
+		Collider->Render();
+#endif
+
+	m_pModelCom->Get_NumMeshes();
+
 	return S_OK;
 }
+
+HRESULT CLabyrinth::Add_Collider(_fvector vPos, _fvector vExtents)
+{
+	CCollider* pColliderCom = { nullptr };
+
+	CBounding_AABB::BOUNDING_AABB_DESC desc{};
+
+	XMStoreFloat3(&desc.vCenter, vPos);
+	XMStoreFloat3(&desc.vExtents, vExtents);
+	
+	_wstring strComponentTag = TEXT("Com_Collider_");
+	strComponentTag += to_wstring(m_ColliderComs.size());
+
+	/* FOR.Com_Collider */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
+		strComponentTag, reinterpret_cast<CComponent**>(&pColliderCom), &desc)))
+		return E_FAIL;
+
+	m_ColliderComs.emplace_back(pColliderCom);
+	return S_OK;
+}
+
+void CLabyrinth::Release_LastCollider()
+{
+	Safe_Release(m_ColliderComs.back());
+	m_ColliderComs.erase(--m_ColliderComs.end());
+
+}
+
+HRESULT CLabyrinth::Set_Rasterizer()
+{
+	D3D11_RASTERIZER_DESC desc = {};
+	desc.FillMode = D3D11_FILL_WIREFRAME;
+	desc.CullMode = D3D11_CULL_NONE;
+	desc.DepthClipEnable = true;
+
+	if (FAILED(m_pDevice->CreateRasterizerState(&desc, &m_pWireFrameRS)))
+		return E_FAIL;
+
+	desc.FillMode = D3D11_FILL_SOLID;
+
+	if (FAILED(m_pDevice->CreateRasterizerState(&desc, &m_pSolidFrameRS)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
 
 HRESULT CLabyrinth::Ready_Components()
 {
@@ -88,6 +150,7 @@ HRESULT CLabyrinth::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -125,6 +188,12 @@ void CLabyrinth::Free()
 	__super::Free();
 
 	Safe_Release(m_pShaderCom);
-	
 	Safe_Release(m_pModelCom);
+
+	for(auto& Collider : m_ColliderComs)
+	Safe_Release(Collider);
+
+	Safe_Release(m_pWireFrameRS);
+	Safe_Release(m_pSolidFrameRS);
+
 }

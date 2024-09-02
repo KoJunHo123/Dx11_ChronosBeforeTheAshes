@@ -25,16 +25,15 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-private:
-	void Cursor_To_Center();
-	void Camera_Move();
 
 private:
 	_float				m_fSensor = { 0.f };	// °¨µµ
 	class CTransform*	m_pPlayerTransformCom = { nullptr };
 	class CTransform*	m_pTargetTransformCom = { nullptr };
 
-	_float m_fAngle = { 0.f };
+	_float m_fOffset = { 0.f };
+	_float m_fDistance = { 0.f };
+	_float m_fLimit = { 0.f };
 
 public:
 	static CFreeCamera* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

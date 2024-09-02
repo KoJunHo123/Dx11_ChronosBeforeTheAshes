@@ -31,7 +31,6 @@ public:
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);
 	virtual HRESULT Save_Data(ofstream* pOutFile);
-	virtual HRESULT Load_Data(ifstream* pInFile);
 
 protected:
 	ID3D11Device*				m_pDevice = { nullptr };

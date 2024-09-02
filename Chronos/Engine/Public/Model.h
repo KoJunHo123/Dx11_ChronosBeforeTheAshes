@@ -41,10 +41,11 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
-	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false) {
+	void SetUp_Animation(_uint iAnimationIndex, _bool bNonInterpolate = false, _bool isLoop = false) {
 		m_iCurrentAnimIndex = iAnimationIndex;
 		m_isLoop = isLoop;
 		// 딱 변경될 때 한번만.
+		m_bNonInterpolate = bNonInterpolate;
 	}
 	_uint Get_KeyFrameIndex();
 	_uint Get_CuttenrAnimIndex() {
@@ -77,6 +78,7 @@ private:
 private:
 	_bool							m_isLoop = { false };
 	_bool							m_isChange = { false };
+	_bool							m_bNonInterpolate = { false };
 	
 	_uint							m_iCurrentAnimIndex = { 0 };
 	_uint							m_iPreAnimIndex = { 0 };

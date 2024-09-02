@@ -54,9 +54,11 @@ public:
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex = 0);
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
-	HRESULT Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile);
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
+	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+	vector<_wstring> Get_PrototypeKeys();
+
 #pragma endregion
 
 
@@ -89,6 +91,7 @@ public:
 	void Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix);
 	_bool isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
 	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut, _float* pDist);
 #pragma endregion
 
 #pragma region KEY_MANAGER

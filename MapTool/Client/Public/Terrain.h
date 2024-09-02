@@ -7,6 +7,7 @@ BEGIN(Engine)
 class CShader;
 class CTexture;
 class CVIBuffer_Terrain;
+class CNavigation;
 END
 
 BEGIN(Client)
@@ -36,9 +37,16 @@ public:
 	class CShader*				m_pShaderCom = { nullptr };
 	class CTexture*				m_pTextureCom = { nullptr };
 	class CVIBuffer_Terrain*	m_pVIBufferCom = { nullptr };
+	class CNavigation*			m_pNavigationCom = { nullptr };
 
+	ID3D11RasterizerState* m_pWireFrameRS = { nullptr };
+	ID3D11RasterizerState* m_pSolidFrameRS = { nullptr };
+
+	
 private:
 	HRESULT Ready_Components();
+private:
+	HRESULT Set_Rasterizer();
 
 public:
 	static CTerrain* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

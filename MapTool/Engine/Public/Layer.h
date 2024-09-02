@@ -6,7 +6,7 @@
 
 BEGIN(Engine)
 
-class CLayer final : public CBase
+class ENGINE_DLL CLayer final : public CBase
 {
 private:
 	CLayer();
@@ -20,8 +20,8 @@ public:
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag, _uint iIndex);
+	class CGameObject* Find_GameObject(_uint iIndex);
 	HRESULT Save_GameObjects(ofstream* pOutFile);
-	HRESULT Load_GameObjects(ifstream* pInFile);
 	void Release_Object();
 	void Clear();
 

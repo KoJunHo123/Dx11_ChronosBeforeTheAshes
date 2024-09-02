@@ -2,6 +2,7 @@
 #include "Player_Part.h"
 #include "GameInstance.h"
 
+
 CPlayer_Part::CPlayer_Part(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject{pDevice, pContext}
 {
@@ -25,6 +26,7 @@ HRESULT CPlayer_Part::Initialize(void* pArg)
     m_pPlayerAnim = pDesc->pPlayerAnim;
     m_pIsFinished = pDesc->pIsFinished;
     m_pSpeed = pDesc->pSpeed;
+    m_pFrameIndex = pDesc->pFrameIndex;
 
     Safe_AddRef(m_pFSM);
 

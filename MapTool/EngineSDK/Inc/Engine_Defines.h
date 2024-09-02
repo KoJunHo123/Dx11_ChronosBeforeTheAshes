@@ -15,6 +15,13 @@
 #include "DirectXTK\DDSTextureLoader.h"
 #include "DirectXTK\WICTextureLoader.h"
 
+#include "DirectXTK\PrimitiveBatch.h"
+#include "DirectXTK\VertexTypes.h"
+#include "DirectXTK\Effects.h"
+
+#include "DirectXTK\SpriteBatch.h"
+#include "DirectXTK\SpriteFont.h"
+
 #include <DirectXCollision.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
@@ -32,6 +39,7 @@ using namespace DirectX;
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <iostream>
 
 
 using namespace std;

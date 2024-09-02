@@ -36,6 +36,9 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
+	void Create_Cells(class CNavigation* pNavigation, _fvector vTerrainPos);
+
+public:
 	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false) {
 		m_iNextAnimIndex = iAnimationIndex;
 		m_isLoop = isLoop;
@@ -49,6 +52,10 @@ public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
 	HRESULT Bine_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex);
 
+	_bool isPicking(const _matrix& WorldMatrix, _vector* pOut, _uint* pMeshIndex);
+	void Render_OnOff() {
+		m_isRender = !m_isRender;
+	}
 
 private:
 	TYPE							m_eType = { TYPE_END };
@@ -77,6 +84,7 @@ private:
 	_char m_szModelFilePath[MAX_PATH] = {};
 	_float4 m_vTranslationChange = {};
 
+	_bool m_isRender = { true };
 
 private:
 	HRESULT	Ready_Meshes();

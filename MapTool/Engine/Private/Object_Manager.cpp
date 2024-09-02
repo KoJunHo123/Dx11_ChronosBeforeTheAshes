@@ -161,15 +161,17 @@ HRESULT CObject_Manager::Save_Layer(_uint iLevelIndex, const _wstring& strLayerT
 	return S_OK;
 }
 
-HRESULT CObject_Manager::Load_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ifstream* pInFile)
+vector<_wstring> CObject_Manager::Get_PrototypeKeys()
 {
-	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
-	if (nullptr == pLayer)
-		return E_FAIL;
+	vector<_wstring> PrototypeKeys;
+	
+	for (auto& Pair : m_Prototypes)
+	{
+		PrototypeKeys.emplace_back(Pair.first);
+	}
 
-	return pLayer->Load_GameObjects(pInFile);;
+	return PrototypeKeys;
 }
-
 
 CGameObject * CObject_Manager::Find_Prototype(const _wstring & strPrototypeTag)
 {

@@ -9,6 +9,7 @@ class CShader;
 class CModel;
 class CTransform;
 class CPartObject;
+class CNavigation;
 END
 
 BEGIN(Client)
@@ -18,12 +19,14 @@ public:
 	typedef struct : public CState::STATE_DESC
 	{
 		class CTransform* pTransformCom = { nullptr };
-		
+		class CNavigation* pNavigationCom = { nullptr };
+
 		vector<class CPartObject*>* Parts = { nullptr };
 
 		PLAYER_ANIM* pPlayerAnim = { nullptr };
 		_float* pSpeed = { nullptr };
 		_bool* pIsFinished = { nullptr };
+		_float3* pCameraLook = { nullptr };
 	}PLAYER_STATE_DESC;
 
 protected:
@@ -44,6 +47,7 @@ protected:
 
 protected:
 	class CTransform* m_pTransformCom = { nullptr };
+	class CNavigation* m_pNavigationCom = { nullptr };
 
 	vector<class CPartObject*>			m_Parts;
 
@@ -53,7 +57,8 @@ protected:
 	// 파츠와 공유해야 하는 변수.
 	PLAYER_ANIM* m_pPlayerAnim = { nullptr };
 	_float* m_pSpeed = { nullptr };
-	_bool* m_pIsFinished = { false };
+	_bool* m_pIsFinished = { nullptr };
+	_float3* m_pCameraLook = { nullptr };
 
 public:
 	virtual void Free();

@@ -21,6 +21,10 @@ public:
 		return m_iMaterialIndex;
 	}
 
+	_char* Get_Name() {
+		return m_szName;
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype(const CModel* pModel, ifstream* pInfile, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
@@ -28,8 +32,12 @@ public:
 public:
 	HRESULT Bind_BoneMatrices(const CModel* pModel, class CShader* pShader, const _char* pConstantName);
 
+public:
+	virtual _bool isPicking(const _matrix& WorldMatrix, _vector* pOut, _float* pDist);
+	void Create_Cells(class CNavigation* pNavigation, _fvector vTerrainPos);
+
 private:
-	_char				m_szName[MAX_PATH];
+	_char				m_szName[MAX_PATH] = {};
 	_uint				m_iMaterialIndex = { 0 };
 
 	_uint				m_iNumBones = { 0 };
@@ -39,6 +47,9 @@ private:
 
 	_float4x4			m_BoneMatrices[g_iMaxMeshBones] = {};
 	vector<_float4x4>	m_OffsetMatrices;
+
+	_float4*			m_pVerticesPos = {};
+	_uint*				m_pIndices = {};
 
 private:
 	HRESULT	Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransformMatrix);

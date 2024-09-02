@@ -98,6 +98,25 @@ _bool CPicking::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& v
 	return false;
 }
 
+_bool CPicking::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut, _float* pDist)
+{
+	_float		fU{}, fV{}, fDist{};
+
+	_vector vOrigin = XMLoadFloat4(&m_vRayPos_InLocalSpace);
+	_vector vDirection = XMLoadFloat4(&m_vRayDir_InLocalSpace);
+
+	if (TRUE == TriangleTests::Intersects(vOrigin, vDirection, vPointA, vPointB, vPointC, fDist))
+	{
+		if(*pDist > fDist)
+		{
+			*pDist = fDist;
+			*pOut = vOrigin + vDirection * fDist;
+			return true;
+		}
+	}
+	return false;
+}
+
 CPicking* CPicking::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, HWND hWnd, _uint iWinSizeX, _uint iWinSizeY)
 {
 	CPicking* pInstance = new CPicking(pDevice, pContext);

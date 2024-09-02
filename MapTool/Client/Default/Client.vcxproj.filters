@@ -52,6 +52,9 @@
     <Filter Include="02.GameObjects\04.Player">
       <UniqueIdentifier>{2d8b8844-068e-4f05-87b9-423e449a3382}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\05.PuzzleBase">
+      <UniqueIdentifier>{f0b37ed3-e59d-474a-8573-203eb40112c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -126,6 +129,9 @@
     <ClInclude Include="..\public\Player.h">
       <Filter>02.GameObjects\04.Player</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\PuzzleBase.h">
+      <Filter>02.GameObjects\05.PuzzleBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -187,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Player.cpp">
       <Filter>02.GameObjects\04.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\PuzzleBase.cpp">
+      <Filter>02.GameObjects\05.PuzzleBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
