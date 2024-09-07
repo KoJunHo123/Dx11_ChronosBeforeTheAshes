@@ -67,13 +67,12 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 	}
 	else if (m_CurrentTrackPosition >= m_Duration)	// 현재 트랙 위치가 최대를 넘으면
 	{
-		m_CurrentTrackPosition = 0.;
 		if (false == isLoop)	// 루프 안할거면 반환
 		{
-			for (_uint& iIndex : m_CurrentKeyFrameIndices)
-				iIndex = 0;
 			return true;
 		}
+
+		m_CurrentTrackPosition = 0.f;
 	}
 
 	_uint		iChannelIndex = { 0 };
@@ -85,6 +84,13 @@ _bool CAnimation::Update_TransformationMatrices(const vector<class CBone*>& Bone
 	XMStoreFloat4(&m_vPreTranslation, vTranslation);
 
 	return false;
+}
+
+void CAnimation::Reset_Animation()
+{
+	m_CurrentTrackPosition = 0.;
+	for (_uint& iIndex : m_CurrentKeyFrameIndices)
+		iIndex = 0;
 }
 
 _uint CAnimation::Find_RootBoneIndex()

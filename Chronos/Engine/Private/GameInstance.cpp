@@ -6,6 +6,8 @@
 #include "Input_Device.h"
 #include "Picking.h"
 #include "KeyManager.h"
+#include "Collision_Manager.h"
+#include "Font_Manager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -62,6 +64,13 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pComponent_Manager)
 		return E_FAIL;
 
+	m_pCollision_Manager = CCollision_Manager::Create();
+	if (nullptr == m_pCollision_Manager)
+		return E_FAIL;
+
+	m_pFont_Manager = CFont_Manager::Create(*ppDevice, *ppContext);
+	if (nullptr == m_pFont_Manager)
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -81,6 +90,8 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 
 	m_pObject_Manager->Update(fTimeDelta);
 
+	m_pCollision_Manager->Update();
+
 	m_pObject_Manager->Late_Update(fTimeDelta);
 
 	m_pLevel_Manager->Update(fTimeDelta);
@@ -88,7 +99,6 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 
 HRESULT CGameInstance::Draw_Engine()
 {
-
 	m_pRenderer->Draw();
 
 	return m_pLevel_Manager->Render();
@@ -182,6 +192,10 @@ void CGameInstance::Release_Object(_uint iLevelIndex, const _wstring& strLayerTa
 CGameObject* CGameInstance::Clone_GameObject(const _wstring& strPrototypeTag, void* pArg)
 {
 	return m_pObject_Manager->Clone_GameObject(strPrototypeTag, pArg);
+}
+list<class CGameObject*> CGameInstance::Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	return m_pObject_Manager->Get_GameObjects(iLevelIndex, strLayerTag);
 }
 #pragma endregion
 
@@ -284,8 +298,36 @@ _bool CGameInstance::Key_Up(int _iKey)
 }
 #pragma endregion
 
+#pragma region COLLISION_MANAGER
+void CGameInstance::Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond)
+{
+	return m_pCollision_Manager->Add_CollisionKeys(strCollisionFirst, strCollisionSecond);
+}
+void CGameInstance::Add_Collider_OnLayers(const _wstring strCollisionKey, CCollider* pCollider)
+{
+	return m_pCollision_Manager->Add_Collider_OnLayers(strCollisionKey, pCollider);
+}
+#pragma endregion
+
+#pragma region FONT_MANAGER 
+
+HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath)
+{
+	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
+}
+HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+{
+	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
+}
+
+#pragma endregion
+
 void CGameInstance::Release_Engine()
 {
+	Safe_Release(m_pFont_Manager);
+	Safe_Release(m_pCollision_Manager);
+	Safe_Release(m_pKey_Manager);
+	Safe_Release(m_pPicking);
 	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pRenderer);
 	Safe_Release(m_pTimer_Manager);
@@ -293,8 +335,6 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pObject_Manager);
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pInput_Device);
-	Safe_Release(m_pPicking);
-	Safe_Release(m_pKey_Manager);
 	Safe_Release(m_pGraphic_Device);
 
 	CGameInstance::Get_Instance()->Destroy_Instance();

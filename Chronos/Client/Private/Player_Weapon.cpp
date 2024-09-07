@@ -3,6 +3,8 @@
 #include "GameInstance.h"
 #include "Player.h"
 
+#include "Monster.h"
+
 CPlayer_Weapon::CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPlayer_Part(pDevice, pContext)
 {
@@ -32,15 +34,30 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 		return E_FAIL;
 
 
+	m_iDamage = 10;
+
 	return S_OK;
 }
 
-void CPlayer_Weapon::Priority_Update(_float fTimeDelta)
+_uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 {
 	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
+	{
+		if (6 == *m_pFrameIndex)
+			m_bAttackActive = true;
+
 		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
+		m_pColliderCom->Set_OnCollision(true);
+	}
 	else
+	{
 		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
+		m_pColliderCom->Set_OnCollision(false);
+		m_bAttackActive = false;
+	}
+
+
+	return OBJ_NOEVENT;
 }
 
 void CPlayer_Weapon::Update(_float fTimeDelta)
@@ -61,11 +78,8 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[0][0], XMVector3Normalize(vRight) * vScale.x);
 	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[1][0], XMVector3Normalize(vUp) * vScale.y);
 	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[2][0], XMVector3Normalize(vLook) * vScale.z);
-}
 
-void CPlayer_Weapon::Late_Update(_float fTimeDelta)
-{
-	_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
+	SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
 
 	// ??
 	for (size_t i = 0; i < 3; i++)
@@ -77,6 +91,11 @@ void CPlayer_Weapon::Late_Update(_float fTimeDelta)
 	// -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
+	m_pColliderCom->Update(&m_WorldMatrix);
+}
+
+void CPlayer_Weapon::Late_Update(_float fTimeDelta)
+{
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
@@ -104,7 +123,23 @@ HRESULT CPlayer_Weapon::Render()
 			return E_FAIL;
 	}
 
+#ifdef _DEBUG
+	m_pColliderCom->Render();
+#endif
+
+
 	return S_OK;
+}
+
+void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+	if (true == m_bAttackActive && TEXT("Coll_Monster") == strColliderTag)
+	{
+		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
+		pMonster->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+		m_bAttackActive = false;
+	}
+
 }
 
 HRESULT CPlayer_Weapon::Ready_Components()
@@ -118,6 +153,23 @@ HRESULT CPlayer_Weapon::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Sword"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
+
+	/* For.Com_Collider_OBB */
+	CBounding_OBB::BOUNDING_OBB_DESC			ColliderOBBDesc{};
+	ColliderOBBDesc.vAngles = _float3(0.f, 0.f, 0.f);
+	ColliderOBBDesc.vExtents = _float3(.25f, .25f, 1.2f);
+	ColliderOBBDesc.vCenter = _float3(0.f, 0.f, 0.8f);
+
+	CCollider::COLLIDER_DESC ColliderDesc = {};
+	ColliderDesc.pOwnerObject = this;
+	ColliderDesc.pBoundingDesc = &ColliderOBBDesc;
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
+		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
+		return E_FAIL;
+
+	m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Player_Attack"), m_pColliderCom);
+
 
 	return S_OK;
 }
@@ -154,4 +206,5 @@ void CPlayer_Weapon::Free()
 
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
+	Safe_Release(m_pColliderCom);
 }

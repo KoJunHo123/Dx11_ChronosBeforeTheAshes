@@ -40,14 +40,15 @@ HRESULT CBackGround::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CBackGround::Priority_Update(_float fTimeDelta)
+_uint CBackGround::Priority_Update(_float fTimeDelta)
 {
-	int a = 10;
+	
+	return OBJ_NOEVENT;
 }
 
 void CBackGround::Update(_float fTimeDelta)
 {
-	int a = 10;
+	
 }
 
 void CBackGround::Late_Update(_float fTimeDelta)

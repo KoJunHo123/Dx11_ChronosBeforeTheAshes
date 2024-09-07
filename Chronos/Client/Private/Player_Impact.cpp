@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Player_Impact.h"
+#include "GameInstance.h"
+#include "Player.h"
 
 CPlayer_Impact::CPlayer_Impact()
 {
@@ -8,6 +10,10 @@ CPlayer_Impact::CPlayer_Impact()
 HRESULT CPlayer_Impact::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
+
+	PLAYER_STATE_IMPACT_DESC* pDesc = static_cast<PLAYER_STATE_IMPACT_DESC*>(pArg);
+
+	m_pHP = pDesc->pHP;
 
 	return S_OK;
 }
@@ -26,15 +32,33 @@ void CPlayer_Impact::Priority_Update(_float fTimeDelta)
 
 void CPlayer_Impact::Update(_float fTimeDelta)
 {
-	__super::Update(fTimeDelta);
+	if (90 > abs(m_fHittedAngle))
+	{
+		if (*m_pHP <= 0)
+			*m_pPlayerAnim = PLAYER_IMPACT_DEATH_F;
+		else
+			*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMF;
+	}
+	else
+	{
+		if (*m_pHP <= 0)
+			*m_pPlayerAnim = PLAYER_IMPACT_DEATH_B;
+		else
+			*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMB;
+	}
 
+	if (true == *m_pIsFinished)
+	{
+		*m_pIsFinished = false;
+		m_pFSM->Set_State(CPlayer::STATE_MOVE);
+	}
+
+	__super::Update(fTimeDelta);
 }
 
 void CPlayer_Impact::Late_Update(_float fTimeDelta)
 {
 	__super::Late_Update(fTimeDelta);
-
-
 }
 
 HRESULT CPlayer_Impact::Render()

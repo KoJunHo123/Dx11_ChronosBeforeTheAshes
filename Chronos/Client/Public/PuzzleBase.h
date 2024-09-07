@@ -29,20 +29,24 @@ private:
 	virtual ~CPuzzleBase() = default;
 
 public:
-	virtual HRESULT Initialize_Prototype();
-	virtual HRESULT Initialize(void* pArg);
-	virtual void Priority_Update(_float fTimeDelta);
-	virtual void Update(_float fTimeDelta);
-	virtual void Late_Update(_float fTimeDelta);
-	virtual HRESULT Render();
+	virtual HRESULT Initialize_Prototype() override;
+	virtual HRESULT Initialize(void* pArg) override;
+	virtual _uint Priority_Update(_float fTimeDelta) override;
+	virtual void Update(_float fTimeDelta) override;
+	virtual void Late_Update(_float fTimeDelta) override;
+	virtual HRESULT Render() override;
 
 private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 
+	class CNavigation* m_pPlayerNavigationCom = { nullptr };
+
 	_float3 m_PuzzlePartPoses[LOCATION_END] = {};
 	LOCATION m_eEmplaceLocation = { LEFT_DOWN };
+
+	_uint m_iPuzzleCellIndex = { 4320 };
 
 private:
 	HRESULT Ready_Components();
@@ -56,6 +60,16 @@ private:
 	void Make_Road(PART ePart, _uint* pCellIndices);
 	void Update_Cell(LOCATION eLocation, _uint* pCellStates);
 
+	void PuzzlePart_Cell_Active(class CPuzzlePart* pPart, _uint iCurrentCellIndex);
+
+	LOCATION Find_CurrentLocation(_uint iCellIndex);
+
+	void Set_NearCellActive(_uint iCellIndex, _uint iCount = 0);
+	void Set_FallCellDeactive(_uint iCellIndex, _uint iCount = 0);
+
+	HRESULT Add_FloorChunk(_int iCellIndex);
+
+	
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;

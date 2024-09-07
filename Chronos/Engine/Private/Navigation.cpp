@@ -27,11 +27,36 @@ CNavigation::CNavigation(const CNavigation& Prototype)
 #endif
 }
 
-void CNavigation::Set_CellType(_uint iIndex, _uint iCellState)
+_float3 CNavigation::Get_NearCellIndex(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_NearCellIndex();
+}
+
+_uint CNavigation::Get_CellType(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_Type();
+}
+
+_bool CNavigation::Get_CellActive(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_Active();
+}
+
+void CNavigation::Set_CellType(_int iIndex, _uint iCellState)
 {
 	if (m_Cells.size() <= iIndex)
 		return;
 	m_Cells[iIndex]->Set_CellType(iCellState);
+}
+
+void CNavigation::Set_CellActive(_int iIndex, _bool isActive)
+{
+	m_Cells[iIndex]->Set_Active(isActive);
+}
+
+_float3 CNavigation::Get_CellZXCenter(_int iIndex)
+{
+	return m_Cells[iIndex]->Get_CellXZCenter();
 }
 
 HRESULT CNavigation::Initialize_Prototype(const _wstring& strNavigationDataFile)
@@ -140,6 +165,8 @@ _float CNavigation::Compute_Height(const _fvector& vLocalPos)
 	return m_Cells[m_iCurrentCellIndex]->Compute_Height(vLocalPos);
 }
 
+
+
 #ifdef _DEBUG
 HRESULT CNavigation::Render()
 {
@@ -182,6 +209,26 @@ HRESULT CNavigation::Render()
 
 	for (auto& pCell : m_Cells)
 		pCell->Render_Fall();
+
+	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+		return E_FAIL;
+
+	vColor = -1 == m_iCurrentCellIndex ? _float4(0.f, 0.f, 0.f, 1.f) : _float4(1.f, 0.f, 0.f, 1.f);
+	WorldMatrix = m_WorldMatrix;
+	WorldMatrix._42 += 0.1f;
+
+	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
+		return E_FAIL;
+
+	m_pShader->Bind_RawValue("g_vColor", &vColor, sizeof(_float4));
+
+	m_pShader->Begin(0);
+
+	for (auto& pCell : m_Cells)
+		pCell->Render_Active();
+
 
 	return S_OK;
 }

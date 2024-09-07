@@ -114,9 +114,11 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 		if (false == m_bNonInterpolate)
 		{
 			m_isChange = true;
-			bChangeStart = true;
 		}
+		bChangeStart = true;
 		m_iPreAnimIndex = m_iCurrentAnimIndex;
+		m_Animations[m_iPreAnimIndex]->Reset_Animation();
+
 		XMStoreFloat4(&m_vTranslationChange, XMVectorSet(0.f, 0.f, 0.f, 1.f));
 	}
 	
@@ -128,6 +130,11 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 	Update_CombinedTransformationMatrix(vRootBoneChanged);
 
 	return isFinished;
+}
+
+void CModel::Reset_Animation()
+{
+	m_Animations[m_iCurrentAnimIndex]->Reset_Animation();
 }
 
 HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex)

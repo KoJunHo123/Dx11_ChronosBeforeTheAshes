@@ -100,6 +100,42 @@
     <Filter Include="02.GameObjects\05.Puzzle\PuzzlePart">
       <UniqueIdentifier>{6e0c7cde-7dbc-4560-85f0-7cedd0d13ded}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\02.Labyrinth\FloorChunk">
+      <UniqueIdentifier>{755c1557-d2d6-4942-af9f-7cce6555740f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Construct">
+      <UniqueIdentifier>{560fb125-622a-4575-8b77-8de2ec8d886a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Drum">
+      <UniqueIdentifier>{e523ed0c-9557-4b02-b7e0-50a4b42aadba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Mage">
+      <UniqueIdentifier>{72af6c91-f3ac-479a-bbc4-caa6689784f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Troll">
+      <UniqueIdentifier>{e57570c8-36be-49ba-8576-953848fdc6f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body">
+      <UniqueIdentifier>{1fbc8779-f8a7-49bc-8d83-d5dfa3b27bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body">
+      <UniqueIdentifier>{6270e158-9acf-49b0-af6f-1f65a3974c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body">
+      <UniqueIdentifier>{5e92da70-e0dc-4400-9491-aa5cb3f23ec8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body">
+      <UniqueIdentifier>{c1957120-d1e8-4162-aed2-acb20002d5df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon">
+      <UniqueIdentifier>{017917e8-a857-4206-bd60-8a9e4e268c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\06.Sky">
+      <UniqueIdentifier>{9c0ded80-055c-43e7-aac3-97390082fb9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack">
+      <UniqueIdentifier>{309f0f10-35c2-447f-9dc3-7e0da8d88c71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -198,6 +234,42 @@
     <ClInclude Include="..\public\PuzzlePart.h">
       <Filter>02.GameObjects\05.Puzzle\PuzzlePart</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\FloorChunk.h">
+      <Filter>02.GameObjects\02.Labyrinth\FloorChunk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Construct.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Drum.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Mage.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Troll.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Construct_Body.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Drum_Body.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Mage_Body.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Troll_Body.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Troll_Weapon.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Sky.h">
+      <Filter>02.GameObjects\06.Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab_Attack.h">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -284,6 +356,42 @@
     <ClCompile Include="..\private\PuzzlePart.cpp">
       <Filter>02.GameObjects\05.Puzzle\PuzzlePart</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\FloorChunk.cpp">
+      <Filter>02.GameObjects\02.Labyrinth\FloorChunk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Construct.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Drum.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Mage.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Troll.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Construct_Body.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Drum_Body.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Mage_Body.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Troll_Body.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Troll_Weapon.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Sky.cpp">
+      <Filter>02.GameObjects\06.Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab_Attack.cpp">
+      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -314,6 +422,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

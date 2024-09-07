@@ -18,8 +18,18 @@ HRESULT CLayer::Add_GameObject(CGameObject * pGameObject)
 
 HRESULT CLayer::Priority_Update(_float fTimeDelta)
 {
-	for (auto& pGameObject : m_GameObjects)
-		pGameObject->Priority_Update(fTimeDelta);
+	for (auto iter = m_GameObjects.begin(); iter != m_GameObjects.end(); )
+	{
+		_uint	iResult = (*iter)->Priority_Update(fTimeDelta);
+
+		if (OBJ_DEAD == iResult)
+		{
+			Safe_Release(*iter);
+			iter = m_GameObjects.erase(iter);
+		}
+		else
+			iter++;
+	}
 
 	return S_OK;
 }

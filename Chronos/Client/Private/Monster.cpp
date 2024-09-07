@@ -32,12 +32,16 @@ HRESULT CMonster::Initialize(void* pArg)
 	if(FAILED(Ready_Components(pDesc->iStartCellIndex)))
 		return E_FAIL;
 
+	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
+	Safe_AddRef(m_pPlayerTransformCom);
+
 	return S_OK;
 }
 
-void CMonster::Priority_Update(_float fTimeDelta)
+_uint CMonster::Priority_Update(_float fTimeDelta)
 {
 
+	return OBJ_NOEVENT;
 }
 
 void CMonster::Update(_float fTimeDelta)
@@ -52,6 +56,47 @@ void CMonster::Late_Update(_float fTimeDelta)
 HRESULT CMonster::Render()
 {
 	return S_OK;
+}
+
+void CMonster::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+	if (TEXT("Coll_Player") == strColliderTag || TEXT("Coll_Monster") == strColliderTag)
+	{
+		_vector vDir = {};
+		vDir = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_float fX = abs(vDir.m128_f32[0]);
+		_float fY = abs(vDir.m128_f32[1]);
+		_float fZ = abs(vDir.m128_f32[2]);
+
+		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		if (fX >= fY && fX >= fZ)
+		{
+			vDir = XMVector3Normalize(XMVectorSet(vDir.m128_f32[0], 0.f, 0.f, 0.f));
+			vDir *= vSourInterval.x + vDestInterval.x;
+			vPlayerPos.m128_f32[0] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[0] + vDir.m128_f32[0];
+		}
+		else if (fY >= fX && fY >= fZ)
+		{
+			vDir = XMVector3Normalize(XMVectorSet(0.f, vDir.m128_f32[1], 0.f, 0.f));
+			vDir *= vSourInterval.y + vDestInterval.y;
+			vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1] + vDir.m128_f32[1];
+		}
+		else if (fZ >= fX && fZ >= fY)
+		{
+			vDir = XMVector3Normalize(XMVectorSet(0.f, 0.f, vDir.m128_f32[2], 0.f));
+			vDir *= vSourInterval.z + vDestInterval.z;
+			vPlayerPos.m128_f32[2] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[2] + vDir.m128_f32[2];
+		}
+
+		// 충돌된 방향만 갖고온 extents만큼 빼주기.
+		m_pPlayerTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos);
+	}
+}
+
+void CMonster::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+{
 }
 
 HRESULT CMonster::Ready_Components(_int iStartCellIndex)
@@ -72,5 +117,6 @@ void CMonster::Free()
 	__super::Free();
 
 	Safe_Release(m_pNavigationCom);
+	Safe_Release(m_pPlayerTransformCom);
 
 }

@@ -41,7 +41,7 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CFreeCamera::Priority_Update(_float fTimeDelta)
+_uint CFreeCamera::Priority_Update(_float fTimeDelta)
 {
 	_long		MouseMove = { 0 };
 	
@@ -51,11 +51,11 @@ void CFreeCamera::Priority_Update(_float fTimeDelta)
 	
 	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
 	{
-		m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fDistance, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
 	}
 	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
 	{
-		m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fDistance, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
 	}
 	
 	_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
@@ -69,6 +69,8 @@ void CFreeCamera::Priority_Update(_float fTimeDelta)
 
 
 	__super::Priority_Update(fTimeDelta);
+
+	return OBJ_NOEVENT;
 }
 
 void CFreeCamera::Update(_float fTimeDelta)

@@ -8,6 +8,7 @@
 BEGIN(Engine)
 class CFSM;
 class CNavigation;
+class CCollider;
 class CState;
 END
 
@@ -31,17 +32,26 @@ private:
 	CPlayer(const CPlayer& Prototype);
 	virtual ~CPlayer() = default;
 
+	
+
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
-	virtual void Priority_Update(_float fTimeDelta) override;
+	virtual _uint Priority_Update(_float fTimeDelta) override;
 	virtual void Update(_float fTimeDelta) override;
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
 public:
+	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
+
+public:
+	void Be_Damaged(_uint iDamage, _fvector vAttackPos);
+
+public:
 	class CFSM* m_pFSM = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
+	class CCollider* m_pColliderCom = { nullptr };
 
 	// 상태와 파츠가 공유해야 하는 변수들
 	PLAYER_ANIM m_ePlayerAnim = { PLAYER_ANIM_END };
@@ -52,6 +62,15 @@ public:
 	// 무기랑 공유하는 변수
 	_uint m_iKeyFrameIndex = { 0 };
 
+	// 체력
+	_int m_iHP = { 0 };
+	_int m_iMaxHP = { 0 };
+	// 스테미너
+	_int m_iStamina = { 0 };
+	_int m_iMaxStamina = { 0 };
+	// 닷지시 무적
+	_bool m_bNonIntersect = { false };
+	
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);
 	HRESULT Ready_States();

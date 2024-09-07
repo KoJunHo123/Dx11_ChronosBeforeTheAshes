@@ -171,10 +171,21 @@
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
+    <ClInclude Include="..\public\Boss_Lab_Attack.h" />
     <ClInclude Include="..\public\Boss_Lab_Body.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
     <ClInclude Include="..\Public\Client_Enum.h" />
+    <ClInclude Include="..\public\FloorChunk.h" />
     <ClInclude Include="..\public\FreeCamera.h" />
+    <ClInclude Include="..\public\Lab_Construct.h" />
+    <ClInclude Include="..\public\Lab_Construct_Body.h" />
+    <ClInclude Include="..\public\Lab_Drum.h" />
+    <ClInclude Include="..\public\Lab_Drum_Body.h" />
+    <ClInclude Include="..\public\Lab_Mage.h" />
+    <ClInclude Include="..\public\Lab_Mage_Body.h" />
+    <ClInclude Include="..\public\Lab_Troll.h" />
+    <ClInclude Include="..\public\Lab_Troll_Body.h" />
+    <ClInclude Include="..\public\Lab_Troll_Weapon.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
     <ClInclude Include="..\Public\Level_Loading.h" />
     <ClInclude Include="..\Public\Level_Logo.h" />
@@ -196,6 +207,7 @@
     <ClInclude Include="..\public\Player_Weapon.h" />
     <ClInclude Include="..\public\PuzzleBase.h" />
     <ClInclude Include="..\public\PuzzlePart.h" />
+    <ClInclude Include="..\public\Sky.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
@@ -205,8 +217,19 @@
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />
+    <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Body.cpp" />
+    <ClCompile Include="..\private\FloorChunk.cpp" />
     <ClCompile Include="..\private\FreeCamera.cpp" />
+    <ClCompile Include="..\private\Lab_Construct.cpp" />
+    <ClCompile Include="..\private\Lab_Construct_Body.cpp" />
+    <ClCompile Include="..\private\Lab_Drum.cpp" />
+    <ClCompile Include="..\private\Lab_Drum_Body.cpp" />
+    <ClCompile Include="..\private\Lab_Mage.cpp" />
+    <ClCompile Include="..\private\Lab_Mage_Body.cpp" />
+    <ClCompile Include="..\private\Lab_Troll.cpp" />
+    <ClCompile Include="..\private\Lab_Troll_Body.cpp" />
+    <ClCompile Include="..\private\Lab_Troll_Weapon.cpp" />
     <ClCompile Include="..\Private\Level_GamePlay.cpp" />
     <ClCompile Include="..\Private\Level_Loading.cpp" />
     <ClCompile Include="..\Private\Level_Logo.cpp" />
@@ -228,6 +251,7 @@
     <ClCompile Include="..\private\Player_Weapon.cpp" />
     <ClCompile Include="..\private\PuzzleBase.cpp" />
     <ClCompile Include="..\private\PuzzlePart.cpp" />
+    <ClCompile Include="..\private\Sky.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -246,6 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />

@@ -125,7 +125,6 @@ _bool CMesh::isPicking(const _matrix& WorldMatrix, _vector* pOut, _float* pDist)
 			*pOut = XMVector4Transform(*pOut, WorldMatrix);
 			isPicking = true;
 		}
-
 	}
 	return isPicking;
 }

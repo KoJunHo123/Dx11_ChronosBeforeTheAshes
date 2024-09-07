@@ -34,14 +34,15 @@ HRESULT CTerrain::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CTerrain::Priority_Update(_float fTimeDelta)
+_uint CTerrain::Priority_Update(_float fTimeDelta)
 {
-	int a = 10;
+
+	return OBJ_NOEVENT;
 }
 
 void CTerrain::Update(_float fTimeDelta)
 {
-	int a = 10;
+
 }
 
 void CTerrain::Late_Update(_float fTimeDelta)
@@ -70,9 +71,6 @@ HRESULT CTerrain::Render()
 	if (FAILED(m_pVIBufferCom->Render()))
 		return E_FAIL;
 
-#ifdef _DEBUG
-	m_pNavigationCom->Render();
-#endif
 
 	return S_OK;
 }

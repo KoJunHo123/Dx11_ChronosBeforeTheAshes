@@ -33,6 +33,9 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 {
 	__super::Update(fTimeDelta);
 
+	if(5 > static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex())
+		Look_CameraDir();
+
 	if(false == m_bMotionLock)
 	{
 		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Key_Up(VK_LBUTTON))
@@ -138,25 +141,21 @@ void CPlayer_Attack::Light_Attack()
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_01;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 1:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_02;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 2:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_03;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 3:
 		*m_pPlayerAnim = PLAYER_ATK_LIGHT_04;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	default:
 		break;
@@ -174,13 +173,11 @@ void CPlayer_Attack::Power_Attack()
 		*m_pPlayerAnim = PLAYER_ATK_POWER_01;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	case 1:
 		*m_pPlayerAnim = PLAYER_ATK_POWER_02;
 		m_bMotionLock = true;
 		m_fAttackDelay = 0.f;
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
 		break;
 	default:
 		break;

@@ -6,6 +6,7 @@ BEGIN(Engine)
 class CShader;
 class CModel;
 class CTransform;
+class CCollider;
 END
 
 BEGIN(Client)
@@ -25,18 +26,26 @@ private:
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
-	virtual void Priority_Update(_float fTimeDelta);
+	virtual _uint Priority_Update(_float fTimeDelta);
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
 	virtual HRESULT Render();
 
+public:
+	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
+
 private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CCollider* m_pColliderCom = { nullptr };
 
+private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
 	const _float4x4* m_pTailSocketMatrix = { nullptr };
 
+private:
+	_uint m_iDamage = { 0 };
+	_bool m_bAttackActive = { false };
 
 private:
 	HRESULT Ready_Components();

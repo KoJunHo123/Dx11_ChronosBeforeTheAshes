@@ -1,0 +1,13 @@
+Lab_Drum
+공격 전부
+Belly(배치기), DrumF(잡몹 소환), Swing
+
+아이들
+
+임팩트 B, D, HF
+
+Jump_Fall
+
+Lab_Drum_Spawn
+
+Walk BFLR

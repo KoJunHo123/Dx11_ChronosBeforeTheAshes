@@ -56,6 +56,7 @@ public:
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
 	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
+	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
 
 #pragma endregion
 
@@ -97,8 +98,15 @@ public:
 	_bool	Key_Up(int _iKey);
 #pragma endregion
 
+#pragma region COLLISION_MANAGER
+	void Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond);
+	void Add_Collider_OnLayers(const _wstring strCollisionKey, class CCollider* pCollider);
+#pragma endregion
 
-
+#pragma region FONT_MANAGER
+	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
+	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f);
+#pragma endregion
 
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
@@ -111,7 +119,8 @@ private:
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
 	class CKeyManager*				m_pKey_Manager = { nullptr };
-
+	class CCollision_Manager*		m_pCollision_Manager = { nullptr };
+	class CFont_Manager* m_pFont_Manager = { nullptr };
 public:	
 	void Release_Engine();
 	virtual void Free() override;

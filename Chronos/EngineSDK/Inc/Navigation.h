@@ -17,7 +17,18 @@ private:
 	virtual ~CNavigation() = default;
 
 public:
-	void Set_CellType(_uint iIndex, _uint iCellState);
+	_uint Get_CurrentCellIndex() {
+		return m_iCurrentCellIndex;
+	}
+
+	_float3 Get_NearCellIndex(_int iCellIndex);
+	_uint Get_CellType(_int iCellIndex);
+	_bool Get_CellActive(_int iCellIndex);
+
+	void Set_CellType(_int iIndex, _uint iCellState);
+	void Set_CellActive(_int iIndex, _bool isActive);
+	_float3 Get_CellZXCenter(_int iIndex);
+	
 
 public:
 	virtual HRESULT Initialize_Prototype(const _wstring& strNavigationDataFile);

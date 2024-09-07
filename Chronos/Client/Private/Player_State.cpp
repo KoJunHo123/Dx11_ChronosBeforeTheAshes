@@ -84,14 +84,9 @@ HRESULT CPlayer_State::ExitState(void** pArg)
     return S_OK;
 }
 
-
-
 void CPlayer_State::Look_CameraDir()
 {
-    CTransform* pCameraTransform = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), g_strTransformTag));
-
-    _vector vCameraLook = pCameraTransform->Get_State(CTransform::STATE_LOOK);
-    m_pTransformCom->LookDir(vCameraLook);
+    m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.3f);
 
 }
 

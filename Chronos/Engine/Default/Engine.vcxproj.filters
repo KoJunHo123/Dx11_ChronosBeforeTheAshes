@@ -136,6 +136,36 @@
     <Filter Include="01.Utility\98.ShaderFiles">
       <UniqueIdentifier>{c4d0275c-0d5a-45ac-8512-8587419a9904}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\Collider">
+      <UniqueIdentifier>{0fa92d2c-0d03-4e35-ba56-caf7a7407c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\DebugDraw">
+      <UniqueIdentifier>{01dda2b0-1a4f-4b81-b8d1-8c9a982f5d49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\Bounding">
+      <UniqueIdentifier>{0a852905-e3e3-4fa7-b982-dc9693dd2487}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\Bounding\Bounding_AABB">
+      <UniqueIdentifier>{a0649e81-96ea-4bd7-a9ea-7a6cbfe45d9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\Bounding\Bounding_OBB">
+      <UniqueIdentifier>{9a60dcc3-2dc2-4a94-bd20-0b6dc47ff717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\Bounding\Bounding_Sphere">
+      <UniqueIdentifier>{4af040aa-5e12-469e-8857-bff61c2cc968}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Collider\Manager">
+      <UniqueIdentifier>{87866a59-b59a-4212-a1df-4744ebe503c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Cube">
+      <UniqueIdentifier>{ff2a092b-36e6-4f42-8a6e-a1dac59d40f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\07.Font">
+      <UniqueIdentifier>{f840c5ec-4830-4ce3-8205-8253c0b0af29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\07.Font\Manager">
+      <UniqueIdentifier>{e2e15ea3-66fc-4e98-a164-423ee5dc3d19}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -257,6 +287,36 @@
     </ClCompile>
     <ClCompile Include="..\private\VIBuffer_Cell.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Cell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\DebugDraw.cpp">
+      <Filter>01.Utility\03.Components\Collider\DebugDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Bounding.cpp">
+      <Filter>01.Utility\03.Components\Collider\Bounding</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Collider.cpp">
+      <Filter>01.Utility\03.Components\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Bounding_AABB.cpp">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Bounding_OBB.cpp">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_OBB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Bounding_Sphere.cpp">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_Sphere</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Collision_Manager.cpp">
+      <Filter>01.Utility\03.Components\Collider\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Cube.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\CustomFont.cpp">
+      <Filter>01.Utility\07.Font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Font_Manager.cpp">
+      <Filter>01.Utility\07.Font\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -392,10 +452,45 @@
     <ClInclude Include="..\public\VIBuffer_Cell.h">
       <Filter>01.Utility\03.Components\VIBuffer\Cell</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\DebugDraw.h">
+      <Filter>01.Utility\03.Components\Collider\DebugDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Bounding.h">
+      <Filter>01.Utility\03.Components\Collider\Bounding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Bounding_AABB.h">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Bounding_OBB.h">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_OBB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Bounding_Sphere.h">
+      <Filter>01.Utility\03.Components\Collider\Bounding\Bounding_Sphere</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Collider.h">
+      <Filter>01.Utility\03.Components\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Collision_Manager.h">
+      <Filter>01.Utility\03.Components\Collider\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Cube.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\CustomFont.h">
+      <Filter>01.Utility\07.Font</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Font_Manager.h">
+      <Filter>01.Utility\07.Font\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
       <Filter>01.Utility\98.ShaderFiles</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Bin\ShaderFiles\Shader_Engine_Defines.hlsli">
+      <Filter>01.Utility\98.ShaderFiles</Filter>
+    </None>
   </ItemGroup>
 </Project>

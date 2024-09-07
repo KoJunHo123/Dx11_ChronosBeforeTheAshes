@@ -36,10 +36,12 @@ HRESULT CCamera::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CCamera::Priority_Update(_float fTimeDelta)
+_uint CCamera::Priority_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Set_Transform(CPipeLine::D3DTS_VIEW, m_pTransformCom->Get_WorldMatrix_Inverse());
 	m_pGameInstance->Set_Transform(CPipeLine::D3DTS_PROJ, XMMatrixPerspectiveFovLH(m_fFovy, m_fAspect, m_fNear, m_fFar));
+
+	return OBJ_NOEVENT;
 }
 
 void CCamera::Update(_float fTimeDelta)

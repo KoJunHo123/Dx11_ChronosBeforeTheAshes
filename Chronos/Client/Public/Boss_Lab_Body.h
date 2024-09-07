@@ -17,8 +17,12 @@ public:
 		class CTransform* pBossTransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
 
-		const BOSS_ANIM* pBossAnim = { nullptr };
-		_bool* pIsFinished = { nullptr };
+		_uint* pState = { nullptr };
+		_bool* pAnimOver = { nullptr };
+		_bool* pAnimStart = { nullptr };
+		_bool* pAttackActive_LH = { nullptr };
+		_bool* pAttackActive_RH = { nullptr };
+		_bool* pAttackActive_Body = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -29,10 +33,18 @@ private:
 public:
 	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
 
+	BOSS_ANIM Get_CurrentAnim() {
+		return m_eBossAnim;
+	}
+
+	void Set_Intro(_bool bIntro) {
+		m_bIntro = bIntro;
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
-	virtual void Priority_Update(_float fTimeDelta) override;
+	virtual _uint Priority_Update(_float fTimeDelta) override;
 	virtual void Update(_float fTimeDelta) override;
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
@@ -44,11 +56,32 @@ private:
 	class CModel* m_pModelCom = { nullptr };
 
 private:
-	const BOSS_ANIM*	m_pBossAnim = { nullptr };
-	_bool*				m_pIsFinished = { nullptr };
+	BOSS_ANIM			m_eBossAnim = { BOSS_ANIM_END };
+	_bool				m_isFinished = { false };
+	_bool				m_bIntro = { false };
+
+
+private:
+	_float				m_fChargingTime = { 0.f };
+	_float				m_fChargeSpeed = { 0.f };
+
+	_float				m_fStunTime = { 0.f };
+
+	_float				m_fTeleportTime = { 0.f };
+	_uint				m_iTeleportCount = { 0 };
+
+private:
+	_uint* m_pState = { nullptr };
+	_bool* m_pAnimStart = { nullptr };
+	_bool* m_pAnimOver = { nullptr };
+
+	_bool* m_pAttackActive_LH = { nullptr };
+	_bool* m_pAttackActive_RH = { nullptr };
+	_bool* m_pAttackActive_Body = { nullptr };
 
 private:
 	HRESULT Ready_Components();
+
 private:
 	void Play_Animation(_float fTimeDelta);
 

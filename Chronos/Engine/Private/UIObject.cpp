@@ -48,8 +48,9 @@ HRESULT CUIObject::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CUIObject::Priority_Update(_float fTimeDelta)
+_uint CUIObject::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 }
 
 void CUIObject::Update(_float fTimeDelta)
@@ -70,6 +71,7 @@ HRESULT CUIObject::Render()
 {
 	return S_OK;
 }
+
 
 
 void CUIObject::Free()
