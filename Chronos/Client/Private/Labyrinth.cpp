@@ -32,14 +32,14 @@ HRESULT CLabyrinth::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CLabyrinth::Priority_Update(_float fTimeDelta)
+_uint CLabyrinth::Priority_Update(_float fTimeDelta)
 {
-	int a = 10;
+	return OBJ_NOEVENT;
 }
 
 void CLabyrinth::Update(_float fTimeDelta)
 {
-	int a = 10;
+
 }
 
 void CLabyrinth::Late_Update(_float fTimeDelta)

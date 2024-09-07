@@ -37,14 +37,15 @@ HRESULT CPlayer_Body::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CPlayer_Body::Priority_Update(_float fTimeDelta)
+_uint CPlayer_Body::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 	
 }
 
 void CPlayer_Body::Update(_float fTimeDelta)
 {
-	m_pModelCom->SetUp_Animation(*m_pPlayerAnim);
+	m_pModelCom->SetUp_Animation(*m_pPlayerAnim, Animation_Loop(), Animation_NonInterpolate());
 
 	Play_Animation(fTimeDelta);
 	*m_pFrameIndex = Get_FrameIndex();
@@ -164,6 +165,41 @@ HRESULT CPlayer_Body::Ready_Components()
 		return E_FAIL;
 
 	return S_OK;
+}
+
+_bool CPlayer_Body::Animation_Loop()
+{
+	if (PLAYER_BLOCK_WALK_B == *m_pPlayerAnim ||
+		PLAYER_BLOCK_WALK_F == *m_pPlayerAnim ||
+		PLAYER_BLOCK_WALK_L == *m_pPlayerAnim ||
+		PLAYER_BLOCK_WALK_R == *m_pPlayerAnim ||
+		PLAYER_BLOCK_IDLE == *m_pPlayerAnim ||
+		PLAYER_MOVE_IDLE == *m_pPlayerAnim ||
+		PLAYER_MOVE_JOG_B == *m_pPlayerAnim ||
+		PLAYER_MOVE_JOG_F == *m_pPlayerAnim ||
+		PLAYER_MOVE_JOG_L == *m_pPlayerAnim ||
+		PLAYER_MOVE_JOG_R == *m_pPlayerAnim ||
+		PLAYER_MOVE_WALK_B == *m_pPlayerAnim ||
+		PLAYER_MOVE_WALK_F == *m_pPlayerAnim ||
+		PLAYER_MOVE_WALK_L == *m_pPlayerAnim ||
+		PLAYER_MOVE_WALK_R == *m_pPlayerAnim
+		)
+		return true;
+
+	return false;
+}
+
+_bool CPlayer_Body::Animation_NonInterpolate()
+{
+	if(
+		PLAYER_IMPACT_HEAVY_FROMB == *m_pPlayerAnim ||
+		PLAYER_IMPACT_HEAVY_FROMF == *m_pPlayerAnim ||
+		PLAYER_BLOCK_IMPACT == *m_pPlayerAnim ||
+		PLAYER_BLOCK_IMPACT_BREAK == *m_pPlayerAnim
+		)
+		return true;
+
+	return false;
 }
 
 CPlayer_Body* CPlayer_Body::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

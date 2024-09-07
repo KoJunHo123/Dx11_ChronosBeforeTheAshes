@@ -45,8 +45,9 @@ HRESULT CPuzzlePart::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CPuzzlePart::Priority_Update(_float fTimeDelta)
+_uint CPuzzlePart::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 }
 
 void CPuzzlePart::Update(_float fTimeDelta)

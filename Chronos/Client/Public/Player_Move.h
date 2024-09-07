@@ -5,6 +5,11 @@
 BEGIN(Client)
 class CPlayer_Move final : public CPlayer_State
 {
+public:
+	typedef struct : CPlayer_State::PLAYER_STATE_DESC
+	{
+		_bool* pNonIntersect = { nullptr };
+	}PLAYER_STATE_MOVE_DESC;
 	enum PLAYER_MOVE_STATE { MOVE_IDLE, MOVE_WALK, MOVE_JOG, MOVE_DODGE, MOVE_END };
 protected:
 	CPlayer_Move();
@@ -32,6 +37,8 @@ private:
 private:
 	_float m_fDodgeDelay = { 0.f };
 	PLAYER_MOVE_STATE m_eMoveState = { MOVE_END };
+
+	_bool* m_pNonIntersect = { nullptr };
 
 public:
 	static CPlayer_Move* Create(void* pArg);

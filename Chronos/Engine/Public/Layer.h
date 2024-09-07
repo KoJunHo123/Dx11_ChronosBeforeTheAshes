@@ -13,12 +13,15 @@ private:
 	virtual ~CLayer() = default;
 
 public:
+	list<class CGameObject*> Get_GameObjects() {
+		return m_GameObjects;
+	}
+public:
 	HRESULT Add_GameObject(class CGameObject* pGameObject);
 	HRESULT Priority_Update(_float fTimeDelta);
 	HRESULT Update(_float fTimeDelta);
 	HRESULT Late_Update(_float fTimeDelta);
 
-public:
 	class CComponent* Find_Component(const _wstring& strComponentTag, _uint iIndex);
 	void Release_Object();
 	void Clear();

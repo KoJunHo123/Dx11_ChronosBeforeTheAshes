@@ -3,6 +3,7 @@
 #include "Boss_Lab.h"
 
 #include "Boss_Lab_Body.h"
+#include "Boss_Lab_Attack.h"
 
 #include "GameInstance.h"
 
@@ -32,17 +33,16 @@ HRESULT CBoss_Lab::Initialize(void* pArg)
 	if (FAILED(Ready_PartObjects()))
 		return E_FAIL;
 
-	m_eBossAnim = BOSS_LAB_IDLE;
+	m_iState = STATE_APPEAR;
 
-	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
-	Safe_AddRef(m_pPlayerTransformCom);
-
-	m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
+	m_iMaxHP = 100;
+	m_iHP = m_iMaxHP;
+	m_fSpeed = 5.f;
 
 	return S_OK;
 }
 
-void CBoss_Lab::Priority_Update(_float fTimeDelta)
+_uint CBoss_Lab::Priority_Update(_float fTimeDelta)
 {
 	for (auto& pPartObject : m_Parts)
 	{
@@ -51,89 +51,102 @@ void CBoss_Lab::Priority_Update(_float fTimeDelta)
 		pPartObject->Priority_Update(fTimeDelta);
 	}
 
+	if(true == Contain_State(STATE_APPEAR) || true == Contain_State(STATE_CHARGE) || true == Contain_State(STATE_TELEPORT))
+		m_pColliderCom->Set_OnCollision(false);
+	else
+		m_pColliderCom->Set_OnCollision(true);
+
+	return OBJ_NOEVENT;
 }
 
 void CBoss_Lab::Update(_float fTimeDelta)
 {
-	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-	_vector vDir = vPlayerPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-	_vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
+	_float fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
-	_float fDistance = XMVectorGetX(XMVector3Length(vDir));
-
-	vDir = XMVector3Normalize(vDir);
-	vLook = XMVector3Normalize(vLook);
-
-	_float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
-	_float fRadian = 0.f;
-
-	if (fDot > 1.f)
-		fRadian = 0.f;
-	else if (fDot < -1.f)
-		fRadian = XMConvertToRadians(180.f);
-	else
-		fRadian = acosf(fDot);
-
-	if (XMVectorGetY(XMVector3Cross(vLook, vDir)) < 0.f)
-		fRadian = fRadian * -1.f;
-
-	if (BOSS_LAB_ATK_CHARGE == m_eBossAnim)
+	if (0 >= m_iHP)
 	{
-		m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed * 5.f, m_pNavigationCom);
-		m_fChargeTime += fTimeDelta;
+		m_iState = STATE_DEATH;
+		m_bAnimOver = false;
 	}
 
-	if (BOSS_LAB_ATK_BEAM_INTO == m_eBossAnim)
-		TurnTo_Player(fRadian, fTimeDelta);
-
-	if(BOSS_LAB_ATK_CHARGE_INTO == m_eBossAnim)
-		TurnTo_Player(fRadian, fTimeDelta);
-
-	if (false == m_bMotionLock)
+	if(Contain_State(STATE_IDLE | STATE_WALK | STATE_APPEAR))
 	{
-		if (m_fAttackDelay < 3.f)
-		{
-			TurnTo_Player(fRadian, fTimeDelta);
+		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+		vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
+		m_pTransformCom->LookAt(vPlayerPos, 0.01f);
+	}
 
-			if (fDistance > 5.f)
+	if (true == Contain_State(STATE_WALK))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+	}
+
+	if (true == Contain_State(STATE_APPEAR))
+	{
+		if (fDistance < 30.f)
+		{
+			dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Set_Intro(true);
+		}
+		if(true == m_bAnimOver)
+		{
+			m_iState &= ~STATE_APPEAR;
+			m_iState |= STATE_IDLE;
+			m_fAttackDelay = 0.f;
+		}
+	}
+
+	if (m_iHP / (_float)m_iMaxHP <= 0.5 && false== m_bFirstStun)
+	{
+		m_iState = STATE_STUN;
+		m_bFirstStun = true;
+		m_bAnimStart = false;
+		m_bAnimOver = false;
+	}
+
+	if (true == Contain_State(STATE_IDLE | STATE_WALK) && false == Contain_State(STATE_APPEAR | STATE_STUN))
+	{
+		if (m_fAttackDelay > 2.f)
+		{
+			m_iState &= ~STATE_IDLE;
+			m_iState &= ~STATE_WALK;
+			if (fDistance < 10.f)
 			{
-				m_eBossAnim = BOSS_LAB_WALKF;
-				m_eState = STATE_MOVE;
-				m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+				m_iState |= STATE_NEAR;
 			}
+			else if (fDistance < 20.f)
+			{
+				m_iState |= STATE_RUSH;
+			}
+			else if (fDistance < 30.f)
+			{
+				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
+
+				if (0 == iRandomNum)
+					m_iState |= STATE_CHARGE;
+				else
+					m_iState |= STATE_TELEPORT;
+			}
+		}
+		else
+		{
+			if (fDistance < 10.f)
+				m_iState = STATE_IDLE;
 			else
-			{
-				m_eBossAnim = BOSS_LAB_IDLE;
-				m_eState = STATE_IDLE;
-			}
+				m_iState = STATE_WALK;
 		}
-		else
-		{
-			Attack_Type_Desc(fDistance);
-		}
-#pragma region 테스트용
-		//if(false == m_Test)
-		//{
-		//	m_eState = STATE_TELEPORT;
-		//	m_eBossAnim = BOSS_LAB_TELEPORT_START;
-		//	m_bMotionLock = true;
-		//	m_Test = true;
-		//}
-#pragma endregion
 	}
-	m_fAttackDelay += fTimeDelta;
-
-	if (STATE_TELEPORT == m_eState)
-		Teleport_Progress(fTimeDelta);
-
-	if (true == m_isFinished)
+	else if (true == m_bAnimOver && false == Contain_State(STATE_WALK))
 	{
-		if (STATE_TELEPORT == m_eState)
-			Teleport_Control();
-		else
-			Finished_Animation_Control();
+		m_iState = STATE_IDLE;
+		m_fAttackDelay = 0.f;
+		if (true == Contain_State(STATE_IMPACT))
+			m_iState &= ~STATE_IMPACT;
+		if (true == Contain_State(STATE_STUN))
+			m_iState &= ~STATE_STUN;
 	}
+	cout << m_iHP << endl;
 
+	m_fAttackDelay += fTimeDelta;
 
 	for (auto& pPartObject : m_Parts)
 	{
@@ -143,6 +156,8 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	}
 
 	__super::Update(fTimeDelta);
+
+	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CBoss_Lab::Late_Update(_float fTimeDelta)
@@ -153,16 +168,49 @@ void CBoss_Lab::Late_Update(_float fTimeDelta)
 			continue;
 		pPartObject->Late_Update(fTimeDelta);
 	}
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 }
 
 HRESULT CBoss_Lab::Render()
 {
+#ifdef _DEBUG
+	m_pColliderCom->Render();
+#endif
 	return S_OK;
+}
+
+void CBoss_Lab::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+	__super::Intersect(strColliderTag, pCollisionObject, vSourInterval, vDestInterval);
+
+}
+
+void CBoss_Lab::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+{
+	m_iHP -= iDamage;
+
+	BOSS_ANIM eAnim = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_CurrentAnim();
+
+	if (true == Contain_State(STATE_STUN) && (BOSS_LAB_STUN_IDLE == eAnim || BOSS_LAB_STUN_IMPACT == eAnim))
+		m_iState |= STATE_IMPACT;
 }
 
 HRESULT CBoss_Lab::Ready_Components()
 {
+	/* For.Com_Collider_AABB */
+	CBounding_AABB::BOUNDING_AABB_DESC			ColliderAABBDesc{};
+	ColliderAABBDesc.vExtents = _float3(4.f, 5.f, 4.f);
+	ColliderAABBDesc.vCenter = _float3(0.f, ColliderAABBDesc.vExtents.y, 0.f);
+
+	CCollider::COLLIDER_DESC ColliderDesc = {};
+	ColliderDesc.pOwnerObject = this;
+	ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+	
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
+		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
+		return E_FAIL;
+	m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Monster"), m_pColliderCom);
 
 	return S_OK;
 }
@@ -173,165 +221,59 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 
 	CBoss_Lab_Body::BODY_DESC BodyDesc = {};
 
-	BodyDesc.fRotationPerSec = 90.f;
+	BodyDesc.fRotationPerSec = XMConvertToRadians(90.f);;
 	BodyDesc.fSpeedPerSec = 1.f;
-	BodyDesc.pBossAnim = &m_eBossAnim;
-	BodyDesc.pIsFinished = &m_isFinished;
+	BodyDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
 	BodyDesc.pNavigationCom = m_pNavigationCom;
 	BodyDesc.pBossTransformCom = m_pTransformCom;
-	BodyDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	BodyDesc.pAnimStart = &m_bAnimStart;
+	BodyDesc.pAnimOver = &m_bAnimOver;
+	BodyDesc.pState = &m_iState;
+	BodyDesc.pAttackActive_Body = &m_bAttackActive_Body;
+	BodyDesc.pAttackActive_LH = &m_bAttackActive_LH;
+	BodyDesc.pAttackActive_RH = &m_bAttackActive_RH;
 
 	if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Boss_Lab_Body"), &BodyDesc)))
+		return E_FAIL;
+
+	CBoss_Lab_Attack::ATTACK_DESC AttackDesc = {};
+
+	AttackDesc.fRotationPerSec = 0.f;
+	AttackDesc.fSpeedPerSec = 0.f;
+	AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	AttackDesc.pSocketMatrix = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Spine2");
+	AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+	AttackDesc.vCenter = { 2.f, 2.f, 0.f };
+	AttackDesc.vExtents = { 4.f, 4.f, 4.f };
+	AttackDesc.pAttackActive = &m_bAttackActive_Body;
+	AttackDesc.iDamage = 20;
+	if (FAILED(__super::Add_PartObject(PART_ATTACK_BODY, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
+		return E_FAIL;
+
+	AttackDesc.pSocketMatrix = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Arm03_L");
+	AttackDesc.vAngles = { 0.f, 0.f, XMConvertToRadians(-90.f) };
+	AttackDesc.vCenter = { 3.f, 0.f, 0.f };
+	AttackDesc.vExtents = { 1.f, 4.f, 1.f };
+	AttackDesc.pAttackActive = &m_bAttackActive_LH;
+	AttackDesc.iDamage = 10;
+	if (FAILED(__super::Add_PartObject(PART_ATTACK_LH, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
+		return E_FAIL;
+
+	AttackDesc.pSocketMatrix = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Arm03_R");
+	AttackDesc.pAttackActive = &m_bAttackActive_RH;
+	AttackDesc.iDamage = 10;
+	if (FAILED(__super::Add_PartObject(PART_ATTACK_RH, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
 		return E_FAIL;
 
 	return S_OK;
 }
 
-void CBoss_Lab::Attack_Type_Desc(_float fDistance)
+_bool CBoss_Lab::Contain_State(_uint iState)
 {
-	// 근접 공격
-	if (m_fMeleeAttack_Dist > fDistance)
-	{
-		m_eState = STATE_ATTACK;
+	if (0 != (m_iState & iState))
+		return true;
 
-		_uint m_iNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
-
-		if (0 == m_iNum)
-			m_eBossAnim = BOSS_LAB_ATK_SWIPE_L;
-		else
-			m_eBossAnim = BOSS_LAB_ATK_SWIPE_R;
-
-		m_bMotionLock = true;
-	}
-	// 더블 스윕
-	else if (m_fNearAttack_Dist > fDistance)
-	{
-		m_eState = STATE_ATTACK;
-		m_eBossAnim = BOSS_LAB_ATK_DOUBLE_SWIPE;
-
-		m_bMotionLock = true;
-	}
-	// 러쉬
-	else if (m_fMidRangeAttack_Dist > fDistance)
-	{
-		m_eState = STATE_ATTACK;
-		m_eBossAnim = BOSS_LAB_ATK_RUSH;
-
-		m_bMotionLock = true;
-	}
-	// 빔 아니면 구르기
-	else if (m_fLongRangeAttack_Dist > fDistance)
-	{
-		m_eState = STATE_ATTACK;
-		_uint m_iNum = (_uint)m_pGameInstance->Get_Random(1.f, 3.f);
-
-		if (1 == m_iNum)
-			m_eBossAnim = BOSS_LAB_ATK_BEAM_INTO;
-		else
-			m_eBossAnim = BOSS_LAB_ATK_CHARGE;
-
-		m_bMotionLock = true;
-	}
-	else
-	{
-		// 원래 자리로 돌아가기.
-		m_eBossAnim = BOSS_LAB_IDLE;
-		m_eState = STATE_IDLE;
-	}
-
-}
-
-void CBoss_Lab::Finished_Animation_Control()
-{
-	switch (m_eBossAnim)
-	{
-	case BOSS_LAB_ATK_CHARGE_INTO:
-		m_eBossAnim = BOSS_LAB_ATK_CHARGE;
-		break;
-	case BOSS_LAB_ATK_CHARGE:
-		if(m_fChargeTime > 1.5f)
-		{
-			m_eBossAnim = BOSS_LAB_ATK_CHARGE_OUT;
-			m_fChargeTime = 0.f;
-		}
-		break;
-	case BOSS_LAB_ATK_BEAM_INTO:
-		m_eBossAnim = BOSS_LAB_ATK_BEAM;
-		break;
-	case BOSS_LAB_ATK_BEAM:
-		m_eBossAnim = BOSS_LAB_ATK_BEAM_OUT;
-		break;
-
-	default:
-		m_bMotionLock = false;
-		m_fAttackDelay = 0.f;
-		m_eBossAnim = BOSS_LAB_IDLE;
-		m_eState = STATE_IDLE;
-		break;
-	}
-}
-
-void CBoss_Lab::Teleport_Control()
-{
-	if (BOSS_LAB_TELEPORT_START == m_eBossAnim)
-	{
-		m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
-	}
-	else if (BOSS_LAB_TELEPORT_LAUNCH == m_eBossAnim)
-	{
-		++m_iTeleportAttack_Count;
-		m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
-		m_fTeleportDelay = 0.f;
-	}
-	else if(BOSS_LAB_TELEPORT_APPEAR == m_eBossAnim)
-	{
-		m_bMotionLock = false;
-		m_iTeleportAttack_Count = 0;
-		m_fAttackDelay = 0.f;
-		m_fTeleportDelay = 0.f;
-		m_eBossAnim = BOSS_LAB_IDLE;
-		m_eState = STATE_IDLE;
-	}
-
-}
-
-void CBoss_Lab::Teleport_Progress(_float fTimeDelta)
-{
-	if (BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND == m_eBossAnim && 3.f < m_fTeleportDelay)
-	{
-		if (m_iTeleportAttack_Count >= 3)
-		{
-			m_eBossAnim = BOSS_LAB_TELEPORT_APPEAR;
-		}
-		else
-		{
-			_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-			vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos);
-
-			m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH;
-		}
-
-		m_fTeleportDelay = 0.f;
-	}
-
-	m_fTeleportDelay += fTimeDelta;
-}
-
-void CBoss_Lab::TurnTo_Player(_float fRadian, _float fTimeDelta)
-{
-	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-
-	if (abs(XMConvertToDegrees(fRadian)) < 10.f)
-		m_pTransformCom->LookAt(vPlayerPos);
-	else
-	{
-		if (fRadian > 0.f)
-			m_pTransformCom->Turn(false, true, false, fTimeDelta);
-		else
-			m_pTransformCom->Turn(false, true, false, -fTimeDelta);
-	}
-
+	return false;
 }
 
 CBoss_Lab* CBoss_Lab::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -365,5 +307,5 @@ void CBoss_Lab::Free()
 {
 	__super::Free();
 
-	Safe_Release(m_pPlayerTransformCom);
+	Safe_Release(m_pColliderCom);
 }

@@ -29,12 +29,14 @@ HRESULT CPlayer_Shield::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	m_pTransformCom->Rotation(XMVectorSet(1.f, 0.f, 0.f, 0.f), XMConvertToRadians(-90.f));
+
 	return S_OK;
 }
 
-void CPlayer_Shield::Priority_Update(_float fTimeDelta)
+_uint CPlayer_Shield::Priority_Update(_float fTimeDelta)
 {
-	m_pTransformCom->Rotation(XMVectorSet(1.f, 0.f, 0.f, 0.f), XMConvertToRadians(-90.f));
+	return OBJ_NOEVENT;
 }
 
 void CPlayer_Shield::Update(_float fTimeDelta)

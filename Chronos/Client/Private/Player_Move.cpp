@@ -13,6 +13,9 @@ HRESULT CPlayer_Move::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
 
+	PLAYER_STATE_MOVE_DESC* pDesc = static_cast<PLAYER_STATE_MOVE_DESC*>(pArg);
+
+	m_pNonIntersect = pDesc->pNonIntersect;
 	return S_OK;
 }
 
@@ -30,7 +33,6 @@ void CPlayer_Move::Priority_Update(_float fTimeDelta)
 
 void CPlayer_Move::Update(_float fTimeDelta)
 {
-
 	if(false == m_bMotionLock)
 	{
 		Move_Control(fTimeDelta);
@@ -90,7 +92,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_F;
 		m_eMoveState = MOVE_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Straight(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -100,7 +102,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_B;
 		m_eMoveState = MOVE_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Backward(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -110,7 +112,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_L;		
 		m_eMoveState = MOVE_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Left(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -120,7 +122,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_R;
 		m_eMoveState = MOVE_WALK;
 		
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Right(fTimeDelta * *m_pSpeed, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -143,7 +145,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
  		*m_pPlayerAnim = PLAYER_MOVE_JOG_F;
 		m_eMoveState = MOVE_JOG;
 		
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -153,7 +155,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_B;
 		m_eMoveState = MOVE_JOG;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -163,7 +165,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_L;
 		m_eMoveState = MOVE_JOG;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -173,7 +175,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_R;
 		m_eMoveState = MOVE_JOG;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook));
+		Look_CameraDir();
 		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
 
 		bKeyPress = true;
@@ -195,21 +197,25 @@ void CPlayer_Move::Dodge()
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_L;
 		m_bMotionLock = true;
+		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Key_Pressing('S'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_B;
 		m_bMotionLock = true;
+		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Key_Pressing('D'))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_R;
 		m_bMotionLock = true;
+		*m_pNonIntersect = true;
 	}
 	else
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_F;
 		m_bMotionLock = true;
+		*m_pNonIntersect = true;
 	}
 	m_eMoveState = MOVE_DODGE;
 }
@@ -234,6 +240,7 @@ void CPlayer_Move::Dodge_Control()
 		if (15 < KeyFrameIndex)
 		{
 			m_bMotionLock = false;
+			*m_pNonIntersect = false;
 			m_fDodgeDelay = 0.f;
 		}
 		

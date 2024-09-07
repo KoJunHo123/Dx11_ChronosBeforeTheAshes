@@ -52,14 +52,25 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pFSM->Set_State(STATE_MOVE);
 
-    //m_fSpeed = 5.f;
     m_fSpeed = 20.f;
+
+    m_iMaxHP = 100;
+    m_iHP = m_iMaxHP;
+
+    m_iMaxStamina = 100;
+    m_iStamina = m_iMaxStamina;
     return S_OK;
 }
 
-void CPlayer::Priority_Update(_float fTimeDelta)
+_uint CPlayer::Priority_Update(_float fTimeDelta)
 {
+    if (true == m_bDead)
+        return OBJ_DEAD;
+
+    m_pColliderCom->Set_OnCollision(true);
     m_pFSM->Priority_Update(fTimeDelta);
+
+    return OBJ_NOEVENT;
 }
 
 void CPlayer::Update(_float fTimeDelta)
@@ -71,21 +82,67 @@ void CPlayer::Update(_float fTimeDelta)
     m_pFSM->Update(fTimeDelta);
 
     m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
+    m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {	
     m_pFSM->Late_Update(fTimeDelta);
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
 }
 
 HRESULT CPlayer::Render()
 {
     if (FAILED(m_pFSM->Render()))
         return E_FAIL;
+
+#ifdef _DEBUG
+    m_pColliderCom->Render();
+#endif
+
     return S_OK;
 }
 
+void CPlayer::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+
+}
+
+void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+{
+    if(false == m_bNonIntersect)
+    {
+        _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+        _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
+
+        vDir = XMVector3Normalize(vDir);
+        vLook = XMVector3Normalize(vLook);
+
+        _float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
+
+        if (STATE_BLOCK == m_pFSM->Get_State())
+        {
+            if (0.7 < fDot)
+            {
+                static_cast<CPlayer_Block*>(m_pFSM->Get_State(CPlayer::STATE_BLOCK))->Be_Impacted();
+                return;
+            }
+        }
+
+        _float fRadian = acos(fDot);
+
+        if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
+            fRadian *= -1.f;
+
+
+        static_cast<CPlayer_Impact*>(m_pFSM->Get_State(CPlayer::STATE_IMPACT))->Set_HittedAngle(XMConvertToDegrees(fRadian));
+        m_pFSM->Set_State(CPlayer::STATE_IMPACT);
+
+        m_iHP -= iDamage;
+    }
+}
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
 {
@@ -101,6 +158,21 @@ HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
         TEXT("Com_Navigation"), reinterpret_cast<CComponent**>(&m_pNavigationCom), &desc)))
         return E_FAIL;
+
+    /* For.Com_Collider_AABB */
+    CBounding_AABB::BOUNDING_AABB_DESC			ColliderAABBDesc{};
+    ColliderAABBDesc.vExtents = _float3(1.f, 2.f, 1.f);
+    ColliderAABBDesc.vCenter = _float3(0.f, ColliderAABBDesc.vExtents.y, 0.f);
+
+    CCollider::COLLIDER_DESC ColliderDesc = {};
+    ColliderDesc.pOwnerObject = this;
+    ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
+        TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
+        return E_FAIL;
+
+    m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Player"), m_pColliderCom);
 
     return S_OK;
 }
@@ -118,19 +190,54 @@ HRESULT CPlayer::Ready_States()
     desc.pSpeed = &m_fSpeed;
     desc.pCameraLook = &m_vCameraLook;
 
-    if(FAILED(m_pFSM->Add_State(CPlayer_Move::Create(&desc))))
+    CPlayer_Move::PLAYER_STATE_MOVE_DESC MoveDesc{};
+    MoveDesc.pFSM = m_pFSM;
+    MoveDesc.pNavigationCom = m_pNavigationCom;
+    MoveDesc.pTransformCom = m_pTransformCom;
+    MoveDesc.Parts = &m_Parts;
+    MoveDesc.pIsFinished = &m_isFinished;
+    MoveDesc.pPlayerAnim = &m_ePlayerAnim;
+    MoveDesc.pSpeed = &m_fSpeed;
+    MoveDesc.pCameraLook = &m_vCameraLook;
+    MoveDesc.pNonIntersect = &m_bNonIntersect;
+
+    if(FAILED(m_pFSM->Add_State(CPlayer_Move::Create(&MoveDesc))))
         return E_FAIL;
     if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&desc))))
         return E_FAIL;
     if(FAILED(m_pFSM->Add_State(CPlayer_Jump::Create(&desc))))
         return E_FAIL;
-    if(FAILED(m_pFSM->Add_State(CPlayer_Block::Create(&desc))))
-        return E_FAIL;
-    if(FAILED(m_pFSM->Add_State(CPlayer_Impact::Create(&desc))))
-        return E_FAIL;
-    if(FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&desc))))
+
+    CPlayer_Block::PLAYER_STATE_BLOCK_DESC BlockDesc = {};
+    BlockDesc.pFSM = m_pFSM;
+    BlockDesc.pNavigationCom = m_pNavigationCom;
+    BlockDesc.pTransformCom = m_pTransformCom;
+    BlockDesc.Parts = &m_Parts;
+    BlockDesc.pIsFinished = &m_isFinished;
+    BlockDesc.pPlayerAnim = &m_ePlayerAnim;
+    BlockDesc.pSpeed = &m_fSpeed;
+    BlockDesc.pCameraLook = &m_vCameraLook;
+    BlockDesc.pStamina = &m_iStamina;
+
+    if(FAILED(m_pFSM->Add_State(CPlayer_Block::Create(&BlockDesc))))
         return E_FAIL;
 
+    CPlayer_Impact::PLAYER_STATE_IMPACT_DESC ImpactDesc = {};
+    ImpactDesc.pFSM = m_pFSM;
+    ImpactDesc.pNavigationCom = m_pNavigationCom;
+    ImpactDesc.pTransformCom = m_pTransformCom;
+    ImpactDesc.Parts = &m_Parts;
+    ImpactDesc.pIsFinished = &m_isFinished;
+    ImpactDesc.pPlayerAnim = &m_ePlayerAnim;
+    ImpactDesc.pSpeed = &m_fSpeed;
+    ImpactDesc.pCameraLook = &m_vCameraLook;
+    ImpactDesc.pHP = &m_iHP;
+
+    if (FAILED(m_pFSM->Add_State(CPlayer_Impact::Create(&ImpactDesc))))
+        return E_FAIL;
+
+    if (FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&desc))))
+        return E_FAIL;
     return S_OK;
 }
 
@@ -256,6 +363,5 @@ void CPlayer::Free()
 
     Safe_Release(m_pFSM);
     Safe_Release(m_pNavigationCom);
-
-
+    Safe_Release(m_pColliderCom);
 }

@@ -36,8 +36,9 @@ HRESULT CPlayer_Part::Initialize(void* pArg)
     return S_OK;
 }
 
-void CPlayer_Part::Priority_Update(_float fTimeDelta)
+_uint CPlayer_Part::Priority_Update(_float fTimeDelta)
 {
+    return OBJ_NOEVENT;
 }
 
 void CPlayer_Part::Update(_float fTimeDelta)

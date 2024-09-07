@@ -29,8 +29,9 @@ HRESULT CPartObject::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CPartObject::Priority_Update(_float fTimeDelta)
+_uint CPartObject::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 }
 
 void CPartObject::Update(_float fTimeDelta)

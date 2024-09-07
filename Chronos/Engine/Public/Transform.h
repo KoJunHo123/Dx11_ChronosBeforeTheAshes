@@ -55,8 +55,8 @@ public:
 public:
 	void Set_Scaled(_float fX, _float fY, _float fZ);
 
-	void LookAt(_fvector vAt);
-	void LookDir(_fvector vDir);
+	void LookAt(_fvector vAt, _float fRatio = 1.f);
+	void LookDir(_fvector vDir, _float fRatio = 1.f);
 
 	void Go_Straight(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
 	void Go_Backward(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
@@ -71,9 +71,11 @@ public:
 
 	void SetUp_OnCell(class CNavigation* pNavigation);
 	
-	void Orbit(_fvector vAxis, _fvector vCenter, _float fDistance, _float fLimit, _float fTimeDelta);
+	void Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fTimeDelta);
 
 	_bool MoveTo(_fvector vTargetPos, _float fTimeDelta);
+
+	_float Get_Distance(_fvector vTarget);
 
 public:
 	HRESULT Bind_ShaderResource(class CShader* pShader, const _char* pConstantName);

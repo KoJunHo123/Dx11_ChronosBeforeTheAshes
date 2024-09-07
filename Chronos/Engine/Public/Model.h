@@ -34,6 +34,16 @@ public:
 		return m_Bones[Get_BoneIndex(pBoneName)]->Get_CombinedTransformationMatrix_Ptr();
 	}
 
+	_uint Get_KeyFrameIndex();
+	_uint Get_CuttenrAnimIndex() {
+		return m_iCurrentAnimIndex;
+	}
+	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false, _bool bNonInterpolate = false) {
+		m_iCurrentAnimIndex = iAnimationIndex;
+		m_isLoop = isLoop;
+		// 딱 변경될 때 한번만.
+		m_bNonInterpolate = bNonInterpolate;
+	}
 
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix);
@@ -41,17 +51,8 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
-	void SetUp_Animation(_uint iAnimationIndex, _bool bNonInterpolate = false, _bool isLoop = false) {
-		m_iCurrentAnimIndex = iAnimationIndex;
-		m_isLoop = isLoop;
-		// 딱 변경될 때 한번만.
-		m_bNonInterpolate = bNonInterpolate;
-	}
-	_uint Get_KeyFrameIndex();
-	_uint Get_CuttenrAnimIndex() {
-		return m_iCurrentAnimIndex;
-	}
 	_bool Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged);
+	void Reset_Animation();
 
 public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);

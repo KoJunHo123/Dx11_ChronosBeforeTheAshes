@@ -43,6 +43,9 @@ HRESULT CTransform::Initialize_Prototype()
 
 HRESULT CTransform::Initialize(void * pArg)
 {
+	if (nullptr == pArg)
+		return S_OK;
+
 	TRANSFORM_DESC*	pDesc = static_cast<TRANSFORM_DESC*>(pArg);
 
 	m_fSpeedPerSec = pDesc->fSpeedPerSec;
@@ -64,19 +67,19 @@ void CTransform::Set_Scaled(_float fX, _float fY, _float fZ)
 	Set_State(STATE_LOOK, XMVector3Normalize(Get_State(STATE_LOOK)) * fZ);
 }
 
-void CTransform::LookAt(_fvector vAt)
+void CTransform::LookAt(_fvector vAt, _float fRatio)
 {
 	_vector		vPosition = Get_State(STATE_POSITION);
 	_vector		vLook = vAt - vPosition;
 
-	LookDir(vLook);
+	LookDir(vLook, fRatio);
 }
 
-void CTransform::LookDir(_fvector vDir)
+void CTransform::LookDir(_fvector vDir, _float fRatio)
 {
 	_float3		vScale = Get_Scaled();
 
-	_vector		vLook = vDir;
+	_vector		vLook = XMVectorLerp(Get_State(STATE_LOOK), vDir, fRatio);
 
 	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
 
@@ -90,7 +93,6 @@ void CTransform::LookDir(_fvector vDir)
 	Set_State(STATE_RIGHT, XMVector3Normalize(vRight) * vScale.x);
 	Set_State(STATE_UP, XMVector3Normalize(vUp) * vScale.y);
 	Set_State(STATE_LOOK, XMVector3Normalize(vLook) * vScale.z);
-
 }
 
 void CTransform::Go_Straight(_float fTimeDelta, CNavigation* pNavigation)
@@ -292,11 +294,13 @@ void CTransform::SetUp_OnCell(CNavigation* pNavigation)
 	_vector vPos = Get_State(STATE_POSITION);
 	_float fY = pNavigation->Compute_Height(vPos);
 
-	vPos.m128_f32[1] = fY;
+	if(1.f > abs(vPos.m128_f32[1] - fY))
+		vPos.m128_f32[1] = fY;
+
 	Set_State(STATE_POSITION, vPos);
 }
 
-void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fDistance, _float fLimit, _float fTimeDelta)
+void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fTimeDelta)
 {
 	Set_State(STATE_POSITION, vCenter);
 	
@@ -335,6 +339,13 @@ _bool CTransform::MoveTo(_fvector vTargetPos, _float fTimeDelta)
 	Set_State(STATE_POSITION, vPos + (vDir * fTimeDelta));
 
 	return false;
+}
+
+_float CTransform::Get_Distance(_fvector vTarget)
+{
+	_vector vDir = vTarget - Get_State(STATE_POSITION);
+
+	return XMVectorGetX(XMVector3Length(vDir));
 }
 
 CTransform * CTransform::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, void * pArg)

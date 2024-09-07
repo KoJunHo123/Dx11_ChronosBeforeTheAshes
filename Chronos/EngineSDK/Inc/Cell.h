@@ -19,6 +19,18 @@ public:
 		return XMLoadFloat3(&m_vPoints[ePoint]);
 	}
 
+	_float3 Get_NearCellIndex() {
+		return _float3(m_iNeighborIndices[LINE_AB], m_iNeighborIndices[LINE_BC], m_iNeighborIndices[LINE_CA]);
+	}
+
+	TYPE Get_Type() {
+		return m_eType;
+	}
+
+	_bool Get_Active() {
+		return m_isActive;
+	}
+
 	void Set_Neighbor(LINE eLine, CCell* pNeighbor) {
 		m_iNeighborIndices[eLine] = pNeighbor->m_iIndex;
 	}
@@ -29,6 +41,12 @@ public:
 		m_eType = (TYPE)iType;
 	}
 
+	void Set_Active(_bool isActive) {
+		m_isActive = isActive;
+	}
+
+	_float3 Get_CellXZCenter();
+
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex, TYPE eType);
 	_bool Compare_Points(_fvector vSour, _fvector vDest);
@@ -37,10 +55,12 @@ public:
 
 	_float Compute_Height(const _fvector& vLocalPos);
 
+
 #ifdef _DEBUG
 public:
 	HRESULT Render_Walk();
 	HRESULT Render_Fall();
+	HRESULT Render_Active();
 #endif
 
 private:
@@ -52,6 +72,7 @@ private:
 
 	TYPE							m_eType = { TYPE_WALK };
 
+	_bool							m_isActive = { false };
 
 #ifdef _DEBUG
 private:

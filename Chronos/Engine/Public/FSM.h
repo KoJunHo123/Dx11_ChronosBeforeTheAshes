@@ -20,6 +20,10 @@ public:
 		return m_iNextStateIndex;
 	}
 
+	CState* Get_State(_uint iIndex) {
+		return m_States[iIndex];
+	}
+
 
 public:
 	virtual HRESULT Initialize_Prototype();

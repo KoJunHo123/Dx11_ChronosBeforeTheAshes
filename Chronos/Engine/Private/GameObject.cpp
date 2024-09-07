@@ -29,7 +29,7 @@ HRESULT CGameObject::Initialize_Prototype()
 
 HRESULT CGameObject::Initialize(void* pArg)
 {
-	GAMEOBJECT_DESC*	pDesc = static_cast<GAMEOBJECT_DESC*>(pArg);
+	GAMEOBJECT_DESC* pDesc = nullptr != pArg ? static_cast<GAMEOBJECT_DESC*>(pArg) : nullptr;
 
 	m_pTransformCom = CTransform::Create(m_pDevice, m_pContext, pDesc);
 	if (nullptr == m_pTransformCom)
@@ -43,8 +43,9 @@ HRESULT CGameObject::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CGameObject::Priority_Update(_float fTimeDelta)
+_uint CGameObject::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 }
 
 void CGameObject::Update(_float fTimeDelta)
@@ -69,6 +70,11 @@ CComponent * CGameObject::Find_Component(const _wstring & strComponentTag)
 
 	return iter->second;
 }
+
+void CGameObject::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+}
+
 
 
 HRESULT CGameObject::Add_Component(_uint iLevelIndex, const _wstring & strPrototypeTag, const _wstring & strComponentTag, CComponent** ppOut, void * pArg)

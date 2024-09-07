@@ -22,14 +22,16 @@ protected:
 
 public:
 	virtual HRESULT Initialize_Prototype();
-	virtual HRESULT Initialize(void* pArg);
-	virtual void Priority_Update(_float fTimeDelta);
+	virtual HRESULT Initialize(void* pArg = nullptr);
+	virtual _uint Priority_Update(_float fTimeDelta);
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
 	virtual HRESULT Render();
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);
+
+	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval);
 
 protected:
 	ID3D11Device*				m_pDevice = { nullptr };
@@ -39,6 +41,7 @@ protected:
 	class CGameInstance*		m_pGameInstance = { nullptr };
 
 	_bool	m_isCloned = { false };
+	_bool	m_bDead = { false };
 
 protected:
 	map<const _wstring, class CComponent*>			m_Components;

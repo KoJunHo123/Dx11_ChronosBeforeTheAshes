@@ -6,6 +6,7 @@
 BEGIN(Engine)
 class CShader;
 class CModel;
+class CTransform;
 END
 
 BEGIN(Client)
@@ -29,15 +30,25 @@ protected:
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
-	virtual void Priority_Update(_float fTimeDelta) override;
+	virtual _uint Priority_Update(_float fTimeDelta) override;
 	virtual void Update(_float fTimeDelta) override;
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
+
+public:
+	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
+
+public:
+	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos);
 
 protected:
 	_uint m_iCurrentAnimationIndex = { 0 };
 
 	class CNavigation* m_pNavigationCom = { nullptr };
+	class CTransform* m_pPlayerTransformCom = { nullptr };
+
+	_int m_iHP = { 0 };
+	_int m_iMaxHP = { 0 };
 
 protected:
 	virtual HRESULT Ready_Components(_int iStartCellIndex);

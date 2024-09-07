@@ -15,6 +15,9 @@ private:
 	virtual ~CObject_Manager() = default;
 
 public:
+	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
+
+public:
 	HRESULT Initialize(_uint iNumLevels);
 	HRESULT Add_Prototype(const _wstring& strPrototypeTag, class CGameObject* pPrototype);	
 	HRESULT Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, void* pArg);
@@ -25,6 +28,7 @@ public:
 
 public:
 	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
+
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex);
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);

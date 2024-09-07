@@ -40,6 +40,14 @@ CComponent * CComponent_Manager::Clone_Component(_uint iLevelIndex, const _wstri
 	return pComponent;
 }
 
+void CComponent_Manager::Clear(_uint iLevelIndex)
+{
+	for (auto& Pair : m_pPrototypes[iLevelIndex])
+		Safe_Release(Pair.second);
+
+	m_pPrototypes[iLevelIndex].clear();
+}
+
 CComponent * CComponent_Manager::Find_Prototype(_uint iLevelIndex, const _wstring & strPrototypeTag)
 {
 	auto	iter = m_pPrototypes[iLevelIndex].find(strPrototypeTag);

@@ -4,6 +4,8 @@
 
 #include "PuzzlePart.h"
 #include"Cell.h"
+#include "FloorChunk.h"
+
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -40,10 +42,13 @@ HRESULT CPuzzleBase::Initialize(void* pArg)
 	m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
 	m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
 
+	m_pPlayerNavigationCom = static_cast<CNavigation*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), TEXT("Com_Navigation")));
+	Safe_AddRef(m_pPlayerNavigationCom);
+
 	return S_OK;
 }
 
-void CPuzzleBase::Priority_Update(_float fTimeDelta)
+_uint CPuzzleBase::Priority_Update(_float fTimeDelta)
 {
 	for (auto& pPartObject : m_Parts)
 	{
@@ -53,8 +58,8 @@ void CPuzzleBase::Priority_Update(_float fTimeDelta)
 	}
 	Instead_Picking();
 
-	// 셀 바꾸는 거.
-	if (m_pGameInstance->Key_Down('0') && nullptr == m_Parts[PART_PIECE_REPLACEMENT])
+	// 파츠 바꾸는 거.
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_0) && nullptr == m_Parts[PART_PIECE_REPLACEMENT])
 	{
 		_uint CellIndices[255] = {};
 		CPuzzlePart* pPart = static_cast<CPuzzlePart*>(m_Parts[PART_PIECE_11]);
@@ -85,16 +90,52 @@ void CPuzzleBase::Priority_Update(_float fTimeDelta)
 		Safe_Release(m_Parts[PART_PIECE_11]);
 	}
 
+	return OBJ_NOEVENT;
 }
 
 void CPuzzleBase::Update(_float fTimeDelta)
 {
+	_uint iPlayerCellIndex = m_pPlayerNavigationCom->Get_CurrentCellIndex();
+
+	_uint iSetIndex = { 0 };
+	if (0 == iPlayerCellIndex % 2)
+		iSetIndex = iPlayerCellIndex + 1;
+	else
+		iSetIndex = iPlayerCellIndex - 1;
+
+	Set_FallCellDeactive(iSetIndex);
+	Set_FallCellDeactive(iPlayerCellIndex);
+
+	LOCATION eCurrentLocation = Find_CurrentLocation(iPlayerCellIndex);
 	for (auto& pPartObject : m_Parts)
 	{
 		if (nullptr == pPartObject)
 			continue;
 		pPartObject->Update(fTimeDelta);
+
+		CPuzzlePart* pPart = static_cast<CPuzzlePart*>(pPartObject);
+
+		if (eCurrentLocation == pPart->Get_Location())
+		{
+			PuzzlePart_Cell_Active(pPart, iPlayerCellIndex);
+		}
 	}
+
+	Set_NearCellActive(iSetIndex);
+	Set_NearCellActive(iPlayerCellIndex);
+
+	auto& FloorChunkList = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"));
+
+	for (auto& FloorChunk : FloorChunkList)
+	{
+		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
+		if (false == m_pNavigationCom->Get_CellActive(pFloorChunk->Get_CellIndex()))
+		{
+			pFloorChunk->Set_Dead();
+		}
+	}
+
+
 }
 
 void CPuzzleBase::Late_Update(_float fTimeDelta)
@@ -133,6 +174,9 @@ HRESULT CPuzzleBase::Render()
 			return E_FAIL;
 	}
 
+#ifdef _DEBUG
+	m_pNavigationCom->Render();
+#endif
 
 	return S_OK;
 }
@@ -297,8 +341,9 @@ HRESULT CPuzzleBase::Ready_Parts()
 
 void CPuzzleBase::Instead_Picking()
 {
-	if (true == m_pGameInstance->Key_Down('1'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_1))
 	{
+		// 픽셀 피킹 배우면 피킹된 좌표를 기준으로 LOCATION 찾아서 그걸로 할 예정.
 		CPuzzlePart* pPart = Find_Part(LEFT_TOP);
 		if (nullptr == pPart)
 			return;
@@ -309,7 +354,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('2'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_2))
 	{
 		CPuzzlePart* pPart = Find_Part(MIDDLE_TOP);
 		if (nullptr == pPart)
@@ -321,7 +366,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('3'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_3))
 	{
 		CPuzzlePart* pPart = Find_Part(RIGHT_TOP);
 		if (nullptr == pPart)
@@ -333,7 +378,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('4'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_4))
 	{
 		CPuzzlePart* pPart = Find_Part(LEFT_MIDDLE);
 		if (nullptr == pPart)
@@ -345,7 +390,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('5'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_5))
 	{
 		CPuzzlePart* pPart = Find_Part(MIDDLE_MIDDLE);
 		if (nullptr == pPart)
@@ -357,7 +402,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('6'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_6))
 	{
 		CPuzzlePart* pPart = Find_Part(RIGHT_MIDDLE);
 		if (nullptr == pPart)
@@ -369,7 +414,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('7'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_7))
 	{
 		CPuzzlePart* pPart = Find_Part(LEFT_DOWN);
 		if (nullptr == pPart)
@@ -381,7 +426,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('8'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_8))
 	{
 		CPuzzlePart* pPart = Find_Part(MIDDLE_DOWN);
 		if (nullptr == pPart)
@@ -393,7 +438,7 @@ void CPuzzleBase::Instead_Picking()
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
-	else if (true == m_pGameInstance->Key_Down('9'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_9))
 	{
 		CPuzzlePart* pPart = Find_Part(RIGHT_DOWN);
 		if (nullptr == pPart)
@@ -647,7 +692,6 @@ void CPuzzleBase::Update_Cell(LOCATION eLocation, _uint* pCellStates)
 	_uint iColumn = eLocation / 3;
 	_uint iRow = eLocation % 3;
 
-
 	_uint iStartX = iRow * 15;
 	_uint iStartZ = 30 - iColumn * 15;
 
@@ -666,6 +710,237 @@ void CPuzzleBase::Update_Cell(LOCATION eLocation, _uint* pCellStates)
 		}
 	}
 
+}
+
+void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellIndex)
+{
+	_uint* pCellIndices = pPart->Get_CellIndices();
+
+	_uint iColumn = pPart->Get_Location() / 3;
+	_uint iRow = pPart->Get_Location() % 3;
+
+	_uint iStartX = iRow * 15;
+	_uint iStartZ = 30 - iColumn * 15;
+
+	_uint iStateIndex = { 0 };
+
+	_uint iX = (iCurrentCellIndex % 90) / 2;
+	_uint iZ = iCurrentCellIndex / 90;
+
+	if(iZ >= iStartZ + 3 && iZ <= iStartZ + 11 && iX >= iStartX + 3 && iX <= iStartX + 11)
+	{
+		for (size_t i = iStartZ; i < iStartZ + 15; ++i)
+		{
+			for (size_t j = iStartX; j < iStartX + 15; ++j)
+			{
+				_uint iIndex = (j * 2) + i * 90;
+
+				if (i >= iStartZ + 3 && i <= iStartZ + 11 && j >= iStartX + 3 && j <= iStartX + 11)
+				{
+					m_pNavigationCom->Set_CellActive(iIndex, true);
+					m_pNavigationCom->Set_CellActive(iIndex + 1, true);
+					Add_FloorChunk(iIndex);
+				}
+				++iStateIndex;
+			}
+		}
+	}
+	else
+	{
+		for (size_t i = iStartZ; i < iStartZ + 15; ++i)
+		{
+			for (size_t j = iStartX; j < iStartX + 15; ++j)
+			{
+				_uint iIndex = (j * 2) + i * 90;
+
+				if (i >= iStartZ + 3 && i <= iStartZ + 11 && j >= iStartX + 3 && j <= iStartX + 11)
+				{
+					m_pNavigationCom->Set_CellActive(iIndex, false);
+					m_pNavigationCom->Set_CellActive(iIndex + 1, false);
+				}
+				++iStateIndex;
+			}
+		}
+	}
+
+
+}
+
+CPuzzleBase::LOCATION CPuzzleBase::Find_CurrentLocation(_uint iCellIndex)
+{
+	_uint iX = (iCellIndex % 90) / 2;
+	iX += (iCellIndex % 90) % 2;
+	_uint iZ = iCellIndex / 90;
+
+	LOCATION eCurrentLocation = { LOCATION_END };
+
+	if (iX < 15 && iZ < 15)
+		eCurrentLocation = LEFT_DOWN;
+	else if (iX < 30 && iZ < 15)
+		eCurrentLocation = MIDDLE_DOWN;
+	else if (iX < 45 && iZ < 15)
+		eCurrentLocation = RIGHT_DOWN;
+	else if (iX < 15 && iZ < 30)
+		eCurrentLocation = LEFT_MIDDLE;
+	else if (iX < 30 && iZ < 30)
+		eCurrentLocation = MIDDLE_MIDDLE;
+	else if (iX < 45 && iZ < 30)
+		eCurrentLocation = RIGHT_MIDDLE;
+	else if (iX < 15 && iZ < 45)
+		eCurrentLocation = LEFT_TOP;
+	else if (iX < 30 && iZ < 45)
+		eCurrentLocation = MIDDLE_TOP;
+	else if (iX < 45 && iZ < 45)
+		eCurrentLocation = RIGHT_TOP;
+
+	return eCurrentLocation;
+}
+
+void CPuzzleBase::Set_NearCellActive(_uint iCellIndex, _uint iCount)
+{
+	if (1 < iCount)
+		return;
+
+	_float3 vNearCells = m_pNavigationCom->Get_NearCellIndex(iCellIndex);
+
+	_int iAB = (_int)vNearCells.x;
+	_int iBC = (_int)vNearCells.y;
+	_int iCA = (_int)vNearCells.z;
+
+	if (1 == iAB % 2)
+		iAB -= 1;
+	if (1 == iBC % 2)
+		iBC -= 1;
+	if (1 == iCA % 2)
+		iCA -= 1;
+
+	if (iAB < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iAB))
+	{
+		m_pNavigationCom->Set_CellActive(iAB, true);
+		m_pNavigationCom->Set_CellActive(iAB + 1, true);
+		Add_FloorChunk(iAB);
+
+		//Set_NearCellActive(iAB, iCount + 1);
+		//Set_NearCellActive(iAB + 1, iCount + 1);
+	}
+
+	if (iBC < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iBC))
+	{
+		m_pNavigationCom->Set_CellActive(iBC, true);
+		m_pNavigationCom->Set_CellActive(iBC + 1, true);
+		Add_FloorChunk(iBC);
+
+		//Set_NearCellActive(iBC, iCount + 1);
+		//Set_NearCellActive(iBC + 1, iCount + 1);
+	}
+
+	if (iCA < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iCA))
+	{
+		m_pNavigationCom->Set_CellActive(iCA, true);
+		m_pNavigationCom->Set_CellActive(iCA + 1, true);
+		Add_FloorChunk(iCA);
+
+		//Set_NearCellActive(iCA, iCount + 1);
+		//Set_NearCellActive(iCA + 1, iCount + 1);
+	}
+}
+
+void CPuzzleBase::Set_FallCellDeactive(_uint iCellIndex, _uint iCount)
+{
+	if (1 < iCount)
+		return;
+
+	_float3 vNearCells = m_pNavigationCom->Get_NearCellIndex(iCellIndex);
+
+	_int iAB = (_int)vNearCells.x;
+	_int iBC = (_int)vNearCells.y;
+	_int iCA = (_int)vNearCells.z;
+
+	if (1 == iAB % 2)
+		iAB -= 1;
+	if (1 == iBC % 2)
+		iBC -= 1;
+	if (1 == iCA % 2)
+		iCA -= 1;
+
+	if (iAB < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iAB))
+	{
+		
+		m_pNavigationCom->Set_CellActive(iAB, false);
+		m_pNavigationCom->Set_CellActive(iAB + 1, false);
+
+		Set_FallCellDeactive(iAB, iCount + 1);
+		Set_FallCellDeactive(iAB + 1, iCount + 1);
+	}
+
+	if (iBC < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iBC))
+	{
+		m_pNavigationCom->Set_CellActive(iBC, false);
+		m_pNavigationCom->Set_CellActive(iBC + 1, false);
+
+		Set_FallCellDeactive(iBC, iCount + 1);
+		Set_FallCellDeactive(iBC + 1, iCount + 1);
+	}
+
+	if (iCA < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iCA))
+	{
+		m_pNavigationCom->Set_CellActive(iCA, false);
+		m_pNavigationCom->Set_CellActive(iCA + 1, false);
+
+		Set_FallCellDeactive(iCA, iCount + 1);
+		Set_FallCellDeactive(iCA + 1, iCount + 1);
+	}
+
+	if(5723 == iCellIndex || 5724 == iCellIndex)
+	{
+		m_pNavigationCom->Set_CellActive(4092, false);
+		m_pNavigationCom->Set_CellActive(4093, false);
+	}
+
+}
+
+HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
+{
+	if (0 != iCellIndex % 2)
+		iCellIndex -= 1;
+	
+	auto& FloorChunkList = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"));
+
+	for (auto& FloorChunk : FloorChunkList)
+	{
+		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
+		if (iCellIndex == pFloorChunk->Get_CellIndex())
+			return S_OK;
+	}
+
+	CFloorChunk::FLOORCHUNK_DESC desc = {};
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 0.f;
+	desc.iCellIndex = iCellIndex;
+	desc.vTargetPos = m_pNavigationCom->Get_CellZXCenter(iCellIndex);
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_A");
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+		return E_FAIL;
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_B");
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+		return E_FAIL;
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_C");
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+		return E_FAIL;
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_D");
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+		return E_FAIL;
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_E");
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+		return E_FAIL;
+	
+
+	return S_OK;
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -698,5 +973,5 @@ void CPuzzleBase::Free()
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
-
+	Safe_Release(m_pPlayerNavigationCom);
 }

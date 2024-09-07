@@ -12,6 +12,16 @@ CCell::CCell(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	Safe_AddRef(m_pContext);
 }
 
+_float3 CCell::Get_CellXZCenter()
+{
+	_float3 vZXCenter = {};
+	vZXCenter.x = m_vPoints[POINT_A].x + (m_vPoints[POINT_B].x - m_vPoints[POINT_A].x) / 2;
+	vZXCenter.y = m_vPoints[POINT_A].y;
+	vZXCenter.z = m_vPoints[POINT_C].z + (m_vPoints[POINT_B].z - m_vPoints[POINT_C].z) / 2;
+
+	return vZXCenter;
+}
+
 HRESULT CCell::Initialize(const _float3* pPoints, _int iIndex, TYPE eType)
 {
 	memcpy(m_vPoints, pPoints, sizeof(_float3) * POINT_END);
@@ -96,7 +106,7 @@ _float CCell::Compute_Height(const _fvector& vLocalPos)
 #ifdef _DEBUG
 HRESULT CCell::Render_Walk()
 {
-	if(TYPE_WALK == m_eType)
+	if(TYPE_WALK == m_eType && false == m_isActive)
 	{
 		m_pVIBuffer->Bind_Buffers();
 		m_pVIBuffer->Render();
@@ -106,12 +116,21 @@ HRESULT CCell::Render_Walk()
 
 HRESULT CCell::Render_Fall()
 {
-	if (TYPE_FALL == m_eType)
+	if (TYPE_FALL == m_eType && false == m_isActive)
 	{
 		m_pVIBuffer->Bind_Buffers();
 		m_pVIBuffer->Render();
 	}
 	return S_OK;
+}
+HRESULT CCell::Render_Active()
+{
+	if (true == m_isActive)
+	{
+		m_pVIBuffer->Bind_Buffers();
+		m_pVIBuffer->Render();
+	}
+	return E_NOTIMPL;
 }
 #endif
 

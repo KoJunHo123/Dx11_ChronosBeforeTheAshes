@@ -53,6 +53,10 @@ HRESULT CMainApp::Initialize()
 
 #endif // _DEBUG
 
+	//if (FAILED(m_pGameInstance->Add_Font(TEXT("Font_145"), TEXT("../Bin/Resources/Fonts/143ex.spritefont"))))
+	//	return E_FAIL;
+
+
 	return S_OK;
 }
 
@@ -69,6 +73,9 @@ HRESULT CMainApp::Render()
 	m_pGameInstance->Render_Begin();
 
 	m_pGameInstance->Draw_Engine();
+
+	///* MakeSpriteFont "³Ø½¼lv1°íµñ Bold" /FontSize:10 /FastPack /CharacterRegion:0x0020-0x00FF /CharacterRegion:0x3131-0x3163 /CharacterRegion:0xAC00-0xD800 /DefaultCharacter:0xAC00 145ex.spritefont */
+	//m_pGameInstance->Render_Text(TEXT("Font_145"), TEXT("´ã¹è ÇÏ³ª ÇÇÀÚ."), XMVectorSet(0.f, 0.f, 0.f, 1.f));
 
 	m_pGameInstance->Render_End();
 

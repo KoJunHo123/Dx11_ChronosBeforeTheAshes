@@ -24,8 +24,9 @@ HRESULT CContainerObject::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CContainerObject::Priority_Update(_float fTimeDelta)
+_uint CContainerObject::Priority_Update(_float fTimeDelta)
 {
+	return OBJ_NOEVENT;
 }
 
 void CContainerObject::Update(_float fTimeDelta)

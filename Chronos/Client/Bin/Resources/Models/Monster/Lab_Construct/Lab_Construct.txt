@@ -1,0 +1,25 @@
+Lab_Construct
+
+Lab_Construct_Atk_1
+Lab_Construct_Atk_2
+Lab_Construct_Atk_3
+
+Lab_Construct_Atk_3Hit_Combo
+Lab_Construct_Atk_DownSwipe
+Lab_Construct_Atk_ShieldSwipe
+Lab_Construct_Atk_VerticalSlam
+
+Lab_Construct_Idle
+
+Lab_Construct_Impact_B
+Lab_Construct_Impact_Death
+Lab_Construct_Impact_F_Shor
+
+Lab_Construct_Jump_Fall
+
+Lab_Construct_Impact_Walk_B
+Lab_Construct_Impact_Walk_F
+Lab_Construct_Impact_Walk_L
+Lab_Construct_Impact_Walk_R
+
+[1] = 0x000001c0c1efabb0 {m_szName=0x000001c0c1efabc0 "Bone_LC_Root_$AssimpFbx$_Translation" m_TransformationMatrix=...}

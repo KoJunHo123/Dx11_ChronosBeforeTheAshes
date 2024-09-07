@@ -7,6 +7,17 @@ CObject_Manager::CObject_Manager()
 {
 }
 
+
+list<class CGameObject*> CObject_Manager::Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+
+	if (nullptr == pLayer)
+		Create_Layer(iLevelIndex, strLayerTag);
+
+	return Find_Layer(iLevelIndex, strLayerTag)->Get_GameObjects();
+}
+
 HRESULT CObject_Manager::Initialize(_uint iNumLevels)
 {
 	if (nullptr != m_pLayers)

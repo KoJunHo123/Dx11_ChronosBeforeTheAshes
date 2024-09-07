@@ -17,6 +17,8 @@ public :
 		return m_CurrentKeyFrameIndices[Find_RootBoneIndex()];
 	}
 
+	void Reset_Animation();
+
 private:
 	_uint Find_RootBoneIndex();
 
