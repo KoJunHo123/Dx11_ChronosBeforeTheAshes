@@ -138,29 +138,29 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 	infile.close();
 
 	
-	//CMonster::MONSTER_DESC desc = {};
-	//desc.fRotationPerSec = XMConvertToRadians(90.f);
-	//desc.fSpeedPerSec = 1.f;
-	//
-	//desc.vPos = {};
-	//desc.vRotation = {};
-	//desc.vScale = { 1.f, 1.f, 1.f };
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+	
+	desc.vPos = {};
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
 
-	//desc.iStartCellIndex = 10;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 10;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 20;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 14;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 30;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 18;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 40;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 22;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
 
 	return S_OK;
 }

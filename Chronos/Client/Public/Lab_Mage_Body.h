@@ -16,17 +16,27 @@ class CLab_Mage_Body final : public CPartObject
 public:
 	typedef struct : public CPartObject::PARTOBJ_DESC
 	{
-		class CTransform* pConstruct_TransformCom = { nullptr };
+		class CTransform* pMage_TransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
 
-		const MAGE_ANIM* pMageAnim = { nullptr };
+		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
+		_int* pHP = { nullptr };
+		_float* pDistance = { nullptr };
+		_bool* pAnimStart = { false };
+		_bool* pAnimOver = { false };
 	}BODY_DESC;
 
 private:
 	CLab_Mage_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CLab_Mage_Body(const CLab_Mage_Body& Prototype);
 	virtual ~CLab_Mage_Body() = default;
+
+public:
+	void Set_HittedAngle(_float fHittedAngle) {
+		m_fHittedAngle = fHittedAngle;
+	}
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -36,18 +46,36 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+public:
+	void Reset_Animation();
+
 private:
-	class CTransform* m_pConstruct_TransformCom = { nullptr };
+	_bool Animation_Loop();
+	_bool Animation_NonInterpolate();
+
+private:
+	class CTransform* m_pMage_TransformCom = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 
 private:
-	const MAGE_ANIM* m_pMageAnim = { nullptr };
+	MAGE_ANIM m_eMageAnim = { MAGE_ANIM_END };
+	_float m_fHittedAngle = { 0.f };
+
+	_float m_fSpeed = { 0.f };
+
+private:
+	_uint* m_pState = { nullptr };
 	_bool* m_pIsFinished = { nullptr };
+	_int* m_pHP = { nullptr };
+	_float* m_pDistance = { nullptr };
+	_bool* m_pAnimStart = { false };
+	_bool* m_pAnimOver = { false };
 
 private:
 	HRESULT Ready_Components();
+
 private:
 	void Play_Animation(_float fTimeDelta);
 

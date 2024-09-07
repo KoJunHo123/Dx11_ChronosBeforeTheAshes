@@ -75,6 +75,16 @@ void CGameObject::Intersect(const _wstring strColliderTag, CGameObject* pCollisi
 {
 }
 
+_vector CGameObject::Get_Position()
+{
+	return m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+}
+
+void CGameObject::Set_Position(_vector vPos)
+{
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
+}
+
 
 
 HRESULT CGameObject::Add_Component(_uint iLevelIndex, const _wstring & strPrototypeTag, const _wstring & strComponentTag, CComponent** ppOut, void * pArg)

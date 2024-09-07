@@ -2,6 +2,8 @@
 #include "Lab_Drum_Body.h"
 #include "GameInstance.h"
 
+#include "Lab_Drum.h"
+
 CLab_Drum_Body::CLab_Drum_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
 {
@@ -11,6 +13,7 @@ CLab_Drum_Body::CLab_Drum_Body(const CLab_Drum_Body& Prototype)
     : CPartObject(Prototype)
 {
 }
+
 
 HRESULT CLab_Drum_Body::Initialize_Prototype()
 {
@@ -32,8 +35,12 @@ HRESULT CLab_Drum_Body::Initialize(void* pArg)
     m_pConstruct_TransformCom = pDesc->pConstruct_TransformCom;
     Safe_AddRef(m_pConstruct_TransformCom);
 
-    m_pDrumtAnim = pDesc->pDrumtAnim;
+    m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
+    m_pHP = pDesc->pHP;
+    m_pDistance = pDesc->pDistance;
+
+    m_fSpeed = 2.f;
 
     return S_OK;
 }
@@ -48,8 +55,57 @@ _uint CLab_Drum_Body::Priority_Update(_float fTimeDelta)
 
 void CLab_Drum_Body::Update(_float fTimeDelta)
 {
-    m_pModelCom->SetUp_Animation(*m_pDrumtAnim);
+    if (CLab_Drum::STATE_IDLE == *m_pState)
+        m_eDrumAnim = LAB_DRUM_IDLE;
+    else if (CLab_Drum::STATE_SPAWN == *m_pState)
+        m_eDrumAnim = LAB_DRUM_SPAWN;
+    else if (CLab_Drum::STATE_SUMMON == *m_pState)
+        m_eDrumAnim = LAB_DRUM_ATK_DRUM_F_HEAVY;
+    else if (CLab_Drum::STATE_ATTACK == *m_pState)
+    {
+        if (false == m_bAnimStart)
+        {
+            if (*m_pDistance < 4.f)
+                m_eDrumAnim = LAB_DRUM_ATK_BELLY;
+            else if (*m_pDistance < 6.f)
+                m_eDrumAnim = LAB_DRUM_ATK_SWING_01;
+
+            m_bAnimStart = true;
+        }
+    }
+    else if (CLab_Drum::STATE_WALK == *m_pState)
+    {
+        if (*m_pDistance < 4.f)
+        {
+            m_eDrumAnim = LAB_DRUM_WALK_B;
+            m_pConstruct_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else if (*m_pDistance < 6.f)
+        {
+            if (LAB_DRUM_WALK_L != m_eDrumAnim && LAB_DRUM_WALK_R != m_eDrumAnim)
+            {
+                if (m_pGameInstance->Get_Random_Normal() < 0.5f)
+                    m_eDrumAnim = LAB_DRUM_WALK_L;
+                else
+                    m_eDrumAnim = LAB_DRUM_WALK_R;
+            }
+            if (LAB_DRUM_WALK_L == m_eDrumAnim)
+                m_pConstruct_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            else if (LAB_DRUM_WALK_R == m_eDrumAnim)
+                m_pConstruct_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else
+        {
+            m_eDrumAnim = LAB_DRUM_WALK_F;
+            m_pConstruct_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+    }
+
+    m_pModelCom->SetUp_Animation(m_eDrumAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta);
+
+    if (true == *m_pIsFinished && CLab_Drum::STATE_ATTACK == *m_pState)
+        m_bAnimStart = false;
 }
 
 void CLab_Drum_Body::Late_Update(_float fTimeDelta)
@@ -88,6 +144,33 @@ HRESULT CLab_Drum_Body::Render()
     }
 
     return S_OK;
+}
+
+void CLab_Drum_Body::Reset_Animation()
+{
+    m_pModelCom->Reset_Animation();
+}
+
+_bool CLab_Drum_Body::Animation_Loop()
+{
+    if (LAB_DRUM_IDLE == m_eDrumAnim
+        || LAB_DRUM_WALK_F == m_eDrumAnim
+        || LAB_DRUM_WALK_B == m_eDrumAnim
+        || LAB_DRUM_WALK_L == m_eDrumAnim
+        || LAB_DRUM_WALK_R == m_eDrumAnim)
+        return true;
+
+    return false;
+}
+
+_bool CLab_Drum_Body::Animation_NonInterpolate()
+{
+    if (LAB_DRUM_IMPACT_B == m_eDrumAnim ||
+        LAB_DRUM_IMPACT_DEATH == m_eDrumAnim ||
+        LAB_DRUM_IMPACT_HEAVY_F == m_eDrumAnim)
+        return true;
+
+    return false;
 }
 
 HRESULT CLab_Drum_Body::Ready_Components()

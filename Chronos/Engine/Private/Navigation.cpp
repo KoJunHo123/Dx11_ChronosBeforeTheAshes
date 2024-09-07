@@ -127,7 +127,7 @@ _bool CNavigation::isMove(_fvector vPosition, _vector* pLine)
 	_vector vLine = {};
 
 	/* 원래 있던 삼각형 안에서 움직인거야. */
-	if (true == m_Cells[m_iCurrentCellIndex]->isIn(vPosition, &iNeighborIndex, pLine))
+	if (true == m_Cells[m_iCurrentCellIndex]->isIn(vPosition, &iNeighborIndex, pLine) && m_iSkipTypeIndex != m_Cells[m_iCurrentCellIndex]->Get_Type())
 	{
 		return true;
 	}
@@ -141,7 +141,7 @@ _bool CNavigation::isMove(_fvector vPosition, _vector* pLine)
 			while (true)
 			{
 				// 한번에 나간 셀이 밖이면
-				if (-1 == iNeighborIndex)
+				if (-1 == iNeighborIndex || m_iSkipTypeIndex == m_Cells[iNeighborIndex]->Get_Type())
 				{
 					return false;
 				}

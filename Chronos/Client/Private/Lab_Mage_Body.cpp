@@ -2,6 +2,8 @@
 #include "Lab_Mage_Body.h"
 #include "GameInstance.h"
 
+#include "Lab_Mage.h"
+
 CLab_Mage_Body::CLab_Mage_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
 {
@@ -11,6 +13,7 @@ CLab_Mage_Body::CLab_Mage_Body(const CLab_Mage_Body& Prototype)
     : CPartObject(Prototype)
 {
 }
+
 
 HRESULT CLab_Mage_Body::Initialize_Prototype()
 {
@@ -29,11 +32,17 @@ HRESULT CLab_Mage_Body::Initialize(void* pArg)
     m_pNavigationCom = pDesc->pNavigationCom;
     Safe_AddRef(m_pNavigationCom);
 
-    m_pConstruct_TransformCom = pDesc->pConstruct_TransformCom;
-    Safe_AddRef(m_pConstruct_TransformCom);
+    m_pMage_TransformCom = pDesc->pMage_TransformCom;
+    Safe_AddRef(m_pMage_TransformCom);
 
-    m_pMageAnim = pDesc->pMageAnim;
+    m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
+    m_pHP = pDesc->pHP;
+    m_pDistance = pDesc->pDistance;
+    m_pAnimStart = pDesc->pAnimStart;
+    m_pAnimOver = pDesc->pAnimOver;
+
+    m_fSpeed = 3.f;
 
     return S_OK;
 }
@@ -48,8 +57,144 @@ _uint CLab_Mage_Body::Priority_Update(_float fTimeDelta)
 
 void CLab_Mage_Body::Update(_float fTimeDelta)
 {
-    m_pModelCom->SetUp_Animation(*m_pMageAnim);
-    Play_Animation(fTimeDelta);
+    if (CLab_Mage::STATE_IDLE == *m_pState)
+        m_eMageAnim = LAB_MAGE_IDLE;
+    else if (CLab_Mage::STATE_DASH_B == *m_pState)
+    {
+        m_eMageAnim = LAB_MAGE_DASH_B_START;
+        if (true == *m_pIsFinished)
+        {
+            *m_pAnimOver = true;
+        }
+    }
+    else if (CLab_Mage::STATE_SPAWN == *m_pState)
+    {
+        m_eMageAnim = LAB_MAGE_MIRROR;
+        if (true == *m_pIsFinished)
+        {
+            *m_pAnimOver = true;
+        }
+    }
+    else if (CLab_Mage::STATE_ATTACK_COMBO == *m_pState)
+    {
+        if (false == *m_pAnimStart)
+        {
+            m_eMageAnim = LAB_MAGE_ATK_COMBO_01_START;
+            *m_pAnimStart = true;
+        }
+
+        if (true == *m_pIsFinished)
+        {
+            if (LAB_MAGE_ATK_COMBO_01_START == m_eMageAnim)
+            {
+                if (*m_pDistance < 5.f)
+                {
+                    // 텔포.
+                }
+
+                m_eMageAnim = LAB_MAGE_ATK_COMBO_01_STRIKE;
+            }
+            else if (LAB_MAGE_ATK_COMBO_01_STRIKE == m_eMageAnim)
+            {
+                if(*m_pDistance > 5.f)
+                    m_eMageAnim = LAB_MAGE_ATK_COMBO_02_START;
+                else
+                {
+                    *m_pAnimStart = false;
+                    *m_pAnimOver = true;
+                }
+            }
+            else if (LAB_MAGE_ATK_COMBO_02_START == m_eMageAnim)
+            {
+                if (*m_pDistance < 5.f)
+                {
+                    // 텔포.
+                }
+
+                m_eMageAnim = LAB_MAGE_ATK_COMBO_02_STRIKE;
+            }
+            else if (LAB_MAGE_ATK_COMBO_02_STRIKE == m_eMageAnim)
+            {
+                *m_pAnimStart = false;
+                *m_pAnimOver = true;
+            }
+        }
+    }
+    else if (CLab_Mage::STATE_ATTACK_SLASH == *m_pState)
+    {
+        if (false == *m_pAnimStart)
+        {
+            m_eMageAnim = LAB_MAGE_ATK_SLASH_01_START;
+            *m_pAnimStart = true;
+        }
+
+        if (true == *m_pIsFinished)
+        {
+            if (LAB_MAGE_ATK_SLASH_01_START == m_eMageAnim)
+            {
+                if (*m_pDistance < 5.f)
+                {
+                    // 텔포.
+                }
+
+                m_eMageAnim = LAB_MAGE_ATK_SLASH_01_STRIKE;
+            }
+            else if (LAB_MAGE_ATK_SLASH_01_STRIKE == m_eMageAnim)
+            {
+                if (*m_pDistance > 5.f)
+                    m_eMageAnim = LAB_MAGE_ATK_SLASH_02_START;
+                else
+                {
+                    *m_pAnimStart = false;
+                    *m_pAnimOver = true;
+                }
+            }
+            else if (LAB_MAGE_ATK_SLASH_02_START == m_eMageAnim)
+            {
+                if (*m_pDistance < 5.f)
+                {
+                    // 텔포.
+                }
+
+                m_eMageAnim = LAB_MAGE_ATK_SLASH_02_STRIKE;
+            }
+            else if (LAB_MAGE_ATK_SLASH_02_STRIKE == m_eMageAnim)
+            {
+                *m_pAnimStart = false;
+                *m_pAnimOver = true;
+            }
+        }
+    }
+    else if (CLab_Mage::STATE_WALK == *m_pState)
+    {
+        if (*m_pDistance < 5.f)
+        {
+            m_eMageAnim = LAB_MAGE_WALK_B;
+            m_pMage_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else if (*m_pDistance < 10.f)
+        {
+            if (LAB_MAGE_WALK_L != m_eMageAnim && LAB_MAGE_WALK_R != m_eMageAnim)
+            {
+                if (m_pGameInstance->Get_Random_Normal() < 0.5f)
+                    m_eMageAnim = LAB_MAGE_WALK_L;
+                else
+                    m_eMageAnim = LAB_MAGE_WALK_R;
+            }
+            if (LAB_MAGE_WALK_L == m_eMageAnim)
+                m_pMage_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            else if (LAB_MAGE_WALK_R == m_eMageAnim)
+                m_pMage_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else
+        {
+            m_eMageAnim = LAB_MAGE_WALK_F;
+            m_pMage_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+    }
+
+    m_pModelCom->SetUp_Animation(m_eMageAnim, Animation_Loop(), Animation_NonInterpolate());
+    Play_Animation(fTimeDelta * 1.2f);
 }
 
 void CLab_Mage_Body::Late_Update(_float fTimeDelta)
@@ -90,6 +235,35 @@ HRESULT CLab_Mage_Body::Render()
     return S_OK;
 }
 
+void CLab_Mage_Body::Reset_Animation()
+{
+    m_pModelCom->Reset_Animation();
+}
+
+_bool CLab_Mage_Body::Animation_Loop()
+{
+    if (LAB_MAGE_IDLE == m_eMageAnim
+        || LAB_MAGE_WALK_F == m_eMageAnim
+        || LAB_MAGE_WALK_B == m_eMageAnim
+        || LAB_MAGE_WALK_L == m_eMageAnim
+        || LAB_MAGE_WALK_R == m_eMageAnim)
+        return true;
+
+    return false;
+}
+
+_bool CLab_Mage_Body::Animation_NonInterpolate()
+{
+    if (LAB_MAGE_IMPACT_B == m_eMageAnim ||
+        LAB_MAGE_IMPACT_DEATH == m_eMageAnim ||
+        LAB_MAGE_IMPACT_HEAVY_F == m_eMageAnim ||
+        LAB_MAGE_IMPACT_FL == m_eMageAnim ||
+        LAB_MAGE_IMPACT_FR == m_eMageAnim)
+        return true;
+
+    return false;
+}
+
 HRESULT CLab_Mage_Body::Ready_Components()
 {
     /* FOR.Com_Shader */
@@ -111,16 +285,16 @@ void CLab_Mage_Body::Play_Animation(_float fTimeDelta)
 
     *m_pIsFinished = m_pModelCom->Play_Animation(fTimeDelta, vStateChange);
 
-    vStateChange = m_pConstruct_TransformCom->Get_Rotated_Vector(vStateChange);
+    vStateChange = m_pMage_TransformCom->Get_Rotated_Vector(vStateChange);
 
-    _vector vBossPos = m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION);
+    _vector vBossPos = m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION);
 
     _vector vMovePosition = vBossPos + vStateChange;
 
     _vector vLine = {};
 
     if (nullptr == m_pNavigationCom || true == m_pNavigationCom->isMove(vMovePosition, &vLine))
-        m_pConstruct_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+        m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
     else
     {
         vLine = XMVector3Normalize(vLine);
@@ -137,7 +311,7 @@ void CLab_Mage_Body::Play_Animation(_float fTimeDelta)
         vMovePosition = vBossPos + vStateChange;
 
         if (true == m_pNavigationCom->isMove(vMovePosition, &vLine))
-            m_pConstruct_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+            m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
     }
 
 }
@@ -172,7 +346,7 @@ void CLab_Mage_Body::Free()
     __super::Free();
 
     Safe_Release(m_pNavigationCom);
-    Safe_Release(m_pConstruct_TransformCom);
+    Safe_Release(m_pMage_TransformCom);
     Safe_Release(m_pModelCom);
     Safe_Release(m_pShaderCom);
 }

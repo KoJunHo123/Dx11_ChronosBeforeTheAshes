@@ -41,15 +41,15 @@ public:
 public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos) override;
+
 private:
 	class CCollider* m_pColliderCom = { nullptr };
 
 private:
-	_float m_fSpeed = { 10.f };
-	// ÆÄÃ÷¶û °øÀ¯ÇÏ´Â º¯¼ö
 	_float m_fAttackDelay = { 0.f };
 
 private:
+	// ÆÄÃ÷¶û °øÀ¯ÇÏ´Â º¯¼ö
 	_uint m_iState = { STATE_END };
 	_bool m_bAnimStart = { false };
 	_bool m_bAnimOver = { false };

@@ -32,6 +32,8 @@ public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);
 
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval);
+	virtual _vector Get_Position();
+	virtual void Set_Position(_vector vPos);
 
 protected:
 	ID3D11Device*				m_pDevice = { nullptr };

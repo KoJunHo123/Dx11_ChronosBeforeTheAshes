@@ -24,10 +24,14 @@ public:
 	_float3 Get_NearCellIndex(_int iCellIndex);
 	_uint Get_CellType(_int iCellIndex);
 	_bool Get_CellActive(_int iCellIndex);
+	_float3 Get_CellZXCenter(_int iIndex);
 
 	void Set_CellType(_int iIndex, _uint iCellState);
 	void Set_CellActive(_int iIndex, _bool isActive);
-	_float3 Get_CellZXCenter(_int iIndex);
+
+	void Set_SkipTypeIndex(_uint iSkipTypeIndex) {
+		m_iSkipTypeIndex = iSkipTypeIndex;
+	}
 	
 
 public:
@@ -46,8 +50,9 @@ public:
 
 private:
 	vector<class CCell*>				m_Cells;
-	_int								m_iCurrentCellIndex = { -1 };
 	static _float4x4					m_WorldMatrix;
+	_int								m_iCurrentCellIndex = { -1 };
+	_int								m_iSkipTypeIndex = { -1 };
 
 #ifdef _DEBUG
 private:

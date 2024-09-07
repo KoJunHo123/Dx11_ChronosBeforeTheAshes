@@ -2,6 +2,8 @@
 #include "Lab_Construct_Body.h"
 #include "GameInstance.h"
 
+#include "Lab_Construct.h"
+
 CLab_Construct_Body::CLab_Construct_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
 {
@@ -11,6 +13,7 @@ CLab_Construct_Body::CLab_Construct_Body(const CLab_Construct_Body& Prototype)
     : CPartObject(Prototype)
 {
 }
+
 
 HRESULT CLab_Construct_Body::Initialize_Prototype()
 {
@@ -32,8 +35,14 @@ HRESULT CLab_Construct_Body::Initialize(void* pArg)
     m_pConstruct_TransformCom = pDesc->pConstruct_TransformCom;
     Safe_AddRef(m_pConstruct_TransformCom);
 
-    m_pConstructAnim = pDesc->pConstructAnim;
+    m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
+    m_pHP = pDesc->pHP;
+    m_pDistance = pDesc->pDistance;
+
+    m_eConstructAnim = LAB_CONSTRUCT_IDLE;
+
+    m_fSpeed = 3.f;
 
     return S_OK;
 }
@@ -48,8 +57,68 @@ _uint CLab_Construct_Body::Priority_Update(_float fTimeDelta)
 
 void CLab_Construct_Body::Update(_float fTimeDelta)
 {
-    m_pModelCom->SetUp_Animation(*m_pConstructAnim);
-    Play_Animation(fTimeDelta);
+
+    cout << m_eConstructAnim << endl;
+    if (CLab_Construct::STATE_IDLE == *m_pState)
+    {
+        m_eConstructAnim = LAB_CONSTRUCT_IDLE;
+    }
+    else if (CLab_Construct::STATE_ATTACK == *m_pState)
+    {
+        if(false == m_bAnimStart)
+        {
+            if (*m_pDistance < 5.f)
+                m_eConstructAnim = LAB_CONSTRUCT_ATK_SHIELDSWIPE;
+            else if (*m_pDistance < 8.f)
+                m_eConstructAnim = LAB_CONSTRUCT_ATK_DOWNSWIPE;
+            else if (*m_pDistance < 12.f)
+                m_eConstructAnim = LAB_CONSTRUCT_ATK_VERTICALSLAM;
+            else if (*m_pDistance < 15.f)
+                m_eConstructAnim = LAB_CONSTRUCT_ATK_3HIT_COMBO;
+
+            m_bAnimStart = true;
+        }
+    }
+    else if (CLab_Construct::STATE_WALK == *m_pState)
+    {
+        if (*m_pDistance < 8.f)
+        {
+            m_eConstructAnim = LAB_CONSTRUCT_WALK_B;
+            m_pConstruct_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else if (*m_pDistance < 12.f)
+        {
+            if(LAB_CONSTRUCT_WALK_L != m_eConstructAnim && LAB_CONSTRUCT_WALK_R != m_eConstructAnim )
+            {
+                if(m_pGameInstance->Get_Random_Normal() < 0.5f)
+                    m_eConstructAnim = LAB_CONSTRUCT_WALK_L;
+                else
+                    m_eConstructAnim = LAB_CONSTRUCT_WALK_R;
+            }
+            if(LAB_CONSTRUCT_WALK_L == m_eConstructAnim)
+                m_pConstruct_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            else if(LAB_CONSTRUCT_WALK_R == m_eConstructAnim)
+                m_pConstruct_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else
+        {
+            m_eConstructAnim = LAB_CONSTRUCT_WALK_F;
+            m_pConstruct_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+    }
+    else if (CLab_Construct::STATE_IMPACT == *m_pState)
+    {
+        if (90 > abs(m_fHittedAngle))
+            m_eConstructAnim = LAB_CONSTRUCT_IMPACT_F_SHORT;
+        else
+            m_eConstructAnim = LAB_CONSTRUCT_IMPACT_B;
+    }
+    
+    m_pModelCom->SetUp_Animation(m_eConstructAnim, Animation_Loop(), Animation_NonInterpolate());
+    Play_Animation(fTimeDelta *  1.2f);
+
+    if (true == *m_pIsFinished && CLab_Construct::STATE_ATTACK == *m_pState)
+        m_bAnimStart = false;
 }
 
 void CLab_Construct_Body::Late_Update(_float fTimeDelta)
@@ -88,6 +157,33 @@ HRESULT CLab_Construct_Body::Render()
     }
 
     return S_OK;
+}
+
+void CLab_Construct_Body::Reset_Animation()
+{
+    m_pModelCom->Reset_Animation();
+}
+
+_bool CLab_Construct_Body::Animation_Loop()
+{
+    if (LAB_CONSTRUCT_IDLE == m_eConstructAnim
+        || LAB_CONSTRUCT_WALK_F == m_eConstructAnim
+        || LAB_CONSTRUCT_WALK_B == m_eConstructAnim
+        || LAB_CONSTRUCT_WALK_L == m_eConstructAnim
+        || LAB_CONSTRUCT_WALK_R == m_eConstructAnim)
+        return true;
+
+    return false;
+}
+
+_bool CLab_Construct_Body::Animation_NonInterpolate()
+{
+    if (LAB_CONSTRUCT_IMPACT_B == m_eConstructAnim ||
+        LAB_CONSTRUCT_IMPACT_DEATH == m_eConstructAnim ||
+        LAB_CONSTRUCT_IMPACT_F_SHORT == m_eConstructAnim)
+        return true;
+
+    return false;
 }
 
 HRESULT CLab_Construct_Body::Ready_Components()

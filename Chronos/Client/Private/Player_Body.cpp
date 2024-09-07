@@ -191,12 +191,12 @@ _bool CPlayer_Body::Animation_Loop()
 
 _bool CPlayer_Body::Animation_NonInterpolate()
 {
-	if(
-		PLAYER_IMPACT_HEAVY_FROMB == *m_pPlayerAnim ||
+	if( PLAYER_IMPACT_HEAVY_FROMB == *m_pPlayerAnim ||
 		PLAYER_IMPACT_HEAVY_FROMF == *m_pPlayerAnim ||
 		PLAYER_BLOCK_IMPACT == *m_pPlayerAnim ||
-		PLAYER_BLOCK_IMPACT_BREAK == *m_pPlayerAnim
-		)
+		PLAYER_BLOCK_IMPACT_BREAK == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_01_CHARGE == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_02_CHARGE == *m_pPlayerAnim)
 		return true;
 
 	return false;

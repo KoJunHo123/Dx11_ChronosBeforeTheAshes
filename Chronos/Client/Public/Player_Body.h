@@ -35,6 +35,9 @@ public:
 	_uint Get_FrameIndex();
 	_uint Get_CurrentAnimIndex();
 	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
+	void Reset_Animation() {
+		m_pModelCom->Reset_Animation();
+	}
 
 private:
 	class CTransform* m_pPlayerTransformCom = { nullptr };

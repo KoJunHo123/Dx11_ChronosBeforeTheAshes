@@ -47,6 +47,8 @@ protected:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CTransform* m_pPlayerTransformCom = { nullptr };
 
+	_float m_fSpeed = { 0.f };
+
 	_int m_iHP = { 0 };
 	_int m_iMaxHP = { 0 };
 

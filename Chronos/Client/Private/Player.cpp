@@ -40,6 +40,7 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
     m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
 
+    pDesc->iStartCellIndex = 16;
 
     if (FAILED(Ready_Components(pDesc->iStartCellIndex)))
         return E_FAIL;
@@ -59,6 +60,10 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_iMaxStamina = 100;
     m_iStamina = m_iMaxStamina;
+
+    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
+
     return S_OK;
 }
 
@@ -126,7 +131,7 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         {
             if (0.7 < fDot)
             {
-                static_cast<CPlayer_Block*>(m_pFSM->Get_State(CPlayer::STATE_BLOCK))->Be_Impacted();
+                static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
                 return;
             }
         }
@@ -136,9 +141,12 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
             fRadian *= -1.f;
 
-
         static_cast<CPlayer_Impact*>(m_pFSM->Get_State(CPlayer::STATE_IMPACT))->Set_HittedAngle(XMConvertToDegrees(fRadian));
-        m_pFSM->Set_State(CPlayer::STATE_IMPACT);
+
+        if (STATE_IMPACT == m_pFSM->Get_State())
+            static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
+        else
+            m_pFSM->Set_State(STATE_IMPACT);
 
         m_iHP -= iDamage;
     }

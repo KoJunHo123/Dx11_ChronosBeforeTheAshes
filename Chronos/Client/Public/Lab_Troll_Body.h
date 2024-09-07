@@ -19,8 +19,10 @@ public:
 		class CTransform* pConstruct_TransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
 
-		const TROLL_ANIM* pTrollAnim = { nullptr };
+		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
+		_int* pHP = { nullptr };
+		_float* pDistance = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -29,7 +31,9 @@ private:
 	virtual ~CLab_Troll_Body() = default;
 
 public:
-	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
+	void Set_HittedAngle(_float fHittedAngle) {
+		m_fHittedAngle = fHittedAngle;
+	}
 
 
 public:
@@ -40,6 +44,14 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+public:
+	void Reset_Animation();
+	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
+
+private:
+	_bool Animation_Loop();
+	_bool Animation_NonInterpolate();
+
 private:
 	class CTransform* m_pConstruct_TransformCom = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
@@ -47,9 +59,19 @@ private:
 	class CModel* m_pModelCom = { nullptr };
 
 private:
-	const TROLL_ANIM* m_pTrollAnim = { nullptr };
+	TROLL_ANIM m_eTrollAnim = { TROLL_ANIM_END };
+	_float m_fHittedAngle = { 0.f };
+
+	_bool m_bAnimStart = { false };
+
+	_float m_fSpeed = { 0.f };
+
+private:
+	_uint* m_pState = { nullptr };
 	_bool* m_pIsFinished = { nullptr };
-	
+	_int* m_pHP = { nullptr };
+	_float* m_pDistance = { nullptr };
+
 private:
 	HRESULT Ready_Components();
 private:

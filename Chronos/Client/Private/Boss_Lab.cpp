@@ -39,6 +39,7 @@ HRESULT CBoss_Lab::Initialize(void* pArg)
 	m_iHP = m_iMaxHP;
 	m_fSpeed = 5.f;
 
+
 	return S_OK;
 }
 
@@ -109,15 +110,15 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		{
 			m_iState &= ~STATE_IDLE;
 			m_iState &= ~STATE_WALK;
-			if (fDistance < 10.f)
+			if (fDistance < 15.f)
 			{
 				m_iState |= STATE_NEAR;
 			}
-			else if (fDistance < 20.f)
+			else if (fDistance < 25.f)
 			{
 				m_iState |= STATE_RUSH;
 			}
-			else if (fDistance < 30.f)
+			else
 			{
 				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
 
@@ -139,12 +140,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	{
 		m_iState = STATE_IDLE;
 		m_fAttackDelay = 0.f;
-		if (true == Contain_State(STATE_IMPACT))
-			m_iState &= ~STATE_IMPACT;
-		if (true == Contain_State(STATE_STUN))
-			m_iState &= ~STATE_STUN;
 	}
-	cout << m_iHP << endl;
 
 	m_fAttackDelay += fTimeDelta;
 

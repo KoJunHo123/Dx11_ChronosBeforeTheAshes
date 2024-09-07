@@ -2,6 +2,8 @@
 #include "Lab_Troll_Body.h"
 #include "GameInstance.h"
 
+#include "Lab_Troll.h"
+
 CLab_Troll_Body::CLab_Troll_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
 {
@@ -12,10 +14,6 @@ CLab_Troll_Body::CLab_Troll_Body(const CLab_Troll_Body& Prototype)
 {
 }
 
-const _float4x4* CLab_Troll_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
-{
-    return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
-}
 
 HRESULT CLab_Troll_Body::Initialize_Prototype()
 {
@@ -37,22 +35,103 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
     m_pConstruct_TransformCom = pDesc->pConstruct_TransformCom;
     Safe_AddRef(m_pConstruct_TransformCom);
 
-    m_pTrollAnim = pDesc->pTrollAnim;
+    m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
+    m_pHP = pDesc->pHP;
+    m_pDistance = pDesc->pDistance;
+
+    m_fSpeed = 5.f;
 
     return S_OK;
 }
 
 _uint CLab_Troll_Body::Priority_Update(_float fTimeDelta)
 {
+    if (true == m_bDead)
+        return OBJ_DEAD;
 
     return OBJ_NOEVENT;
 }
 
 void CLab_Troll_Body::Update(_float fTimeDelta)
 {
-    m_pModelCom->SetUp_Animation(*m_pTrollAnim);
+    if (CLab_Troll::STATE_IDLE == *m_pState)
+        m_eTrollAnim = LAB_TROLL_IDLE;
+    else if (CLab_Troll::STATE_SPAWN == *m_pState)
+        m_eTrollAnim = LAB_TROLL_SPAWN;
+    else if (CLab_Troll::STATE_SPRINT == *m_pState)
+    {
+        m_eTrollAnim = LAB_TROLL_SPRINT_F;
+        m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed * 2.f, m_pNavigationCom);
+    }
+    else if (CLab_Troll::STATE_ATTACK == *m_pState)
+    {
+        if (false == m_bAnimStart)
+        {
+            _float fRandom = m_pGameInstance->Get_Random_Normal();
+            if (*m_pDistance < 3.f)
+            {
+                m_eTrollAnim = LAB_TROLL_ATK_UPPERCUT;
+            }
+            else if (*m_pDistance < 7.f)
+            {
+                if (LAB_TROLL_ATK_SWIPE_L != m_eTrollAnim && LAB_TROLL_ATK_SWIPE_R != m_eTrollAnim)
+                {
+                    if (fRandom < 0.5f)
+                        m_eTrollAnim = LAB_TROLL_ATK_SWIPE_L;
+                    else
+                        m_eTrollAnim = LAB_TROLL_ATK_SWIPE_R;
+
+                }
+            }
+            else if (*m_pDistance < 10.f)
+            {
+                if (LAB_TROLL_ATK_CHARGE_L != m_eTrollAnim && LAB_TROLL_ATK_CHARGE_R != m_eTrollAnim)
+                {
+                    if (fRandom < 0.5f)
+                        m_eTrollAnim = LAB_TROLL_ATK_CHARGE_L;
+                    else
+                        m_eTrollAnim = LAB_TROLL_ATK_CHARGE_R;
+
+                }
+            }
+            m_bAnimStart = true;
+        }
+        
+    }
+    else if (CLab_Troll::STATE_WALK == *m_pState)
+    {
+        if (*m_pDistance < 5.f)
+        {
+            m_eTrollAnim = LAB_TROLL_WALK_B;
+            m_pConstruct_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else if (*m_pDistance < 10.f)
+        {
+            if (LAB_TROLL_WALK_L != m_eTrollAnim && LAB_TROLL_WALK_R != m_eTrollAnim)
+            {
+                if (m_pGameInstance->Get_Random_Normal() < 0.5f)
+                    m_eTrollAnim = LAB_TROLL_WALK_L;
+                else
+                    m_eTrollAnim = LAB_TROLL_WALK_R;
+            }
+            if (LAB_TROLL_WALK_L == m_eTrollAnim)
+                m_pConstruct_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            else if (LAB_TROLL_WALK_R == m_eTrollAnim)
+                m_pConstruct_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+        else
+        {
+            m_eTrollAnim = LAB_TROLL_WALK_F;
+            m_pConstruct_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        }
+    }
+
+    m_pModelCom->SetUp_Animation(m_eTrollAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta);
+
+    if (true == *m_pIsFinished && CLab_Troll::STATE_ATTACK == *m_pState)
+        m_bAnimStart = false;
 }
 
 void CLab_Troll_Body::Late_Update(_float fTimeDelta)
@@ -93,6 +172,41 @@ HRESULT CLab_Troll_Body::Render()
     return S_OK;
 }
 
+void CLab_Troll_Body::Reset_Animation()
+{
+    m_pModelCom->Reset_Animation();
+}
+
+const _float4x4* CLab_Troll_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
+{
+    return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
+}
+
+
+_bool CLab_Troll_Body::Animation_Loop()
+{
+    if (LAB_TROLL_IDLE == m_eTrollAnim
+        || LAB_TROLL_WALK_F == m_eTrollAnim
+        || LAB_TROLL_WALK_B == m_eTrollAnim
+        || LAB_TROLL_WALK_L == m_eTrollAnim
+        || LAB_TROLL_WALK_R == m_eTrollAnim)
+        return true;
+
+    return false;
+}
+
+_bool CLab_Troll_Body::Animation_NonInterpolate()
+{
+    if (LAB_TROLL_IMPACT_FROMB == m_eTrollAnim ||
+        LAB_TROLL_IMPACT_FROML == m_eTrollAnim ||
+        LAB_TROLL_IMPACT_FROMR == m_eTrollAnim ||
+        LAB_TROLL_IMPACT_HEAVY == m_eTrollAnim ||
+        LAB_TROLL_IMPACT_DEATH == m_eTrollAnim )
+        return true;
+
+    return false;
+}
+
 HRESULT CLab_Troll_Body::Ready_Components()
 {
     /* FOR.Com_Shader */
@@ -107,6 +221,8 @@ HRESULT CLab_Troll_Body::Ready_Components()
 
     return S_OK;
 }
+
+
 
 void CLab_Troll_Body::Play_Animation(_float fTimeDelta)
 {

@@ -79,7 +79,8 @@ void CTransform::LookDir(_fvector vDir, _float fRatio)
 {
 	_float3		vScale = Get_Scaled();
 
-	_vector		vLook = XMVectorLerp(Get_State(STATE_LOOK), vDir, fRatio);
+	_vector vNormalDir = XMVector3Normalize(vDir);
+	_vector		vLook = XMVectorLerp(Get_State(STATE_LOOK), vNormalDir, fRatio);
 
 	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
 
