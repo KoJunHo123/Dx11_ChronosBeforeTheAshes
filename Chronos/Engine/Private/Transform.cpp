@@ -67,15 +67,15 @@ void CTransform::Set_Scaled(_float fX, _float fY, _float fZ)
 	Set_State(STATE_LOOK, XMVector3Normalize(Get_State(STATE_LOOK)) * fZ);
 }
 
-void CTransform::LookAt(_fvector vAt, _float fRatio)
+_bool CTransform::LookAt(_fvector vAt, _float fRatio)
 {
 	_vector		vPosition = Get_State(STATE_POSITION);
 	_vector		vLook = vAt - vPosition;
 
-	LookDir(vLook, fRatio);
+	return LookDir(vLook, fRatio);
 }
 
-void CTransform::LookDir(_fvector vDir, _float fRatio)
+_bool CTransform::LookDir(_fvector vDir, _float fRatio)
 {
 	_float3		vScale = Get_Scaled();
 
@@ -89,11 +89,16 @@ void CTransform::LookDir(_fvector vDir, _float fRatio)
 	if (true == XMVector3Equal(vLook, XMVectorSet(0.f, 0.f, 0.f, 0.f))
 		|| true == XMVector3Equal(vRight, XMVectorSet(0.f, 0.f, 0.f, 0.f))
 		|| true == XMVector3Equal(vUp, XMVectorSet(0.f, 0.f, 0.f, 0.f)))
-		return;
+		return false;
 
 	Set_State(STATE_RIGHT, XMVector3Normalize(vRight) * vScale.x);
 	Set_State(STATE_UP, XMVector3Normalize(vUp) * vScale.y);
 	Set_State(STATE_LOOK, XMVector3Normalize(vLook) * vScale.z);
+
+	if (0.99 < XMVectorGetX(XMVector3Dot(vLook, vDir)))
+		return true;
+
+	return false;
 }
 
 void CTransform::Go_Straight(_float fTimeDelta, CNavigation* pNavigation)

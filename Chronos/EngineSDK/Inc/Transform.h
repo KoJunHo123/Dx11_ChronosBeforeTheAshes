@@ -55,8 +55,8 @@ public:
 public:
 	void Set_Scaled(_float fX, _float fY, _float fZ);
 
-	void LookAt(_fvector vAt, _float fRatio = 1.f);
-	void LookDir(_fvector vDir, _float fRatio = 1.f);
+	_bool LookAt(_fvector vAt, _float fRatio = 1.f);
+	_bool LookDir(_fvector vDir, _float fRatio = 1.f);
 
 	void Go_Straight(_float fTimeDelta, class CNavigation* pNavigation = nullptr);
 	void Go_Backward(_float fTimeDelta, class CNavigation* pNavigation = nullptr);

@@ -40,7 +40,6 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
     m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
 
-    pDesc->iStartCellIndex = 16;
 
     if (FAILED(Ready_Components(pDesc->iStartCellIndex)))
         return E_FAIL;
@@ -61,8 +60,7 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_iMaxStamina = 100;
     m_iStamina = m_iMaxStamina;
 
-    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     return S_OK;
 }
@@ -136,6 +134,9 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             }
         }
 
+        m_iHP -= iDamage;
+        cout << m_iHP << endl;
+
         _float fRadian = acos(fDot);
 
         if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
@@ -148,7 +149,6 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         else
             m_pFSM->Set_State(STATE_IMPACT);
 
-        m_iHP -= iDamage;
     }
 }
 

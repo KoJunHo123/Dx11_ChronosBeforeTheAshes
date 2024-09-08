@@ -15,6 +15,10 @@ private:
 	virtual ~CCell() = default;
 
 public:
+	_int Get_Index() {
+		return m_iIndex;
+	}
+
 	_vector Get_Point(POINT ePoint) const {
 		return XMLoadFloat3(&m_vPoints[ePoint]);
 	}
@@ -46,7 +50,7 @@ public:
 	}
 
 	_float3 Get_CellXZCenter();
-
+	_vector Get_CenterPos();
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex, TYPE eType);
 	_bool Compare_Points(_fvector vSour, _fvector vDest);

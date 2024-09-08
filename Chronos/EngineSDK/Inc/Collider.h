@@ -11,6 +11,7 @@ public:
 	{
 		class CGameObject* pOwnerObject;
 		void* pBoundingDesc;
+		_bool bCollisionOnce = { false };
 	}COLLIDER_DESC;
 
 	enum TYPE { TYPE_AABB, TYPE_OBB, TYPE_SPHERE, TYPE_END };
@@ -40,6 +41,11 @@ private:
 
 	class CGameObject* m_pOwnerObject = { nullptr };
 	_bool m_bOnCollision = { false };
+	_bool m_bCollisionOnce = { false };
+
+	unordered_set<CCollider*> m_CollisionSet;
+
+	
 
 #ifdef _DEBUG
 private:

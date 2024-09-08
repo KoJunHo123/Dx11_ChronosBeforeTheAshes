@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Lab_Mage_Body.h"
+#include "Lab_Mage_Attack.h"
 
 CLab_Mage::CLab_Mage(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -33,15 +34,12 @@ HRESULT CLab_Mage::Initialize(void* pArg)
 
     CMonster::MONSTER_DESC* pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
 
-    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
-    m_pTransformCom->LookAt(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
 
     m_iState = STATE_SPAWN;
-    m_fSummonDelay = 45.f;
 
     return S_OK;
 }
@@ -70,6 +68,9 @@ void CLab_Mage::Update(_float fTimeDelta)
     if (m_fDistance < 30.f)
         m_bAggro = true;
 
+    if(STATE_ATTACK_COMBO != m_iState && STATE_ATTACK_SLASH != m_iState )
+        m_bAttackActive = false;
+
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
@@ -80,7 +81,7 @@ void CLab_Mage::Update(_float fTimeDelta)
             if (m_fAttackTime < m_fAttackDelay)
             {
                 _float fRandom = m_pGameInstance->Get_Random_Normal();
-                if (m_fDistance < 3.f)
+                if (m_fDistance < 5.f)
                     m_iState = STATE_DASH_B;
                 else if (fRandom < 0.5f)
                     m_iState = STATE_ATTACK_COMBO;
@@ -90,10 +91,15 @@ void CLab_Mage::Update(_float fTimeDelta)
             else
                 m_iState = STATE_WALK;
         }
-        m_fSummonDelay += fTimeDelta;
     }
 
     m_fAttackDelay += fTimeDelta;
+
+    if (m_iHP <= 0)
+    {
+        m_iState = STATE_DEATH;
+        m_bAnimOver = false;
+    }
 
     if (true == m_bAnimOver)
     {
@@ -143,30 +149,30 @@ void CLab_Mage::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 
 void CLab_Mage::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
-    if (iDamage > 15)
-    {
-        _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-        _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
+    m_iHP -= iDamage;
+    cout << m_iHP << endl;
 
-        vDir = XMVector3Normalize(vDir);
-        vLook = XMVector3Normalize(vLook);
 
-        _float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
+    _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
 
-        _float fRadian = acos(fDot);
+    vDir = XMVector3Normalize(vDir);
+    vLook = XMVector3Normalize(vLook);
 
-        if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
-            fRadian *= -1.f;
+    _float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
 
-        CLab_Mage_Body* pBody = static_cast<CLab_Mage_Body*>(m_Parts[PART_BODY]);
+    _float fRadian = acos(fDot);
 
-        pBody->Set_HittedAngle(XMConvertToDegrees(fRadian));
+    if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
+        fRadian *= -1.f;
 
-        if (STATE_IMPACT == m_iState)
-            pBody->Reset_Animation();
-        else
-            m_iState = STATE_IMPACT;
-    }
+    CLab_Mage_Body* pBody = static_cast<CLab_Mage_Body*>(m_Parts[PART_BODY]);
+    pBody->Set_HittedDesc(XMConvertToDegrees(fRadian), iDamage);
+
+    if (STATE_IMPACT == m_iState)
+        pBody->Reset_Animation();
+    else
+        m_iState = STATE_IMPACT;
 }
 
 HRESULT CLab_Mage::Ready_Components()
@@ -206,10 +212,24 @@ HRESULT CLab_Mage::Ready_PartObjects()
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pAnimStart = &m_bAnimStart;
     BodyDesc.pAnimOver = &m_bAnimOver;
+    BodyDesc.pAttackActive = &m_bAttackActive;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Mage_Body"), &BodyDesc)))
         return E_FAIL;
 
+    CLab_Mage_Attack::ATTACK_DESC AttackDesc = {};
+    AttackDesc.fRotationPerSec = 0.f;
+    AttackDesc.fSpeedPerSec = 0.f;
+    AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AttackDesc.pSocketMatrix = dynamic_cast<CLab_Mage_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LM_Weapon_Sword");
+    AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+    AttackDesc.vCenter = { 0.f, -1.f, 0.f };
+    AttackDesc.vExtents = { 0.5f, 1.5f, 0.5f };
+    AttackDesc.pAttackActive = &m_bAttackActive;
+    AttackDesc.iDamage = 10;
+
+    if (FAILED(__super::Add_PartObject(PART_ATTACK, TEXT("Prototype_GameObject_Lab_Mage_Attack"), &AttackDesc)))
+        return E_FAIL;
 
     return S_OK;
 }

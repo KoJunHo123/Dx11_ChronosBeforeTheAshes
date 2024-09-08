@@ -14,7 +14,6 @@ CLab_Construct_Body::CLab_Construct_Body(const CLab_Construct_Body& Prototype)
 {
 }
 
-
 HRESULT CLab_Construct_Body::Initialize_Prototype()
 {
     return S_OK;
@@ -40,9 +39,12 @@ HRESULT CLab_Construct_Body::Initialize(void* pArg)
     m_pHP = pDesc->pHP;
     m_pDistance = pDesc->pDistance;
 
+    m_pSwordAttackActive = pDesc->pSwordAttackActive;
+    m_pShieldAttackActive = pDesc->pShieldAttackActive;
+
     m_eConstructAnim = LAB_CONSTRUCT_IDLE;
 
-    m_fSpeed = 3.f;
+    m_fSpeed = 2.5f;
 
     return S_OK;
 }
@@ -57,15 +59,15 @@ _uint CLab_Construct_Body::Priority_Update(_float fTimeDelta)
 
 void CLab_Construct_Body::Update(_float fTimeDelta)
 {
-
-    cout << m_eConstructAnim << endl;
     if (CLab_Construct::STATE_IDLE == *m_pState)
     {
         m_eConstructAnim = LAB_CONSTRUCT_IDLE;
     }
+    else if (CLab_Construct::STATE_DEATH == *m_pState)
+        m_eConstructAnim = LAB_CONSTRUCT_IMPACT_DEATH;
     else if (CLab_Construct::STATE_ATTACK == *m_pState)
     {
-        if(false == m_bAnimStart)
+        if (false == m_bAnimStart)
         {
             if (*m_pDistance < 5.f)
                 m_eConstructAnim = LAB_CONSTRUCT_ATK_SHIELDSWIPE;
@@ -78,6 +80,22 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
 
             m_bAnimStart = true;
         }
+
+        _uint iFrameIndex = m_pModelCom->Get_KeyFrameIndex();
+        if (LAB_CONSTRUCT_ATK_SHIELDSWIPE == m_eConstructAnim && 21 <= iFrameIndex && iFrameIndex <= 30)
+            *m_pShieldAttackActive = true;
+        else
+            *m_pShieldAttackActive = false;
+
+        if (LAB_CONSTRUCT_ATK_DOWNSWIPE == m_eConstructAnim && 28 <= iFrameIndex && iFrameIndex <= 37)
+            *m_pSwordAttackActive = true;
+        else if (LAB_CONSTRUCT_ATK_VERTICALSLAM == m_eConstructAnim && 25 <= iFrameIndex && iFrameIndex <= 32)
+            *m_pSwordAttackActive = true;
+        else if (LAB_CONSTRUCT_ATK_3HIT_COMBO == m_eConstructAnim && ((58 <= iFrameIndex && iFrameIndex <= 67)
+            || (123 <= iFrameIndex && iFrameIndex <= 132) || (185 <= iFrameIndex && iFrameIndex <= 200)))
+            *m_pSwordAttackActive = true;
+        else
+            *m_pSwordAttackActive = false;
     }
     else if (CLab_Construct::STATE_WALK == *m_pState)
     {
@@ -88,16 +106,16 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
         }
         else if (*m_pDistance < 12.f)
         {
-            if(LAB_CONSTRUCT_WALK_L != m_eConstructAnim && LAB_CONSTRUCT_WALK_R != m_eConstructAnim )
+            if (LAB_CONSTRUCT_WALK_L != m_eConstructAnim && LAB_CONSTRUCT_WALK_R != m_eConstructAnim)
             {
-                if(m_pGameInstance->Get_Random_Normal() < 0.5f)
+                if (m_pGameInstance->Get_Random_Normal() < 0.5f)
                     m_eConstructAnim = LAB_CONSTRUCT_WALK_L;
                 else
                     m_eConstructAnim = LAB_CONSTRUCT_WALK_R;
             }
-            if(LAB_CONSTRUCT_WALK_L == m_eConstructAnim)
+            if (LAB_CONSTRUCT_WALK_L == m_eConstructAnim)
                 m_pConstruct_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
-            else if(LAB_CONSTRUCT_WALK_R == m_eConstructAnim)
+            else if (LAB_CONSTRUCT_WALK_R == m_eConstructAnim)
                 m_pConstruct_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
         }
         else
@@ -115,9 +133,9 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
     }
     
     m_pModelCom->SetUp_Animation(m_eConstructAnim, Animation_Loop(), Animation_NonInterpolate());
-    Play_Animation(fTimeDelta *  1.2f);
+    Play_Animation(fTimeDelta );
 
-    if (true == *m_pIsFinished && CLab_Construct::STATE_ATTACK == *m_pState)
+    if (true == *m_pIsFinished)
         m_bAnimStart = false;
 }
 
@@ -163,6 +181,17 @@ void CLab_Construct_Body::Reset_Animation()
 {
     m_pModelCom->Reset_Animation();
 }
+
+_uint CLab_Construct_Body::Get_FrameIndex()
+{
+    return m_pModelCom->Get_KeyFrameIndex();
+}
+
+const _float4x4* CLab_Construct_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
+{
+    return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
+}
+
 
 _bool CLab_Construct_Body::Animation_Loop()
 {

@@ -179,9 +179,12 @@
     <ClInclude Include="..\public\FreeCamera.h" />
     <ClInclude Include="..\public\Lab_Construct.h" />
     <ClInclude Include="..\public\Lab_Construct_Body.h" />
+    <ClInclude Include="..\public\Lab_Construct_Attack.h" />
     <ClInclude Include="..\public\Lab_Drum.h" />
+    <ClInclude Include="..\public\Lab_Drum_Attack.h" />
     <ClInclude Include="..\public\Lab_Drum_Body.h" />
     <ClInclude Include="..\public\Lab_Mage.h" />
+    <ClInclude Include="..\public\Lab_Mage_Attack.h" />
     <ClInclude Include="..\public\Lab_Mage_Body.h" />
     <ClInclude Include="..\public\Lab_Troll.h" />
     <ClInclude Include="..\public\Lab_Troll_Body.h" />
@@ -223,9 +226,12 @@
     <ClCompile Include="..\private\FreeCamera.cpp" />
     <ClCompile Include="..\private\Lab_Construct.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Body.cpp" />
+    <ClCompile Include="..\private\Lab_Construct_Attack.cpp" />
     <ClCompile Include="..\private\Lab_Drum.cpp" />
+    <ClCompile Include="..\private\Lab_Drum_Attack.cpp" />
     <ClCompile Include="..\private\Lab_Drum_Body.cpp" />
     <ClCompile Include="..\private\Lab_Mage.cpp" />
+    <ClCompile Include="..\private\Lab_Mage_Attack.cpp" />
     <ClCompile Include="..\private\Lab_Mage_Body.cpp" />
     <ClCompile Include="..\private\Lab_Troll.cpp" />
     <ClCompile Include="..\private\Lab_Troll_Body.cpp" />

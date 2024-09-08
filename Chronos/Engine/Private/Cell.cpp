@@ -22,6 +22,22 @@ _float3 CCell::Get_CellXZCenter()
 	return vZXCenter;
 }
 
+_vector CCell::Get_CenterPos()
+{
+	_float fABLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_vPoints[POINT_A]) - XMLoadFloat3(&m_vPoints[POINT_A])));
+	_float fBCLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_vPoints[POINT_B]) - XMLoadFloat3(&m_vPoints[POINT_C])));
+	_float fCALength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_vPoints[POINT_C]) - XMLoadFloat3(&m_vPoints[POINT_A])));
+
+	_float fSum = fABLength + fBCLength + fCALength;
+
+	_float3 vCenter = {};
+	vCenter.x = (fABLength * m_vPoints[POINT_C].x + fBCLength * m_vPoints[POINT_A].x + fCALength * m_vPoints[POINT_B].x) / fSum;
+	vCenter.y = (fABLength * m_vPoints[POINT_C].y + fBCLength * m_vPoints[POINT_A].y + fCALength * m_vPoints[POINT_B].y) / fSum;
+	vCenter.z = (fABLength * m_vPoints[POINT_C].z + fBCLength * m_vPoints[POINT_A].z + fCALength * m_vPoints[POINT_B].z) / fSum;
+
+	return XMLoadFloat3(&vCenter);
+}
+
 HRESULT CCell::Initialize(const _float3* pPoints, _int iIndex, TYPE eType)
 {
 	memcpy(m_vPoints, pPoints, sizeof(_float3) * POINT_END);

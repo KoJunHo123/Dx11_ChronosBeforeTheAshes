@@ -79,8 +79,6 @@ void CBoss_Lab_Attack::Intersect(const _wstring strColliderTag, CGameObject* pCo
 	{
 		CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
 		pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
-
-		*m_pAttackActive = false;
 	}
 }
 
@@ -95,6 +93,7 @@ HRESULT CBoss_Lab_Attack::Ready_Components(_float3 vExtents, _float3 vCenter, _f
 	CCollider::COLLIDER_DESC ColliderDesc = {};
 	ColliderDesc.pOwnerObject = this;
 	ColliderDesc.pBoundingDesc = &ColliderOBBDesc;
+	ColliderDesc.bCollisionOnce = true;
 
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))

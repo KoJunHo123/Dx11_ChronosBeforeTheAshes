@@ -25,6 +25,7 @@ public:
 	_uint Get_CellType(_int iCellIndex);
 	_bool Get_CellActive(_int iCellIndex);
 	_float3 Get_CellZXCenter(_int iIndex);
+	_vector Get_CellCenterPos(_int iIndex);
 
 	void Set_CellType(_int iIndex, _uint iCellState);
 	void Set_CellActive(_int iIndex, _bool isActive);
@@ -33,6 +34,8 @@ public:
 		m_iSkipTypeIndex = iSkipTypeIndex;
 	}
 	
+	_vector Get_NearCellPos();
+	_int Get_CanMoveCellIndex_InNear();
 
 public:
 	virtual HRESULT Initialize_Prototype(const _wstring& strNavigationDataFile);

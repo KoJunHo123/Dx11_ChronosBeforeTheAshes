@@ -33,14 +33,17 @@
 // 몬스터 : 석상
 #include "Lab_Construct.h"
 #include "Lab_Construct_Body.h"
+#include "Lab_Construct_Attack.h"
 
 // 몬스터 : 드럼
 #include "Lab_Drum.h"
 #include "Lab_Drum_Body.h"
+#include "Lab_Drum_Attack.h"
 
 // 몬스터 : 메이지
 #include "Lab_Mage.h"
 #include "Lab_Mage_Body.h"
+#include "Lab_Mage_Attack.h"
 
 // 몬스터 : 트롤
 #include "Lab_Troll.h"
@@ -432,7 +435,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CBoss_Lab_Body::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	/* For. Prototype_GameObject_Boss_Lab_Attacj */
+	/* For. Prototype_GameObject_Boss_Lab_Attack */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Attack"),
 		CBoss_Lab_Attack::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -447,6 +450,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Construct_Body"),
 		CLab_Construct_Body::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Lab_Construct_Body */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Construct_Attack"),
+		CLab_Construct_Attack::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER_DRUM
 	/* For. Prototype_GameObject_Lab_Drum */
@@ -458,6 +467,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Drum_Body"),
 		CLab_Drum_Body::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Lab_Drum_Attack */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Drum_Attack"),
+		CLab_Drum_Attack::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER_MAGE
 	/* For. Prototype_GameObject_Lab_Mage */
@@ -469,6 +484,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Mage_Body"),
 		CLab_Mage_Body::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Lab_Mage_Attack */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Mage_Attack"),
+		CLab_Mage_Attack::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER_TROLL
 	/* For. Prototype_GameObject_Lab_Troll */

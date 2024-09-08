@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Lab_Construct_Body.h"
+#include "Lab_Construct_Attack.h"
 
 CLab_Construct::CLab_Construct(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -33,8 +34,7 @@ HRESULT CLab_Construct::Initialize(void* pArg)
 
     CMonster::MONSTER_DESC * pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
 
-    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
@@ -68,6 +68,11 @@ void CLab_Construct::Update(_float fTimeDelta)
     if (m_fDistance < 30.f)
         m_bAggro = true;
 
+    if(STATE_ATTACK != m_iState)
+    {
+        m_bSwordAttackActive = false;
+        m_bShieldAttackActive = false;
+    }
 
     if(true == m_bAggro)
     {
@@ -84,6 +89,12 @@ void CLab_Construct::Update(_float fTimeDelta)
     }
 
     m_fAttackDelay += fTimeDelta;
+
+    if (m_iHP <= 0)
+    {
+        m_iState = STATE_DEATH;
+        m_isFinished = false;
+    }
 
     if (true == m_isFinished)
     {
@@ -132,6 +143,8 @@ void CLab_Construct::Intersect(const _wstring strColliderTag, CGameObject* pColl
 
 void CLab_Construct::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
+    m_iHP -= iDamage;
+
     if(iDamage > 15)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
@@ -148,7 +161,6 @@ void CLab_Construct::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             fRadian *= -1.f;
 
         CLab_Construct_Body* pBody = static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY]);
-
         pBody->Set_HittedAngle(XMConvertToDegrees(fRadian));
 
         if (STATE_IMPACT == m_iState)
@@ -193,8 +205,33 @@ HRESULT CLab_Construct::Ready_PartObjects()
     BodyDesc.pIsFinished = &m_isFinished;
     BodyDesc.pHP = &m_iHP;
     BodyDesc.pDistance = &m_fDistance;
+    BodyDesc.pSwordAttackActive = &m_bSwordAttackActive;
+    BodyDesc.pShieldAttackActive = &m_bShieldAttackActive;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Construct_Body"), &BodyDesc)))
+        return E_FAIL;
+
+
+    CLab_Construct_Attack::ATTACK_DESC AttackDesc = {};
+    AttackDesc.fRotationPerSec = 0.f;
+    AttackDesc.fSpeedPerSec = 0.f;
+    AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AttackDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Weapon_Sword");
+    AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+    AttackDesc.vCenter = { 0.f, -3.f, 0.f };
+    AttackDesc.vExtents = { 0.5f, 3.f, 1.f };
+    AttackDesc.pAttackActive = &m_bSwordAttackActive;
+    AttackDesc.iDamage = 10;
+    if (FAILED(__super::Add_PartObject(PART_SWORD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))
+        return E_FAIL;
+
+    AttackDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Hand_L");
+    AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+    AttackDesc.vCenter = { 0.f, 0.5f, 0.f };
+    AttackDesc.vExtents = { 0.5f, 0.5f, 0.5f };
+    AttackDesc.pAttackActive = &m_bShieldAttackActive;
+    AttackDesc.iDamage = 5;
+    if (FAILED(__super::Add_PartObject(PART_SHIELD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))
         return E_FAIL;
 
 

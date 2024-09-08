@@ -23,6 +23,8 @@ public:
 		_bool* pIsFinished = { nullptr };
 		_int* pHP = { nullptr };
 		_float* pDistance = { nullptr };
+		_bool* pRightAttackActive = { nullptr };
+		_bool* pLeftAttackActive = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -31,10 +33,10 @@ private:
 	virtual ~CLab_Troll_Body() = default;
 
 public:
-	void Set_HittedAngle(_float fHittedAngle) {
+	void Set_HittedDesc(_float fHittedAngle, _int iImpactedDamage) {
 		m_fHittedAngle = fHittedAngle;
+		m_iImpactedDamage = iImpactedDamage;
 	}
-
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -47,13 +49,14 @@ public:
 public:
 	void Reset_Animation();
 	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
+	_uint Get_FrameIndex();
 
 private:
 	_bool Animation_Loop();
 	_bool Animation_NonInterpolate();
 
 private:
-	class CTransform* m_pConstruct_TransformCom = { nullptr };
+	class CTransform* m_pTroll_TransformCom = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
@@ -61,6 +64,7 @@ private:
 private:
 	TROLL_ANIM m_eTrollAnim = { TROLL_ANIM_END };
 	_float m_fHittedAngle = { 0.f };
+	_int m_iImpactedDamage = { 0 };
 
 	_bool m_bAnimStart = { false };
 
@@ -71,6 +75,9 @@ private:
 	_bool* m_pIsFinished = { nullptr };
 	_int* m_pHP = { nullptr };
 	_float* m_pDistance = { nullptr };
+	_bool* m_pLeftAttackActive = { nullptr };
+	_bool* m_pRightAttackActive = { nullptr };
+
 
 private:
 	HRESULT Ready_Components();

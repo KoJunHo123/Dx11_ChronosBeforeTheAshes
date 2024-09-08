@@ -39,6 +39,8 @@ HRESULT CLab_Drum_Body::Initialize(void* pArg)
     m_pIsFinished = pDesc->pIsFinished;
     m_pHP = pDesc->pHP;
     m_pDistance = pDesc->pDistance;
+    m_pBellyAttackActive = pDesc->pBellyAttackActive;
+    m_pMaceAttackActive = pDesc->pMaceAttackActive;
 
     m_fSpeed = 2.f;
 
@@ -61,6 +63,8 @@ void CLab_Drum_Body::Update(_float fTimeDelta)
         m_eDrumAnim = LAB_DRUM_SPAWN;
     else if (CLab_Drum::STATE_SUMMON == *m_pState)
         m_eDrumAnim = LAB_DRUM_ATK_DRUM_F_HEAVY;
+    else if (CLab_Drum::STATE_DEATH == *m_pState)
+        m_eDrumAnim = LAB_DRUM_IMPACT_DEATH;
     else if (CLab_Drum::STATE_ATTACK == *m_pState)
     {
         if (false == m_bAnimStart)
@@ -71,6 +75,22 @@ void CLab_Drum_Body::Update(_float fTimeDelta)
                 m_eDrumAnim = LAB_DRUM_ATK_SWING_01;
 
             m_bAnimStart = true;
+        }
+        _int iFrameIndex = m_pModelCom->Get_KeyFrameIndex();
+        if (LAB_DRUM_ATK_BELLY == m_eDrumAnim )
+        {
+            if(16 <= iFrameIndex && iFrameIndex <= 25)
+                *m_pBellyAttackActive = true;
+            else
+                *m_pBellyAttackActive = false;
+        }
+
+        if (LAB_DRUM_ATK_SWING_01 == m_eDrumAnim )
+        {
+            if (16 <= iFrameIndex && iFrameIndex <= 25)
+                *m_pMaceAttackActive = true;
+            else
+                *m_pMaceAttackActive = false;
         }
     }
     else if (CLab_Drum::STATE_WALK == *m_pState)
@@ -100,11 +120,18 @@ void CLab_Drum_Body::Update(_float fTimeDelta)
             m_pConstruct_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
         }
     }
+    else if (CLab_Drum::STATE_IMPACT == *m_pState)
+    {
+        if (90 > abs(m_fHittedAngle))
+            m_eDrumAnim = LAB_DRUM_IMPACT_HEAVY_F;
+        else
+            m_eDrumAnim = LAB_DRUM_IMPACT_B;
+    }
 
     m_pModelCom->SetUp_Animation(m_eDrumAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta);
 
-    if (true == *m_pIsFinished && CLab_Drum::STATE_ATTACK == *m_pState)
+    if (true == *m_pIsFinished)
         m_bAnimStart = false;
 }
 
@@ -149,6 +176,16 @@ HRESULT CLab_Drum_Body::Render()
 void CLab_Drum_Body::Reset_Animation()
 {
     m_pModelCom->Reset_Animation();
+}
+
+_uint CLab_Drum_Body::Get_FrameIndex()
+{
+    return m_pModelCom->Get_KeyFrameIndex();
+}
+
+const _float4x4* CLab_Drum_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
+{
+    return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
 }
 
 _bool CLab_Drum_Body::Animation_Loop()

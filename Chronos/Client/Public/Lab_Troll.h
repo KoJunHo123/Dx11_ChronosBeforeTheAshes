@@ -11,7 +11,7 @@ class CLab_Troll final : public CMonster
 {
 public:
 	enum PARTID { PART_BODY, PART_WEAPON_L, PART_WEAPON_R, PART_EFFECT, PART_END };
-	enum STATE { STATE_ATTACK, STATE_SPRINT, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_END };
+	enum STATE { STATE_ATTACK, STATE_SPRINT, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
 	CLab_Troll(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -40,10 +40,13 @@ private:
 	_float m_fAttackDelay = { 0.f };
 	_float m_fAttackTime = { 0.f };
 
+
 	// ÆÄÃ÷¶û °øÀ¯ÇÏ´Â º¯¼ö
 	_uint m_iState = { STATE_END };
 	_bool m_isFinished = { false };
 	_float m_fDistance = { 0.f };
+	_bool m_bLeftAttackActive = { false };
+	_bool m_bRightAttackActive = { false };
 
 private:
 	virtual HRESULT Ready_Components();

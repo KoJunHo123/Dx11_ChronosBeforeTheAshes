@@ -39,7 +39,6 @@ HRESULT CBoss_Lab::Initialize(void* pArg)
 	m_iHP = m_iMaxHP;
 	m_fSpeed = 5.f;
 
-
 	return S_OK;
 }
 
@@ -70,18 +69,18 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		m_bAnimOver = false;
 	}
 
-	if(Contain_State(STATE_IDLE | STATE_WALK | STATE_APPEAR))
+	if(true == Contain_State(STATE_IDLE | STATE_WALK | STATE_APPEAR))
 	{
 		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 		vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
-		m_pTransformCom->LookAt(vPlayerPos, 0.01f);
+		m_pTransformCom->LookAt(vPlayerPos, 0.05f);
 	}
-
+	
 	if (true == Contain_State(STATE_WALK))
 	{
 		m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
 	}
-
+	
 	if (true == Contain_State(STATE_APPEAR))
 	{
 		if (fDistance < 30.f)
@@ -94,6 +93,14 @@ void CBoss_Lab::Update(_float fTimeDelta)
 			m_iState |= STATE_IDLE;
 			m_fAttackDelay = 0.f;
 		}
+	}
+
+	if(false == Contain_State(STATE_CHARGE | STATE_TELEPORT))
+		m_bAttackActive_Body = false;
+	if (false == Contain_State(STATE_NEAR))
+	{
+		m_bAttackActive_LH = false;
+		m_bAttackActive_RH = false;
 	}
 
 	if (m_iHP / (_float)m_iMaxHP <= 0.5 && false== m_bFirstStun)

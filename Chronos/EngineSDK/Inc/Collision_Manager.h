@@ -26,7 +26,7 @@ public:
 private:
 	vector<_wstring> m_CollisionKeysFirst;
 	vector<_wstring> m_CollisionKeysSecond;
-	map<const _wstring, vector<class CCollider*>> m_ColliderLayers;
+	map<const _wstring, list<class CCollider*>> m_ColliderLayers;
 
 public:
 	static CCollision_Manager* Create();

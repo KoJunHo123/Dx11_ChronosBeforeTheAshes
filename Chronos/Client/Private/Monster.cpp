@@ -49,6 +49,7 @@ _uint CMonster::Priority_Update(_float fTimeDelta)
 void CMonster::Update(_float fTimeDelta)
 {
 	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
+	//m_fHittedDelay += fTimeDelta;
 }
 
 void CMonster::Late_Update(_float fTimeDelta)

@@ -23,6 +23,8 @@ public:
 		_bool* pIsFinished = { nullptr };
 		_int* pHP = { nullptr };
 		_float* pDistance = { nullptr };
+		_bool* pSwordAttackActive = { nullptr };
+		_bool* pShieldAttackActive = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -34,7 +36,6 @@ public:
 	void Set_HittedAngle(_float fHittedAngle) {
 		m_fHittedAngle = fHittedAngle;
 	}
-	
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -46,6 +47,9 @@ public:
 
 public:
 	void Reset_Animation();
+	_uint Get_FrameIndex();
+	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
+
 
 private:
 	_bool Animation_Loop();
@@ -71,6 +75,8 @@ private:
 	_bool* m_pIsFinished = { nullptr };
 	_int* m_pHP = { nullptr };
 	_float* m_pDistance = { nullptr };
+	_bool* m_pSwordAttackActive = { nullptr };
+	_bool* m_pShieldAttackActive = { nullptr };
 
 private:
 	HRESULT Ready_Components();

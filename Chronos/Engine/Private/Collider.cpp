@@ -53,6 +53,7 @@ HRESULT CCollider::Initialize(void* pArg)
 {
 	COLLIDER_DESC* pDesc = static_cast<COLLIDER_DESC*>(pArg);
 	m_pOwnerObject = pDesc->pOwnerObject;
+	m_bCollisionOnce = pDesc->bCollisionOnce;
 
 	CBounding::BOUNDING_DESC* pBoundingDesc = static_cast<CBounding::BOUNDING_DESC*>(pDesc->pBoundingDesc);
 
@@ -102,9 +103,24 @@ _bool CCollider::Intersect(const _wstring strColliderTag, CCollider* pTargetColl
 {
 	if (true == m_bOnCollision && true == m_pBounding->Intersect(pTargetCollider->m_eColliderType, pTargetCollider->m_pBounding))
 	{
+		if(true == m_bCollisionOnce)
+		{
+			auto& Collider = m_CollisionSet.find(pTargetCollider);
+
+			if (Collider == m_CollisionSet.end())
+				m_CollisionSet.emplace(pTargetCollider);
+			else
+				return false;
+		}
+
 		m_pOwnerObject->Intersect(strColliderTag, pTargetCollider->m_pOwnerObject, m_pBounding->Get_Interval(), pTargetCollider->m_pBounding->Get_Interval());
 		return true;
 	}
+
+	auto& Collider = m_CollisionSet.find(pTargetCollider);
+
+	if (Collider != m_CollisionSet.end())
+		m_CollisionSet.erase(Collider);
 
 	return false;
 }
@@ -148,6 +164,8 @@ void CCollider::Free()
 	}
 	Safe_Release(m_pInputLayout);
 #endif
+
+	m_CollisionSet.clear();
 
 	Safe_Release(m_pBounding);
 

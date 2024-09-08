@@ -43,9 +43,6 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 {
 	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
 	{
-		if (6 == *m_pFrameIndex)
-			m_bAttackActive = true;
-
 		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
 		m_pColliderCom->Set_OnCollision(true);
 	}
@@ -53,7 +50,6 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 	{
 		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
 		m_pColliderCom->Set_OnCollision(false);
-		m_bAttackActive = false;
 	}
 
 
@@ -133,13 +129,16 @@ HRESULT CPlayer_Weapon::Render()
 
 void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
 {
-	if (true == m_bAttackActive && TEXT("Coll_Monster") == strColliderTag)
+	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim || PLAYER_ATK_POWER_02 == *m_pPlayerAnim || PLAYER_ATK_RUN == *m_pPlayerAnim)
+		m_iDamage = 20;
+	else
+		m_iDamage = 10;
+
+	if (TEXT("Coll_Monster") == strColliderTag)
 	{
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
 		pMonster->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
-		m_bAttackActive = false;
 	}
-
 }
 
 HRESULT CPlayer_Weapon::Ready_Components()
@@ -163,6 +162,7 @@ HRESULT CPlayer_Weapon::Ready_Components()
 	CCollider::COLLIDER_DESC ColliderDesc = {};
 	ColliderDesc.pOwnerObject = this;
 	ColliderDesc.pBoundingDesc = &ColliderOBBDesc;
+	ColliderDesc.bCollisionOnce = true;
 
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))

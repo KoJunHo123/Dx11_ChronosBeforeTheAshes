@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Lab_Drum_Body.h"
+#include "Lab_Drum_Attack.h"
 
 CLab_Drum::CLab_Drum(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -33,9 +34,7 @@ HRESULT CLab_Drum::Initialize(void* pArg)
 
     CMonster::MONSTER_DESC* pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
 
-    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
-    m_pTransformCom->LookAt(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
@@ -70,6 +69,12 @@ void CLab_Drum::Update(_float fTimeDelta)
     if (m_fDistance < 30.f)
         m_bAggro = true;
 
+    if(STATE_ATTACK != m_iState)
+    {
+        m_bBellyAttackActive = false;
+        m_bMaceAttackActive = false;
+    }
+
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
@@ -92,8 +97,17 @@ void CLab_Drum::Update(_float fTimeDelta)
 
     m_fAttackDelay += fTimeDelta;
 
+    if (m_iHP <= 0)
+    {
+        m_iState = STATE_DEATH;
+        m_isFinished = false;
+    }
+
     if (true == m_isFinished)
     {
+        if(STATE_SUMMON == m_iState)
+            Summon_Troll();
+
         m_iState = STATE_IDLE;
         m_fAttackTime = m_pGameInstance->Get_Random(1.f, 3.f);
         m_fAttackDelay = 0.f;
@@ -139,6 +153,8 @@ void CLab_Drum::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 
 void CLab_Drum::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
+    m_iHP -= iDamage;
+
     if (iDamage > 15)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
@@ -155,7 +171,6 @@ void CLab_Drum::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             fRadian *= -1.f;
 
         CLab_Drum_Body* pBody = static_cast<CLab_Drum_Body*>(m_Parts[PART_BODY]);
-
         pBody->Set_HittedAngle(XMConvertToDegrees(fRadian));
 
         if (STATE_IMPACT == m_iState)
@@ -169,7 +184,7 @@ HRESULT CLab_Drum::Ready_Components()
 {
     /* For.Com_Collider_AABB */
     CBounding_AABB::BOUNDING_AABB_DESC			ColliderAABBDesc{};
-    ColliderAABBDesc.vExtents = _float3(2.f, 2.f, 2.f);
+    ColliderAABBDesc.vExtents = _float3(1.5f, 2.f, 1.5f);
     ColliderAABBDesc.vCenter = _float3(0.f, ColliderAABBDesc.vExtents.y, 0.f);
 
     CCollider::COLLIDER_DESC ColliderDesc = {};
@@ -200,10 +215,54 @@ HRESULT CLab_Drum::Ready_PartObjects()
     BodyDesc.pIsFinished = &m_isFinished;
     BodyDesc.pHP = &m_iHP;
     BodyDesc.pDistance = &m_fDistance;
+    BodyDesc.pBellyAttackActive = &m_bBellyAttackActive;
+    BodyDesc.pMaceAttackActive = &m_bMaceAttackActive;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Drum_Body"), &BodyDesc)))
         return E_FAIL;
 
+    CLab_Drum_Attack::ATTACK_DESC AttackDesc = {};
+    AttackDesc.fRotationPerSec = 0.f;
+    AttackDesc.fSpeedPerSec = 0.f;
+    AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AttackDesc.pSocketMatrix = dynamic_cast<CLab_Drum_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LD_Drum_Front");
+    AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+    AttackDesc.vCenter = { 0.f, -1.f, 0.f };
+    AttackDesc.vExtents = { 1.f, 1.f, 1.f };
+    AttackDesc.pAttackActive = &m_bBellyAttackActive;
+    AttackDesc.iDamage = 10;
+
+    if (FAILED(__super::Add_PartObject(PART_BELLY, TEXT("Prototype_GameObject_Lab_Drum_Attack"), &AttackDesc)))
+        return E_FAIL;
+
+    AttackDesc.pSocketMatrix = dynamic_cast<CLab_Drum_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LD_Tail_Weapon_6");
+    AttackDesc.vAngles = { 0.f, 0.f, 0.f };
+    AttackDesc.vCenter = { 0.f, 0.f, 0.f };
+    AttackDesc.vExtents = { .5f, .5f, .5f };
+    AttackDesc.pAttackActive = &m_bMaceAttackActive;
+    AttackDesc.iDamage = 10;
+
+    if (FAILED(__super::Add_PartObject(PART_MACE, TEXT("Prototype_GameObject_Lab_Drum_Attack"), &AttackDesc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CLab_Drum::Summon_Troll()
+{
+    CMonster::MONSTER_DESC desc = {};
+    desc.fRotationPerSec = XMConvertToRadians(90.f);
+    desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&desc.vPos, m_pNavigationCom->Get_NearCellPos());
+    desc.vRotation = {};
+    desc.vScale = { 1.f, 1.f, 1.f };
+    desc.iStartCellIndex = m_pNavigationCom->Get_CanMoveCellIndex_InNear();
+
+    if (-1 == desc.iStartCellIndex)
+        return E_FAIL;
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+        return E_FAIL;
 
     return S_OK;
 }

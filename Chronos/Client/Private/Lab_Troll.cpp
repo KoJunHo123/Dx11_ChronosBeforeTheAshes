@@ -34,9 +34,7 @@ HRESULT CLab_Troll::Initialize(void* pArg)
 
     CMonster::MONSTER_DESC* pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
 
-    _vector vPos = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(pDesc->iStartCellIndex)) + vPos);
-    m_pTransformCom->LookAt(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
@@ -70,26 +68,41 @@ void CLab_Troll::Update(_float fTimeDelta)
     if (m_fDistance < 30.f)
         m_bAggro = true;
 
+    if (STATE_ATTACK != m_iState)
+    {
+        m_bLeftAttackActive = false;
+        m_bRightAttackActive = false;
+    }
+
+    _bool bLook = { false };
     if (true == m_bAggro)
     {
-        if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
-            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.05f);
+        if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
+            bLook = m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.05f);
 
-        if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
+        if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
         {
-            if ((m_fAttackTime < m_fAttackDelay))
+            if ((m_fAttackTime < m_fAttackDelay) && m_fDistance < 10.f)
             {
-                if (m_fDistance < 15.f)
                     m_iState = STATE_ATTACK;
-                else
-                    m_iState = STATE_SPRINT;
             }
             else
-                m_iState = STATE_WALK;
+            {
+                if (m_fDistance > 10.f && true == bLook)
+                    m_iState = STATE_SPRINT;
+                else
+                    m_iState = STATE_WALK;
+            }
         }
     }
 
     m_fAttackDelay += fTimeDelta;
+
+    if (m_iHP <= 0)
+    {
+        m_iState = STATE_DEATH;
+        m_isFinished = false;
+    }
 
     if (true == m_isFinished)
     {
@@ -138,37 +151,35 @@ void CLab_Troll::Intersect(const _wstring strColliderTag, CGameObject* pCollisio
 
 void CLab_Troll::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
-    if (iDamage > 15)
-    {
-        _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-        _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
+    m_iHP -= iDamage;
+    cout << m_iHP << endl;
+    _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
 
-        vDir = XMVector3Normalize(vDir);
-        vLook = XMVector3Normalize(vLook);
+    vDir = XMVector3Normalize(vDir);
+    vLook = XMVector3Normalize(vLook);
 
-        _float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
+    _float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
 
-        _float fRadian = acos(fDot);
+    _float fRadian = acos(fDot);
 
-        if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
-            fRadian *= -1.f;
+    if (0.f > XMVector3Cross(vDir, m_pTransformCom->Get_State(CTransform::STATE_LOOK)).m128_f32[1])
+        fRadian *= -1.f;
 
-        CLab_Troll_Body* pBody = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY]);
+    CLab_Troll_Body* pBody = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY]);
+    pBody->Set_HittedDesc(XMConvertToDegrees(fRadian), iDamage);
 
-        pBody->Set_HittedAngle(XMConvertToDegrees(fRadian));
-
-        if (STATE_IMPACT == m_iState)
-            pBody->Reset_Animation();
-        else
-            m_iState = STATE_IMPACT;
-    }
+    if (STATE_IMPACT == m_iState)
+        pBody->Reset_Animation();
+    else
+        m_iState = STATE_IMPACT;
 }
 
 HRESULT CLab_Troll::Ready_Components()
 {
     /* For.Com_Collider_AABB */
     CBounding_AABB::BOUNDING_AABB_DESC			ColliderAABBDesc{};
-    ColliderAABBDesc.vExtents = _float3(1.f, 1.f, 1.f);
+    ColliderAABBDesc.vExtents = _float3(1.f, 2.f, 1.f);
     ColliderAABBDesc.vCenter = _float3(0.f, ColliderAABBDesc.vExtents.y, 0.f);
 
     CCollider::COLLIDER_DESC ColliderDesc = {};
@@ -200,6 +211,8 @@ HRESULT CLab_Troll::Ready_PartObjects()
     BodyDesc.pIsFinished = &m_isFinished;
     BodyDesc.pHP = &m_iHP;
     BodyDesc.pDistance = &m_fDistance;
+    BodyDesc.pLeftAttackActive = &m_bLeftAttackActive;
+    BodyDesc.pRightAttackActive = &m_bRightAttackActive;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Troll_Body"), &BodyDesc)))
         return E_FAIL;
@@ -209,13 +222,22 @@ HRESULT CLab_Troll::Ready_PartObjects()
     WeaponDesc.fSpeedPerSec = 1.f;
     WeaponDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
     WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_L");;
+    WeaponDesc.vAngles = { 0.f, 0.f, 0.f };
+    WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
+    WeaponDesc.vExtents = { 0.5f, 0.5f, 0.5f };
+    WeaponDesc.pAttackActive = &m_bLeftAttackActive;
+    WeaponDesc.iDamage = 10;
 
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_L, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;
-
+  
     WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_R");;
-
+    WeaponDesc.vAngles = { 0.f, 0.f, 0.f };
+    WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
+    WeaponDesc.vExtents = { 0.5f, 0.5f, 0.5f };
+    WeaponDesc.pAttackActive = &m_bRightAttackActive;
+    WeaponDesc.iDamage = 10;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_R, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;

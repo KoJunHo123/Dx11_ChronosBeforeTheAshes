@@ -59,6 +59,45 @@ _float3 CNavigation::Get_CellZXCenter(_int iIndex)
 	return m_Cells[iIndex]->Get_CellXZCenter();
 }
 
+_vector CNavigation::Get_CellCenterPos(_int iIndex)
+{
+	return m_Cells[iIndex]->Get_CenterPos();
+}
+
+_vector CNavigation::Get_NearCellPos()
+{
+	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
+		
+		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
+			continue;
+
+		return m_Cells[iNearIndex]->Get_CenterPos();
+	}
+
+	return m_Cells[m_iCurrentCellIndex]->Get_CenterPos();
+}
+
+_int CNavigation::Get_CanMoveCellIndex_InNear()
+{
+	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
+
+		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
+			continue;
+
+		return iNearIndex;
+	}
+
+	return -1;
+}
+
 HRESULT CNavigation::Initialize_Prototype(const _wstring& strNavigationDataFile)
 {
 	XMStoreFloat4x4(&m_WorldMatrix, XMMatrixIdentity());

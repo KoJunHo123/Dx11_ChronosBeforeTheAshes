@@ -146,29 +146,29 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 			if (BOSS_LAB_ATK_SWIPE_L == m_eBossAnim)
 			{
-				if (30 == m_pModelCom->Get_KeyFrameIndex())
+				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
 					*m_pAttackActive_LH = true;
-				else if (35 < m_pModelCom->Get_KeyFrameIndex())
+				else
 					*m_pAttackActive_LH = false;
 			}
 			else if (BOSS_LAB_ATK_SWIPE_R == m_eBossAnim)
 			{
-				if (30 == m_pModelCom->Get_KeyFrameIndex())
+				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
 					*m_pAttackActive_RH = true;
-				else if (37 < m_pModelCom->Get_KeyFrameIndex())
+				else
 					*m_pAttackActive_RH = false;
 			}
 			else if (BOSS_LAB_ATK_DOUBLE_SWIPE == m_eBossAnim)
 			{
-				if (30 == m_pModelCom->Get_KeyFrameIndex())
+				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
 					*m_pAttackActive_RH = true;
-				else if (37 < m_pModelCom->Get_KeyFrameIndex())
-					*m_pAttackActive_RH = false;
-
-				if (78 == m_pModelCom->Get_KeyFrameIndex())
+				else if (78 <= m_pModelCom->Get_KeyFrameIndex() && 83 > m_pModelCom->Get_KeyFrameIndex())
 					*m_pAttackActive_LH = true;
-				else if (83 < m_pModelCom->Get_KeyFrameIndex())
+				else
+				{
+					*m_pAttackActive_RH = false;
 					*m_pAttackActive_LH = false;
+				}
 			}
 			if (true == m_isFinished)
 			{

@@ -32,14 +32,15 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
     m_pNavigationCom = pDesc->pNavigationCom;
     Safe_AddRef(m_pNavigationCom);
 
-    m_pConstruct_TransformCom = pDesc->pConstruct_TransformCom;
-    Safe_AddRef(m_pConstruct_TransformCom);
+    m_pTroll_TransformCom = pDesc->pConstruct_TransformCom;
+    Safe_AddRef(m_pTroll_TransformCom);
 
     m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
     m_pHP = pDesc->pHP;
     m_pDistance = pDesc->pDistance;
-
+    m_pLeftAttackActive     = pDesc->pLeftAttackActive;
+    m_pRightAttackActive    = pDesc->pRightAttackActive;
     m_fSpeed = 5.f;
 
     return S_OK;
@@ -59,10 +60,12 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
         m_eTrollAnim = LAB_TROLL_IDLE;
     else if (CLab_Troll::STATE_SPAWN == *m_pState)
         m_eTrollAnim = LAB_TROLL_SPAWN;
+    else if (CLab_Troll::STATE_DEATH == *m_pState)
+        m_eTrollAnim = LAB_TROLL_IMPACT_DEATH;
     else if (CLab_Troll::STATE_SPRINT == *m_pState)
     {
         m_eTrollAnim = LAB_TROLL_SPRINT_F;
-        m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed * 2.f, m_pNavigationCom);
+        m_pTroll_TransformCom->Go_Straight(fTimeDelta * m_fSpeed * 2.f, m_pNavigationCom);
     }
     else if (CLab_Troll::STATE_ATTACK == *m_pState)
     {
@@ -97,14 +100,35 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
             }
             m_bAnimStart = true;
         }
-        
+
+        _uint iFrameIndex = m_pModelCom->Get_KeyFrameIndex();
+
+        if (LAB_TROLL_ATK_CHARGE_L == m_eTrollAnim && 23 <= iFrameIndex && iFrameIndex <= 28)
+            *m_pLeftAttackActive = true;
+        else if(LAB_TROLL_ATK_CHARGE_R == m_eTrollAnim && 23 <= iFrameIndex && iFrameIndex <= 28)
+            *m_pRightAttackActive = true;
+        else if(LAB_TROLL_ATK_SWIPE_L == m_eTrollAnim && 20 <= iFrameIndex && iFrameIndex <=25)
+            *m_pLeftAttackActive = true;
+        else if (LAB_TROLL_ATK_SWIPE_R == m_eTrollAnim && 20 <= iFrameIndex && iFrameIndex <= 25)
+            *m_pRightAttackActive = true;
+        else if (LAB_TROLL_ATK_UPPERCUT == m_eTrollAnim && 24 <= iFrameIndex && iFrameIndex <= 30)
+        {
+            *m_pLeftAttackActive = true;
+        }
+        else 
+        {
+            *m_pLeftAttackActive = false;
+            *m_pRightAttackActive = false;
+        }
+
+
     }
     else if (CLab_Troll::STATE_WALK == *m_pState)
     {
         if (*m_pDistance < 5.f)
         {
             m_eTrollAnim = LAB_TROLL_WALK_B;
-            m_pConstruct_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            m_pTroll_TransformCom->Go_Backward(fTimeDelta * m_fSpeed, m_pNavigationCom);
         }
         else if (*m_pDistance < 10.f)
         {
@@ -115,22 +139,41 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
                 else
                     m_eTrollAnim = LAB_TROLL_WALK_R;
             }
-            if (LAB_TROLL_WALK_L == m_eTrollAnim)
-                m_pConstruct_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
-            else if (LAB_TROLL_WALK_R == m_eTrollAnim)
-                m_pConstruct_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
         }
         else
         {
             m_eTrollAnim = LAB_TROLL_WALK_F;
-            m_pConstruct_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
+            m_pTroll_TransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
         }
+
+        if (LAB_TROLL_WALK_L == m_eTrollAnim)
+            m_pTroll_TransformCom->Go_Left(fTimeDelta * m_fSpeed, m_pNavigationCom);
+        else if (LAB_TROLL_WALK_R == m_eTrollAnim)
+            m_pTroll_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
+
+    }
+    else if(CLab_Troll::STATE_IMPACT == *m_pState)
+    {
+        if (90 > abs(m_fHittedAngle))
+        {
+            {
+                if (15 < m_iImpactedDamage)
+                    m_eTrollAnim = LAB_TROLL_IMPACT_HEAVY;
+
+                if (0.f <= m_fHittedAngle && m_fHittedAngle < 90.f)
+                    m_eTrollAnim = LAB_TROLL_IMPACT_FROML;
+                else if (-90.f <= m_fHittedAngle && m_fHittedAngle < 0.f)
+                    m_eTrollAnim = LAB_TROLL_IMPACT_FROMR;
+            }
+        }
+        else
+            m_eTrollAnim = LAB_TROLL_IMPACT_FROMB;
     }
 
     m_pModelCom->SetUp_Animation(m_eTrollAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta);
 
-    if (true == *m_pIsFinished && CLab_Troll::STATE_ATTACK == *m_pState)
+    if (true == *m_pIsFinished)
         m_bAnimStart = false;
 }
 
@@ -182,6 +225,11 @@ const _float4x4* CLab_Troll_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) con
     return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
 }
 
+_uint CLab_Troll_Body::Get_FrameIndex()
+{
+    return m_pModelCom->Get_KeyFrameIndex();
+}
+
 
 _bool CLab_Troll_Body::Animation_Loop()
 {
@@ -189,7 +237,8 @@ _bool CLab_Troll_Body::Animation_Loop()
         || LAB_TROLL_WALK_F == m_eTrollAnim
         || LAB_TROLL_WALK_B == m_eTrollAnim
         || LAB_TROLL_WALK_L == m_eTrollAnim
-        || LAB_TROLL_WALK_R == m_eTrollAnim)
+        || LAB_TROLL_WALK_R == m_eTrollAnim
+        || LAB_TROLL_SPRINT_F == m_eTrollAnim)
         return true;
 
     return false;
@@ -222,24 +271,22 @@ HRESULT CLab_Troll_Body::Ready_Components()
     return S_OK;
 }
 
-
-
 void CLab_Troll_Body::Play_Animation(_float fTimeDelta)
 {
     _vector vStateChange{};
 
     *m_pIsFinished = m_pModelCom->Play_Animation(fTimeDelta, vStateChange);
 
-    vStateChange = m_pConstruct_TransformCom->Get_Rotated_Vector(vStateChange);
+    vStateChange = m_pTroll_TransformCom->Get_Rotated_Vector(vStateChange);
 
-    _vector vBossPos = m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION);
+    _vector vBossPos = m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION);
 
     _vector vMovePosition = vBossPos + vStateChange;
 
     _vector vLine = {};
 
     if (nullptr == m_pNavigationCom || true == m_pNavigationCom->isMove(vMovePosition, &vLine))
-        m_pConstruct_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+        m_pTroll_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
     else
     {
         vLine = XMVector3Normalize(vLine);
@@ -256,7 +303,7 @@ void CLab_Troll_Body::Play_Animation(_float fTimeDelta)
         vMovePosition = vBossPos + vStateChange;
 
         if (true == m_pNavigationCom->isMove(vMovePosition, &vLine))
-            m_pConstruct_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+            m_pTroll_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
     }
 
 }
@@ -291,7 +338,7 @@ void CLab_Troll_Body::Free()
     __super::Free();
 
     Safe_Release(m_pNavigationCom);
-    Safe_Release(m_pConstruct_TransformCom);
+    Safe_Release(m_pTroll_TransformCom);
     Safe_Release(m_pModelCom);
     Safe_Release(m_pShaderCom);
 }

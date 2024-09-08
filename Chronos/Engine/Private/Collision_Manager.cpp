@@ -19,16 +19,20 @@ void CCollision_Manager::Update()
 
 		if (m_ColliderLayers.find(m_CollisionKeysSecond[i]) == m_ColliderLayers.end())
 			continue;
-
-		for (auto& Dest : m_ColliderLayers.at(m_CollisionKeysFirst[i]))
+		for (auto& iterSour = m_ColliderLayers.at(m_CollisionKeysFirst[i]).begin(); iterSour != m_ColliderLayers.at(m_CollisionKeysFirst[i]).end(); ++iterSour)
 		{
-			for (auto& Sour : m_ColliderLayers.at(m_CollisionKeysSecond[i]))
+			for (auto& iterDest = m_ColliderLayers.at(m_CollisionKeysSecond[i]).begin(); iterDest != m_ColliderLayers.at(m_CollisionKeysSecond[i]).end(); ++iterDest)
 			{
-				if (Dest == Sour)
+				if (*iterSour == *iterDest)
 					continue;
 
-				Dest->Intersect(m_CollisionKeysSecond[i], Sour);
-				Sour->Intersect(m_CollisionKeysFirst[i], Dest);
+				if (nullptr == *iterSour)
+					m_ColliderLayers.at(m_CollisionKeysFirst[i]).erase(iterSour);
+				if (nullptr == *iterDest)
+					m_ColliderLayers.at(m_CollisionKeysSecond[i]).erase(iterDest);
+
+				(*iterSour)->Intersect(m_CollisionKeysSecond[i], *iterDest);
+				(*iterDest)->Intersect(m_CollisionKeysFirst[i], *iterSour);
 			}
 		}
 	}
@@ -38,7 +42,7 @@ void CCollision_Manager::Add_Collider_OnLayers(const _wstring strCollisionKey, c
 {
 	if (m_ColliderLayers.end() == m_ColliderLayers.find(strCollisionKey))
 	{
-		vector<CCollider*> pColliders;
+		list<CCollider*> pColliders;
 		m_ColliderLayers.emplace(strCollisionKey, pColliders);
 	}
 	

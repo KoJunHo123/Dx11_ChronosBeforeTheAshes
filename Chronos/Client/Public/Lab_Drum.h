@@ -10,8 +10,8 @@ BEGIN(Client)
 class CLab_Drum final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_EFFECT, PART_END };
-	enum STATE { STATE_ATTACK, STATE_SUMMON, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_END };
+	enum PARTID { PART_BODY, PART_MACE, PART_BELLY, PART_EFFECT, PART_END };
+	enum STATE { STATE_ATTACK, STATE_SUMMON, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
 	CLab_Drum(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -45,10 +45,13 @@ private:
 	_uint m_iState = { STATE_END };
 	_bool m_isFinished = { false };
 	_float m_fDistance = { 0.f };
-
+	_bool m_bMaceAttackActive = { false };
+	_bool m_bBellyAttackActive = { false };
+	
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
+	HRESULT Summon_Troll();
 
 public:
 	static CLab_Drum* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

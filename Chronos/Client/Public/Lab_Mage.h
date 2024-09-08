@@ -10,8 +10,8 @@ BEGIN(Client)
 class CLab_Mage final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_EFFECT, PART_END };
-	enum STATE { STATE_ATTACK_COMBO, STATE_ATTACK_SLASH, STATE_DASH_B, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_END };
+	enum PARTID { PART_BODY, PART_ATTACK, PART_EFFECT, PART_END };
+	enum STATE { STATE_ATTACK_COMBO, STATE_ATTACK_SLASH, STATE_DASH_B, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
 	CLab_Mage(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -39,7 +39,7 @@ private:
 	_bool m_bAggro = { false };
 	_float m_fAttackDelay = { 0.f };
 	_float m_fAttackTime = { 0.f };
-	_float m_fSummonDelay = { 0.f };
+	_bool m_bAttackActive = { false };
 
 	// ÆÄÃ÷¶û °øÀ¯ÇÏ´Â º¯¼ö
 	_uint m_iState = { STATE_END };

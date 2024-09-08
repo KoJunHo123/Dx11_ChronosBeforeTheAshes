@@ -136,6 +136,15 @@
     <Filter Include="02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack">
       <UniqueIdentifier>{309f0f10-35c2-447f-9dc3-7e0da8d88c71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack">
+      <UniqueIdentifier>{e55f07bc-689e-47eb-8f29-6e0266296d8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack">
+      <UniqueIdentifier>{019a6de6-015f-4a1a-9ea1-aeb3c2385544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack">
+      <UniqueIdentifier>{0a78ef59-cd1a-4521-88f1-03fb614fe171}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -270,6 +279,15 @@
     <ClInclude Include="..\public\Boss_Lab_Attack.h">
       <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Lab_Construct_Attack.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Drum_Attack.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Mage_Attack.h">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -391,6 +409,15 @@
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp">
       <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Construct_Attack.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Drum_Attack.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Mage_Attack.cpp">
+      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

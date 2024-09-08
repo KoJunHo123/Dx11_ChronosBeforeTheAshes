@@ -117,9 +117,7 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 		}
 		bChangeStart = true;
 		m_iPreAnimIndex = m_iCurrentAnimIndex;
-		m_Animations[m_iPreAnimIndex]->Reset_Animation();
-
-		XMStoreFloat4(&m_vTranslationChange, XMVectorSet(0.f, 0.f, 0.f, 1.f));
+		Reset_Animation();
 	}
 	
 	isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(m_Bones, m_isLoop, fTimeDelta, bChangeStart, m_isChange);
@@ -135,6 +133,8 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 void CModel::Reset_Animation()
 {
 	m_Animations[m_iCurrentAnimIndex]->Reset_Animation();
+	XMStoreFloat4(&m_vTranslationChange, XMVectorSet(0.f, 0.f, 0.f, 1.f));
+
 }
 
 HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex)
