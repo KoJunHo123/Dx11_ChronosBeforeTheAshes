@@ -219,7 +219,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     AttackDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Weapon_Sword");
     AttackDesc.vAngles = { 0.f, 0.f, 0.f };
     AttackDesc.vCenter = { 0.f, -3.f, 0.f };
-    AttackDesc.vExtents = { 0.5f, 3.f, 1.f };
+    AttackDesc.vExtents = { 1.f, 3.5f, 1.f };
     AttackDesc.pAttackActive = &m_bSwordAttackActive;
     AttackDesc.iDamage = 10;
     if (FAILED(__super::Add_PartObject(PART_SWORD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))

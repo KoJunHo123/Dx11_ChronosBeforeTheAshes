@@ -334,7 +334,8 @@ _bool CLab_Mage_Body::Animation_NonInterpolate()
         LAB_MAGE_IMPACT_DEATH == m_eMageAnim ||
         LAB_MAGE_IMPACT_HEAVY_F == m_eMageAnim ||
         LAB_MAGE_IMPACT_FL == m_eMageAnim ||
-        LAB_MAGE_IMPACT_FR == m_eMageAnim)
+        LAB_MAGE_IMPACT_FR == m_eMageAnim ||
+        LAB_MAGE_MIRROR == m_eMageAnim)
         return true;
 
     return false;

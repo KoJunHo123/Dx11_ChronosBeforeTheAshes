@@ -12,6 +12,7 @@ private:
 
 public:
 	HRESULT Initialize();
+	void Update();
 
 public:
 	_bool	Key_Pressing(int _iKey);

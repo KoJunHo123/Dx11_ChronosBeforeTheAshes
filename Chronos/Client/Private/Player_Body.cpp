@@ -195,8 +195,8 @@ _bool CPlayer_Body::Animation_NonInterpolate()
 		PLAYER_IMPACT_HEAVY_FROMF == *m_pPlayerAnim ||
 		PLAYER_BLOCK_IMPACT == *m_pPlayerAnim ||
 		PLAYER_BLOCK_IMPACT_BREAK == *m_pPlayerAnim ||
-		PLAYER_ATK_POWER_01_CHARGE == *m_pPlayerAnim ||
-		PLAYER_ATK_POWER_02_CHARGE == *m_pPlayerAnim)
+		PLAYER_ATK_POWER_01 == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_02 == *m_pPlayerAnim)
 		return true;
 
 	return false;

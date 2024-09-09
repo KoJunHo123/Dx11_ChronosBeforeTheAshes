@@ -38,10 +38,14 @@ public:
 	void Render_End();
 #pragma endregion
 
-#pragma region GRAPHIC_DEVICE
+#pragma region INPUT_DEVICE
 	_byte	Get_DIKeyState(_ubyte byKeyID);
 	_byte	Get_DIMouseState(MOUSEKEYSTATE eMouse);
 	_long	Get_DIMouseMove(MOUSEMOVESTATE eMouseState);	
+	_bool Get_DIKeyState_Down(_ubyte byKeyID);
+	_bool Get_DIKeyState_Up(_ubyte byKeyID);
+	_bool Get_DIMouseState_Down(MOUSEKEYSTATE eMouse);
+	_bool Get_DIMouseState_Up(MOUSEKEYSTATE eMouse);
 #pragma endregion
 
 #pragma region LEVEL_MANAGER
@@ -57,7 +61,7 @@ public:
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
 	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
 	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
-
+	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
 #pragma endregion
 
 
@@ -92,12 +96,6 @@ public:
 	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
 #pragma endregion
 
-#pragma region KEY_MANAGER
-	_bool	Key_Pressing(int _iKey);
-	_bool	Key_Down(int _iKey);
-	_bool	Key_Up(int _iKey);
-#pragma endregion
-
 #pragma region COLLISION_MANAGER
 	void Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond);
 	void Add_Collider_OnLayers(const _wstring strCollisionKey, class CCollider* pCollider);
@@ -106,6 +104,11 @@ public:
 #pragma region FONT_MANAGER
 	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
 	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f);
+#pragma endregion
+
+#pragma region CULLING
+	void Culling_Update(_float fDeltaTime);
+	HRESULT is_Culling(class CTransform* pTransform);
 #pragma endregion
 
 private:
@@ -118,9 +121,10 @@ private:
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
 	class CPicking*					m_pPicking = { nullptr };
-	class CKeyManager*				m_pKey_Manager = { nullptr };
 	class CCollision_Manager*		m_pCollision_Manager = { nullptr };
-	class CFont_Manager* m_pFont_Manager = { nullptr };
+	class CFont_Manager*			m_pFont_Manager = { nullptr };
+	class CCulling*					m_pCulling = { nullptr };
+
 public:	
 	void Release_Engine();
 	virtual void Free() override;

@@ -66,7 +66,7 @@ HRESULT CPlayer_Move::ExitState(void** pArg)
 
 void CPlayer_Move::Move_Control(_float fTimeDelta)
 {
-	if (m_pGameInstance->Key_Pressing(VK_SHIFT))
+	if (m_pGameInstance->Get_DIKeyState(DIK_LSHIFT))
 	{
 		Jog(fTimeDelta);
 	}
@@ -76,7 +76,7 @@ void CPlayer_Move::Move_Control(_float fTimeDelta)
 		m_fDodgeDelay = 0.f;
 	}
 
-	if (m_pGameInstance->Key_Down(VK_SPACE))
+	if (m_pGameInstance->Get_DIKeyState_Down(DIK_SPACE))
 	{
 		Dodge();
 	}
@@ -87,7 +87,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 {
 	_bool bKeyPress = { false };
 
-	if (m_pGameInstance->Key_Pressing('W'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_F;
 		m_eMoveState = MOVE_WALK;
@@ -97,7 +97,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('S'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_B;
 		m_eMoveState = MOVE_WALK;
@@ -107,7 +107,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('A'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_L;		
 		m_eMoveState = MOVE_WALK;
@@ -117,7 +117,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('D'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_WALK_R;
 		m_eMoveState = MOVE_WALK;
@@ -140,7 +140,7 @@ void CPlayer_Move::Walk(_float fTimeDelta)
 void CPlayer_Move::Jog(_float fTimeDelta)
 {
 	_bool bKeyPress = { false };
-	if(m_pGameInstance->Key_Pressing('W'))
+	if(m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W))
 	{
  		*m_pPlayerAnim = PLAYER_MOVE_JOG_F;
 		m_eMoveState = MOVE_JOG;
@@ -150,7 +150,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('S'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_B;
 		m_eMoveState = MOVE_JOG;
@@ -160,7 +160,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('A'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_L;
 		m_eMoveState = MOVE_JOG;
@@ -170,7 +170,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('D'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_JOG_R;
 		m_eMoveState = MOVE_JOG;
@@ -193,19 +193,19 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 
 void CPlayer_Move::Dodge()
 {
-	if (m_pGameInstance->Key_Pressing('A'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_L;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('S'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_B;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
-	else if (m_pGameInstance->Key_Pressing('D'))
+	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_R;
 		m_bMotionLock = true;
@@ -234,7 +234,7 @@ void CPlayer_Move::Dodge_Control()
 
 		if (10 < KeyFrameIndex)
 		{
-			if (m_pGameInstance->Key_Down(VK_LBUTTON))
+			if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON))
 				m_pFSM->Set_State(CPlayer::STATE_ATTACK);
 		}
 		if (15 < KeyFrameIndex)
@@ -249,9 +249,9 @@ void CPlayer_Move::Dodge_Control()
 
 void CPlayer_Move::Change_State()
 {
-	if (m_pGameInstance->Key_Down(VK_LBUTTON))
+	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON))
 		m_pFSM->Set_State(CPlayer::STATE_ATTACK);
-	else if (m_pGameInstance->Key_Pressing(VK_RBUTTON))
+	else if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
 		m_pFSM->Set_State(CPlayer::STATE_BLOCK);
 }
 

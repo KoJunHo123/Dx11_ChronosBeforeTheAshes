@@ -20,6 +20,9 @@ public:
 	void Be_Impacted() {
 		m_bImpact = true;
 	}
+	_bool Get_Impact() {
+		return m_bImpact;
+	}
 
 public:
 	HRESULT Initialize(void* pArg) override;

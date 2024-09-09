@@ -38,13 +38,13 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 
 	if(false == m_bMotionLock)
 	{
-		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Key_Up(VK_LBUTTON))
+		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
 		{
 			m_eAttackState = ATTACK_RUN;
 			*m_pPlayerAnim = PLAYER_ATK_RUN;
 			m_bMotionLock = true;
 		}
-		else if(m_pGameInstance->Key_Up(VK_LBUTTON))
+		else if(m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
 		{
 			m_fAttackDelay = 0.f;
 			if (m_fAttackDelay < 0.2f)
@@ -52,7 +52,7 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 			else
 				Power_Attack();
 		}
-		else if (m_pGameInstance->Key_Pressing(VK_LBUTTON) && m_pGameInstance->Key_Pressing(VK_SHIFT))
+		else if (m_pGameInstance->Get_DIMouseState(DIMK_LBUTTON) && m_pGameInstance->Get_DIKeyState(DIKEYBOARD_LSHIFT))
 		{
 			m_fAttackDelay += fTimeDelta;
 
@@ -75,14 +75,14 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 		}
 		else if(20 < static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex())
 		{
-			if (m_pGameInstance->Key_Pressing('W')
-				|| m_pGameInstance->Key_Pressing('A')
-				|| m_pGameInstance->Key_Pressing('S')
-				|| m_pGameInstance->Key_Pressing('D')
-				|| m_pGameInstance->Key_Down(VK_SPACE))
+			if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W)
+				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A)
+				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S)
+				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D)
+				|| m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_SPACE))
 				m_pFSM->Set_State(CPlayer::STATE_MOVE);
 
-			if (m_pGameInstance->Key_Pressing(VK_RBUTTON) && true == *m_pIsFinished)
+			if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON) && true == *m_pIsFinished)
 				m_pFSM->Set_State(CPlayer::STATE_BLOCK);
 		}
 	}

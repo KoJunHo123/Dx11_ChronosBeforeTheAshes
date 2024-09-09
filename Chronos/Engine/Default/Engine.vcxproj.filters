@@ -43,9 +43,6 @@
     <Filter Include="01.Utility\03.Components\Transform">
       <UniqueIdentifier>{410bee27-d12b-41a5-870d-eb2859956bfb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Utility\04.Renderer">
-      <UniqueIdentifier>{718a3997-f34f-41c2-ba36-80a9e1481f1b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Utility\03.Components\VIBuffer">
       <UniqueIdentifier>{828717e6-96ed-498b-9729-aa18378fec8f}</UniqueIdentifier>
     </Filter>
@@ -165,6 +162,12 @@
     </Filter>
     <Filter Include="01.Utility\03.Components\Navigation\Cell">
       <UniqueIdentifier>{d35d8a31-62db-4800-b3dd-25db34df8585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\08.Culling">
+      <UniqueIdentifier>{d5342110-6850-4e5e-b453-9ced9bf89db4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\04.Renderer">
+      <UniqueIdentifier>{718a3997-f34f-41c2-ba36-80a9e1481f1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +320,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Font_Manager.cpp">
       <Filter>01.Utility\07.Font\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Culling.cpp">
+      <Filter>01.Utility\08.Culling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -481,6 +487,9 @@
     </ClInclude>
     <ClInclude Include="..\public\Font_Manager.h">
       <Filter>01.Utility\07.Font\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Culling.h">
+      <Filter>01.Utility\08.Culling</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

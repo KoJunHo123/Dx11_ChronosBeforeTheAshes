@@ -16,6 +16,11 @@ public:
 	list<class CGameObject*> Get_GameObjects() {
 		return m_GameObjects;
 	}
+
+	size_t Get_ObjectSize() {
+		return m_GameObjects.size();
+	}
+
 public:
 	HRESULT Add_GameObject(class CGameObject* pGameObject);
 	HRESULT Priority_Update(_float fTimeDelta);

@@ -38,35 +38,113 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	m_fDistance = 10.f;
 	m_fLimit = 0.3f;
 
+	m_fNormalLimit = 5.f;
+	m_fDistanceLimit = 80.f;
+
+	m_fSpeed = 1.f;
+
 	return S_OK;
 }
 
 _uint CFreeCamera::Priority_Update(_float fTimeDelta)
 {
-	_long		MouseMove = { 0 };
-	
-	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-
-	vPlayerPos.m128_f32[1] += m_fOffset;
-	
-	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
+	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_WHEEL))
 	{
-		m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		if (nullptr == m_pTargetTransformCom)
+		{
+			size_t iMonsterSize = m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+
+			_float fShortestLength = { 0.f };
+
+			CTransform* pTransformCom = { nullptr };
+			for (size_t i = 0; i < iMonsterSize; ++i)
+			{
+				pTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), g_strTransformTag, i));
+				if (FAILED(m_pGameInstance->is_Culling(pTransformCom)))
+				{
+					pTransformCom = nullptr;
+					continue;
+				}
+				_vector vDir = pTransformCom->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+				_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
+				_float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
+				vLook *= fDot;
+
+				_float fDirLength = XMVectorGetX(XMVector3Length(vDir));
+				_float fLookLength = XMVectorGetX(XMVector3Length(vLook));
+
+				_float fNormalLength = sqrt(pow(fDirLength, 2) - pow(fLookLength, 2));
+
+				if (fLookLength < m_fDistanceLimit)
+				{
+					if (0.f == fShortestLength || fNormalLength < fShortestLength)
+					{
+						fShortestLength = fNormalLength;
+						m_pTargetTransformCom = pTransformCom;
+					}
+				}
+			}
+			if (nullptr != m_pTargetTransformCom)
+				Safe_AddRef(m_pTargetTransformCom);
+		}
+		else
+		{
+			Safe_Release(m_pTargetTransformCom);
+			m_pTargetTransformCom = nullptr;
+		}
 	}
-	if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
+
+	if(nullptr != m_pTargetTransformCom)
 	{
-		m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		// 타겟 방향으로 공전시키기.
+		// 플레이어 룩과 방향벡터의 내적이 0.99보다 작은 동안.
+		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+		vPlayerPos.m128_f32[1] += m_fOffset;
+
+		_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
+		_vector vDir = XMVector3Normalize(m_pTargetTransformCom->Get_State(CTransform::STATE_POSITION) - vPlayerPos);
+
+		_vector vCross = XMVector3Cross(vLook, vDir);
+
+		if(0.997f > XMVectorGetX(XMVector3Dot(vLook, vDir)))
+		{
+			m_pTransformCom->Orbit(vCross, vPlayerPos, m_fLimit, fTimeDelta * m_fSpeed);
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * m_fDistance));
+		}
+		else
+		{
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vDir * m_fDistance));
+		}
+		
+		m_pTransformCom->LookAt(vPlayerPos);
+
 	}
-	
-	_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vLook * m_fDistance));
+	else
+	{
+		_long		MouseMove = { 0 };
 
-	m_pTransformCom->LookAt(vPlayerPos);
+		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 
+		vPlayerPos.m128_f32[1] += m_fOffset;
+
+		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
+		{
+			m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		}
+		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
+		{
+			m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+		}
+
+		_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vLook * m_fDistance));
+		m_pTransformCom->LookAt(vPlayerPos);
+
+
+	}
 	POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
 	ClientToScreen(g_hWnd, &pt);
 	SetCursorPos(pt.x, pt.y);
-
 
 	__super::Priority_Update(fTimeDelta);
 

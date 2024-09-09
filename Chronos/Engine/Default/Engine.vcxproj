@@ -35,6 +35,7 @@
     <ClCompile Include="..\Private\Component.cpp" />
     <ClCompile Include="..\Private\Component_Manager.cpp" />
     <ClCompile Include="..\private\ContainerObject.cpp" />
+    <ClCompile Include="..\private\Culling.cpp" />
     <ClCompile Include="..\private\CustomFont.cpp" />
     <ClCompile Include="..\Private\DebugDraw.cpp" />
     <ClCompile Include="..\Private\Engine_Struct.cpp" />
@@ -87,6 +88,7 @@
     <ClInclude Include="..\Public\Component.h" />
     <ClInclude Include="..\Public\Component_Manager.h" />
     <ClInclude Include="..\public\ContainerObject.h" />
+    <ClInclude Include="..\public\Culling.h" />
     <ClInclude Include="..\public\CustomFont.h" />
     <ClInclude Include="..\Public\DebugDraw.h" />
     <ClInclude Include="..\Public\Engine_Defines.h" />

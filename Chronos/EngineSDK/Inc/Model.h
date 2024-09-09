@@ -45,6 +45,10 @@ public:
 		m_bNonInterpolate = bNonInterpolate;
 	}
 
+	_bool Get_IsChange() {
+		return m_isChange;
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;
@@ -89,7 +93,6 @@ private:
 private:
 	_char m_szModelFilePath[MAX_PATH] = {};
 	_float4 m_vTranslationChange = {};
-	_bool m_isChangeStart = { false };
 
 private:
 	HRESULT	Ready_Meshes();

@@ -18,6 +18,16 @@ list<class CGameObject*> CObject_Manager::Get_GameObjects(_uint iLevelIndex, con
 	return Find_Layer(iLevelIndex, strLayerTag)->Get_GameObjects();
 }
 
+size_t CObject_Manager::Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+
+	if (nullptr == pLayer)
+		Create_Layer(iLevelIndex, strLayerTag);
+
+	return Find_Layer(iLevelIndex, strLayerTag)->Get_ObjectSize();
+}
+
 HRESULT CObject_Manager::Initialize(_uint iNumLevels)
 {
 	if (nullptr != m_pLayers)

@@ -34,6 +34,11 @@ private:
 	_float m_fOffset = { 0.f };
 	_float m_fDistance = { 0.f };
 	_float m_fLimit = { 0.f };
+	_float m_fSpeed = { 0.f };
+
+	// ¶ô¿Â¿ë
+	_float m_fNormalLimit = { 0.f };
+	_float m_fDistanceLimit = { 0.f };
 
 public:
 	static CFreeCamera* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

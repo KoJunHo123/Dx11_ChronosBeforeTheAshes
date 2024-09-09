@@ -52,7 +52,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pFSM->Set_State(STATE_MOVE);
 
-    m_fSpeed = 20.f;
+    m_fSpeed = 5.f;
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
@@ -129,7 +129,10 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         {
             if (0.7 < fDot)
             {
-                static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
+                if (PLAYER_BLOCK_IMPACT == m_ePlayerAnim)
+                    static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
+                else
+                    static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
                 return;
             }
         }

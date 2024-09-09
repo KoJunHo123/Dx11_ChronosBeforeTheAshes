@@ -5,9 +5,9 @@
 #include "Timer_Manager.h"
 #include "Input_Device.h"
 #include "Picking.h"
-#include "KeyManager.h"
 #include "Collision_Manager.h"
 #include "Font_Manager.h"
+#include "Culling.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -35,16 +35,15 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pPipeLine)
 		return E_FAIL;
 
+	m_pCulling = CCulling::Create(*ppDevice, *ppContext);
+	if (nullptr == m_pCulling)
+		return E_FAIL;
 
 	/* 사운드 카드를 초기화하낟. */
 
 	/* 입력장치를 초기화하낟. */
 	m_pInput_Device = CInput_Device::Create(hInst, EngineDesc.hWnd);
 	if (nullptr == m_pInput_Device)
-		return E_FAIL;
-
-	m_pKey_Manager = CKeyManager::Create();
-	if (nullptr == m_pKey_Manager)
 		return E_FAIL;
 
 	m_pPicking = CPicking::Create(*ppDevice, *ppContext, EngineDesc.hWnd, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY);
@@ -88,6 +87,8 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 
 	m_pPipeLine->Update();
 
+	m_pCulling->Culling_Update(fTimeDelta);
+
 	m_pObject_Manager->Update(fTimeDelta);
 
 	m_pCollision_Manager->Update();
@@ -95,6 +96,7 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pObject_Manager->Late_Update(fTimeDelta);
 
 	m_pLevel_Manager->Update(fTimeDelta);
+
 }
 
 HRESULT CGameInstance::Draw_Engine()
@@ -148,6 +150,26 @@ _long CGameInstance::Get_DIMouseMove(MOUSEMOVESTATE eMouseState)
 	return m_pInput_Device->Get_DIMouseMove(eMouseState);
 }
 
+_bool CGameInstance::Get_DIKeyState_Down(_ubyte byKeyID)
+{
+	return m_pInput_Device->Get_DIKeyState_Down(byKeyID);
+}
+
+_bool CGameInstance::Get_DIKeyState_Up(_ubyte byKeyID)
+{
+	return m_pInput_Device->Get_DIKeyState_Up(byKeyID);
+}
+
+_bool CGameInstance::Get_DIMouseState_Down(MOUSEKEYSTATE eMouse)
+{
+	return m_pInput_Device->Get_DIMouseState_Down(eMouse);
+}
+
+_bool CGameInstance::Get_DIMouseState_Up(MOUSEKEYSTATE eMouse)
+{
+	return m_pInput_Device->Get_DIMouseState_Up(eMouse);
+}
+
 #pragma endregion
 
 #pragma region LEVEL_MANAGER
@@ -196,6 +218,10 @@ CGameObject* CGameInstance::Clone_GameObject(const _wstring& strPrototypeTag, vo
 list<class CGameObject*> CGameInstance::Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag)
 {
 	return m_pObject_Manager->Get_GameObjects(iLevelIndex, strLayerTag);
+}
+size_t CGameInstance::Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	return m_pObject_Manager->Get_ObjectSize(iLevelIndex, strLayerTag);
 }
 #pragma endregion
 
@@ -283,20 +309,6 @@ _bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvect
 }
 #pragma endregion
 
-#pragma region KEY_MANAGER
-_bool CGameInstance::Key_Pressing(int _iKey)
-{
-	return m_pKey_Manager->Key_Pressing(_iKey);
-}
-_bool CGameInstance::Key_Down(int _iKey)
-{
-	return m_pKey_Manager->Key_Down(_iKey);
-}
-_bool CGameInstance::Key_Up(int _iKey)
-{
-	return m_pKey_Manager->Key_Up(_iKey);
-}
-#pragma endregion
 
 #pragma region COLLISION_MANAGER
 void CGameInstance::Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond)
@@ -319,14 +331,25 @@ HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pTe
 {
 	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
 }
+#pragma endregion
 
+#pragma region CULLING
+void CGameInstance::Culling_Update(_float fDeltaTime)
+{
+	return m_pCulling->Culling_Update(fDeltaTime);
+}
+
+HRESULT CGameInstance::is_Culling(CTransform* pTransform)
+{
+	return m_pCulling->is_Culling(pTransform);
+}
 #pragma endregion
 
 void CGameInstance::Release_Engine()
 {
+	Safe_Release(m_pCulling);
 	Safe_Release(m_pFont_Manager);
 	Safe_Release(m_pCollision_Manager);
-	Safe_Release(m_pKey_Manager);
 	Safe_Release(m_pPicking);
 	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pRenderer);

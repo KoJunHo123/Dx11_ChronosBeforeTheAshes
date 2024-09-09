@@ -38,7 +38,7 @@ void CPlayer_Block::Update(_float fTimeDelta)
 
 	if (false == m_bMotionLock)
 	{
-		if (m_pGameInstance->Key_Pressing(VK_RBUTTON))
+		if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
 		{
 			Walk(fTimeDelta);
 
@@ -53,7 +53,7 @@ void CPlayer_Block::Update(_float fTimeDelta)
 				m_bMotionLock = true;
 			}
 
-			if (m_pGameInstance->Key_Down(VK_LBUTTON))
+			if (m_pGameInstance->Get_DIMouseState_Down(DIMK_RBUTTON))
 				m_pFSM->Set_State(CPlayer::STATE_ATTACK);
 		}
 		else
@@ -98,7 +98,7 @@ HRESULT CPlayer_Block::ExitState(void** pArg)
 void CPlayer_Block::Walk(_float fTimeDelta)
 {
 	_bool bKeyPress = { false };
-	if (m_pGameInstance->Key_Pressing('W'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W))
 	{
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_F;
 		m_eBlockState = BLOCK_WALK;
@@ -108,7 +108,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('S'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_B;
 		m_eBlockState = BLOCK_WALK;
@@ -118,7 +118,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('A'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_L;
 		m_eBlockState = BLOCK_WALK;
@@ -128,7 +128,7 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 
 		bKeyPress = true;
 	}
-	if (m_pGameInstance->Key_Pressing('D'))
+	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_R;
 		m_eBlockState = BLOCK_WALK;
@@ -143,8 +143,6 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_BLOCK_IDLE;
 		m_eBlockState = BLOCK_IDLE;
 	}
-
-
 }
 
 CPlayer_Block* CPlayer_Block::Create(void* pArg)

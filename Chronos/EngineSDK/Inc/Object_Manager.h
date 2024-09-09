@@ -16,6 +16,7 @@ private:
 
 public:
 	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
+	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
 
 public:
 	HRESULT Initialize(_uint iNumLevels);
@@ -28,7 +29,6 @@ public:
 
 public:
 	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
-
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex);
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);

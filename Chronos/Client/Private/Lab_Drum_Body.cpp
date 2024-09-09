@@ -204,7 +204,8 @@ _bool CLab_Drum_Body::Animation_NonInterpolate()
 {
     if (LAB_DRUM_IMPACT_B == m_eDrumAnim ||
         LAB_DRUM_IMPACT_DEATH == m_eDrumAnim ||
-        LAB_DRUM_IMPACT_HEAVY_F == m_eDrumAnim)
+        LAB_DRUM_IMPACT_HEAVY_F == m_eDrumAnim||
+        LAB_DRUM_SPAWN == m_eDrumAnim)
         return true;
 
     return false;

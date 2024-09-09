@@ -250,7 +250,8 @@ _bool CLab_Troll_Body::Animation_NonInterpolate()
         LAB_TROLL_IMPACT_FROML == m_eTrollAnim ||
         LAB_TROLL_IMPACT_FROMR == m_eTrollAnim ||
         LAB_TROLL_IMPACT_HEAVY == m_eTrollAnim ||
-        LAB_TROLL_IMPACT_DEATH == m_eTrollAnim )
+        LAB_TROLL_IMPACT_DEATH == m_eTrollAnim || 
+        LAB_TROLL_SPAWN == m_eTrollAnim)
         return true;
 
     return false;

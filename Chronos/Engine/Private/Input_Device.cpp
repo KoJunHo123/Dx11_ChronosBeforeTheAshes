@@ -5,6 +5,8 @@ Engine::CInput_Device::CInput_Device(void)
 
 }
 
+
+
 HRESULT Engine::CInput_Device::Initialize(HINSTANCE hInst, HWND hWnd)
 {
 	// DInput 컴객체를 생성하는 함수
@@ -48,9 +50,32 @@ HRESULT Engine::CInput_Device::Initialize(HINSTANCE hInst, HWND hWnd)
 
 void Engine::CInput_Device::Update(void)
 {
-	/* 키보드와 마우스의 상태를 얻어와서 저장해준다. */
+	memcpy(m_byPreKeyState, m_byKeyState, sizeof(m_byKeyState));
 	m_pKeyBoard->GetDeviceState(256, m_byKeyState);
+
+	/* 키보드와 마우스의 상태를 얻어와서 저장해준다. */
+	m_tPreMouseState = m_tMouseState;
 	m_pMouse->GetDeviceState(sizeof(m_tMouseState), &m_tMouseState);
+}
+
+_bool CInput_Device::Get_DIKeyState_Down(_ubyte byKeyID)
+{
+	return (m_byKeyState[byKeyID] & 0x80) && !(m_byPreKeyState[byKeyID] & 0x80);
+}
+
+_bool CInput_Device::Get_DIKeyState_Up(_ubyte byKeyID)
+{
+	return !(m_byKeyState[byKeyID] & 0x80) && (m_byPreKeyState[byKeyID] & 0x80);
+}
+
+_bool CInput_Device::Get_DIMouseState_Down(MOUSEKEYSTATE eMouse)
+{
+	return (m_tMouseState.rgbButtons[eMouse] & 0x80) && !(m_tPreMouseState.rgbButtons[eMouse] & 0x80);
+}
+
+_bool CInput_Device::Get_DIMouseState_Up(MOUSEKEYSTATE eMouse)
+{
+	return !(m_tMouseState.rgbButtons[eMouse] & 0x80) && (m_tPreMouseState.rgbButtons[eMouse] & 0x80);
 }
 
 CInput_Device * CInput_Device::Create(HINSTANCE hInst, HWND hWnd)

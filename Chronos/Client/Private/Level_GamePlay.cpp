@@ -115,27 +115,27 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 {
-	//_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Boss_Lab.dat" };
-	//ifstream infile(MaterialFilePath, ios::binary);
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Boss_Lab.dat" };
+	ifstream infile(MaterialFilePath, ios::binary);
 
-	//if (!infile.is_open())
-	//	return E_FAIL;
-	//while (true)
-	//{
-	//	CMonster::MONSTER_DESC desc{};
+	if (!infile.is_open())
+		return E_FAIL;
+	while (true)
+	{
+		CMonster::MONSTER_DESC desc{};
 
-	//	infile.read(reinterpret_cast<_char*>(&desc), sizeof(CMonster::MONSTER_DESC));
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CMonster::MONSTER_DESC));
 
-	//	if (true == infile.eof())
-	//		break;
+		if (true == infile.eof())
+			break;
 
-	//	desc.fRotationPerSec = XMConvertToRadians(90.0f);
+		desc.fRotationPerSec = XMConvertToRadians(90.0f);
 
-	//	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
-	//		return E_FAIL;
-	//}
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
+			return E_FAIL;
+	}
 
-	//infile.close();
+	infile.close();
 
 	
 	CMonster::MONSTER_DESC desc = {};
@@ -146,21 +146,21 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 	desc.vRotation = {};
 	desc.vScale = { 1.f, 1.f, 1.f };
 
-	//desc.iStartCellIndex = 10;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 10;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
 
-	desc.iStartCellIndex = 14;
+	desc.iStartCellIndex = 20;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
 		return E_FAIL;
 
-	//desc.iStartCellIndex = 18;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 30;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 22;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 40;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
 
 	return S_OK;
 }
