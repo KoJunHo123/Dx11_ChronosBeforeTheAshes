@@ -65,10 +65,9 @@ private:
 	TROLL_ANIM m_eTrollAnim = { TROLL_ANIM_END };
 	_float m_fHittedAngle = { 0.f };
 	_int m_iImpactedDamage = { 0 };
-
 	_bool m_bAnimStart = { false };
-
 	_float m_fSpeed = { 0.f };
+	_float m_fMoveDirDelay = { 0.f };
 
 private:
 	_uint* m_pState = { nullptr };

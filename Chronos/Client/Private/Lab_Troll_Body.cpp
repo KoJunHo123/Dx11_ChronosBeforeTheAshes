@@ -132,12 +132,14 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
         }
         else if (*m_pDistance < 10.f)
         {
-            if (LAB_TROLL_WALK_L != m_eTrollAnim && LAB_TROLL_WALK_R != m_eTrollAnim)
+            if (LAB_TROLL_WALK_L != m_eTrollAnim && LAB_TROLL_WALK_R != m_eTrollAnim && 0.5f < m_fMoveDirDelay)
             {
                 if (m_pGameInstance->Get_Random_Normal() < 0.5f)
                     m_eTrollAnim = LAB_TROLL_WALK_L;
                 else
                     m_eTrollAnim = LAB_TROLL_WALK_R;
+
+                m_fMoveDirDelay = 0.f;
             }
         }
         else
@@ -151,6 +153,7 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
         else if (LAB_TROLL_WALK_R == m_eTrollAnim)
             m_pTroll_TransformCom->Go_Right(fTimeDelta * m_fSpeed, m_pNavigationCom);
 
+        m_fMoveDirDelay += fTimeDelta;
     }
     else if(CLab_Troll::STATE_IMPACT == *m_pState)
     {

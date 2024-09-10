@@ -173,6 +173,15 @@ vector<_wstring> CObject_Manager::Get_PrototypeKeys()
 	return PrototypeKeys;
 }
 
+CGameObject* CObject_Manager::Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+		return nullptr;
+
+	return pLayer->Get_GameObject(iIndex);
+}
+
 CGameObject * CObject_Manager::Find_Prototype(const _wstring & strPrototypeTag)
 {
 	auto	iter = m_Prototypes.find(strPrototypeTag);

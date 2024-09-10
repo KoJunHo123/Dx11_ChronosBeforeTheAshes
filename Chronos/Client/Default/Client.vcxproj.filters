@@ -145,6 +145,15 @@
     <Filter Include="02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack">
       <UniqueIdentifier>{0a78ef59-cd1a-4521-88f1-03fb614fe171}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\07.Interaction">
+      <UniqueIdentifier>{1a854389-390f-4fbf-a4c0-23151c926c52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\Teleport">
+      <UniqueIdentifier>{8047ee15-7761-4ca7-9860-faa1d7fa26ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Obstacle">
+      <UniqueIdentifier>{ad7c1698-8bff-48d7-8eef-96416745bbe2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -288,6 +297,15 @@
     <ClInclude Include="..\public\Lab_Mage_Attack.h">
       <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\InteractionObject.h">
+      <Filter>02.GameObjects\07.Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Teleport.h">
+      <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Obstacle.h">
+      <Filter>02.GameObjects\08.Obstacle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -419,6 +437,15 @@
     <ClCompile Include="..\private\Lab_Mage_Attack.cpp">
       <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\InteractionObject.cpp">
+      <Filter>02.GameObjects\07.Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Teleport.cpp">
+      <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Obstacle.cpp">
+      <Filter>02.GameObjects\08.Obstacle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -452,6 +479,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

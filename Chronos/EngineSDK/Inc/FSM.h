@@ -37,7 +37,7 @@ private:
 	HRESULT Change_State();
 	
 private:
-	_uint m_iCurrentStateIndex = { 0 };
+	static _uint m_iCurrentStateIndex;
 	_uint m_iNextStateIndex = { 0 };
 	vector<class CState*> m_States;
 

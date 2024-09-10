@@ -89,12 +89,10 @@ namespace Engine
 		XMFLOAT4		vUp;
 		XMFLOAT4		vLook;
 		XMFLOAT4		vTranslation;
-	}VTXMATRIX;
+		XMFLOAT2		vLifeTime;
 
-	typedef struct ENGINE_DLL
-	{
-		static const unsigned int	iNumElements = 6;
+		static const unsigned int	iNumElements = 7;
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
-	}VTXRECTINSTANCE;
 
+	}VTXRECTINSTANCE;
 }

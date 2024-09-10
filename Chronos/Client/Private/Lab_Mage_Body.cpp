@@ -95,6 +95,7 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 {
                     // 텔포.
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
+                    m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
                 }
                 m_eMageAnim = LAB_MAGE_ATK_COMBO_01_STRIKE;
             }
@@ -114,6 +115,7 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 {
                     // 텔포.
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
+                    m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_COMBO_02_STRIKE;
@@ -161,6 +163,7 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 {
                     // 텔포.
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
+                    m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_SLASH_01_STRIKE;
@@ -181,6 +184,7 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 {
                     // 텔포.
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
+                    m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_SLASH_02_STRIKE;
@@ -260,7 +264,7 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
         m_eMageAnim = LAB_MAGE_IMPACT_DEATH;
 
     m_pModelCom->SetUp_Animation(m_eMageAnim, Animation_Loop(), Animation_NonInterpolate());
-    Play_Animation(fTimeDelta * 1.2f);
+    Play_Animation(fTimeDelta);
 }
 
 void CLab_Mage_Body::Late_Update(_float fTimeDelta)

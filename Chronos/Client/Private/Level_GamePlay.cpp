@@ -9,6 +9,7 @@
 #include "Terrain.h"
 #include "Layer.h"
 #include "PuzzleBase.h"
+#include "Teleport.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -115,57 +116,45 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 {
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Boss_Lab.dat" };
-	ifstream infile(MaterialFilePath, ios::binary);
+	//CMonster::MONSTER_DESC desc = {};
+	//desc.fRotationPerSec = XMConvertToRadians(90.f);
+	//desc.fSpeedPerSec = 1.f;
+	//
+	//desc.vRotation = {};
+	//desc.vScale = { 1.f, 1.f, 1.f };
 
-	if (!infile.is_open())
-		return E_FAIL;
-	while (true)
-	{
-		CMonster::MONSTER_DESC desc{};
+	//desc.iStartCellIndex = 10;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+	//	return E_FAIL;
 
-		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CMonster::MONSTER_DESC));
+	//desc.iStartCellIndex = 20;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+	//	return E_FAIL;
 
-		if (true == infile.eof())
-			break;
+	//desc.iStartCellIndex = 30;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+	//	return E_FAIL;
 
-		desc.fRotationPerSec = XMConvertToRadians(90.0f);
-
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
-			return E_FAIL;
-	}
-
-	infile.close();
-
-	
-	CMonster::MONSTER_DESC desc = {};
-	desc.fRotationPerSec = XMConvertToRadians(90.f);
-	desc.fSpeedPerSec = 1.f;
-	
-	desc.vPos = {};
-	desc.vRotation = {};
-	desc.vScale = { 1.f, 1.f, 1.f };
-
-	desc.iStartCellIndex = 10;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 20;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 30;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 40;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-		return E_FAIL;
+	//desc.iStartCellIndex = 40;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+	//	return E_FAIL;
 
 	return S_OK;
 }
 
 HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
+{
+	if (FAILED(Ready_Layer_Puzzle()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Teleport()))
+		return E_FAIL;
+
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Puzzle()
 {
 	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/PuzzleBase.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
@@ -190,6 +179,40 @@ HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
 	}
 
 	infile.close();
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Teleport()
+{
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Teleport.dat" };
+	ifstream infile(MaterialFilePath, ios::binary);
+
+	if (!infile.is_open())
+		return E_FAIL;
+
+	while (true)
+	{
+		CTeleport::TELEPORT_DESC desc = {};
+
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CTeleport::TELEPORT_DESC));
+
+		if (true == infile.eof())
+			break;
+
+		desc.fRotationPerSec = XMConvertToRadians(0.f);
+		desc.fSpeedPerSec = 1.f;
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Teleport"), &desc)))
+			return E_FAIL;
+	}
+
+	infile.close();
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
+{
+
 	return S_OK;
 }
 

@@ -41,7 +41,7 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	m_fNormalLimit = 5.f;
 	m_fDistanceLimit = 80.f;
 
-	m_fSpeed = 1.f;
+	m_fSpeed = 3.f;
 
 	return S_OK;
 }

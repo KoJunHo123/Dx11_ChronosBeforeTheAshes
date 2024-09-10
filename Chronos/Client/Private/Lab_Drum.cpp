@@ -31,11 +31,6 @@ HRESULT CLab_Drum::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-
-    CMonster::MONSTER_DESC* pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
-
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
-
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
 
@@ -253,7 +248,6 @@ HRESULT CLab_Drum::Summon_Troll()
     CMonster::MONSTER_DESC desc = {};
     desc.fRotationPerSec = XMConvertToRadians(90.f);
     desc.fSpeedPerSec = 1.f;
-    XMStoreFloat3(&desc.vPos, m_pNavigationCom->Get_NearCellPos());
     desc.vRotation = {};
     desc.vScale = { 1.f, 1.f, 1.f };
     desc.iStartCellIndex = m_pNavigationCom->Get_CanMoveCellIndex_InNear();

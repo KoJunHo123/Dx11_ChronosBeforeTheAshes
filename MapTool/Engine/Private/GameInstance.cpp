@@ -192,6 +192,10 @@ vector<_wstring> CGameInstance::Get_PrototypeKeys()
 {
 	return m_pObject_Manager->Get_PrototypeKeys();
 }
+CGameObject* CGameInstance::Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex)
+{
+	return m_pObject_Manager->Get_GameObject(iLevelIndex, strLayerTag, iIndex);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER

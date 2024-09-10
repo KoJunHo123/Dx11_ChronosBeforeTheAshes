@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Client_Defines.h"
-#include "GameObject.h"
+#include "InteractionObject.h"
 
 BEGIN(Engine)
 class CNavigation;
@@ -10,14 +10,11 @@ class CModel;
 END
 
 BEGIN(Client)
-class CPuzzleBase final : public CGameObject
+class CPuzzleBase final : public CInteractionObject
 {
 public:
-	typedef struct : public CGameObject::GAMEOBJECT_DESC
+	typedef struct : public CInteractionObject::INTERACTION_OBJECT_DESC
 	{
-		_float3 vPos;
-		_float3 vScale;
-		_float3 vRotation;
 	}PUZZLEBASE_DESC;
 
 	enum PART { PART_PIECE_00, PART_PIECE_01, PART_PIECE_02, PART_PIECE_10, PART_PIECE_11, PART_PIECE_12, PART_PIECE_21, PART_PIECE_22, PART_END };

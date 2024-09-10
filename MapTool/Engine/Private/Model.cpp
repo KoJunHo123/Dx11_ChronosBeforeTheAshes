@@ -170,7 +170,6 @@ HRESULT CModel::Bine_MeshBoneMatrices(CShader* pShader, const _char* pConstantNa
 
 _bool CModel::isPicking(const _matrix& WorldMatrix, _vector* pOut, _uint* pMeshIndex)
 {
-	// || 0 == strcmp(Mesh->Get_Name(), )
 	_float fDist = { 10000.f };
 	_bool isPicking = { false };
 
@@ -178,13 +177,6 @@ _bool CModel::isPicking(const _matrix& WorldMatrix, _vector* pOut, _uint* pMeshI
 
 	for (auto& Mesh : m_Meshes)
 	{
-		/*if(0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r04_merge_floor")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r05_merge_floor_A")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floor_B")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r06_merge_floorchunk")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_r07_merge_props")
-		|| 0 == strcmp(Mesh->Get_Name(), "SM_MERGED_rBoosroom_merge"))	*/
 		if (TYPE_NONANIM == m_eType)
 		{
 			if (true == Mesh->isPicking(WorldMatrix, pOut, &fDist))

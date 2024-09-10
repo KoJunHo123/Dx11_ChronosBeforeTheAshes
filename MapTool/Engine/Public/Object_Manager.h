@@ -33,6 +33,7 @@ public:
 	HRESULT Save_Layer(_uint iLevelIndex, const _wstring& strLayerTag, ofstream* pOutFile);
 
 	vector<_wstring> Get_PrototypeKeys();
+	class CGameObject* Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
 
 private:
 	/* 원형객체들을 보관한다. */

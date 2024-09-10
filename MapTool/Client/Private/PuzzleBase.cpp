@@ -3,12 +3,12 @@
 #include "GameInstance.h"
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CGameObject(pDevice, pContext)
+    : CInteractionObject(pDevice, pContext)
 {
 }
 
 CPuzzleBase::CPuzzleBase(const CPuzzleBase& Prototype)
-    : CGameObject(Prototype)
+    : CInteractionObject(Prototype)
 {
 }
 
@@ -25,11 +25,10 @@ HRESULT CPuzzleBase::Initialize(void* pArg)
 	PUZZLEBASE_DESC* pDesc = static_cast<PUZZLEBASE_DESC*>(pArg);
 
 	m_Desc = *pDesc;
-
+	
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&pDesc->vPos), 1.f));
 	m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
 	m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
-
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
@@ -87,7 +86,7 @@ HRESULT CPuzzleBase::Save_Data(ofstream* pOutFile)
 HRESULT CPuzzleBase::Ready_Components()
 {
 	/* FOR.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Puzzle_Base"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Pedestal"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 

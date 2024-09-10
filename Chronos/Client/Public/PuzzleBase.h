@@ -48,6 +48,9 @@ private:
 
 	_uint m_iPuzzleCellIndex = { 4320 };
 
+	// 플레이어 사망 시 싹 다 false로 변경.
+	_bool m_bPartActive[PART_END] = {};
+
 private:
 	HRESULT Ready_Components();
 	HRESULT Ready_PuzzlePart_Pos();
@@ -60,7 +63,7 @@ private:
 	void Make_Road(PART ePart, _uint* pCellIndices);
 	void Update_Cell(LOCATION eLocation, _uint* pCellStates);
 
-	void PuzzlePart_Cell_Active(class CPuzzlePart* pPart, _uint iCurrentCellIndex);
+	void PuzzlePart_Cell_Active(class CPuzzlePart* pPart, _uint iCurrentCellIndex, _uint iPartIndex);
 
 	LOCATION Find_CurrentLocation(_uint iCellIndex);
 
@@ -69,7 +72,10 @@ private:
 
 	HRESULT Add_FloorChunk(_int iCellIndex);
 
+	HRESULT Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iPartIndex);
 	
+	_uint Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ);
+
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;

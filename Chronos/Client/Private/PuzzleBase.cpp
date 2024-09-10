@@ -6,6 +6,8 @@
 #include"Cell.h"
 #include "FloorChunk.h"
 
+#include "Monster.h"
+
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -107,6 +109,7 @@ void CPuzzleBase::Update(_float fTimeDelta)
 	Set_FallCellDeactive(iPlayerCellIndex);
 
 	LOCATION eCurrentLocation = Find_CurrentLocation(iPlayerCellIndex);
+	_uint iPartIndex = { 0 };
 	for (auto& pPartObject : m_Parts)
 	{
 		if (nullptr == pPartObject)
@@ -117,8 +120,9 @@ void CPuzzleBase::Update(_float fTimeDelta)
 
 		if (eCurrentLocation == pPart->Get_Location())
 		{
-			PuzzlePart_Cell_Active(pPart, iPlayerCellIndex);
+			PuzzlePart_Cell_Active(pPart, iPlayerCellIndex, iPartIndex);
 		}
+		++iPartIndex;
 	}
 
 	Set_NearCellActive(iSetIndex);
@@ -712,7 +716,7 @@ void CPuzzleBase::Update_Cell(LOCATION eLocation, _uint* pCellStates)
 
 }
 
-void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellIndex)
+void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellIndex, _uint iPartIndex)
 {
 	_uint* pCellIndices = pPart->Get_CellIndices();
 
@@ -744,6 +748,8 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 				++iStateIndex;
 			}
 		}
+		// 여기서 몬스터 배치.
+		Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
 	}
 	else
 	{
@@ -762,8 +768,8 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 			}
 		}
 	}
-
-
+	
+	
 }
 
 CPuzzleBase::LOCATION CPuzzleBase::Find_CurrentLocation(_uint iCellIndex)
@@ -941,6 +947,232 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 	
 
 	return S_OK;
+}
+
+HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iPartIndex)
+{
+	// 요 범위 내에서 현재 파트 인덱스에 따라서 몬스터 할당.
+	vector<_uint> AddIndices;
+
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+
+	if (PART_PIECE_00 == iPartIndex && false == m_bPartActive[PART_PIECE_00])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_00] = true;
+	}
+	else if (PART_PIECE_01 == iPartIndex && false == m_bPartActive[PART_PIECE_01])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_01] = true;
+	}
+	else if (PART_PIECE_02 == iPartIndex && false == m_bPartActive[PART_PIECE_02])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_02] = true;
+	}
+	else if (PART_PIECE_10 == iPartIndex && false == m_bPartActive[PART_PIECE_10])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_10] = true;
+	}
+	else if (PART_PIECE_12 == iPartIndex && false == m_bPartActive[PART_PIECE_12])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_12] = true;
+	}
+	else if (PART_PIECE_21 == iPartIndex && false == m_bPartActive[PART_PIECE_21])
+	{
+		for(size_t i = 0; i < 8; ++i)
+		{
+			desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+			if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+				return E_FAIL;
+		}
+
+		m_bPartActive[PART_PIECE_21] = true;
+	}
+	else if (PART_PIECE_22 == iPartIndex && false == m_bPartActive[PART_PIECE_22])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_22] = true;
+	}
+
+	else if (PART_PIECE_22 == iPartIndex && false == m_bPartActive[PART_PIECE_22])
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+
+		m_bPartActive[PART_PIECE_22] = true;
+		}
+
+	return S_OK;
+}
+
+_uint CPuzzleBase::Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ)
+{
+	_uint iIndex = 0;
+
+	while (true)
+	{
+		_uint iRandomX = (_uint)m_pGameInstance->Get_Random((_float)iStartX, (_float)iEndX);
+		_uint iRandomZ = (_uint)m_pGameInstance->Get_Random((_float)iStartZ, (_float)iEndZ);
+
+		iIndex = (iRandomX * 2) + iRandomZ * 90;
+		_bool isSame = { false };
+		for (auto& AddIndex : AddIndices)
+		{
+			if (iIndex == AddIndex)
+				isSame = true;
+		}
+
+		if (false == isSame)
+			break;
+	}
+	AddIndices.push_back(iIndex);
+
+	return iIndex;
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

@@ -58,7 +58,7 @@ public:
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
 	class CLayer* Find_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	vector<_wstring> Get_PrototypeKeys();
-
+	class CGameObject* Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
 #pragma endregion
 
 

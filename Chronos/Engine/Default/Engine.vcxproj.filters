@@ -169,6 +169,12 @@
     <Filter Include="01.Utility\04.Renderer">
       <UniqueIdentifier>{718a3997-f34f-41c2-ba36-80a9e1481f1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing">
+      <UniqueIdentifier>{f2b12209-6bb9-46e5-94b5-e21c54b8ad28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Rect">
+      <UniqueIdentifier>{8e14700e-53c3-4c1c-98ea-c0a0ed6dc268}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -323,6 +329,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Culling.cpp">
       <Filter>01.Utility\08.Culling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Instancing.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Rect_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,6 +502,12 @@
     </ClInclude>
     <ClInclude Include="..\public\Culling.h">
       <Filter>01.Utility\08.Culling</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Instancing.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Rect_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

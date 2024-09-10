@@ -31,6 +31,9 @@ public:
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);
 	virtual HRESULT Save_Data(ofstream* pOutFile);
+	_vector Get_Pos() {
+		return m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+	}
 
 protected:
 	ID3D11Device*				m_pDevice = { nullptr };

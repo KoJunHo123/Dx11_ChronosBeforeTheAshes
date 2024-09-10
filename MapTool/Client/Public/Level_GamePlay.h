@@ -20,8 +20,7 @@ private:
 		_vector vPickPos = {};
 	}PICKING_CHECK;
 	
-	enum ADD_TYPE{ LAYER_PLAYER, LAYER_MONSTER, CELL, WALLCELL, COLLIDER, LAYER_INTERACTION, LAYER_END };
-
+	enum ADD_TYPE{ LAYER_MONSTER, LAYER_CELL, LAYER_INTERACTION, LAYER_END };
 private:
 	CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual ~CLevel_GamePlay() = default;
@@ -36,41 +35,29 @@ public:
 	HRESULT Ready_Layer_BackGround();
 	
 private:
-	PICKING_CHECK IsPicking();
 	PICKING_CHECK IsPicking_Labarynth();
+	PICKING_CHECK IsPicking_Interaction();
 
 	HRESULT Add_Monster(_vector vPos, _int iCellIndex);
-	HRESULT Add_Player(_vector vPos, _int iCellIndex);
 	HRESULT Add_Cell();
-	HRESULT Add_Collider(_fvector vPos);
-	
-	HRESULT Add_Object(_vector vPos);
+	HRESULT Add_Interaction(_vector vPos);
 
 	HRESULT Save_Monsters();
 	HRESULT Load_Monsters();
 
-	HRESULT Save_Player();
-	HRESULT Load_Player();
-
 	HRESULT Save_Cells();
 	HRESULT Load_Cells();
 
-	HRESULT Save_Objects();
-	HRESULT Load_Objects();
+	HRESULT Save_Interaction();
+	HRESULT Load_Interaction();
 
 private:
 	// «ˆ¿Á º±≈√«— ∞¥√º ¿Œµ¶Ω∫..?
 	_float3 m_vScale = {};
 	_float3 m_vRotation = {};
 
-	_float3 m_vExtents = {};
-
-	vector<_wstring> m_PrototypeKeys;
-
 	_float4 m_vCheckPos{};
-	_int m_iObjectLayer = { CELL };
-	_int m_iPickingObject = { 0 };
-	_int m_iPickingEffect = { 0 };
+	_int m_iObjectLayer = { LAYER_END };
 
 	vector<_float3> m_Points;
 
@@ -78,6 +65,10 @@ private:
 
 	class CNavigation* m_pNavigation = { nullptr };
 
+	_bool m_bDelete_PickingCell = { false };
+	_bool m_bLink_Teleport = { false };
+
+	vector<class CTeleport*> Teleports;
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual void Free() override;

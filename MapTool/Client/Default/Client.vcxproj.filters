@@ -55,6 +55,12 @@
     <Filter Include="02.GameObjects\05.PuzzleBase">
       <UniqueIdentifier>{f0b37ed3-e59d-474a-8573-203eb40112c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\06.InteractionObject">
+      <UniqueIdentifier>{9879d510-2d92-4fc3-95bd-644dce761b97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\06.InteractionObject\Teleport">
+      <UniqueIdentifier>{2987320f-ba02-422b-82b6-905343e02b5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -132,6 +138,12 @@
     <ClInclude Include="..\public\PuzzleBase.h">
       <Filter>02.GameObjects\05.PuzzleBase</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\InteractionObject.h">
+      <Filter>02.GameObjects\06.InteractionObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Teleport.h">
+      <Filter>02.GameObjects\06.InteractionObject\Teleport</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -196,6 +208,12 @@
     </ClCompile>
     <ClCompile Include="..\private\PuzzleBase.cpp">
       <Filter>02.GameObjects\05.PuzzleBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\InteractionObject.cpp">
+      <Filter>02.GameObjects\06.InteractionObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Teleport.cpp">
+      <Filter>02.GameObjects\06.InteractionObject\Teleport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

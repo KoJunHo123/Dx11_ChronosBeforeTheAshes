@@ -31,11 +31,6 @@ HRESULT CLab_Troll::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-
-    CMonster::MONSTER_DESC* pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
-
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
-
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
 
@@ -224,7 +219,7 @@ HRESULT CLab_Troll::Ready_PartObjects()
     WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_L");;
     WeaponDesc.vAngles = { 0.f, 0.f, 0.f };
     WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
-    WeaponDesc.vExtents = { 0.5f, 0.5f, 0.5f };
+    WeaponDesc.vExtents = { 1.f, 1.f, 1.f };
     WeaponDesc.pAttackActive = &m_bLeftAttackActive;
     WeaponDesc.iDamage = 10;
 
@@ -235,8 +230,8 @@ HRESULT CLab_Troll::Ready_PartObjects()
     WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_R");;
     WeaponDesc.vAngles = { 0.f, 0.f, 0.f };
     WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
-    WeaponDesc.vExtents = { 0.5f, 0.5f, 0.5f };
-    WeaponDesc.pAttackActive = &m_bRightAttackActive;
+    WeaponDesc.vExtents = { 1.f, 1.f, 1.f };
+    WeaponDesc.pAttackActive = &m_bRightAttackActive;   
     WeaponDesc.iDamage = 10;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_R, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))

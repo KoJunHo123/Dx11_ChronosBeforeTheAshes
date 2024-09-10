@@ -50,6 +50,9 @@
 #include "Lab_Troll_Body.h"
 #include "Lab_Troll_Weapon.h"
 
+// 상호작용
+#include "Teleport.h"
+
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice { pDevice }
 	, m_pContext { pContext }
@@ -193,6 +196,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_FloorChunk_E"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/FloorChunk/FloorChunk_E", PreTransformMatrix))))
 		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Pedestal */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Pedestal"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Pedestal/Pedestal", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Teleport */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Teleport"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Teleport/Teleport_A", PreTransformMatrix))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region PUZZLE
 	/* For. Prototype_Component_Model_Puzzle_Base */
@@ -507,6 +523,13 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CLab_Troll_Weapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
+#pragma region INTERACTION
+	/* For. Prototype_GameObject_Teleport */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Teleport"),
+		CTeleport::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
 	m_isFinished = true;

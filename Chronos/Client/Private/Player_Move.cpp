@@ -234,13 +234,13 @@ void CPlayer_Move::Dodge_Control()
 
 		if (10 < KeyFrameIndex)
 		{
+			*m_pNonIntersect = false;
 			if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON))
 				m_pFSM->Set_State(CPlayer::STATE_ATTACK);
 		}
 		if (15 < KeyFrameIndex)
 		{
 			m_bMotionLock = false;
-			*m_pNonIntersect = false;
 			m_fDodgeDelay = 0.f;
 		}
 		

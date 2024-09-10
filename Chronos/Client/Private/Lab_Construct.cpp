@@ -31,11 +31,6 @@ HRESULT CLab_Construct::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-
-    CMonster::MONSTER_DESC * pDesc = static_cast<CMonster::MONSTER_DESC*>(pArg);
-
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
-
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
 

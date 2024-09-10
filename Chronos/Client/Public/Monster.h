@@ -15,7 +15,6 @@ class CMonster abstract : public CContainerObject
 public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
-		_float3 vPos;
 		_float3 vScale;
 		_float3 vRotation;
 

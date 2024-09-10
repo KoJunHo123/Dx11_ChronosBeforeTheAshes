@@ -1,6 +1,7 @@
 #include "FSM.h"
 #include "State.h"
 
+_uint CFSM::m_iCurrentStateIndex = { 0 };
 
 CFSM::CFSM(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CComponent{ pDevice, pContext }

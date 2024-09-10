@@ -103,8 +103,8 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_F;
 		m_eBlockState = BLOCK_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.1f);
-		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 0.7f));
+		Look_CameraDir();
+		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 0.7f), m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -113,8 +113,8 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_B;
 		m_eBlockState = BLOCK_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.1f);
-		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 0.7f));
+		Look_CameraDir();
+		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 0.7f), m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -123,8 +123,8 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_L;
 		m_eBlockState = BLOCK_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.1f);
-		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 0.7f));
+		Look_CameraDir();
+		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 0.7f), m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -133,13 +133,14 @@ void CPlayer_Block::Walk(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_BLOCK_WALK_R;
 		m_eBlockState = BLOCK_WALK;
 
-		m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.1f);
-		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 0.7f));
+		Look_CameraDir();
+		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 0.7f), m_pNavigationCom);
 
 		bKeyPress = true;
 	}
 	if(false == bKeyPress)
 	{
+		Look_CameraDir();
 		*m_pPlayerAnim = PLAYER_BLOCK_IDLE;
 		m_eBlockState = BLOCK_IDLE;
 	}

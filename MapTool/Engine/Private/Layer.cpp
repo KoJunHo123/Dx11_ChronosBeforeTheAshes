@@ -40,6 +40,18 @@ HRESULT CLayer::Late_Update(_float fTimeDelta)
 	return S_OK;
 }
 
+CGameObject* CLayer::Get_GameObject(_uint iIndex)
+{
+	_int iCheck = 0;
+	for (auto& GameObject : m_GameObjects)
+	{
+		if (iIndex == iCheck)
+			return GameObject;
+		++iCheck;
+	}
+	return nullptr;
+}
+
 CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iIndex)
 {
 	if (iIndex >= m_GameObjects.size())
