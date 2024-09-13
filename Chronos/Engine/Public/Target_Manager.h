@@ -16,6 +16,13 @@ public:
 	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
 	HRESULT Begin_MRT(const _wstring& strMRTTag);
 	HRESULT End_MRT();
+	HRESULT Bind_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
+
+#ifdef _DEBUG
+public:
+	HRESULT Ready_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
+	HRESULT Render(const _wstring& strMRTTag, class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
+#endif
 
 private:
 	ID3D11Device* m_pDevice = { nullptr };

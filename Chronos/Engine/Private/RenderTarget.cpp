@@ -1,4 +1,6 @@
 #include "RenderTarget.h"
+#include "Shader.h"
+#include "VIBuffer_Rect.h"
 
 CRenderTarget::CRenderTarget(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: m_pDevice (pDevice)
@@ -10,6 +12,8 @@ CRenderTarget::CRenderTarget(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 
 HRESULT CRenderTarget::Initialize(_uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
 {
+	m_vClearColor = vClearColor;
+
 	D3D11_TEXTURE2D_DESC TextureDesc = {};
 	ZeroMemory(&TextureDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
@@ -44,6 +48,53 @@ HRESULT CRenderTarget::Initialize(_uint iWidth, _uint iHeight, DXGI_FORMAT ePixe
 
 	return S_OK;
 }
+
+HRESULT CRenderTarget::Bind_ShaderResource(CShader* pShader, const _char* pConstantName)
+{
+	return pShader->Bind_SRV(pConstantName, m_pSRV);	// 여기 만들어놓은 셰이더 리소스 뷰를 렌더.
+}
+
+void CRenderTarget::Clear()
+{
+	m_pContext->ClearRenderTargetView(m_pRTV, (_float*)&m_vClearColor);
+}
+
+#ifdef _DEBUG
+HRESULT CRenderTarget::Initialize_Debug(_float fX, _float fY, _float fSizeX, _float fSizeY)
+{
+	_uint		iNumViewport = { 1 };
+	D3D11_VIEWPORT		ViewportDesc{};
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&m_WorldMatrix, XMMatrixIdentity());
+
+	m_WorldMatrix._11 = fSizeX;
+	m_WorldMatrix._22 = fSizeY;
+
+	m_WorldMatrix._41 = fX - ViewportDesc.Width * 0.5f;
+	m_WorldMatrix._42 = -fY + ViewportDesc.Height * 0.5f;
+
+	return S_OK;
+}
+
+HRESULT CRenderTarget::Render(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	if (FAILED(pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
+		return E_FAIL;
+
+	if (FAILED(pShader->Bind_SRV("g_Texture", m_pSRV)))
+		return E_FAIL;
+
+	pShader->Begin(0);
+
+	pVIBuffer->Bind_Buffers();
+
+	pVIBuffer->Render();
+
+	return S_OK;
+}
+#endif
 
 CRenderTarget* CRenderTarget::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
 {

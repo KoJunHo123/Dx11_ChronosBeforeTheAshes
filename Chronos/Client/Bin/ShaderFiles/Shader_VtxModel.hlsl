@@ -18,6 +18,7 @@ struct VS_IN
 struct VS_OUT
 {	
 	float4 vPosition : SV_POSITION;
+    float4 vNormal : NORMAL;
 	float2 vTexcoord : TEXCOORD0;	
 };
 
@@ -31,6 +32,7 @@ VS_OUT VS_MAIN(/*정점*/VS_IN In)
 	matWVP = mul(matWV, g_ProjMatrix);
 
 	Out.vPosition = mul(vector(In.vPosition, 1.f), matWVP);	
+    Out.vNormal = normalize(mul(In.vNormal, g_WorldMatrix));
 	Out.vTexcoord = In.vTexcoord;
 
 	return Out;
@@ -44,27 +46,31 @@ RasterizerState rsWireframe
 
 struct PS_IN
 {
-	float4 vPosition : SV_POSITION;
-	float2 vTexcoord : TEXCOORD0;	
+    float4 vPosition : SV_POSITION;
+    float4 vNormal : NORMAL;
+    float2 vTexcoord : TEXCOORD0;
 };
 
 struct PS_OUT
 {
-	vector vColor : SV_TARGET0;
+    vector vDiffuse : SV_TARGET0;
+    vector vNormal : SV_TARGET1;
 };
 
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 	
-	// 최종 픽셀을 결정하는 옵션 필터.
-    Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
 
-    if (Out.vColor.a < 0.3f)
+    if (0.3f >= vMtrlDiffuse.a)
         discard;
-	
-	
-	
+    
+    Out.vDiffuse = vMtrlDiffuse;
+    
+    // -1~1 : 0~1로 변경.
+    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
+
     return Out;
 }
 
@@ -72,17 +78,21 @@ PS_OUT PS_MAIN_WEAPON(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 	
-	// 최종 픽셀을 결정하는 옵션 필터.
-    Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
 
-    if (Out.vColor.a < 0.3f)
+    if (0.3f >= vMtrlDiffuse.a)
         discard;
-
+    
     vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
 	
     if (g_fRatio > vMtrlNoise.r)
         discard;
-	
+    
+    Out.vDiffuse = vMtrlDiffuse;
+    
+    // -1~1 : 0~1로 변경.
+    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
+
     return Out;
 }
 

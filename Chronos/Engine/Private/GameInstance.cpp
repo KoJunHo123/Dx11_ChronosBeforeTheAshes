@@ -9,6 +9,7 @@
 #include "Font_Manager.h"
 #include "Culling.h"
 #include "Target_Manager.h"
+#include "Light_Manager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -74,6 +75,10 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 
 	m_pFont_Manager = CFont_Manager::Create(*ppDevice, *ppContext);
 	if (nullptr == m_pFont_Manager)
+		return E_FAIL;
+
+	m_pLight_Manager = CLight_Manager::Create();
+	if (nullptr == m_pLight_Manager)
 		return E_FAIL;
 
 	return S_OK;
@@ -373,10 +378,42 @@ HRESULT CGameInstance::End_MRT()
 {
 	return m_pTarget_Manager->End_MRT();
 }
+HRESULT CGameInstance::Bind_RT_ShaderResource(CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName)
+{
+	return m_pTarget_Manager->Bind_ShaderResource(pShader, strTargetTag, pConstantName);
+}
+
+#ifdef _DEBUG
+HRESULT CGameInstance::Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY)
+{
+	return m_pTarget_Manager->Ready_Debug(strTargetTag, fX, fY, fSizeX, fSizeY);
+}
+HRESULT CGameInstance::Render_MRT_Debug(const _wstring& strMRTTag, CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	return m_pTarget_Manager->Render(strMRTTag, pShader, pVIBuffer);
+}
+#endif
+#pragma endregion
+
+#pragma region LIGHT_MANAGER
+HRESULT CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
+{
+	return m_pLight_Manager->Add_Light(LightDesc);
+}
+const LIGHT_DESC* CGameInstance::Get_LightDesc(_uint iIndex) const
+{
+	return m_pLight_Manager->Get_LightDesc(iIndex);
+}
+
+HRESULT CGameInstance::Render_Lights(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	return m_pLight_Manager->Render(pShader, pVIBuffer);
+}
 #pragma endregion
 
 void CGameInstance::Release_Engine()
 {
+	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pCulling);
 	Safe_Release(m_pFont_Manager);

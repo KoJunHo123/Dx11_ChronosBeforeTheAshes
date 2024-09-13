@@ -117,7 +117,20 @@ public:
 	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
 	HRESULT Begin_MRT(const _wstring& strMRTTag);
 	HRESULT End_MRT();
+	HRESULT Bind_RT_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
+#ifdef _DEBUG
+public:
+	HRESULT Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
+	HRESULT Render_MRT_Debug(const _wstring& strMRTTag, class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
+#endif
 #pragma endregion
+
+#pragma region LIGHT_MANAGER
+	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
+	const LIGHT_DESC* Get_LightDesc(_uint iIndex) const;
+	HRESULT Render_Lights(class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
+#pragma endregion
+
 
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
@@ -133,6 +146,7 @@ private:
 	class CFont_Manager*			m_pFont_Manager = { nullptr };
 	class CCulling*					m_pCulling = { nullptr };
 	class CTarget_Manager*			m_pTarget_Manager = { nullptr };
+	class CLight_Manager*			m_pLight_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

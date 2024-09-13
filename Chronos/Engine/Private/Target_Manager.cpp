@@ -63,7 +63,10 @@ HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
 
     _uint iIndex = { 0 };
     for (auto& pRenderTarget : *pMRTList)
+    {
+        pRenderTarget->Clear();
         pRenderTargets[iIndex++] = pRenderTarget->Get_RTV();    // MRT¿¡ ÀúÀåµÇ¾î ÀÖ´Â ·»´õ Å¸°Ùµé ¾È¿¡ ÀÖ´Â ·»´õÅ¸°Ùºä¸¦ À§¿¡ ¼±¾ðÇÑ ¹è¿­¿¡ ½Ï °¡Á®¿È.
+    }
 
     m_pContext->OMSetRenderTargets(iIndex, pRenderTargets, m_pDepthStencilView);    // À§¿¡¼­ ½Ï½Ï ±Ü¾î¸ðÀº ·»´õÅ¸°ÙºäµéÀ» ÀåÄ¡¿¡ ¼¼ÆÃÇÔ.
     // ±×·¯¸é ±×µ¿¾È ¹é¹öÆÛÀÇ ºä¿¡´Â ¾È±×·ÁÁü.
@@ -83,6 +86,38 @@ HRESULT CTarget_Manager::End_MRT()
 
     return S_OK;
 }
+
+HRESULT CTarget_Manager::Bind_ShaderResource(CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName)
+{
+    CRenderTarget* pRenderTarget = Find_RenderTarget(strTargetTag);
+    if (nullptr == pRenderTarget)
+        return E_FAIL;
+
+    return pRenderTarget->Bind_ShaderResource(pShader, pConstantName);
+}
+
+#ifdef _DEBUG
+HRESULT CTarget_Manager::Ready_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY)
+{
+    CRenderTarget* pRenderTarget = Find_RenderTarget(strTargetTag);
+    if (nullptr == pRenderTarget)
+        return E_FAIL;
+
+    return pRenderTarget->Initialize_Debug(fX, fY, fSizeX, fSizeY);
+}
+
+HRESULT CTarget_Manager::Render(const _wstring& strMRTTag, CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+    list<CRenderTarget*>* pMRTList = Find_MRT(strMRTTag);
+    if (nullptr == pMRTList)
+        return E_FAIL;
+
+    for (auto& pRenderTarget : *pMRTList)
+        pRenderTarget->Render(pShader, pVIBuffer);
+
+    return S_OK;
+}
+#endif
 
 CRenderTarget* CTarget_Manager::Find_RenderTarget(const _wstring& strTargetTag)
 {

@@ -5,11 +5,11 @@
 matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D g_DiffuseTexture;
 texture2D g_NoiseTexture;
+float g_fRatio;
 
 /* 뼈행렬들(내 모델 전체의 뼈행렬들(x), 현재 그리는 메시에게 영향을 주는 뼈행렬들(o) */
 matrix g_BoneMatrices[512];
 
-float g_fRatio;
 
 struct VS_IN
 {
@@ -25,7 +25,9 @@ struct VS_IN
 struct VS_OUT
 {
     float4 vPosition : SV_POSITION;
+    float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
+    float4 vWorldPos : TEXCOORD1;
 };
 
 VS_OUT VS_MAIN( /*정점*/VS_IN In)
@@ -40,14 +42,17 @@ VS_OUT VS_MAIN( /*정점*/VS_IN In)
 		g_BoneMatrices[In.vBlendIndices.w] * fWeightW;
 		
     vector vPosition = mul(vector(In.vPosition, 1.f), BoneMatrix);
-	
+    vector vNormal = mul(vector(In.vNormal, 0.f), BoneMatrix);
+
     matrix matWV, matWVP;
 
     matWV = mul(g_WorldMatrix, g_ViewMatrix);
     matWVP = mul(matWV, g_ProjMatrix);
 
-    Out.vPosition = mul(vPosition, matWVP);
+    Out.vPosition = mul(vPosition, matWVP); // 월드 * 뷰 * 투영
+    Out.vNormal = normalize(mul(vNormal, g_WorldMatrix));
     Out.vTexcoord = In.vTexcoord;
+    Out.vWorldPos = mul(vPosition, g_WorldMatrix);  // 월드 좌표만 따로 전달.
 
     return Out;
 }
@@ -56,12 +61,15 @@ VS_OUT VS_MAIN( /*정점*/VS_IN In)
 struct PS_IN
 {
     float4 vPosition : SV_POSITION;
+    float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
+    float4 vWorldPos : TEXCOORD1;
 };
 
 struct PS_OUT
 {
-    vector vColor : SV_TARGET0;
+    vector vDiffuse : SV_TARGET0;
+    vector vNormal : SV_TARGET1;
 };
 
 
@@ -69,15 +77,20 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 	
-    Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
 
-    if (0.3f >= Out.vColor.a)
+    if (0.3f >= vMtrlDiffuse.a)
         discard;
     
     vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
 	
     if (g_fRatio > vMtrlNoise.r)
         discard;
+    
+    Out.vDiffuse = vMtrlDiffuse;
+    
+    // -1~1 : 0~1로 변경.
+    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
 
     return Out;
 }
@@ -86,7 +99,7 @@ PS_OUT PS_MAIN(PS_IN In)
 
 technique11 DefaultTechnique
 {
-    pass Terrain
+    pass AnimModel
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);

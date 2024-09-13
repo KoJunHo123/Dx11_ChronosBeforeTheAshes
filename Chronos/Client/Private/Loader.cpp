@@ -169,10 +169,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 #pragma region LABYRINTH
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
-	// PreTransformMatrix = XMMatrixIdentity();
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-	//	return E_FAIL;
+	 PreTransformMatrix = XMMatrixIdentity();
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+		return E_FAIL;
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));

@@ -2,7 +2,6 @@
 
 #include "Base.h"
 
-
 BEGIN(Engine)
 class CRenderTarget final : public CBase
 {
@@ -17,6 +16,14 @@ public:
 
 public:
 	HRESULT Initialize(_uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
+	HRESULT Bind_ShaderResource(class CShader* pShader, const _char* pConstantName);
+	void Clear();
+
+#ifdef _DEBUG
+public:
+	HRESULT Initialize_Debug(_float fX, _float fY, _float fSizeX, _float fSizeY);
+	HRESULT Render(class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
+#endif
 
 private:
 	ID3D11Device* m_pDevice = { nullptr };
@@ -26,6 +33,13 @@ private:
 	ID3D11ShaderResourceView* m_pSRV = { nullptr };
 
 	_float4 m_vClearColor = {};	// 초기화 색상.
+
+#ifdef _DEBUG
+
+private:
+	_float4x4					m_WorldMatrix = {};
+
+#endif
 
 public:
 	static CRenderTarget* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);

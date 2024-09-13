@@ -21,6 +21,7 @@ public:
 	virtual HRESULT Render() override;
 
 private:
+	HRESULT Ready_Lights();
 	HRESULT Ready_Layer_Camera();	
 	HRESULT Ready_Layer_BackGround();
 	HRESULT Ready_Layer_Player();
