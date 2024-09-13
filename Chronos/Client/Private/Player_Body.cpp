@@ -20,19 +20,22 @@ HRESULT CPlayer_Body::Initialize_Prototype()
 
 HRESULT CPlayer_Body::Initialize(void* pArg)
 {
-	PLAYER_BODY_DESC* pDesc = static_cast<PLAYER_BODY_DESC*>(pArg);
-
-	m_pPlayerTransformCom = pDesc->pPlayerTransformCom;
-	m_pNavigationCom = pDesc->pNavigationCom;
-
-	Safe_AddRef(m_pPlayerTransformCom);
-	Safe_AddRef(m_pNavigationCom);
-
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+
+	PLAYER_BODY_DESC* pDesc = static_cast<PLAYER_BODY_DESC*>(pArg);
+
+	m_pPlayerTransformCom = pDesc->pPlayerTransformCom;
+	Safe_AddRef(m_pPlayerTransformCom);
+	m_pNavigationCom = pDesc->pNavigationCom;
+	Safe_AddRef(m_pNavigationCom);
+	m_pNoiseTextureCom = pDesc->pNoiseTextureCom;
+	Safe_AddRef(m_pNoiseTextureCom);
+
+	m_pRatio = pDesc->pRatio;
 
 	return S_OK;
 }
@@ -66,6 +69,11 @@ HRESULT CPlayer_Body::Render()
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
+		return E_FAIL;
+
+	if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
 		return E_FAIL;
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
@@ -159,9 +167,12 @@ HRESULT CPlayer_Body::Ready_Components()
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
+	CModel::MODEL_DESC desc = {};
+	desc.m_iStartAnim = PLAYER_MOVE_IDLE;
+
 	/* FOR.Com_Model */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player"),
-		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
+		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom), &desc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -236,4 +247,5 @@ void CPlayer_Body::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pPlayerTransformCom);
 	Safe_Release(m_pNavigationCom);
+	Safe_Release(m_pNoiseTextureCom);
 }

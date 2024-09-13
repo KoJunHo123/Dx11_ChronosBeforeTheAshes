@@ -76,6 +76,8 @@ private:
 	
 	_uint Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ);
 
+	HRESULT Add_Teleport(_fvector vPos);
+
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;

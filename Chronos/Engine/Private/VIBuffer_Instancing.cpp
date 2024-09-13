@@ -46,6 +46,7 @@ HRESULT CVIBuffer_Instancing::Initialize_Prototype(const INSTANCE_DESC& Desc)
 
 HRESULT CVIBuffer_Instancing::Initialize(void* pArg)
 {
+	// 동적으로 이동시켜야 하는 버퍼의 위치(행렬)은 각자가 가지고 있어야 하기에 Clone에서 만듬.
 	if (FAILED(m_pDevice->CreateBuffer(&m_InstanceBufferDesc, &m_InstanceInitialData, &m_pVBInstance)))
 		return E_FAIL;
 

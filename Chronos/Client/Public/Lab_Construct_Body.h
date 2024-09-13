@@ -18,6 +18,7 @@ public:
 	{
 		class CTransform* pConstruct_TransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
 
 		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
@@ -25,6 +26,7 @@ public:
 		_float* pDistance = { nullptr };
 		_bool* pSwordAttackActive = { nullptr };
 		_bool* pShieldAttackActive = { nullptr };
+		_float* pRatio = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -60,6 +62,7 @@ private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	CONSTRUCT_ANIM m_eConstructAnim = { CONSTRUCT_ANIM_END };
@@ -77,6 +80,7 @@ private:
 	_float* m_pDistance = { nullptr };
 	_bool* m_pSwordAttackActive = { nullptr };
 	_bool* m_pShieldAttackActive = { nullptr };
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();

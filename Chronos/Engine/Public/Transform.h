@@ -71,7 +71,7 @@ public:
 
 	void SetUp_OnCell(class CNavigation* pNavigation);
 	
-	void Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fTimeDelta);
+	void Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fDistance, _float fTimeDelta);
 
 	_bool MoveTo(_fvector vTargetPos, _float fTimeDelta);
 

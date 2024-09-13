@@ -177,7 +177,6 @@
     <ClInclude Include="..\Public\Client_Enum.h" />
     <ClInclude Include="..\public\FloorChunk.h" />
     <ClInclude Include="..\public\FreeCamera.h" />
-    <ClInclude Include="..\public\InteractionObject.h" />
     <ClInclude Include="..\public\Lab_Construct.h" />
     <ClInclude Include="..\public\Lab_Construct_Body.h" />
     <ClInclude Include="..\public\Lab_Construct_Attack.h" />
@@ -197,7 +196,7 @@
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Labyrinth.h" />
     <ClInclude Include="..\public\Monster.h" />
-    <ClInclude Include="..\public\Obstacle.h" />
+    <ClInclude Include="..\public\Pedestal.h" />
     <ClInclude Include="..\public\Player.h" />
     <ClInclude Include="..\public\Player_Action.h" />
     <ClInclude Include="..\public\Player_Attack.h" />
@@ -214,6 +213,7 @@
     <ClInclude Include="..\public\PuzzlePart.h" />
     <ClInclude Include="..\public\Sky.h" />
     <ClInclude Include="..\public\Teleport.h" />
+    <ClInclude Include="..\public\Teleport_Container.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
@@ -227,7 +227,6 @@
     <ClCompile Include="..\private\Boss_Lab_Body.cpp" />
     <ClCompile Include="..\private\FloorChunk.cpp" />
     <ClCompile Include="..\private\FreeCamera.cpp" />
-    <ClCompile Include="..\private\InteractionObject.cpp" />
     <ClCompile Include="..\private\Lab_Construct.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Body.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Attack.cpp" />
@@ -247,7 +246,7 @@
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Labyrinth.cpp" />
     <ClCompile Include="..\private\Monster.cpp" />
-    <ClCompile Include="..\private\Obstacle.cpp" />
+    <ClCompile Include="..\private\Pedestal.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
     <ClCompile Include="..\private\Player_Action.cpp" />
     <ClCompile Include="..\private\Player_Attack.cpp" />
@@ -264,6 +263,7 @@
     <ClCompile Include="..\private\PuzzlePart.cpp" />
     <ClCompile Include="..\private\Sky.cpp" />
     <ClCompile Include="..\private\Teleport.cpp" />
+    <ClCompile Include="..\private\Teleport_Container.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -285,6 +285,7 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
   </ItemGroup>

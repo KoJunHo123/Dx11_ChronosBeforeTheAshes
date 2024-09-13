@@ -7,7 +7,7 @@
 #include "FloorChunk.h"
 
 #include "Monster.h"
-
+#include "Teleport.h"
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -682,7 +682,19 @@ void CPuzzleBase::Make_Road(PART ePart, _uint* pCellIndices)
 			if(PART_PIECE_11 != ePart)
 			{
 				if (x >= 3 && x <= 11 && z >= 3 && z <= 11)
-					pCellIndices[iStateIndex] = 0;
+				{
+					if (PART_PIECE_02 == ePart)
+					{
+						if ((3 <= x && x <= 4) || (10 <= x && x <= 11) || (3 <= z && z <= 4) || (10 <= z && z <= 11))
+							pCellIndices[iStateIndex] = 0;
+						else if((6 <= x && x <= 8) && (6 <= z && z <= 8))
+							pCellIndices[iStateIndex] = 0;
+						else if(7 == x && 5 == z)
+							pCellIndices[iStateIndex] = 0;
+					}
+					else
+						pCellIndices[iStateIndex] = 0;
+				}
 			}
 
 			++iStateIndex;
@@ -718,21 +730,28 @@ void CPuzzleBase::Update_Cell(LOCATION eLocation, _uint* pCellStates)
 
 void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellIndex, _uint iPartIndex)
 {
-	_uint* pCellIndices = pPart->Get_CellIndices();
-
 	_uint iColumn = pPart->Get_Location() / 3;
 	_uint iRow = pPart->Get_Location() % 3;
 
 	_uint iStartX = iRow * 15;
 	_uint iStartZ = 30 - iColumn * 15;
 
-	_uint iStateIndex = { 0 };
-
 	_uint iX = (iCurrentCellIndex % 90) / 2;
 	_uint iZ = iCurrentCellIndex / 90;
 
 	if(iZ >= iStartZ + 3 && iZ <= iStartZ + 11 && iX >= iStartX + 3 && iX <= iStartX + 11)
 	{
+		if (PART_PIECE_02 == iPartIndex)
+		{
+			if (0 == m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Teleport")))
+			{
+				_uint iTeleportIndex = ((iStartX + 7) * 2) + (iStartZ + 7) * 90;
+				if (1 == iTeleportIndex % 2)
+					--iTeleportIndex;
+				Add_Teleport(XMLoadFloat3(&m_pNavigationCom->Get_CellZXCenter(iTeleportIndex)));
+			}
+		}
+
 		for (size_t i = iStartZ; i < iStartZ + 15; ++i)
 		{
 			for (size_t j = iStartX; j < iStartX + 15; ++j)
@@ -741,18 +760,24 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 
 				if (i >= iStartZ + 3 && i <= iStartZ + 11 && j >= iStartX + 3 && j <= iStartX + 11)
 				{
-					m_pNavigationCom->Set_CellActive(iIndex, true);
-					m_pNavigationCom->Set_CellActive(iIndex + 1, true);
-					Add_FloorChunk(iIndex);
+					if(0 == m_pNavigationCom->Get_CellType(iIndex))
+					{
+						m_pNavigationCom->Set_CellActive(iIndex, true);
+						m_pNavigationCom->Set_CellActive(iIndex + 1, true);
+						Add_FloorChunk(iIndex);
+					}
 				}
-				++iStateIndex;
 			}
 		}
 		// 여기서 몬스터 배치.
-		Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
+		// Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
 	}
 	else
 	{
+		if (PART_PIECE_02 == iPartIndex)
+		{
+			m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"));
+		}
 		for (size_t i = iStartZ; i < iStartZ + 15; ++i)
 		{
 			for (size_t j = iStartX; j < iStartX + 15; ++j)
@@ -764,7 +789,6 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 					m_pNavigationCom->Set_CellActive(iIndex, false);
 					m_pNavigationCom->Set_CellActive(iIndex + 1, false);
 				}
-				++iStateIndex;
 			}
 		}
 	}
@@ -1032,6 +1056,7 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
 			return E_FAIL;
 
+
 		m_bPartActive[PART_PIECE_02] = true;
 	}
 	else if (PART_PIECE_10 == iPartIndex && false == m_bPartActive[PART_PIECE_10])
@@ -1167,12 +1192,29 @@ _uint CPuzzleBase::Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint
 				isSame = true;
 		}
 
-		if (false == isSame)
+		if (false == isSame && 0 == m_pNavigationCom->Get_CellType(iIndex))
 			break;
 	}
 	AddIndices.push_back(iIndex);
 
 	return iIndex;
+}
+
+HRESULT CPuzzleBase::Add_Teleport(_fvector vPos)
+{
+	CTransform* pTransform = static_cast<CTransform*>(m_pGameInstance->Find_PartComponent(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), g_strTransformTag, 1, 6));
+
+	CTeleport::TELEPORT_DESC desc = { };
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 1.f;
+	desc.pParentWorldMatrix = nullptr;
+	XMStoreFloat3(&desc.vPos, vPos);
+	XMStoreFloat3(&desc.vTeleportPos, pTransform->Get_State(CTransform::STATE_POSITION));
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"), TEXT("Prototype_GameObject_Teleport"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

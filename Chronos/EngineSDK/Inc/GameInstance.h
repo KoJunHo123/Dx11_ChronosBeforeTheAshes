@@ -62,6 +62,7 @@ public:
 	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
 	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
 	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
+	class CComponent* Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
 #pragma endregion
 
 
@@ -111,6 +112,13 @@ public:
 	HRESULT is_Culling(class CTransform* pTransform);
 #pragma endregion
 
+#pragma region TARGET_MANAGER
+	HRESULT Add_RenderTarget(const wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
+	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
+	HRESULT Begin_MRT(const _wstring& strMRTTag);
+	HRESULT End_MRT();
+#pragma endregion
+
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
 	class CInput_Device*			m_pInput_Device = { nullptr };
@@ -124,6 +132,7 @@ private:
 	class CCollision_Manager*		m_pCollision_Manager = { nullptr };
 	class CFont_Manager*			m_pFont_Manager = { nullptr };
 	class CCulling*					m_pCulling = { nullptr };
+	class CTarget_Manager*			m_pTarget_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

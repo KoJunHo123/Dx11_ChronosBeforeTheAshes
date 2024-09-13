@@ -16,6 +16,9 @@ public:
 	{
 		class CTransform* pPlayerTransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
+
+		_float* pRatio = { nullptr };
 	}PLAYER_BODY_DESC;
 
 private:
@@ -44,6 +47,9 @@ private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
+
+	_float* m_pRatio = { nullptr };
 
 private:
 	void Play_Animation(_float fTimeDelta);	

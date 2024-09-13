@@ -16,6 +16,7 @@ public:
 	{
 		class CTransform* pBossTransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
 
 		_uint* pState = { nullptr };
 		_bool* pAnimOver = { nullptr };
@@ -23,6 +24,7 @@ public:
 		_bool* pAttackActive_LH = { nullptr };
 		_bool* pAttackActive_RH = { nullptr };
 		_bool* pAttackActive_Body = { nullptr };
+		_float* pRatio = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -54,6 +56,7 @@ private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	BOSS_ANIM			m_eBossAnim = { BOSS_ANIM_END };
@@ -78,6 +81,7 @@ private:
 	_bool* m_pAttackActive_LH = { nullptr };
 	_bool* m_pAttackActive_RH = { nullptr };
 	_bool* m_pAttackActive_Body = { nullptr };
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();

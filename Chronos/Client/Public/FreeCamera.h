@@ -40,6 +40,8 @@ private:
 	_float m_fNormalLimit = { 0.f };
 	_float m_fDistanceLimit = { 0.f };
 
+	_bool m_bOnUI = { false };
+
 public:
 	static CFreeCamera* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;

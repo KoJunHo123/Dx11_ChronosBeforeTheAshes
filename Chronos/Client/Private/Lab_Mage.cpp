@@ -69,7 +69,7 @@ void CLab_Mage::Update(_float fTimeDelta)
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
-            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.05f);
+            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
 
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
         {
@@ -208,6 +208,8 @@ HRESULT CLab_Mage::Ready_PartObjects()
     BodyDesc.pAnimStart = &m_bAnimStart;
     BodyDesc.pAnimOver = &m_bAnimOver;
     BodyDesc.pAttackActive = &m_bAttackActive;
+    BodyDesc.pNoiseTextureCom = m_pNoiseTextureCom;
+    BodyDesc.pRatio = &m_fRatio;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Mage_Body"), &BodyDesc)))
         return E_FAIL;

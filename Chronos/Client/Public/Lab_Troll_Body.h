@@ -8,6 +8,7 @@ class CTransform;
 class CNavigation;
 class CModel;
 class CShader;
+class CTexture;
 END
 
 BEGIN(Client)
@@ -18,6 +19,7 @@ public:
 	{
 		class CTransform* pConstruct_TransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
 
 		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
@@ -25,6 +27,7 @@ public:
 		_float* pDistance = { nullptr };
 		_bool* pRightAttackActive = { nullptr };
 		_bool* pLeftAttackActive = { nullptr };
+		_float* pRatio = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -60,6 +63,7 @@ private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	TROLL_ANIM m_eTrollAnim = { TROLL_ANIM_END };
@@ -76,10 +80,11 @@ private:
 	_float* m_pDistance = { nullptr };
 	_bool* m_pLeftAttackActive = { nullptr };
 	_bool* m_pRightAttackActive = { nullptr };
-
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();
+
 private:
 	void Play_Animation(_float fTimeDelta);
 

@@ -30,7 +30,7 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 	m_vTargetPos = pDesc->vTargetPos;
 	m_iCellIndex = pDesc->iCellIndex;
 
-	_float3 vRandomPos = { m_pGameInstance->Get_Random(-4.f, 4.f), m_pGameInstance->Get_Random(-4.f, 4.f), m_pGameInstance->Get_Random(-4.f, 4.f) };
+	_float3 vRandomPos = { m_pGameInstance->Get_Random(-4.f, 4.f), m_pGameInstance->Get_Random(-4.f, 0.f), m_pGameInstance->Get_Random(-4.f, 4.f) };
 
 	_vector vPos = XMLoadFloat3(&m_vTargetPos) + XMLoadFloat3(&vRandomPos);
 

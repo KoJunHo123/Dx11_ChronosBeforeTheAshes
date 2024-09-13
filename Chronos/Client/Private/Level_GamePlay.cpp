@@ -9,7 +9,7 @@
 #include "Terrain.h"
 #include "Layer.h"
 #include "PuzzleBase.h"
-#include "Teleport.h"
+#include "Pedestal.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -30,7 +30,6 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Camera()))
 		return E_FAIL;
 	
-
 	if (FAILED(Ready_Layer_Interaction()))
 		return E_FAIL;
 	
@@ -38,7 +37,7 @@ HRESULT CLevel_GamePlay::Initialize()
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player_Attack"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster_Attack"), TEXT("Coll_Player"));
-
+	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Interaction"));
 
 	return S_OK;
 }
@@ -116,28 +115,31 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 {
-	//CMonster::MONSTER_DESC desc = {};
-	//desc.fRotationPerSec = XMConvertToRadians(90.f);
-	//desc.fSpeedPerSec = 1.f;
-	//
-	//desc.vRotation = {};
-	//desc.vScale = { 1.f, 1.f, 1.f };
+	// ¸ÊÅø¿¡¼­ ÂïÀº ¸ó½ºÅÍ °¡Á®¿Ã °Í.
+	// ½ÃÀÛ ¼¿ ÀÎµ¦½º¸¸ ¹Þ¾Æ¿À¸é µÊ.
 
-	//desc.iStartCellIndex = 10;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-	//	return E_FAIL;
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+	
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
 
-	//desc.iStartCellIndex = 20;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 10;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 30;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 20;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		return E_FAIL;
 
-	//desc.iStartCellIndex = 40;
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-	//	return E_FAIL;
+	desc.iStartCellIndex = 30;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 40;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -150,6 +152,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
 	if (FAILED(Ready_Layer_Teleport()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_Pedestal()))
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -184,7 +188,15 @@ HRESULT CLevel_GamePlay::Ready_Layer_Puzzle()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Teleport()
 {
-	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Teleport.dat" };
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Teleport_Container"))))
+		return E_FAIL;
+	
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
+{
+	_char MaterialFilePath[MAX_PATH]{ "../Bin/SaveData/Pedestal.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
 	if (!infile.is_open())
@@ -192,26 +204,23 @@ HRESULT CLevel_GamePlay::Ready_Layer_Teleport()
 
 	while (true)
 	{
-		CTeleport::TELEPORT_DESC desc = {};
+		_float3 vPos = {};
 
-		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CTeleport::TELEPORT_DESC));
+		infile.read(reinterpret_cast<_char*>(&vPos), sizeof(_float3));
 
 		if (true == infile.eof())
 			break;
 
-		desc.fRotationPerSec = XMConvertToRadians(0.f);
+		CPedestal::PEDESTAL_DESC desc = {};
+		desc.fRotationPerSec = 0.f;
 		desc.fSpeedPerSec = 1.f;
+		desc.vPos = vPos;
 
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Teleport"), &desc)))
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Pedestal"), &desc)))
 			return E_FAIL;
 	}
 
 	infile.close();
-	return S_OK;
-}
-
-HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
-{
 
 	return S_OK;
 }

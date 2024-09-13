@@ -33,7 +33,9 @@ public:
 	HRESULT Create_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Clear_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 	void Release_Object(_uint iLevelIndex, const _wstring& strLayerTag);
+	
 	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
+	class CComponent* Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
 
 private:
 

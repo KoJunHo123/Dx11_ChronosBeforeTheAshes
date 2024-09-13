@@ -71,6 +71,11 @@ CComponent * CGameObject::Find_Component(const _wstring & strComponentTag)
 	return iter->second;
 }
 
+CComponent* CGameObject::Find_PartComponent(const _wstring& strComponentTag, _uint iPartObjIndex)
+{
+	return nullptr;
+}
+
 void CGameObject::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
 {
 }
@@ -84,8 +89,6 @@ void CGameObject::Set_Position(_vector vPos)
 {
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
 }
-
-
 
 HRESULT CGameObject::Add_Component(_uint iLevelIndex, const _wstring & strPrototypeTag, const _wstring & strComponentTag, CComponent** ppOut, void * pArg)
 {

@@ -71,13 +71,13 @@ HRESULT CTeleport::Render()
             return E_FAIL;
     }
     return S_OK;
-
-    return S_OK;
 }
 
 HRESULT CTeleport::Save_Data(ofstream* pOutFile)
 {
-    pOutFile->write(reinterpret_cast<const _char*>(&m_Desc), sizeof(TELEPORT_DESC));
+    _float3 vPos = {};
+    XMStoreFloat3(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    pOutFile->write(reinterpret_cast<const _char*>(&vPos), sizeof(_float3));
 
     return S_OK;
 }

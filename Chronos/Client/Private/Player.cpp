@@ -70,6 +70,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
     if (true == m_bDead)
         return OBJ_DEAD;
 
+    m_fRatio = 0.f;
     m_pColliderCom->Set_OnCollision(true);
     m_pFSM->Priority_Update(fTimeDelta);
 
@@ -86,7 +87,6 @@ void CPlayer::Update(_float fTimeDelta)
 
     m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
-
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
@@ -138,7 +138,6 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         }
 
         m_iHP -= iDamage;
-        cout << m_iHP << endl;
 
         _float fRadian = acos(fDot);
 
@@ -151,7 +150,6 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
         else
             m_pFSM->Set_State(STATE_IMPACT);
-
     }
 }
 
@@ -184,6 +182,11 @@ HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
         return E_FAIL;
 
     m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Player"), m_pColliderCom);
+
+    /* FOR.Com_Texture */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
+        TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pNoiseTextureCom), &desc)))
+        return E_FAIL;
 
     return S_OK;
 }
@@ -293,6 +296,8 @@ HRESULT CPlayer::Ready_Body(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
 
     desc.pPlayerTransformCom = m_pTransformCom;
     desc.pNavigationCom = m_pNavigationCom;
+    desc.pNoiseTextureCom = m_pNoiseTextureCom;
+    desc.pRatio = &m_fRatio;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Player_Body"), &desc)))
         return E_FAIL;
@@ -314,7 +319,8 @@ HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
 
     desc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
     desc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
-
+    desc.pNoiseTextureCom = m_pNoiseTextureCom;
+    desc.pRatio = &m_fRatio;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
         return E_FAIL;
@@ -335,6 +341,8 @@ HRESULT CPlayer::Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     desc.pFrameIndex = BaseDesc.pFrameIndex;
 
     desc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Shield");
+    desc.pNoiseTextureCom = m_pNoiseTextureCom;
+    desc.pRatio = &m_fRatio;
 
     if (FAILED(__super::Add_PartObject(PART_SHIELD, TEXT("Prototype_GameObject_Player_Shield"), &desc)))
         return E_FAIL;
@@ -375,4 +383,5 @@ void CPlayer::Free()
     Safe_Release(m_pFSM);
     Safe_Release(m_pNavigationCom);
     Safe_Release(m_pColliderCom);
+    Safe_Release(m_pNoiseTextureCom);
 }

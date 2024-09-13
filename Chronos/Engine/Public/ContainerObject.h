@@ -11,6 +11,9 @@ protected:
 	virtual ~CContainerObject() = default;
 
 public:
+	virtual class CComponent* Find_PartComponent(const _wstring& strComponentTag, _uint iPartObjIndex);
+
+public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 	virtual _uint Priority_Update(_float fTimeDelta);

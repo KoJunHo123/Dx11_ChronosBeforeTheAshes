@@ -45,7 +45,7 @@ public:
 	ID3D11RasterizerState*		m_pWireFrameRS = { nullptr };
 	ID3D11RasterizerState*		m_pSolidFrameRS = { nullptr };
 
-
+	_bool m_bRenderSkip = { false };
 
 private:
 	HRESULT Ready_Components();

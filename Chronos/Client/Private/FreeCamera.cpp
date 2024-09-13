@@ -108,8 +108,7 @@ _uint CFreeCamera::Priority_Update(_float fTimeDelta)
 
 		if(0.997f > XMVectorGetX(XMVector3Dot(vLook, vDir)))
 		{
-			m_pTransformCom->Orbit(vCross, vPlayerPos, m_fLimit, fTimeDelta * m_fSpeed);
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * m_fDistance));
+			m_pTransformCom->Orbit(vCross, vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * m_fSpeed);
 		}
 		else
 		{
@@ -129,22 +128,27 @@ _uint CFreeCamera::Priority_Update(_float fTimeDelta)
 
 		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
 		{
-			m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+			m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
 		}
 		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
 		{
-			m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, fTimeDelta * MouseMove * m_fSensor);
+			m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
 		}
 
-		_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vLook * m_fDistance));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * m_fDistance);
+
 		m_pTransformCom->LookAt(vPlayerPos);
-
-
 	}
-	POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
-	ClientToScreen(g_hWnd, &pt);
-	SetCursorPos(pt.x, pt.y);
+
+	if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_0))
+		m_bOnUI = !m_bOnUI;
+
+	if(false == m_bOnUI)
+	{
+		POINT pt = { g_iWinSizeX / 2, g_iWinSizeY / 2 };
+		ClientToScreen(g_hWnd, &pt);
+		SetCursorPos(pt.x, pt.y);
+	}
 
 	__super::Priority_Update(fTimeDelta);
 

@@ -8,6 +8,7 @@
 #include "Collision_Manager.h"
 #include "Font_Manager.h"
 #include "Culling.h"
+#include "Target_Manager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -25,6 +26,10 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 
 	m_pTimer_Manager = CTimer_Manager::Create();
 	if (nullptr == m_pTimer_Manager)
+		return E_FAIL;
+
+	m_pTarget_Manager = CTarget_Manager::Create(*ppDevice, *ppContext);
+	if (nullptr == m_pTarget_Manager)
 		return E_FAIL;
 
 	m_pRenderer = CRenderer::Create(*ppDevice, *ppContext);
@@ -96,7 +101,6 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pObject_Manager->Late_Update(fTimeDelta);
 
 	m_pLevel_Manager->Update(fTimeDelta);
-
 }
 
 HRESULT CGameInstance::Draw_Engine()
@@ -223,6 +227,10 @@ size_t CGameInstance::Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayer
 {
 	return m_pObject_Manager->Get_ObjectSize(iLevelIndex, strLayerTag);
 }
+CComponent* CGameInstance::Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex)
+{
+	return m_pObject_Manager->Find_PartComponent(iLevelIndex, strLayerTag, strComponentTag, iIndex, iPartObjIndex);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER
@@ -345,8 +353,31 @@ HRESULT CGameInstance::is_Culling(CTransform* pTransform)
 }
 #pragma endregion
 
+#pragma region TARGET_MANAGER
+HRESULT CGameInstance::Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
+{
+	return m_pTarget_Manager->Add_RenderTarget(strTargetTag, iWidth, iHeight, ePixelFormat, vClearColor);
+}
+
+HRESULT CGameInstance::Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag)
+{
+	return m_pTarget_Manager->Add_MRT(strMRTTag, strTargetTag);
+}
+
+HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag)
+{
+	return m_pTarget_Manager->Begin_MRT(strMRTTag);
+}
+
+HRESULT CGameInstance::End_MRT()
+{
+	return m_pTarget_Manager->End_MRT();
+}
+#pragma endregion
+
 void CGameInstance::Release_Engine()
 {
+	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pCulling);
 	Safe_Release(m_pFont_Manager);
 	Safe_Release(m_pCollision_Manager);

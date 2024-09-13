@@ -73,7 +73,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	{
 		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 		vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
-		m_pTransformCom->LookAt(vPlayerPos, 0.05f);
+		m_pTransformCom->LookAt(vPlayerPos, 0.1f);
 	}
 	
 	if (true == Contain_State(STATE_WALK))
@@ -235,6 +235,8 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	BodyDesc.pAttackActive_Body = &m_bAttackActive_Body;
 	BodyDesc.pAttackActive_LH = &m_bAttackActive_LH;
 	BodyDesc.pAttackActive_RH = &m_bAttackActive_RH;
+	BodyDesc.pNoiseTextureCom = m_pNoiseTextureCom;
+	BodyDesc.pRatio = &m_fRatio;
 
 	if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Boss_Lab_Body"), &BodyDesc)))
 		return E_FAIL;

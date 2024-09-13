@@ -7,6 +7,7 @@ BEGIN(Engine)
 class CMoedl;
 class CShader;
 class CCollider;
+class CTexture;
 END
 
 
@@ -16,12 +17,15 @@ class CLab_Troll_Weapon final : public CPartObject
 public:
 	typedef struct : public CPartObject::PARTOBJ_DESC
 	{
+		class CTexture* pNoiseTextureCom = { nullptr };
+
 		const _float4x4* pSocketBoneMatrix = { nullptr };
 		_float3 vExtents;
 		_float3 vCenter;
 		_float3 vAngles;
 		_uint iDamage;
 		_bool* pAttackActive;
+		_float* pRatio;
 	}WEAPON_DESC;
 
 private:
@@ -44,6 +48,7 @@ private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
@@ -51,7 +56,7 @@ private:
 private:
 	_uint m_iDamage = { 0 };
 	_bool* m_pAttackActive = { nullptr };
-
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components(_float3 vExtents, _float3 vCenter, _float3 vAngles);

@@ -179,6 +179,11 @@ _bool CModel::isPicking(const _matrix& WorldMatrix, _vector* pOut, _uint* pMeshI
 	{
 		if (TYPE_NONANIM == m_eType)
 		{
+			if (36 == iMeshIndex)
+			{
+				++iMeshIndex;
+				continue;
+			}
 			if (true == Mesh->isPicking(WorldMatrix, pOut, &fDist))
 			{
 				isPicking = true;

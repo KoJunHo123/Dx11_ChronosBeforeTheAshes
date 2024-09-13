@@ -63,6 +63,19 @@ CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iInd
 	return (*iter)->Find_Component(strComponentTag);	
 }
 
+CComponent* CLayer::Find_PartComponent(const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex)
+{
+	if (iIndex >= m_GameObjects.size())
+		return nullptr;
+
+	auto	iter = m_GameObjects.begin();
+
+	for (size_t i = 0; i < iIndex; i++)
+		++iter;
+
+	return (*iter)->Find_PartComponent(strComponentTag, iPartObjIndex);
+}
+
 
 void CLayer::Release_Object()
 {

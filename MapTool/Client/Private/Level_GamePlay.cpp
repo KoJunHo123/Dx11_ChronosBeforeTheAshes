@@ -132,11 +132,17 @@ HRESULT CLevel_GamePlay::Render()
 		{
 			if (false == m_bLink_Teleport)
 			{
-				_vector vOut = {};
+				/*_vector vOut = {};
 				_int iPickingCellIndex = m_pNavigation->Find_Index_PickingCell(&vOut);
 				if (-1 != iPickingCellIndex)
 				{
 					Add_Interaction(vOut);
+				}*/
+				PICKING_CHECK PickCheck = {};
+				PickCheck = IsPicking_Labarynth();
+				if (true == PickCheck.isPick)
+				{
+					Add_Interaction(PickCheck.vPickPos);
 				}
 			}
 			else
@@ -144,9 +150,6 @@ HRESULT CLevel_GamePlay::Render()
 				PICKING_CHECK PickCheck = {};
 
 				PickCheck = IsPicking_Interaction();
-
-
-
 			}
 		}
 	}
@@ -246,9 +249,9 @@ HRESULT CLevel_GamePlay::Render()
 			break;
 		case LAYER_INTERACTION:
 			if (FAILED(Load_Interaction()))
-				MSG_BOX(TEXT("Object Save Failed"));
+				MSG_BOX(TEXT("Object Load Failed"));
 			else
-				MSG_BOX(TEXT("Object Save Successed"));
+				MSG_BOX(TEXT("Object Load Successed"));
 			break;
 		}
 	}
@@ -395,8 +398,9 @@ HRESULT CLevel_GamePlay::Add_Cell()
 
 HRESULT CLevel_GamePlay::Add_Interaction(_vector vPos)
 {
-	CTeleport::TELEPORT_DESC desc = {};
-
+	
+	CPuzzleBase::PUZZLEBASE_DESC desc = {};
+	
 	XMStoreFloat3(&desc.vPos, vPos);
 	desc.vPos.y += m_fOffset;
 	desc.vScale = m_vScale;
@@ -404,7 +408,7 @@ HRESULT CLevel_GamePlay::Add_Interaction(_vector vPos)
 	desc.fRotationPerSec = 90.f;
 	desc.fSpeedPerSec = 1.f;
 	desc.vExtents = {};
-	desc.vTeleportPos = {};
+	
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_PuzzleBase"), &desc)))
 		return E_FAIL;
@@ -484,21 +488,21 @@ HRESULT CLevel_GamePlay::Save_Interaction()
 
 HRESULT CLevel_GamePlay::Load_Interaction()
 {
-	_char MaterialFilePath[MAX_PATH]{ "../../../Chronos/Client/Bin/SaveData/Pedestal.dat" };
+	_char MaterialFilePath[MAX_PATH]{ "../../../Chronos/Client/Bin/SaveData/Teleport.dat" };
 	ifstream infile(MaterialFilePath, ios::binary);
 
 	if (!infile.is_open())
 		return E_FAIL;
 	while (true)
 	{
-		CPuzzleBase::PUZZLEBASE_DESC desc{};
+		CTeleport::TELEPORT_DESC desc{};
 
-		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CPuzzleBase::PUZZLEBASE_DESC));
+		infile.read(reinterpret_cast<_char*>(&desc), sizeof(CTeleport::TELEPORT_DESC));
 
 		if (true == infile.eof())
 			break;
 
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_PuzzleBase"), &desc)))
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Teleport"), &desc)))
 			return E_FAIL;
 
 	}

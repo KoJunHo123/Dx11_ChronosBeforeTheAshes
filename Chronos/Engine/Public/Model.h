@@ -11,6 +11,12 @@ class ENGINE_DLL CModel final : public CComponent
 {
 public:
 	enum TYPE { TYPE_NONANIM, TYPE_ANIM, TYPE_END };
+
+	typedef struct
+	{
+		_uint m_iStartAnim = { 0 };
+	}MODEL_DESC;
+
 private:
 	CModel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CModel(const CModel& Prototype);

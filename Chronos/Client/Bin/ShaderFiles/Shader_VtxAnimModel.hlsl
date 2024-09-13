@@ -4,10 +4,12 @@
 
 matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D g_DiffuseTexture;
+texture2D g_NoiseTexture;
 
 /* 뼈행렬들(내 모델 전체의 뼈행렬들(x), 현재 그리는 메시에게 영향을 주는 뼈행렬들(o) */
 matrix g_BoneMatrices[512];
 
+float g_fRatio;
 
 struct VS_IN
 {
@@ -71,6 +73,11 @@ PS_OUT PS_MAIN(PS_IN In)
 
     if (0.3f >= Out.vColor.a)
         discard;
+    
+    vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
+	
+    if (g_fRatio > vMtrlNoise.r)
+        discard;
 
     return Out;
 }
@@ -86,6 +93,7 @@ technique11 DefaultTechnique
         SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
     }
 }

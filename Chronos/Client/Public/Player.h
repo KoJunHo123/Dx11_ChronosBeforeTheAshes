@@ -32,7 +32,11 @@ private:
 	CPlayer(const CPlayer& Prototype);
 	virtual ~CPlayer() = default;
 
-	
+public:
+	virtual void Set_Position(_vector vPos) {
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
+		m_pNavigationCom->Set_CurrentCellIndex_ByPos(vPos);
+	}
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -52,6 +56,7 @@ public:
 	class CFSM* m_pFSM = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 	// 상태와 파츠가 공유해야 하는 변수들
 	PLAYER_ANIM m_ePlayerAnim = { PLAYER_ANIM_END };
@@ -71,6 +76,9 @@ public:
 	// 닷지시 무적
 	_bool m_bNonIntersect = { false };
 	
+	// 사라지는 거인데 0으로 고정할 예정.
+	_float m_fRatio = { 0.f };
+
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);
 	HRESULT Ready_States();

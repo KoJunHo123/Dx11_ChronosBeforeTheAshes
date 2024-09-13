@@ -165,10 +165,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Puzzle/Puzzle_Base", PreTransformMatrix))))
 		return E_FAIL;
 
-	/* For. Prototype_Component_Model_Puzzle_Base */
+	/* For. Prototype_Component_Model_Pedestal */
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.f));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Pedestal"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Pedestal/Pedestal", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Teleport */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Teleport"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Teleport/Teleport_A", PreTransformMatrix))))
 		return E_FAIL;
 
 

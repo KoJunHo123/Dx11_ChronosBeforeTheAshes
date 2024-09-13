@@ -24,7 +24,10 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
 {
     BODY_DESC* pDesc = static_cast<BODY_DESC*>(pArg);
 
-    __super::Initialize(pDesc);
+    m_eTrollAnim = LAB_TROLL_SPAWN;
+
+    if(FAILED(__super::Initialize(pDesc)))
+        return E_FAIL;
 
     if (FAILED(Ready_Components()))
         return E_FAIL;
@@ -35,12 +38,16 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
     m_pTroll_TransformCom = pDesc->pConstruct_TransformCom;
     Safe_AddRef(m_pTroll_TransformCom);
 
+    m_pNoiseTextureCom = pDesc->pNoiseTextureCom;
+    Safe_AddRef(m_pNoiseTextureCom);
+
     m_pState = pDesc->pState;
     m_pIsFinished = pDesc->pIsFinished;
     m_pHP = pDesc->pHP;
     m_pDistance = pDesc->pDistance;
     m_pLeftAttackActive     = pDesc->pLeftAttackActive;
     m_pRightAttackActive    = pDesc->pRightAttackActive;
+    m_pRatio = pDesc->pRatio;
     m_fSpeed = 5.f;
 
     return S_OK;
@@ -56,6 +63,7 @@ _uint CLab_Troll_Body::Priority_Update(_float fTimeDelta)
 
 void CLab_Troll_Body::Update(_float fTimeDelta)
 {
+    
     if (CLab_Troll::STATE_IDLE == *m_pState)
         m_eTrollAnim = LAB_TROLL_IDLE;
     else if (CLab_Troll::STATE_SPAWN == *m_pState)
@@ -197,6 +205,12 @@ HRESULT CLab_Troll_Body::Render()
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
 
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
+        return E_FAIL;
+
+    if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
+        return E_FAIL;
+
     _uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
     for (size_t i = 0; i < iNumMeshes; i++)
@@ -255,7 +269,9 @@ _bool CLab_Troll_Body::Animation_NonInterpolate()
         LAB_TROLL_IMPACT_HEAVY == m_eTrollAnim ||
         LAB_TROLL_IMPACT_DEATH == m_eTrollAnim || 
         LAB_TROLL_SPAWN == m_eTrollAnim)
+    {
         return true;
+    }
 
     return false;
 }
@@ -267,10 +283,14 @@ HRESULT CLab_Troll_Body::Ready_Components()
         TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
         return E_FAIL;
 
+    CModel::MODEL_DESC desc = {};
+    desc.m_iStartAnim = m_eTrollAnim;
+
     /* FOR.Com_Model */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Monster_Lab_Troll"),
-        TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
+        TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom), &desc)))
         return E_FAIL;
+
 
     return S_OK;
 }
@@ -345,4 +365,5 @@ void CLab_Troll_Body::Free()
     Safe_Release(m_pTroll_TransformCom);
     Safe_Release(m_pModelCom);
     Safe_Release(m_pShaderCom);
+    Safe_Release(m_pNoiseTextureCom);
 }

@@ -3,18 +3,18 @@
 #include "GameInstance.h"
 
 CTeleport::CTeleport(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CInteractionObject(pDevice, pContext)
+	: CPartObject(pDevice, pContext)
 {
 }
 
 CTeleport::CTeleport(const CTeleport& Prototype)
-    : CInteractionObject(Prototype)
+	: CPartObject(Prototype)
 {
 }
 
 HRESULT CTeleport::Initialize_Prototype()
 {
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT CTeleport::Initialize(void* pArg)
@@ -25,19 +25,22 @@ HRESULT CTeleport::Initialize(void* pArg)
     if (FAILED(Ready_Components()))
         return E_FAIL;
 
-    TELEPORT_DESC* pDesc = static_cast<TELEPORT_DESC*>(pArg);
-    m_vTeleportPos = pDesc->vTeleportPos;
+    TELEPORT_DESC* pDesc = static_cast<TELEPORT_DESC*>(pArg);   
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&pDesc->vPos));
+    m_pColliderCom->Set_OnCollision(true);
 
-    return S_OK;
+    m_vTeleportPos = pDesc->vTeleportPos;
+	return S_OK;
 }
 
 _uint CTeleport::Priority_Update(_float fTimeDelta)
 {
-    return OBJ_NOEVENT;
+	return OBJ_NOEVENT;
 }
 
 void CTeleport::Update(_float fTimeDelta)
 {
+    m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CTeleport::Late_Update(_float fTimeDelta)
@@ -49,7 +52,6 @@ HRESULT CTeleport::Render()
 {
     if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
         return E_FAIL;
-
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
         return E_FAIL;
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
@@ -68,7 +70,10 @@ HRESULT CTeleport::Render()
         if (FAILED(m_pModelCom->Render(i)))
             return E_FAIL;
     }
-    return S_OK;
+
+#ifdef _DEBUG
+    m_pColliderCom->Render();
+#endif
 
     return S_OK;
 }
@@ -77,8 +82,11 @@ void CTeleport::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 {
     if (TEXT("Coll_Player") == strColliderTag && m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_E))
     {
-        // 플레이어 상태 바꾸고
-        // 플레이어 위치 바꾸고
+        
+        if (XMVector3Equal(XMLoadFloat3(&m_vTeleportPos), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
+            return;
+
+        pCollisionObject->Set_Position(XMLoadFloat3(&m_vTeleportPos));
     }
 }
 
@@ -94,6 +102,21 @@ HRESULT CTeleport::Ready_Components()
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
         return E_FAIL;
 
+    /* For.Com_Collider_AABB */
+    CBounding_AABB::BOUNDING_AABB_DESC			ColliderAABBDesc{};
+    ColliderAABBDesc.vExtents = _float3(1.f, 2.f, 1.f);
+    ColliderAABBDesc.vCenter = _float3(0.f, ColliderAABBDesc.vExtents.y, 0.f);
+
+    CCollider::COLLIDER_DESC ColliderDesc = {};
+    ColliderDesc.pOwnerObject = this;
+    ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
+        TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
+        return E_FAIL;
+
+    m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Interaction"), m_pColliderCom);
+
     return S_OK;
 }
 
@@ -103,10 +126,9 @@ CTeleport* CTeleport::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 
     if (FAILED(pInstance->Initialize_Prototype()))
     {
-        MSG_BOX(TEXT("Create Failed : CTransform"));
+        MSG_BOX(TEXT("Create Failed : CTeleport"));
         Safe_Release(pInstance);
     }
-
     return pInstance;
 }
 
@@ -116,17 +138,16 @@ CGameObject* CTeleport::Clone(void* pArg)
 
     if (FAILED(pInstance->Initialize(pArg)))
     {
-        MSG_BOX(TEXT("Clone Failed : CTransform"));
+        MSG_BOX(TEXT("Create Failed : CTeleport"));
         Safe_Release(pInstance);
     }
-
     return pInstance;
 }
+
 void CTeleport::Free()
 {
     __super::Free();
-
+    Safe_Release(m_pColliderCom);
     Safe_Release(m_pModelCom);
     Safe_Release(m_pShaderCom);
 }
-

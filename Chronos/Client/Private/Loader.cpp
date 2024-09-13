@@ -50,8 +50,10 @@
 #include "Lab_Troll_Body.h"
 #include "Lab_Troll_Weapon.h"
 
-// 상호작용
+// 텔레포트
 #include "Teleport.h"
+#include "Teleport_Container.h"
+#include "Pedestal.h"
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice { pDevice }
@@ -150,6 +152,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_Component_Texture_Sky */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/SkyBox/Sky_1.dds"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Noise */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Noise/Noise_%d.png"), 4))))
 		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
@@ -523,10 +530,20 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CLab_Troll_Weapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
-#pragma region INTERACTION
+#pragma region TELEPORT
 	/* For. Prototype_GameObject_Teleport */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Teleport"),
 		CTeleport::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Teleport_Container */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Teleport_Container"),
+		CTeleport_Container::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Teleport_Pedestal */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Pedestal"),
+		CPedestal::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 

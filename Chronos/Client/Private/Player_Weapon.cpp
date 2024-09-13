@@ -33,6 +33,10 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	m_pNoiseTextureCom = pDesc->pNoiseTextureCom;
+	Safe_AddRef(m_pNoiseTextureCom);
+
+	m_pRatio = pDesc->pRatio;
 
 	m_iDamage = 10;
 
@@ -104,6 +108,11 @@ HRESULT CPlayer_Weapon::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
+		return E_FAIL;
+
+	if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
+		return E_FAIL;
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
@@ -112,7 +121,7 @@ HRESULT CPlayer_Weapon::Render()
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 
-		if (FAILED(m_pShaderCom->Begin(0)))
+		if (FAILED(m_pShaderCom->Begin(1)))
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom->Render(i)))
@@ -207,4 +216,5 @@ void CPlayer_Weapon::Free()
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pColliderCom);
+	Safe_Release(m_pNoiseTextureCom);
 }

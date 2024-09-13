@@ -15,6 +15,9 @@ public:
 	typedef struct : public CPlayer_Part::PLAYER_PART_DESC
 	{
 		const _float4x4* pSocketBoneMatrix = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
+
+		_float* pRatio = { nullptr };
 	}PLAYER_SHIELD_DESC;
 private:
 	CPlayer_Shield(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -32,8 +35,10 @@ public:
 private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 	const _float4x4* m_pSocketMatrix = { nullptr };
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();

@@ -175,6 +175,15 @@
     <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Rect">
       <UniqueIdentifier>{8e14700e-53c3-4c1c-98ea-c0a0ed6dc268}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Point">
+      <UniqueIdentifier>{7c91a1e4-a616-4230-a486-6277fd7f0bda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\09.RenderTargets">
+      <UniqueIdentifier>{5d506f55-e0b8-48e1-8f18-69fad54b2ba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\09.RenderTargets\Manager">
+      <UniqueIdentifier>{121b1e42-995c-4de8-9092-f30fa8a9ca49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -335,6 +344,15 @@
     </ClCompile>
     <ClCompile Include="..\private\VIBuffer_Rect_Instance.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Point_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Target_Manager.cpp">
+      <Filter>01.Utility\09.RenderTargets\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\RenderTarget.cpp">
+      <Filter>01.Utility\09.RenderTargets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -508,6 +526,15 @@
     </ClInclude>
     <ClInclude Include="..\public\VIBuffer_Rect_Instance.h">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Point_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Target_Manager.h">
+      <Filter>01.Utility\09.RenderTargets\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\RenderTarget.h">
+      <Filter>01.Utility\09.RenderTargets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

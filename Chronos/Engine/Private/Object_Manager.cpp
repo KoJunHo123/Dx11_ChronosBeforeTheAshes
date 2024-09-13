@@ -188,6 +188,15 @@ CGameObject* CObject_Manager::Clone_GameObject(const _wstring& strPrototypeTag, 
 	return pCloneObject;
 }
 
+CComponent* CObject_Manager::Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex)
+{
+	CLayer* pLayer = Find_Layer(iLevelIndex, strLayerTag);
+	if (nullptr == pLayer)
+		return nullptr;
+
+	return pLayer->Find_PartComponent(strComponentTag, iIndex, iPartObjIndex);
+}
+
 
 CGameObject * CObject_Manager::Find_Prototype(const _wstring & strPrototypeTag)
 {

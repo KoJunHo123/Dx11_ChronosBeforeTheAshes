@@ -306,7 +306,7 @@ void CTransform::SetUp_OnCell(CNavigation* pNavigation)
 	Set_State(STATE_POSITION, vPos);
 }
 
-void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fTimeDelta)
+void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fDistance, _float fTimeDelta)
 {
 	Set_State(STATE_POSITION, vCenter);
 	
@@ -328,6 +328,8 @@ void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float f
 	Set_State(STATE_RIGHT, XMVector3TransformNormal(vRight, RotationMatrix));
 	Set_State(STATE_UP, XMVector3TransformNormal(vUp, RotationMatrix));
 	Set_State(STATE_LOOK, XMVector3TransformNormal(vLook, RotationMatrix));
+
+	Set_State(STATE_POSITION, vCenter - XMVector3Normalize(Get_State(STATE_LOOK)) * fDistance);
 }
 
 _bool CTransform::MoveTo(_fvector vTargetPos, _float fTimeDelta)

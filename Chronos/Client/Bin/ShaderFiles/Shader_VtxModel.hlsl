@@ -3,6 +3,8 @@
 
 matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D		g_DiffuseTexture;
+texture2D		g_NoiseTexture;
+float			g_fRatio;
 
 
 struct VS_IN
@@ -51,18 +53,37 @@ struct PS_OUT
 	vector vColor : SV_TARGET0;
 };
 
-
 PS_OUT PS_MAIN(PS_IN In)
 {
-	PS_OUT			Out = (PS_OUT)0;
+    PS_OUT Out = (PS_OUT) 0;
 	
 	// 최종 픽셀을 결정하는 옵션 필터.
     Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
 
-	if(Out.vColor.a < 0.3f)
+    if (Out.vColor.a < 0.3f)
         discard;
 	
-	return Out;
+	
+	
+    return Out;
+}
+
+PS_OUT PS_MAIN_WEAPON(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+	// 최종 픽셀을 결정하는 옵션 필터.
+    Out.vColor = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+
+    if (Out.vColor.a < 0.3f)
+        discard;
+
+    vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
+	
+    if (g_fRatio > vMtrlNoise.r)
+        discard;
+	
+    return Out;
 }
 
 technique11	DefaultTechnique
@@ -74,7 +95,18 @@ technique11	DefaultTechnique
         SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
 		VertexShader = compile vs_5_0 VS_MAIN();
-        // SetRasterizerState(rsWireframe);
-		PixelShader = compile ps_5_0 PS_MAIN();
-	}
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN();
+    }
+
+    pass Model_Weapon
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_WEAPON();
+    }
 }

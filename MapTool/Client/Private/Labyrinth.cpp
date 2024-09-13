@@ -41,6 +41,9 @@ void CLabyrinth::Priority_Update(_float fTimeDelta)
 
 void CLabyrinth::Update(_float fTimeDelta)
 {
+	if (m_pGameInstance->Key_Down('T'))
+		m_bRenderSkip = !m_bRenderSkip;
+
 	for (auto& Collider : m_ColliderComs)
 		Collider->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
@@ -70,6 +73,9 @@ HRESULT CLabyrinth::Render()
 
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
+		if (36 == i && true == m_bRenderSkip)
+			continue;
+
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 

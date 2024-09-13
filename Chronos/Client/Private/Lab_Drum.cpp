@@ -73,7 +73,7 @@ void CLab_Drum::Update(_float fTimeDelta)
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
-            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.05f);
+            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
 
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
         {
@@ -212,6 +212,8 @@ HRESULT CLab_Drum::Ready_PartObjects()
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pBellyAttackActive = &m_bBellyAttackActive;
     BodyDesc.pMaceAttackActive = &m_bMaceAttackActive;
+    BodyDesc.pNoiseTextureCom = m_pNoiseTextureCom;
+    BodyDesc.pRatio = &m_fRatio;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Drum_Body"), &BodyDesc)))
         return E_FAIL;

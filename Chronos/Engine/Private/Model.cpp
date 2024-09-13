@@ -87,6 +87,15 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _f
 
 HRESULT CModel::Initialize(void* pArg)
 {
+	
+	if(nullptr != pArg)
+	{
+		MODEL_DESC* pDesc = static_cast<MODEL_DESC*>(pArg);
+
+		m_iCurrentAnimIndex = pDesc->m_iStartAnim;
+		m_iPreAnimIndex = m_iCurrentAnimIndex;
+	}
+
 	return S_OK;
 }
 
@@ -111,10 +120,9 @@ _bool CModel::Play_Animation(_float fTimeDelta, _vector& vRootBoneChanged)
 	_bool bChangeStart = false;
 	if (m_iPreAnimIndex != m_iCurrentAnimIndex)
 	{
-		if (false == m_bNonInterpolate)
-		{
-			m_isChange = true;
-		}
+		m_isChange = true;
+		if (true == m_bNonInterpolate)
+			m_isChange = false;
 		bChangeStart = true;
 		m_iPreAnimIndex = m_iCurrentAnimIndex;
 		Reset_Animation();

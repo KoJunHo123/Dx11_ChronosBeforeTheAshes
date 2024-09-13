@@ -30,6 +30,7 @@ public:
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);
+	virtual class CComponent* Find_PartComponent(const _wstring& strComponentTag, _uint iPartObjIndex);
 
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval);
 	virtual _vector Get_Position();

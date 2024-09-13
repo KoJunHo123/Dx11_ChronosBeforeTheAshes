@@ -7,6 +7,7 @@ BEGIN(Engine)
 class CShader;
 class CModel;
 class CTransform;
+class CTexture;
 END
 
 BEGIN(Client)
@@ -45,11 +46,14 @@ protected:
 
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CTransform* m_pPlayerTransformCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 	_float m_fSpeed = { 0.f };
 
 	_int m_iHP = { 0 };
 	_int m_iMaxHP = { 0 };
+
+	_float m_fRatio = { 0.f };
 
 protected:
 	virtual HRESULT Ready_Components(_int iStartCellIndex);

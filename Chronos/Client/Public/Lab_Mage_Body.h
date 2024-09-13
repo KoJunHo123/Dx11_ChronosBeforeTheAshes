@@ -8,6 +8,7 @@ class CTransform;
 class CNavigation;
 class CModel;
 class CShader;
+class CTexture;
 END
 
 BEGIN(Client)
@@ -18,6 +19,7 @@ public:
 	{
 		class CTransform* pMage_TransformCom = { nullptr };
 		class CNavigation* pNavigationCom = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
 
 		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
@@ -26,6 +28,7 @@ public:
 		_bool* pAnimStart = { false };
 		_bool* pAnimOver = { false };
 		_bool* pAttackActive = { nullptr };
+		_float* pRatio = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -66,6 +69,7 @@ private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	MAGE_ANIM m_eMageAnim = { MAGE_ANIM_END };
@@ -82,6 +86,7 @@ private:
 	_bool* m_pAnimStart = { false };
 	_bool* m_pAnimOver = { false };
 	_bool* m_pAttackActive = { nullptr };
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();

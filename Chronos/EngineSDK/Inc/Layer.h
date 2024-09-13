@@ -28,6 +28,8 @@ public:
 	HRESULT Late_Update(_float fTimeDelta);
 
 	class CComponent* Find_Component(const _wstring& strComponentTag, _uint iIndex);
+	class CComponent* Find_PartComponent(const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
+
 	void Release_Object();
 	void Clear();
 

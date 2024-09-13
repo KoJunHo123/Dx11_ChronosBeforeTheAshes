@@ -36,7 +36,7 @@ HRESULT CMonster::Initialize(void* pArg)
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
 	Safe_AddRef(m_pPlayerTransformCom);
 
-	 m_pNavigationCom->Set_SkipTypeIndex(1);
+	//m_pNavigationCom->Set_SkipTypeIndex(1);
 
 	return S_OK;
 }
@@ -49,6 +49,9 @@ _uint CMonster::Priority_Update(_float fTimeDelta)
 
 void CMonster::Update(_float fTimeDelta)
 {
+	if (m_iHP <= 0)
+		m_fRatio += fTimeDelta * 0.5f;
+
 	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
 	//m_fHittedDelay += fTimeDelta;
 }
@@ -74,28 +77,32 @@ void CMonster::Intersect(const _wstring strColliderTag, CGameObject* pCollisionO
 		_float fY = abs(vDir.m128_f32[1]);
 		_float fZ = abs(vDir.m128_f32[2]);
 
+		_float fLength = { 0.f };
 
 		if (fX >= fY && fX >= fZ)
 		{
-			vDir = XMVector3Normalize(XMVectorSet(vDir.m128_f32[0], 0.f, 0.f, 0.f));
-			vDir *= vSourInterval.x + vDestInterval.x;
-			vCollisionPos.m128_f32[0] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[0] + vDir.m128_f32[0];
+			vDir = XMVectorSet(vDir.m128_f32[0], 0.f, 0.f, 0.f);	// 나가야 되는 방향.
+			fLength = vSourInterval.x + vDestInterval.x;	// 전체 거리.
 		}
 		else if (fY >= fX && fY >= fZ)
 		{
-			vDir = XMVector3Normalize(XMVectorSet(0.f, vDir.m128_f32[1], 0.f, 0.f));
-			vDir *= vSourInterval.y + vDestInterval.y;
-			vCollisionPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1] + vDir.m128_f32[1];
+			vDir = XMVectorSet(0.f, vDir.m128_f32[1], 0.f, 0.f);
+			fLength = vSourInterval.y + vDestInterval.y;
 		}
 		else if (fZ >= fX && fZ >= fY)
 		{
-			vDir = XMVector3Normalize(XMVectorSet(0.f, 0.f, vDir.m128_f32[2], 0.f));
-			vDir *= vSourInterval.z + vDestInterval.z;
-			vCollisionPos.m128_f32[2] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[2] + vDir.m128_f32[2];
+			vDir = XMVectorSet(0.f, 0.f, vDir.m128_f32[2], 0.f);
+			fLength = vSourInterval.z + vDestInterval.z;
 		}
 
+		fLength -= XMVectorGetX(XMVector3Length(vDir));
+		vDir = XMVector3Normalize(vDir) * fLength;
 		// 충돌된 방향만 갖고온 extents만큼 빼주기.
-		pCollisionObject->Set_Position(vCollisionPos);
+		_vector vLine = {};
+		if (true == m_pNavigationCom->isMove(vCollisionPos + vDir, &vLine))
+			pCollisionObject->Set_Position(vCollisionPos + vDir);
+		else
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pTransformCom->Get_State(CTransform::STATE_POSITION) - vDir);
 	}
 
 }
@@ -114,6 +121,11 @@ HRESULT CMonster::Ready_Components(_int iStartCellIndex)
 		TEXT("Com_Navigation"), reinterpret_cast<CComponent**>(&m_pNavigationCom), &desc)))
 		return E_FAIL;
 
+	/* FOR.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
+		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pNoiseTextureCom), &desc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -123,5 +135,5 @@ void CMonster::Free()
 
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pPlayerTransformCom);
-
+	Safe_Release(m_pNoiseTextureCom);
 }

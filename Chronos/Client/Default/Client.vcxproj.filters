@@ -151,8 +151,14 @@
     <Filter Include="02.GameObjects\07.Interaction\Teleport">
       <UniqueIdentifier>{8047ee15-7761-4ca7-9860-faa1d7fa26ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\08.Obstacle">
+    <Filter Include="02.GameObjects\07.Interaction\Pedestal">
       <UniqueIdentifier>{ad7c1698-8bff-48d7-8eef-96416745bbe2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\Teleport\Container">
+      <UniqueIdentifier>{1a9c4513-25cd-4b41-8483-9f3fef57cb33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\Pedestal\Item">
+      <UniqueIdentifier>{9c84d946-24e1-4d74-bbf2-011e2b257667}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -297,14 +303,14 @@
     <ClInclude Include="..\public\Lab_Mage_Attack.h">
       <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\InteractionObject.h">
-      <Filter>02.GameObjects\07.Interaction</Filter>
+    <ClInclude Include="..\public\Pedestal.h">
+      <Filter>02.GameObjects\07.Interaction\Pedestal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Teleport_Container.h">
+      <Filter>02.GameObjects\07.Interaction\Teleport\Container</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Teleport.h">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\Obstacle.h">
-      <Filter>02.GameObjects\08.Obstacle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -437,14 +443,14 @@
     <ClCompile Include="..\private\Lab_Mage_Attack.cpp">
       <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\InteractionObject.cpp">
-      <Filter>02.GameObjects\07.Interaction</Filter>
+    <ClCompile Include="..\private\Pedestal.cpp">
+      <Filter>02.GameObjects\07.Interaction\Pedestal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Teleport_Container.cpp">
+      <Filter>02.GameObjects\07.Interaction\Teleport\Container</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Teleport.cpp">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\private\Obstacle.cpp">
-      <Filter>02.GameObjects\08.Obstacle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -482,6 +488,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

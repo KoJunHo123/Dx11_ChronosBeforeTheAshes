@@ -22,6 +22,9 @@ HRESULT CLab_Troll_Weapon::Initialize_Prototype()
 HRESULT CLab_Troll_Weapon::Initialize(void* pArg)
 {
     WEAPON_DESC* pDesc = static_cast<WEAPON_DESC*>(pArg);
+    
+    m_pNoiseTextureCom = pDesc->pNoiseTextureCom;
+    Safe_AddRef(m_pNoiseTextureCom);
 
 
     if(FAILED(__super::Initialize(pArg)))
@@ -29,11 +32,13 @@ HRESULT CLab_Troll_Weapon::Initialize(void* pArg)
 
     m_iDamage = pDesc->iDamage;
     m_pAttackActive = pDesc->pAttackActive;
+    m_pSocketMatrix = pDesc->pSocketBoneMatrix;
+
+    m_pRatio = pDesc->pRatio;
 
     if (FAILED(Ready_Components(pDesc->vExtents, pDesc->vCenter, pDesc->vAngles)))
         return E_FAIL;
 
-    m_pSocketMatrix = pDesc->pSocketBoneMatrix;
     m_pTransformCom->Rotation(-90.f, 0.f, 0.f);
 
     return S_OK;
@@ -78,6 +83,12 @@ HRESULT CLab_Troll_Weapon::Render()
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
 
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
+        return E_FAIL;
+
+    if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
+        return E_FAIL;
+
     _uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
     for (size_t i = 0; i < iNumMeshes; i++)
@@ -85,7 +96,7 @@ HRESULT CLab_Troll_Weapon::Render()
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
 
-        if (FAILED(m_pShaderCom->Begin(0)))
+        if (FAILED(m_pShaderCom->Begin(1)))
             return E_FAIL;
 
         if (FAILED(m_pModelCom->Render(i)))
@@ -172,4 +183,5 @@ void CLab_Troll_Weapon::Free()
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModelCom);
     Safe_Release(m_pColliderCom);
+    Safe_Release(m_pNoiseTextureCom);
 }

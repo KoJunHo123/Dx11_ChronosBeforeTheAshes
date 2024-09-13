@@ -20,22 +20,9 @@ public:
 	_uint Get_CurrentCellIndex() {
 		return m_iCurrentCellIndex;
 	}
-
-	_float3 Get_NearCellIndex(_int iCellIndex);
-	_uint Get_CellType(_int iCellIndex);
-	_bool Get_CellActive(_int iCellIndex);
-	_float3 Get_CellZXCenter(_int iIndex);
-	_vector Get_CellCenterPos(_int iIndex);
-
-	void Set_CellType(_int iIndex, _uint iCellState);
-	void Set_CellActive(_int iIndex, _bool isActive);
-
 	void Set_SkipTypeIndex(_uint iSkipTypeIndex) {
 		m_iSkipTypeIndex = iSkipTypeIndex;
 	}
-	
-	_vector Get_NearCellPos();
-	_int Get_CanMoveCellIndex_InNear();
 
 public:
 	virtual HRESULT Initialize_Prototype(const _wstring& strNavigationDataFile);
@@ -44,12 +31,26 @@ public:
 public:
 	void Update(_fmatrix TerrainWorldMatrix);
 	_bool isMove(_fvector vPosition, _vector* pLine);
+	_bool CheckMove_ByPos(_fvector vPosition);
 	_float Compute_Height(const _fvector& vLocalPos);
 
 #ifdef _DEBUG
 public:
 	HRESULT Render();
 #endif
+public:
+	_float3 Get_NearCellIndex(_int iCellIndex);
+	_uint Get_CellType(_int iCellIndex);
+	_bool Get_CellActive(_int iCellIndex);
+	_float3 Get_CellZXCenter(_int iIndex);
+	_vector Get_CellCenterPos(_int iIndex);
+	_vector Get_NearCellPos();
+	_int Get_CanMoveCellIndex_InNear();
+
+	void Set_CellType(_int iIndex, _uint iCellState);
+	void Set_CellActive(_int iIndex, _bool isActive);
+
+	void Set_CurrentCellIndex_ByPos(_fvector vPos);
 
 private:
 	vector<class CCell*>				m_Cells;

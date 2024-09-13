@@ -32,6 +32,8 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 	Safe_AddRef(m_pBossTransformCom);
 	m_pNavigationCom = pDesc->pNavigationCom;
 	Safe_AddRef(m_pNavigationCom);
+	m_pNoiseTextureCom = pDesc->pNoiseTextureCom;
+	Safe_AddRef(m_pNoiseTextureCom);
 
 	m_pState = pDesc->pState;
 	m_pAnimOver = pDesc->pAnimOver;
@@ -40,8 +42,11 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 	m_pAttackActive_LH = pDesc->pAttackActive_LH;
 	m_pAttackActive_RH = pDesc->pAttackActive_RH;
 	m_pAttackActive_Body = pDesc->pAttackActive_Body;
-	
+	m_pRatio = pDesc->pRatio;
+
 	m_fChargeSpeed = 25.f;
+
+	m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
 
 	if (FAILED(__super::Initialize(pDesc)))
 		return E_FAIL;
@@ -49,7 +54,6 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
 
 	return S_OK;
 }
@@ -300,6 +304,11 @@ HRESULT CBoss_Lab_Body::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
+		return E_FAIL;
+
+	if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
+		return E_FAIL;
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
@@ -329,9 +338,12 @@ HRESULT CBoss_Lab_Body::Ready_Components()
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
+	CModel::MODEL_DESC desc = {};
+	desc.m_iStartAnim = m_eBossAnim;
+
 	/* FOR.Com_Model */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Monster_Boss_Lab"),
-		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
+		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom), &desc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -408,4 +420,5 @@ void CBoss_Lab_Body::Free()
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pBossTransformCom);
 	Safe_Release(m_pShaderCom);
+	Safe_Release(m_pNoiseTextureCom);
 }

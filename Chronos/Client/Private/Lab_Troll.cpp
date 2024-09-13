@@ -60,6 +60,7 @@ void CLab_Troll::Update(_float fTimeDelta)
 {
     m_fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
+
     if (m_fDistance < 30.f)
         m_bAggro = true;
 
@@ -73,7 +74,7 @@ void CLab_Troll::Update(_float fTimeDelta)
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
-            bLook = m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.05f);
+            bLook = m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
 
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
         {
@@ -208,6 +209,8 @@ HRESULT CLab_Troll::Ready_PartObjects()
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pLeftAttackActive = &m_bLeftAttackActive;
     BodyDesc.pRightAttackActive = &m_bRightAttackActive;
+    BodyDesc.pRatio = &m_fRatio;
+    BodyDesc.pNoiseTextureCom = m_pNoiseTextureCom;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Troll_Body"), &BodyDesc)))
         return E_FAIL;
@@ -222,7 +225,8 @@ HRESULT CLab_Troll::Ready_PartObjects()
     WeaponDesc.vExtents = { 1.f, 1.f, 1.f };
     WeaponDesc.pAttackActive = &m_bLeftAttackActive;
     WeaponDesc.iDamage = 10;
-
+    WeaponDesc.pRatio = &m_fRatio;
+    WeaponDesc.pNoiseTextureCom = m_pNoiseTextureCom;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_L, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;

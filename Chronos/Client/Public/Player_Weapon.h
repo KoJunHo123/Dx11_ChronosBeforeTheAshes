@@ -17,6 +17,9 @@ public:
 	{
 		const _float4x4* pSocketBoneMatrix = { nullptr };
 		const _float4x4* pTailSocketMatrix = { nullptr };
+		class CTexture* pNoiseTextureCom = { nullptr };
+
+		_float* pRatio = { nullptr };
 	}PLAYER_WEAPON_DESC;
 private:
 	CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -38,6 +41,7 @@ private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
+	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
@@ -46,6 +50,7 @@ private:
 private:
 	_uint m_iDamage = { 0 };
 	_bool m_bAttackActive = { false };
+	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();

@@ -65,6 +65,7 @@ technique11 DefaultTechnique
         // (0,0,0,0) : 블렌딩 팩터. 블렌딩에 사용할 색상.
         // 0xffffffff : 어떤 색 블렌딩 할지. (RGBA)
         VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
     }
 }

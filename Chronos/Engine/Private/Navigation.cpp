@@ -27,76 +27,6 @@ CNavigation::CNavigation(const CNavigation& Prototype)
 #endif
 }
 
-_float3 CNavigation::Get_NearCellIndex(_int iCellIndex)
-{
-	return m_Cells[iCellIndex]->Get_NearCellIndex();
-}
-
-_uint CNavigation::Get_CellType(_int iCellIndex)
-{
-	return m_Cells[iCellIndex]->Get_Type();
-}
-
-_bool CNavigation::Get_CellActive(_int iCellIndex)
-{
-	return m_Cells[iCellIndex]->Get_Active();
-}
-
-void CNavigation::Set_CellType(_int iIndex, _uint iCellState)
-{
-	if (m_Cells.size() <= iIndex)
-		return;
-	m_Cells[iIndex]->Set_CellType(iCellState);
-}
-
-void CNavigation::Set_CellActive(_int iIndex, _bool isActive)
-{
-	m_Cells[iIndex]->Set_Active(isActive);
-}
-
-_float3 CNavigation::Get_CellZXCenter(_int iIndex)
-{
-	return m_Cells[iIndex]->Get_CellXZCenter();
-}
-
-_vector CNavigation::Get_CellCenterPos(_int iIndex)
-{
-	return m_Cells[iIndex]->Get_CenterPos();
-}
-
-_vector CNavigation::Get_NearCellPos()
-{
-	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
-
-	for (size_t i = 0; i < 3; ++i)
-	{
-		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
-		
-		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
-			continue;
-
-		return m_Cells[iNearIndex]->Get_CenterPos();
-	}
-
-	return m_Cells[m_iCurrentCellIndex]->Get_CenterPos();
-}
-
-_int CNavigation::Get_CanMoveCellIndex_InNear()
-{
-	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
-
-	for (size_t i = 0; i < 3; ++i)
-	{
-		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
-
-		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
-			continue;
-
-		return iNearIndex;
-	}
-
-	return -1;
-}
 
 HRESULT CNavigation::Initialize_Prototype(const _wstring& strNavigationDataFile)
 {
@@ -199,6 +129,18 @@ _bool CNavigation::isMove(_fvector vPosition, _vector* pLine)
 	}
 }
 
+_bool CNavigation::CheckMove_ByPos(_fvector vPosition)
+{
+	for (auto& Cell : m_Cells)
+	{
+		_int iNeighbor = {};
+		_vector vLine = {};
+		if (true == Cell->isIn(vPosition, &iNeighbor, &vLine) && 0 == Cell->Get_Type())
+			return true;	
+	}
+	return false;
+}
+
 _float CNavigation::Compute_Height(const _fvector& vLocalPos)
 {
 	return m_Cells[m_iCurrentCellIndex]->Compute_Height(vLocalPos);
@@ -274,6 +216,91 @@ HRESULT CNavigation::Render()
 
 #endif
 
+_float3 CNavigation::Get_NearCellIndex(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_NearCellIndex();
+}
+
+_uint CNavigation::Get_CellType(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_Type();
+}
+
+_bool CNavigation::Get_CellActive(_int iCellIndex)
+{
+	return m_Cells[iCellIndex]->Get_Active();
+}
+
+void CNavigation::Set_CellType(_int iIndex, _uint iCellState)
+{
+	if (m_Cells.size() <= iIndex)
+		return;
+	m_Cells[iIndex]->Set_CellType(iCellState);
+}
+
+void CNavigation::Set_CellActive(_int iIndex, _bool isActive)
+{
+	m_Cells[iIndex]->Set_Active(isActive);
+}
+
+void CNavigation::Set_CurrentCellIndex_ByPos(_fvector vPos)
+{
+	_uint iIndex = 0;
+	for (auto& Cell : m_Cells)
+	{
+		_int iNeighbor = {};
+		_vector vLine = {};
+		if (true == Cell->isIn(vPos, &iNeighbor, &vLine))
+			m_iCurrentCellIndex = iIndex;
+		++iIndex;
+	}
+}
+
+_float3 CNavigation::Get_CellZXCenter(_int iIndex)
+{
+	return m_Cells[iIndex]->Get_CellXZCenter();
+}
+
+_vector CNavigation::Get_CellCenterPos(_int iIndex)
+{
+	return m_Cells[iIndex]->Get_CenterPos();
+}
+
+_vector CNavigation::Get_NearCellPos()
+{
+	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
+
+		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
+			continue;
+
+		return m_Cells[iNearIndex]->Get_CenterPos();
+	}
+
+	return m_Cells[m_iCurrentCellIndex]->Get_CenterPos();
+}
+
+_int CNavigation::Get_CanMoveCellIndex_InNear()
+{
+	_float3 vCellIndices = m_Cells[m_iCurrentCellIndex]->Get_NearCellIndex();
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		_int iNearIndex = (_int)vCellIndices.x >> (i * 0x10);
+
+		if (-1 == m_Cells[iNearIndex]->Get_Index()/* || m_iSkipTypeIndex == m_Cells[iNearIndex]->Get_Type()*/)
+			continue;
+
+		return iNearIndex;
+	}
+
+	return -1;
+}
+
+
 HRESULT CNavigation::SetUp_Neighbors()
 {
 	for (auto& pSourCell : m_Cells)
@@ -315,8 +342,6 @@ CNavigation* CNavigation::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 
 	return pInstance;
 }
-
-
 
 CComponent* CNavigation::Clone(void* pArg)
 {
