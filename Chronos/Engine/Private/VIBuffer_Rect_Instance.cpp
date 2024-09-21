@@ -12,10 +12,8 @@ CVIBuffer_Rect_Instance::CVIBuffer_Rect_Instance(const CVIBuffer_Rect_Instance& 
 {
 }
 
-HRESULT CVIBuffer_Rect_Instance::Initialize_Prototype(const CVIBuffer_Instancing::INSTANCE_DESC& Desc)
+HRESULT CVIBuffer_Rect_Instance::Initialize_Prototype()
 {
-	if (FAILED(__super::Initialize_Prototype(Desc)))
-		return E_FAIL;
 
 	m_iNumVertexBuffers = 2;
 	m_iNumVertices = 4;
@@ -24,8 +22,6 @@ HRESULT CVIBuffer_Rect_Instance::Initialize_Prototype(const CVIBuffer_Instancing
 	m_iIndexStride = 2;
 	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
 	m_eTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	m_iInstanceStride = sizeof(VTXRECTINSTANCE);
-	m_iIndexCountPerInstance = 6;
 
 #pragma region VERTEX_BUFFER
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
@@ -95,7 +91,18 @@ HRESULT CVIBuffer_Rect_Instance::Initialize_Prototype(const CVIBuffer_Instancing
 
 #pragma endregion
 
+	return S_OK;
+}
+
+HRESULT CVIBuffer_Rect_Instance::Initialize(void* pArg)
+{
 #pragma region INSTANCE_BUFFER
+	INSTANCE_DESC* pDesc = static_cast<INSTANCE_DESC*>(pArg);
+	if (FAILED(__super::Initialize_Prototype(*pDesc)))
+		return E_FAIL;
+
+	m_iInstanceStride = sizeof(VTXRECTINSTANCE);
+	m_iIndexCountPerInstance = 6;
 
 	ZeroMemory(&m_InstanceBufferDesc, sizeof m_InstanceBufferDesc);
 	m_InstanceBufferDesc.ByteWidth = m_iInstanceStride * m_iNumInstance;
@@ -117,28 +124,31 @@ HRESULT CVIBuffer_Rect_Instance::Initialize_Prototype(const CVIBuffer_Instancing
 		pInstanceVertices[i].vRight = _float4(fScale, 0.f, 0.f, 0.f);
 		pInstanceVertices[i].vUp = _float4(0.f, fScale, 0.f, 0.f);
 		pInstanceVertices[i].vLook = _float4(0.f, 0.f, 1.f, 0.f);
-		pInstanceVertices[i].vTranslation = _float4(
-			m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f),
-			m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f),
-			m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f),
-			1.f);
+		_float fX{}, fY{}, fZ{};
 
+		while (true)
+		{
+			fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+			fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+			fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+			if (abs(fX) > (m_vCenterPos.x + m_vExceptRange.x) * 0.5f || abs(fY) > (m_vCenterPos.y + m_vExceptRange.y) * 0.5f || abs(fZ) > (m_vCenterPos.z + m_vExceptRange.z) * 0.5f)
+				break;
+		}
+
+
+		pInstanceVertices[i].vTranslation = _float4(fX, fY, fZ, 1.f);
 		pInstanceVertices[i].vLifeTime = _float2(m_pGameInstance->Get_Random(m_vLifeTime.x, m_vLifeTime.y), 0.0f);
+		pInstanceVertices[i].vColor =
+			_float4(m_pGameInstance->Get_Random(m_vMinColor.x, m_vMaxColor.x),
+				m_pGameInstance->Get_Random(m_vMinColor.y, m_vMaxColor.y),
+				m_pGameInstance->Get_Random(m_vMinColor.z, m_vMaxColor.z),
+				m_pGameInstance->Get_Random(m_vMinColor.w, m_vMaxColor.w));
+
 	}
 
 	ZeroMemory(&m_InstanceInitialData, sizeof m_InstanceInitialData);
 	m_InstanceInitialData.pSysMem = m_pInstanceVertices;
 
-#pragma endregion
-
-
-
-	return S_OK;
-}
-
-HRESULT CVIBuffer_Rect_Instance::Initialize(void* pArg)
-{
-#pragma region INSTANCE_BUFFER
 
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
@@ -147,8 +157,7 @@ HRESULT CVIBuffer_Rect_Instance::Initialize(void* pArg)
 
 	return S_OK;
 }
-
-void CVIBuffer_Rect_Instance::Spread(_float fTimeDelta)
+_bool CVIBuffer_Rect_Instance::Spread(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
 
@@ -157,14 +166,25 @@ void CVIBuffer_Rect_Instance::Spread(_float fTimeDelta)
 	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
 
 	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
+	_bool isOver = true;
 
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
-		_vector		vMoveDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - XMLoadFloat3(&m_vPivotPos), 0.f);
+		_vector		vDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - vPivot, 0.f);
 
-		XMStoreFloat4(&pVertices[i].vTranslation,
-			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta);
+		_float3		vScale = _float3{ XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vRight))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vUp))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vLook))) };
 
+		_vector		vLook = XMVector3Normalize(vLocalLook);
+		_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
+		_vector		vUp = XMVector3Cross(vLook, vRight);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMVector3Normalize(vRight) * vScale.x);
+		XMStoreFloat4(&pVertices[i].vUp, XMVector3Normalize(vUp) * vScale.y);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vLook) * vScale.z);
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta);
 		pVertices[i].vLifeTime.y += fTimeDelta;
 
 		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
@@ -172,40 +192,16 @@ void CVIBuffer_Rect_Instance::Spread(_float fTimeDelta)
 			pVertices[i].vTranslation = static_cast<VTXRECTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
 			pVertices[i].vLifeTime.y = 0.f;
 		}
-	}
-
-	m_pContext->Unmap(m_pVBInstance, 0);
-}
-
-void CVIBuffer_Rect_Instance::Drop(_float fTimeDelta)
-{
-	D3D11_MAPPED_SUBRESOURCE	SubResource{};
-
-	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
-
-	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
-
-	for (size_t i = 0; i < m_iNumInstance; i++)
-	{
-		_vector		vMoveDir = XMVectorSet(0.f, -1.f, 0.f, 0.f);
-
-		XMStoreFloat4(&pVertices[i].vTranslation,
-			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta);
-
-		pVertices[i].vLifeTime.y += fTimeDelta;
-
-		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
-		{
-			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
-			pVertices[i].vLifeTime.y = 0.f;
-		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			isOver = false;
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
 
+	return isOver;
 }
 
-void CVIBuffer_Rect_Instance::Move_Dir(_float fTimeDelta, _fvector vDir)
+_bool CVIBuffer_Rect_Instance::Move_Dir(_fvector vDir, _fvector vLocalLook, _float fSpeed, _float fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
 
@@ -213,11 +209,22 @@ void CVIBuffer_Rect_Instance::Move_Dir(_float fTimeDelta, _fvector vDir)
 	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
 
 	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
-
+	_bool isOver = true;
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
-		XMStoreFloat4(&pVertices[i].vTranslation,
-			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fTimeDelta);
+		_float3		vScale = _float3{ XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vRight))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vUp))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vLook))) };
+
+		_vector		vLook = XMVector3Normalize(vLocalLook);
+		_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
+		_vector		vUp = XMVector3Cross(vLook, vRight);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMVector3Normalize(vRight) * vScale.x);
+		XMStoreFloat4(&pVertices[i].vUp, XMVector3Normalize(vUp) * vScale.y);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vLook) * vScale.z);
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta);
 
 		pVertices[i].vLifeTime.y += fTimeDelta;
 
@@ -226,19 +233,137 @@ void CVIBuffer_Rect_Instance::Move_Dir(_float fTimeDelta, _fvector vDir)
 			pVertices[i].vTranslation = static_cast<VTXRECTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
 			pVertices[i].vLifeTime.y = 0.f;
 		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			isOver = false;
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
+
+	return isOver;
+}
+
+_bool CVIBuffer_Rect_Instance::Converge(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	// 기존에는 SubResource에 저장된 걸 m_pVBInstance에 저장했다면,
+	// m_pVBInstance에 저장된 걸 SubResource에 가져오는 거.
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
+	_bool isOver = true;
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector		vDir = XMVectorSetW(vPivot - XMLoadFloat4(&pVertices[i].vTranslation), 0.f);
+
+		_float3		vScale = _float3{ XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vRight))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vUp))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vLook))) };
+
+		_vector		vLook = XMVector3Normalize(vLocalLook);
+		_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
+		_vector		vUp = XMVector3Cross(vLook, vRight);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMVector3Normalize(vRight) * vScale.x);
+		XMStoreFloat4(&pVertices[i].vUp, XMVector3Normalize(vUp) * vScale.y);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vLook) * vScale.z);
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta);
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		_float fLength = XMVectorGetX(XMVector3Length(vDir));
+		_float fMoveLength = XMVectorGetX(XMVector3Length(XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta));
+		if (fLength < fMoveLength)
+		{
+			XMStoreFloat4(&pVertices[i].vTranslation, vPivot);
+			if (true == m_isLoop)
+			{
+				pVertices[i].vTranslation = static_cast<VTXRECTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+				pVertices[i].vLifeTime.y = 0.f;
+			}
+		}
+		else
+		{
+			isOver = false;
+		}
+
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+	return isOver;
+}
+
+void CVIBuffer_Rect_Instance::Scaling(_fvector vAddScale, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	// 기존에는 SubResource에 저장된 걸 m_pVBInstance에 저장했다면,
+	// m_pVBInstance에 저장된 걸 SubResource에 가져오는 거.
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
+	_bool isOver = true;
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_float3 vScaling{};
+		XMStoreFloat3(&vScaling, vAddScale);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMLoadFloat4(&pVertices[i].vRight) + XMVector3Normalize(XMLoadFloat4(&pVertices[i].vRight)) * vScaling.x * fTimeDelta);
+		XMStoreFloat4(&pVertices[i].vUp, XMLoadFloat4(&pVertices[i].vUp) + XMVector3Normalize(XMLoadFloat4(&pVertices[i].vUp)) * vScaling.y * fTimeDelta);
+		XMStoreFloat4(&pVertices[i].vLook, XMLoadFloat4(&pVertices[i].vLook) + XMVector3Normalize(XMLoadFloat4(&pVertices[i].vLook)) * vScaling.z* fTimeDelta);
+	}
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+}
+
+void CVIBuffer_Rect_Instance::Turn(_fvector vAxis, _float fRotatioPerSec, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	// 기존에는 SubResource에 저장된 걸 m_pVBInstance에 저장했다면,
+	// m_pVBInstance에 저장된 걸 SubResource에 가져오는 거.
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
+	_bool isOver = true;
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector		vRight = XMLoadFloat4(&pVertices[i].vRight);
+		_vector		vUp = XMLoadFloat4(&pVertices[i].vUp);
+		_vector		vLook = XMLoadFloat4(&pVertices[i].vLook);
+
+		_matrix		RotationMatrix = XMMatrixRotationAxis(vAxis, fRotatioPerSec * fTimeDelta);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMVector3TransformNormal(vRight, RotationMatrix));
+		XMStoreFloat4(&pVertices[i].vUp, XMVector3TransformNormal(vUp, RotationMatrix));
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3TransformNormal(vLook, RotationMatrix));
+	}
+	m_pContext->Unmap(m_pVBInstance, 0);
+
 }
 
 
+_float CVIBuffer_Rect_Instance::Get_Radian(_fvector vMoveDir)
+{
+	 _vector vDir = XMVectorSet(XMVectorGetX(vMoveDir), XMVectorGetY(vMoveDir), 0.f, 0.f);
+	_float fDot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(vDir), XMVectorSet(1.f, 0.f, 0.f, 0.f)));
+	_float fRadian = acos(fDot);
 
+	if (vMoveDir.m128_f32[1] < 0.f)
+		fRadian *= -1.f;
 
-CVIBuffer_Rect_Instance* CVIBuffer_Rect_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)
+	return fRadian;
+}
+
+CVIBuffer_Rect_Instance* CVIBuffer_Rect_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
 	CVIBuffer_Rect_Instance* pInstance = new CVIBuffer_Rect_Instance(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(Desc)))
+	if (FAILED(pInstance->Initialize_Prototype()))
 	{
 		MSG_BOX(TEXT("Failed to Created : CVIBuffer_Rect_Instance"));
 		Safe_Release(pInstance);
@@ -246,8 +371,6 @@ CVIBuffer_Rect_Instance* CVIBuffer_Rect_Instance::Create(ID3D11Device* pDevice, 
 
 	return pInstance;
 }
-
-
 
 CComponent* CVIBuffer_Rect_Instance::Clone(void* pArg)
 {
@@ -265,5 +388,6 @@ CComponent* CVIBuffer_Rect_Instance::Clone(void* pArg)
 void CVIBuffer_Rect_Instance::Free()
 {
 	__super::Free();
-
+	Safe_Delete_Array(m_pSpeed);
+	Safe_Delete_Array(m_pInstanceVertices);
 }

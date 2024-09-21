@@ -48,12 +48,16 @@ private:
 	const _float4x4* m_pTailSocketMatrix = { nullptr };
 
 private:
+	_float3 m_vTailPos = {};
+
+private:
 	_uint m_iDamage = { 0 };
 	_bool m_bAttackActive = { false };
 	_float* m_pRatio = { nullptr };
 
 private:
 	HRESULT Ready_Components();
+	HRESULT Add_AttackParticle(_fvector vPos, _fvector vPivot);
 
 public:
 	static CPlayer_Weapon* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

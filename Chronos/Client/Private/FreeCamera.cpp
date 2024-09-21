@@ -41,7 +41,7 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 	m_fNormalLimit = 5.f;
 	m_fDistanceLimit = 80.f;
 
-	m_fSpeed = 3.f;
+	m_fSpeed = 1.f;
 
 	return S_OK;
 }
@@ -100,9 +100,12 @@ _uint CFreeCamera::Priority_Update(_float fTimeDelta)
 		// 플레이어 룩과 방향벡터의 내적이 0.99보다 작은 동안.
 		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
 		vPlayerPos.m128_f32[1] += m_fOffset;
+		
+		_vector vTargetPos = m_pTargetTransformCom->Get_State(CTransform::STATE_POSITION);
+		vTargetPos.m128_f32[1] += m_fOffset * 0.5f;
 
 		_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
-		_vector vDir = XMVector3Normalize(m_pTargetTransformCom->Get_State(CTransform::STATE_POSITION) - vPlayerPos);
+		_vector vDir = XMVector3Normalize(vTargetPos - vPlayerPos);
 
 		_vector vCross = XMVector3Cross(vLook, vDir);
 
@@ -116,7 +119,6 @@ _uint CFreeCamera::Priority_Update(_float fTimeDelta)
 		}
 		
 		m_pTransformCom->LookAt(vPlayerPos);
-
 	}
 	else
 	{

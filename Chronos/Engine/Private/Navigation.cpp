@@ -151,7 +151,6 @@ _float CNavigation::Compute_Height(const _fvector& vLocalPos)
 #ifdef _DEBUG
 HRESULT CNavigation::Render()
 {
-
 	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
 		return E_FAIL;
 	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))

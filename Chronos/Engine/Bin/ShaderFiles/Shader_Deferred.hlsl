@@ -1,10 +1,19 @@
 #include "Shader_Engine_Defines.hlsli"
-matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
-texture2D		g_Texture;
+
+matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
+texture2D g_Texture;
 
 
-vector			g_vLightDir;
-texture2D		g_NormalTexture;
+vector g_vLightDir;
+vector g_vLightDiffuse;
+vector g_vLightAmbient;
+texture2D g_NormalTexture;
+
+texture2D g_DiffuseTexture;
+vector g_vMtrlAmbient = vector(1.f, 1.f, 1.f, 1.f);
+texture2D g_ShadeTexture;
+
+
 
 struct VS_IN
 {
@@ -19,22 +28,22 @@ struct VS_OUT
 };
 
 
-VS_OUT VS_MAIN(/*정점*/VS_IN In)
+VS_OUT VS_MAIN( /*정점*/VS_IN In)
 {
-	VS_OUT		Out = (VS_OUT)0;	
+    VS_OUT Out = (VS_OUT) 0;
 
 	/* 정점에 위치를 월드 뷰 투영변환한다.*/		
 	/* 클라이언트에서 곱셈연산을 수행하는 TrnasformCoord함수와는 다르게 */
 	/* mul함수의 경우에는 순수하게 행렬의 곱하기만 수행을 하고 w나누기연산자체는 수행하지 않는다. */
-	vector		vPosition = mul(vector(In.vPosition, 1.f), g_WorldMatrix);
+    vector vPosition = mul(vector(In.vPosition, 1.f), g_WorldMatrix);
 
-	vPosition = mul(vPosition, g_ViewMatrix);
-	vPosition = mul(vPosition, g_ProjMatrix);
+    vPosition = mul(vPosition, g_ViewMatrix);
+    vPosition = mul(vPosition, g_ProjMatrix);
 
-	Out.vPosition = vPosition;	
+    Out.vPosition = vPosition;
     Out.vTexcoord = In.vTexcoord;
 
-	return Out;
+    return Out;
 }
 
 /* Triangle : 정점 세개가 다 vs_main을 통과할때까지 대기 */
@@ -55,6 +64,7 @@ struct PS_OUT
     vector vColor : SV_TARGET0;
 };
 
+/* 1. 픽셀의 최종적인 색상을 결정한다. */
 PS_OUT PS_MAIN_DEBUG(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
@@ -77,13 +87,37 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_DIRECTIONAL(PS_IN In)
 
     vector vNormal = float4(vNormalDesc.xyz * 2.f - 1.f, 0.f);
 
-    Out.vShade = max(dot(normalize(g_vLightDir) * -1.f, vNormal), 0.f);
+    Out.vShade = g_vLightDiffuse * saturate(max(dot(normalize(g_vLightDir) * -1.f, vNormal), 0.f) + (g_vLightAmbient * g_vMtrlAmbient));
 
     return Out;
 }
 
-technique11	DefaultTechnique
-{	
+PS_OUT PS_MAIN_DEFERRED(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+
+    vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+    if (vDiffuse.a == 0.f)  // 아무것도 안그려진 부분 자르기.
+        discard;
+
+	//if (vDiffuse.r == 1.f && 
+	//	vDiffuse.g == 0.f &&
+	//	vDiffuse.b == 1.f)
+	//	discard;
+
+    vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
+
+
+
+    Out.vColor = vDiffuse * vShade;
+
+    return Out;
+}
+
+
+
+technique11 DefaultTechnique
+{
     pass Debug
     {
         SetRasterizerState(RS_Default);
@@ -92,29 +126,43 @@ technique11	DefaultTechnique
 
 
         VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_DEBUG();
     }
 
     pass Light_Directional
     {
         SetRasterizerState(RS_Default);
-        SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
-
-
-        VertexShader = compile vs_5_0 VS_MAIN();
-        PixelShader = compile ps_5_0 PS_MAIN_LIGHT_DIRECTIONAL();
-    }
-
-    pass Light_Point
-    {
-        SetRasterizerState(RS_Default);
-        SetDepthStencilState(DSS_Default, 0);
+        SetDepthStencilState(DSS_None, 0);
         SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
 
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_LIGHT_DIRECTIONAL();
+    }
+
+    pass Light_Point
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_LIGHT_DIRECTIONAL();
+    }
+
+    pass Deferred
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_DEFERRED();
     }
 }

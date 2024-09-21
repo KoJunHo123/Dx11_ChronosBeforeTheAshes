@@ -186,6 +186,7 @@
     <ClInclude Include="..\public\Lab_Mage.h" />
     <ClInclude Include="..\public\Lab_Mage_Attack.h" />
     <ClInclude Include="..\public\Lab_Mage_Body.h" />
+    <ClInclude Include="..\public\Particle_Flash.h" />
     <ClInclude Include="..\public\Lab_Troll.h" />
     <ClInclude Include="..\public\Lab_Troll_Body.h" />
     <ClInclude Include="..\public\Lab_Troll_Weapon.h" />
@@ -196,6 +197,11 @@
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Labyrinth.h" />
     <ClInclude Include="..\public\Monster.h" />
+    <ClInclude Include="..\public\Particle_Attack.h" />
+    <ClInclude Include="..\public\Particle_Monster_Death.h" />
+    <ClInclude Include="..\public\Particle_Smoke.h" />
+    <ClInclude Include="..\public\Particle_Snow.h" />
+    <ClInclude Include="..\public\Particle_Spawn.h" />
     <ClInclude Include="..\public\Pedestal.h" />
     <ClInclude Include="..\public\Player.h" />
     <ClInclude Include="..\public\Player_Action.h" />
@@ -236,6 +242,7 @@
     <ClCompile Include="..\private\Lab_Mage.cpp" />
     <ClCompile Include="..\private\Lab_Mage_Attack.cpp" />
     <ClCompile Include="..\private\Lab_Mage_Body.cpp" />
+    <ClCompile Include="..\private\Particle_Flash.cpp" />
     <ClCompile Include="..\private\Lab_Troll.cpp" />
     <ClCompile Include="..\private\Lab_Troll_Body.cpp" />
     <ClCompile Include="..\private\Lab_Troll_Weapon.cpp" />
@@ -246,6 +253,11 @@
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Labyrinth.cpp" />
     <ClCompile Include="..\private\Monster.cpp" />
+    <ClCompile Include="..\private\Particle_Attack.cpp" />
+    <ClCompile Include="..\private\Particle_Monster_Death.cpp" />
+    <ClCompile Include="..\private\Particle_Smoke.cpp" />
+    <ClCompile Include="..\private\Particle_Snow.cpp" />
+    <ClCompile Include="..\private\Particle_Spawn.cpp" />
     <ClCompile Include="..\private\Pedestal.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
     <ClCompile Include="..\private\Player_Action.cpp" />

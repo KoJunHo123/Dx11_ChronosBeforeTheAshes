@@ -61,7 +61,7 @@ HRESULT CShader::Initialize_Prototype(const _tchar * pShaderFilePath, const D3D1
 		m_InputLayouts.emplace_back(pInputLayout);
 	}
 
-	return S_OK;
+	return S_OK; 
 }
 
 HRESULT CShader::Initialize(void * pArg)

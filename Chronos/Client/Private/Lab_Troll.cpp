@@ -4,6 +4,8 @@
 
 #include "Lab_Troll_Body.h"
 #include "Lab_Troll_Weapon.h"
+#include "Particle_Monster_Death.h"
+#include "Particle_Spawn.h"
 
 CLab_Troll::CLab_Troll(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -35,6 +37,8 @@ HRESULT CLab_Troll::Initialize(void* pArg)
     m_iHP = m_iMaxHP;
 
     m_iState = STATE_SPAWN;
+    m_pColliderCom->Set_OnCollision(true);
+
 
     return S_OK;
 }
@@ -44,7 +48,6 @@ _uint CLab_Troll::Priority_Update(_float fTimeDelta)
     if (true == m_bDead)
         return OBJ_DEAD;
 
-    m_pColliderCom->Set_OnCollision(true);
 
     for (auto& Part : m_Parts)
     {
@@ -98,6 +101,9 @@ void CLab_Troll::Update(_float fTimeDelta)
     {
         m_iState = STATE_DEATH;
         m_isFinished = false;
+        static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Set_On();
+        m_fRatio += fTimeDelta * 0.5f;
+        m_pColliderCom->Set_OnCollision(false);
     }
 
     if (true == m_isFinished)
@@ -127,14 +133,18 @@ void CLab_Troll::Late_Update(_float fTimeDelta)
         Part->Late_Update(fTimeDelta);
     }
 
+    if (1.f < m_fRatio && true == static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Get_Dead())
+        m_bDead = true;
+
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 }
 
 HRESULT CLab_Troll::Render()
 {
-#ifdef _DEBUG
-    m_pColliderCom->Render();
-#endif
 
     return S_OK;
 }
@@ -181,12 +191,11 @@ HRESULT CLab_Troll::Ready_Components()
     CCollider::COLLIDER_DESC ColliderDesc = {};
     ColliderDesc.pOwnerObject = this;
     ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+    ColliderDesc.strColliderTag = TEXT("Coll_Monster");
 
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
         TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
         return E_FAIL;
-
-    m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Monster"), m_pColliderCom);
 
     return S_OK;
 }
@@ -231,16 +240,28 @@ HRESULT CLab_Troll::Ready_PartObjects()
     if (FAILED(__super::Add_PartObject(PART_WEAPON_L, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;
   
-    WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_R");;
-    WeaponDesc.vAngles = { 0.f, 0.f, 0.f };
-    WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
-    WeaponDesc.vExtents = { 1.f, 1.f, 1.f };
+    WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_R");
     WeaponDesc.pAttackActive = &m_bRightAttackActive;   
     WeaponDesc.iDamage = 10;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_R, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;
 
+    CParticle_Monster_Death::PARTICLE_DEATH_DESC DeathDesc = {};
+    DeathDesc.fRotationPerSec = 0.f;
+    DeathDesc.fSpeedPerSec = 0.f;
+    DeathDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    DeathDesc.pSocketMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Spine1");
+    DeathDesc.iNumInstance = 100;
+    DeathDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
+    DeathDesc.vRange = _float3(1.f, 1.f, 1.f);
+    DeathDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+    DeathDesc.vSize = _float2(0.15f, 0.3f);
+    DeathDesc.vSpeed = _float2(1.5f, 3.f);
+    DeathDesc.vLifeTime = _float2(1.f, 2.f);;
+
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_DEATH, TEXT("Prototype_GameObject_Particle_Monster_Death"), &DeathDesc)))
+        return E_FAIL;
 
     return S_OK;
 }

@@ -52,7 +52,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pFSM->Set_State(STATE_MOVE);
 
-    m_fSpeed = 5.f;
+    m_fSpeed = 4.f * 5.f;
 
     m_iMaxHP = 100;
     m_iHP = m_iMaxHP;
@@ -94,6 +94,10 @@ void CPlayer::Late_Update(_float fTimeDelta)
     m_pFSM->Late_Update(fTimeDelta);
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+
+#ifdef _DEBUG
+    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 }
 
 HRESULT CPlayer::Render()
@@ -101,9 +105,6 @@ HRESULT CPlayer::Render()
     if (FAILED(m_pFSM->Render()))
         return E_FAIL;
 
-#ifdef _DEBUG
-    m_pColliderCom->Render();
-#endif
 
     return S_OK;
 }
@@ -176,12 +177,11 @@ HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
     CCollider::COLLIDER_DESC ColliderDesc = {};
     ColliderDesc.pOwnerObject = this;
     ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+    ColliderDesc.strColliderTag = TEXT("Coll_Player");
 
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
         TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
         return E_FAIL;
-
-    m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Player"), m_pColliderCom);
 
     /* FOR.Com_Texture */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
@@ -349,6 +349,7 @@ HRESULT CPlayer::Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
 
     return S_OK;
 }
+
 
 CPlayer* CPlayer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

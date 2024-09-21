@@ -12,6 +12,8 @@ public:
 		class CGameObject* pOwnerObject;
 		void* pBoundingDesc;
 		_bool bCollisionOnce = { false };
+
+		_wstring strColliderTag;
 	}COLLIDER_DESC;
 
 	enum TYPE { TYPE_AABB, TYPE_OBB, TYPE_SPHERE, TYPE_END };
@@ -30,7 +32,11 @@ public:
 	virtual HRESULT Initialize_Prototype(TYPE eColliderType);
 	virtual HRESULT Initialize(void* pArg) override;
 	virtual void Update(const _float4x4* pWorldMatrix);
-	virtual HRESULT Render();
+
+#ifdef _DEBUG
+public:
+	virtual HRESULT Render() override;
+#endif
 
 public:
 	_bool Intersect(const _wstring strColliderTag, CCollider* pTargetCollider);
@@ -42,6 +48,7 @@ private:
 	class CGameObject* m_pOwnerObject = { nullptr };
 	_bool m_bOnCollision = { false };
 	_bool m_bCollisionOnce = { false };
+	_wstring m_strColliderTag = L"";
 
 	unordered_set<CCollider*> m_CollisionSet;
 

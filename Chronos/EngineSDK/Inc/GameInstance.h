@@ -78,6 +78,10 @@ public:
 
 #pragma region RENDERER
 	HRESULT Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
+#ifdef _DEBUG
+	HRESULT Add_DebugObject(class CComponent* pDebugObject);
+#endif
+
 #pragma endregion
 
 #pragma region PIPELINE
@@ -100,6 +104,7 @@ public:
 #pragma region COLLISION_MANAGER
 	void Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond);
 	void Add_Collider_OnLayers(const _wstring strCollisionKey, class CCollider* pCollider);
+	void Erase_Collider(const _wstring strCollisionKey, class CCollider* pCollider);
 #pragma endregion
 
 #pragma region FONT_MANAGER
@@ -113,7 +118,7 @@ public:
 #pragma endregion
 
 #pragma region TARGET_MANAGER
-	HRESULT Add_RenderTarget(const wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
+	HRESULT Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
 	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
 	HRESULT Begin_MRT(const _wstring& strMRTTag);
 	HRESULT End_MRT();

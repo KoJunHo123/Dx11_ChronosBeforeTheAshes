@@ -54,6 +54,7 @@ HRESULT CCollider::Initialize(void* pArg)
 	COLLIDER_DESC* pDesc = static_cast<COLLIDER_DESC*>(pArg);
 	m_pOwnerObject = pDesc->pOwnerObject;
 	m_bCollisionOnce = pDesc->bCollisionOnce;
+	m_strColliderTag = pDesc->strColliderTag;
 
 	CBounding::BOUNDING_DESC* pBoundingDesc = static_cast<CBounding::BOUNDING_DESC*>(pDesc->pBoundingDesc);
 
@@ -70,6 +71,8 @@ HRESULT CCollider::Initialize(void* pArg)
 		break;
 	}
 
+	m_pGameInstance->Add_Collider_OnLayers(m_strColliderTag, this);
+
 	return S_OK;
 }
 
@@ -78,9 +81,9 @@ void CCollider::Update(const _float4x4* pWorldMatrix)
 	m_pBounding->Update(XMLoadFloat4x4(pWorldMatrix));
 }
 
+#ifdef _DEBUG
 HRESULT CCollider::Render()
 {
-#ifdef _DEBUG
 	m_pContext->GSSetShader(nullptr, nullptr, 0);
 
 	m_pEffect->SetWorld(XMMatrixIdentity());
@@ -96,10 +99,10 @@ HRESULT CCollider::Render()
 	m_pBounding->Render(m_pBatch);
 
 	m_pBatch->End();
-#endif
 
 	return S_OK;
 }
+#endif
 
 _bool CCollider::Intersect(const _wstring strColliderTag, CCollider* pTargetCollider)
 {
@@ -157,7 +160,8 @@ void CCollider::Free()
 {
 	__super::Free();
 
-
+	if(true == m_isCloned)
+		m_pGameInstance->Erase_Collider(m_strColliderTag, this);
 #ifdef _DEBUG
 	if (false == m_isCloned)
 	{
@@ -166,9 +170,7 @@ void CCollider::Free()
 	}
 	Safe_Release(m_pInputLayout);
 #endif
-
 	m_CollisionSet.clear();
 
 	Safe_Release(m_pBounding);
-
 }

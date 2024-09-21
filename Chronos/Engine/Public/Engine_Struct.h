@@ -113,8 +113,9 @@ namespace Engine
 		XMFLOAT4		vLook;
 		XMFLOAT4		vTranslation;
 		XMFLOAT2		vLifeTime;
+		XMFLOAT4		vColor;
 
-		static const unsigned int	iNumElements = 7;
+		static const unsigned int	iNumElements = 8;
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
 
 	}VTXRECTINSTANCE;
@@ -126,8 +127,9 @@ namespace Engine
 		XMFLOAT4		vLook;
 		XMFLOAT4		vTranslation;
 		XMFLOAT2		vLifeTime;
+		XMFLOAT4		vColor;
 
-		static const unsigned int	iNumElements = 7;
+		static const unsigned int	iNumElements = 8;
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
 	}VTXPOINTINSTANCE;
 }

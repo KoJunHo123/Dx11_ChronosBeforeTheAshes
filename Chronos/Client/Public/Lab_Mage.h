@@ -10,7 +10,7 @@ BEGIN(Client)
 class CLab_Mage final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_ATTACK, PART_EFFECT, PART_END };
+	enum PARTID { PART_BODY, PART_ATTACK, PART_EFFECT_DEATH, PART_END };
 	enum STATE { STATE_ATTACK_COMBO, STATE_ATTACK_SLASH, STATE_DASH_B, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
@@ -52,6 +52,7 @@ private:
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
+	HRESULT Add_SpawnParticle(_fvector vPos, _float fOffset);
 
 public:
 	static CLab_Mage* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

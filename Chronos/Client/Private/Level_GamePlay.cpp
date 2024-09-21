@@ -35,7 +35,10 @@ HRESULT CLevel_GamePlay::Initialize()
 	
 	if (FAILED(Ready_Layer_Interaction()))
 		return E_FAIL;
-	
+
+	//if (FAILED(Ready_Layer_Paticle()))
+	//	return E_FAIL;
+
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player_Attack"), TEXT("Coll_Monster"));
@@ -64,7 +67,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
-	LightDesc.vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = _float4(0.4f, 0.4f, 0.4f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
@@ -98,9 +101,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
 		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-		return E_FAIL;
-
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+	//	return E_FAIL;
 
 	return S_OK;
 }
@@ -159,6 +161,14 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 
 	desc.iStartCellIndex = 40;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Paticle()
+{
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Snow"))))
 		return E_FAIL;
 
 	return S_OK;

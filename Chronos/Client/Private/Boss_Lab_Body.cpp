@@ -77,7 +77,17 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 		}
 		else if (CBoss_Lab::STATE_DEATH == (CBoss_Lab::STATE_DEATH & *m_pState))
 		{
-			m_eBossAnim = BOSS_LAB_IMPACT_DEATH;
+			if(false == *m_pAnimStart)
+			{
+				*m_pAnimStart = true;
+				m_eBossAnim = BOSS_LAB_IMPACT_DEATH;
+			}
+
+			if (true == m_isFinished)
+			{
+				*m_pAnimOver = true;
+				*m_pAnimStart = false;
+			}
 		}
 		else if (CBoss_Lab::STATE_RUSH == (CBoss_Lab::STATE_RUSH & *m_pState))
 		{

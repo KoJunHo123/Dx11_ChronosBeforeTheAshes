@@ -5,6 +5,8 @@
 
 #include "Monster.h"
 
+#include "Particle_Attack.h"
+
 CPlayer_Weapon::CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPlayer_Part(pDevice, pContext)
 {
@@ -38,7 +40,7 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 
 	m_pRatio = pDesc->pRatio;
 
-	m_iDamage = 10;
+	m_iDamage = 100;
 
 	return S_OK;
 }
@@ -91,12 +93,18 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 	// -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
+	_matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
+	XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
 	m_pColliderCom->Update(&m_WorldMatrix);
 }
 
 void CPlayer_Weapon::Late_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 }
 
 HRESULT CPlayer_Weapon::Render()
@@ -128,25 +136,21 @@ HRESULT CPlayer_Weapon::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
-
-
 	return S_OK;
 }
 
 void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
 {
+	_uint iDamage = m_iDamage;
 	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim || PLAYER_ATK_POWER_02 == *m_pPlayerAnim || PLAYER_ATK_RUN == *m_pPlayerAnim)
-		m_iDamage = 20;
-	else
-		m_iDamage = 10;
+		iDamage = m_iDamage * 2;
 
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
-		pMonster->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+		pMonster->Be_Damaged(iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+
+		Add_AttackParticle(XMLoadFloat3(&m_vTailPos), XMVectorSet(0.f, 0.f, 0.f, 0.f));
 	}
 }
 
@@ -172,13 +176,27 @@ HRESULT CPlayer_Weapon::Ready_Components()
 	ColliderDesc.pOwnerObject = this;
 	ColliderDesc.pBoundingDesc = &ColliderOBBDesc;
 	ColliderDesc.bCollisionOnce = true;
+	ColliderDesc.strColliderTag = TEXT("Coll_Player_Attack");
 
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;
 
-	m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Player_Attack"), m_pColliderCom);
+	return S_OK;
+}
 
+HRESULT CPlayer_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
+{
+	CParticle_Attack::PARTICLE_ATTACK_DESC desc = {};
+
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 1.f;
+	XMStoreFloat3(&desc.vPos, vPos);
+	XMStoreFloat3(&desc.vPivot, vPivot);
+	desc.eType = CParticle_Attack::TYPE_PLAYER;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Attack"), &desc)))
+		return E_FAIL;
 
 	return S_OK;
 }

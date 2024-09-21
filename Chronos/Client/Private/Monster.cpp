@@ -26,17 +26,22 @@ HRESULT CMonster::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
-	m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
+	m_pTransformCom->Rotation(pDesc->vRotation.x, pDesc->vRotation.y, pDesc->vRotation.z);
 
 	if(FAILED(Ready_Components(pDesc->iStartCellIndex)))
 		return E_FAIL;
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
+	cout << m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[0] << "		";
+	cout << m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1] << "		";
+	cout << m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[2] << endl;
+
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
 	Safe_AddRef(m_pPlayerTransformCom);
 
 	//m_pNavigationCom->Set_SkipTypeIndex(1);
+	
 
 	return S_OK;
 }
@@ -49,8 +54,6 @@ _uint CMonster::Priority_Update(_float fTimeDelta)
 
 void CMonster::Update(_float fTimeDelta)
 {
-	if (m_iHP <= 0)
-		m_fRatio += fTimeDelta * 0.5f;
 
 	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
 	//m_fHittedDelay += fTimeDelta;
@@ -128,6 +131,7 @@ HRESULT CMonster::Ready_Components(_int iStartCellIndex)
 
 	return S_OK;
 }
+
 
 void CMonster::Free()
 {

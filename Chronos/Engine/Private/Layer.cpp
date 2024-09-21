@@ -28,7 +28,9 @@ HRESULT CLayer::Priority_Update(_float fTimeDelta)
 			iter = m_GameObjects.erase(iter);
 		}
 		else
+		{
 			iter++;
+		}
 	}
 
 	return S_OK;

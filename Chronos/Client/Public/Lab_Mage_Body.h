@@ -61,6 +61,7 @@ private:
 	_bool Animation_NonInterpolate();
 
 	_vector Find_TeleportPos();
+	HRESULT Add_FlashParticle(_fvector vPos, _float fOffset);
 
 private:
 	class CTransform* m_pMage_TransformCom = { nullptr };

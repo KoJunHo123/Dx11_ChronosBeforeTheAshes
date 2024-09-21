@@ -22,7 +22,8 @@ public:
 
 	// 오브젝트 초기화에서 넣어주고
 	void Add_Collider_OnLayers(const _wstring strCollisionKey, class CCollider* pCollider);
-	
+	void Erase_Collider(const _wstring strCollisionKey, class CCollider* pCollider);
+
 private:
 	vector<_wstring> m_CollisionKeysFirst;
 	vector<_wstring> m_CollisionKeysSecond;

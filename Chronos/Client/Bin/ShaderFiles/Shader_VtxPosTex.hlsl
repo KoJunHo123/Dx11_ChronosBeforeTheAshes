@@ -14,12 +14,15 @@
 matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D		g_Texture;
 
+float2			g_TexDivide;
+int				g_iTexIndex;
+
+float4			g_vColor;
 
 struct VS_IN
 {
 	float3 vPosition : POSITION;
-	float2 vTexcoord : TEXCOORD0;	
-	
+	float2 vTexcoord : TEXCOORD0;
 };
 
 struct VS_OUT
@@ -78,11 +81,58 @@ PS_OUT PS_MAIN(PS_IN In)
 	if (0.1 >= Out.vColor.a)
 		discard;
 
-	Out.vColor.gb = Out.vColor.r;
-
 	return Out;
 }
 
+PS_OUT PS_SPRITE_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 start = (float2) 0;
+    float2 over = (float2) 0;
+	
+    start.x = (1 / g_TexDivide.x) * g_iTexIndex;
+    start.y = (1 / g_TexDivide.y) * (int) (g_iTexIndex / g_TexDivide.x);
+	
+    over.x = start.x + (1 / g_TexDivide.x);
+    over.y = start.y + (1 / g_TexDivide.y);
+	
+    float2 vTexcoord = start + (over - start) * In.vTexcoord;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+
+    if (Out.vColor.a < 0.1f)
+        discard;
+	
+    Out.vColor.rgb = g_vColor.rgb;
+	
+    return Out;
+}
+
+PS_OUT PS_FLASH_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 start = (float2) 0;
+    float2 over = (float2) 0;
+	
+    start.x = (1 / g_TexDivide.x) * g_iTexIndex;
+    start.y = (1 / g_TexDivide.y) * (int) (g_iTexIndex / g_TexDivide.x);
+	
+    over.x = start.x + (1 / g_TexDivide.x);
+    over.y = start.y + (1 / g_TexDivide.y);
+	
+    float2 vTexcoord = start + (over - start) * In.vTexcoord;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, vTexcoord);
+	
+    Out.vColor.rgb = g_vColor.rgb * (1 - Out.vColor.a);
+    
+    
+    
+    
+    return Out;
+}
 
 
 technique11	DefaultTechnique
@@ -99,5 +149,26 @@ technique11	DefaultTechnique
 		PixelShader = compile ps_5_0 PS_MAIN();
 	}
 
+    pass SPRITE
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_SPRITE_MAIN();
+    }
+
+    pass FLASH
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_FLASH_MAIN();
+    }
 
 }

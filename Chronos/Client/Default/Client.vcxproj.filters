@@ -88,12 +88,6 @@
     <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Effect">
       <UniqueIdentifier>{5aadc0e1-a328-4a82-9dcf-179a3890e613}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Boss_Lab">
-      <UniqueIdentifier>{79ea67db-7d88-4879-8231-df375e3b9e97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body">
-      <UniqueIdentifier>{dbec92f0-62cf-48e3-a0dc-01eb2270cf75}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\05.Puzzle">
       <UniqueIdentifier>{a9bd7027-5ab4-4348-82ec-f08fcb5e482a}</UniqueIdentifier>
     </Filter>
@@ -103,47 +97,8 @@
     <Filter Include="02.GameObjects\02.Labyrinth\FloorChunk">
       <UniqueIdentifier>{755c1557-d2d6-4942-af9f-7cce6555740f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Construct">
-      <UniqueIdentifier>{560fb125-622a-4575-8b77-8de2ec8d886a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Drum">
-      <UniqueIdentifier>{e523ed0c-9557-4b02-b7e0-50a4b42aadba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Mage">
-      <UniqueIdentifier>{72af6c91-f3ac-479a-bbc4-caa6689784f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Troll">
-      <UniqueIdentifier>{e57570c8-36be-49ba-8576-953848fdc6f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body">
-      <UniqueIdentifier>{1fbc8779-f8a7-49bc-8d83-d5dfa3b27bdf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body">
-      <UniqueIdentifier>{6270e158-9acf-49b0-af6f-1f65a3974c71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body">
-      <UniqueIdentifier>{5e92da70-e0dc-4400-9491-aa5cb3f23ec8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body">
-      <UniqueIdentifier>{c1957120-d1e8-4162-aed2-acb20002d5df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon">
-      <UniqueIdentifier>{017917e8-a857-4206-bd60-8a9e4e268c19}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\06.Sky">
       <UniqueIdentifier>{9c0ded80-055c-43e7-aac3-97390082fb9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack">
-      <UniqueIdentifier>{309f0f10-35c2-447f-9dc3-7e0da8d88c71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack">
-      <UniqueIdentifier>{e55f07bc-689e-47eb-8f29-6e0266296d8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack">
-      <UniqueIdentifier>{019a6de6-015f-4a1a-9ea1-aeb3c2385544}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack">
-      <UniqueIdentifier>{0a78ef59-cd1a-4521-88f1-03fb614fe171}</UniqueIdentifier>
     </Filter>
     <Filter Include="02.GameObjects\07.Interaction">
       <UniqueIdentifier>{1a854389-390f-4fbf-a4c0-23151c926c52}</UniqueIdentifier>
@@ -159,6 +114,78 @@
     </Filter>
     <Filter Include="02.GameObjects\07.Interaction\Pedestal\Item">
       <UniqueIdentifier>{9c84d946-24e1-4d74-bbf2-011e2b257667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object">
+      <UniqueIdentifier>{d4e3013a-f616-4c3e-a5f2-35c7f545d4da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Troll">
+      <UniqueIdentifier>{e57570c8-36be-49ba-8576-953848fdc6f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Body">
+      <UniqueIdentifier>{c1957120-d1e8-4162-aed2-acb20002d5df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Weapon">
+      <UniqueIdentifier>{017917e8-a857-4206-bd60-8a9e4e268c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Mage">
+      <UniqueIdentifier>{72af6c91-f3ac-479a-bbc4-caa6689784f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Body">
+      <UniqueIdentifier>{5e92da70-e0dc-4400-9491-aa5cb3f23ec8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Attack">
+      <UniqueIdentifier>{0a78ef59-cd1a-4521-88f1-03fb614fe171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Drum">
+      <UniqueIdentifier>{e523ed0c-9557-4b02-b7e0-50a4b42aadba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Body">
+      <UniqueIdentifier>{6270e158-9acf-49b0-af6f-1f65a3974c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Attack">
+      <UniqueIdentifier>{019a6de6-015f-4a1a-9ea1-aeb3c2385544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct">
+      <UniqueIdentifier>{560fb125-622a-4575-8b77-8de2ec8d886a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Body">
+      <UniqueIdentifier>{1fbc8779-f8a7-49bc-8d83-d5dfa3b27bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Attack">
+      <UniqueIdentifier>{e55f07bc-689e-47eb-8f29-6e0266296d8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab">
+      <UniqueIdentifier>{79ea67db-7d88-4879-8231-df375e3b9e97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Body">
+      <UniqueIdentifier>{dbec92f0-62cf-48e3-a0dc-01eb2270cf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Attack">
+      <UniqueIdentifier>{309f0f10-35c2-447f-9dc3-7e0da8d88c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle">
+      <UniqueIdentifier>{aee74885-e953-4549-b916-6f6c61854de7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Attack">
+      <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Particle">
+      <UniqueIdentifier>{aa9841c7-c60b-4e9f-9f29-1dc2126f3583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Particle\Death">
+      <UniqueIdentifier>{4503c5ef-4657-481a-8bd1-5062c50f0003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Spawn">
+      <UniqueIdentifier>{0d93fb87-9f74-40fc-af88-478eab6ff0c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Flash">
+      <UniqueIdentifier>{8178cb37-fbbc-4cee-9ea7-70c3b134a607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Snow">
+      <UniqueIdentifier>{4c3d7214-8ee4-4e5e-9fa7-9191797edd0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Smoke">
+      <UniqueIdentifier>{75eadc74-a06d-4bc1-9ca9-ef8fe2783954}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -244,10 +271,10 @@
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Boss_Lab.h">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Boss_Lab_Body.h">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Body</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Player_Shield.h">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Shield</Filter>
@@ -262,46 +289,46 @@
       <Filter>02.GameObjects\02.Labyrinth\FloorChunk</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Construct.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Drum.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Mage.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Troll.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Construct_Body.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Body</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Drum_Body.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Body</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Mage_Body.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Body</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Troll_Body.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Body</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Troll_Weapon.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Weapon</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Sky.h">
       <Filter>02.GameObjects\06.Sky</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Boss_Lab_Attack.h">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Construct_Attack.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Drum_Attack.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Lab_Mage_Attack.h">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Pedestal.h">
       <Filter>02.GameObjects\07.Interaction\Pedestal</Filter>
@@ -311,6 +338,24 @@
     </ClInclude>
     <ClInclude Include="..\public\Teleport.h">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Attack.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Monster_Death.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Spawn.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Spawn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Flash.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Flash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Snow.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Smoke.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Smoke</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -384,10 +429,10 @@
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Weapon</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab_Body.cpp">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Body</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab.cpp">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Player_Shield.cpp">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Shield</Filter>
@@ -402,46 +447,46 @@
       <Filter>02.GameObjects\02.Labyrinth\FloorChunk</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Construct.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Drum.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Mage.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Troll.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Construct_Body.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Body</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Drum_Body.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Body</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Mage_Body.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Body</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Troll_Body.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Body</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Body</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Troll_Weapon.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Troll\Lab_Troll_Weapon</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Troll\Lab_Troll_Weapon</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Sky.cpp">
       <Filter>02.GameObjects\06.Sky</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp">
-      <Filter>02.GameObjects\04.Monster\Boss_Lab\Boss_Lab_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Attack</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Construct_Attack.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Construct\Lab_Construct_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Attack</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Drum_Attack.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Drum\Lab_Drum_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Drum\Lab_Drum_Attack</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Lab_Mage_Attack.cpp">
-      <Filter>02.GameObjects\04.Monster\Lab_Mage\Lab_Mage_Attack</Filter>
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Mage\Lab_Mage_Attack</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Pedestal.cpp">
       <Filter>02.GameObjects\07.Interaction\Pedestal</Filter>
@@ -451,6 +496,24 @@
     </ClCompile>
     <ClCompile Include="..\private\Teleport.cpp">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Attack.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Monster_Death.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Spawn.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Spawn</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Flash.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Flash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Snow.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Smoke.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Smoke</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

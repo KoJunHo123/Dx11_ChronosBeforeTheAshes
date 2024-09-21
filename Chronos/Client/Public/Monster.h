@@ -41,6 +41,7 @@ public:
 public:
 	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos);
 
+
 protected:
 	_uint m_iCurrentAnimationIndex = { 0 };
 
@@ -55,8 +56,9 @@ protected:
 
 	_float m_fRatio = { 0.f };
 
-protected:
-	virtual HRESULT Ready_Components(_int iStartCellIndex);
+private:
+	HRESULT Ready_Components(_int iStartCellIndex);
+
 
 public:
 	

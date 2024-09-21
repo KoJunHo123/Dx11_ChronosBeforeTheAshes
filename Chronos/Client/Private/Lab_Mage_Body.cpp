@@ -4,6 +4,8 @@
 
 #include "Lab_Mage.h"
 
+#include "Particle_Flash.h"
+
 CLab_Mage_Body::CLab_Mage_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
 {
@@ -101,9 +103,11 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 if (*m_pDistance > 5.f)
                 {
                     // 텔포.
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
                     m_pNavigationCom->Set_CurrentCellIndex_ByPos(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
                     m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                 }
                 m_eMageAnim = LAB_MAGE_ATK_COMBO_01_STRIKE;
             }
@@ -122,9 +126,11 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 if (*m_pDistance > 5.f)
                 {
                     // 텔포.
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
                     m_pNavigationCom->Set_CurrentCellIndex_ByPos(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
                     m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_COMBO_02_STRIKE;
@@ -171,9 +177,11 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 if (*m_pDistance > 5.f)
                 {
                     // 텔포.
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
                     m_pNavigationCom->Set_CurrentCellIndex_ByPos(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
                     m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_SLASH_01_STRIKE;
@@ -193,9 +201,11 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
                 if (*m_pDistance > 5.f)
                 {
                     // 텔포.
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                     m_pMage_TransformCom->Set_State(CTransform::STATE_POSITION, Find_TeleportPos());
                     m_pNavigationCom->Set_CurrentCellIndex_ByPos(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
                     m_pMage_TransformCom->LookAt(m_pPlayer_TransformCom->Get_State(CTransform::STATE_POSITION));
+                    Add_FlashParticle(m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION), 1.75f);
                 }
 
                 m_eMageAnim = LAB_MAGE_ATK_SLASH_02_STRIKE;
@@ -373,6 +383,21 @@ _vector CLab_Mage_Body::Find_TeleportPos()
         return vTeleportPos;
         
     return m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION);
+}
+
+HRESULT CLab_Mage_Body::Add_FlashParticle(_fvector vPos, _float fOffset)
+{
+    CParticle_Flash::FLASH_DESC desc = {};
+
+    desc.fRotationPerSec = 0.f;
+    desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&desc.vPos, vPos);
+    desc.vPos.y += fOffset;
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Flash"), &desc)))
+        return E_FAIL;
+
+    return S_OK;
 }
 
 HRESULT CLab_Mage_Body::Ready_Components()

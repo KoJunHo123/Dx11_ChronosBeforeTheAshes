@@ -45,6 +45,10 @@ void CPedestal::Update(_float fTimeDelta)
 void CPedestal::Late_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 }
 
 HRESULT CPedestal::Render()
@@ -70,10 +74,6 @@ HRESULT CPedestal::Render()
 		if (FAILED(m_pModelCom->Render(i)))
 			return E_FAIL;
 	}
-
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
 
 	return S_OK;
 }
@@ -106,12 +106,11 @@ HRESULT CPedestal::Ready_Components()
 	CCollider::COLLIDER_DESC ColliderDesc = {};
 	ColliderDesc.pOwnerObject = this;
 	ColliderDesc.pBoundingDesc = &ColliderAABBDesc;
+	ColliderDesc.strColliderTag = TEXT("Coll_Interaction");
 
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;
-
-	m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Interaction"), m_pColliderCom);
 
 	return S_OK;
 }

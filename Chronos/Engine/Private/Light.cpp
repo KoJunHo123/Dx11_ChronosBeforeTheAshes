@@ -15,17 +15,27 @@ HRESULT CLight::Initialize(const LIGHT_DESC& LightDesc)
 
 HRESULT CLight::Render(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
 {
-	_uint iPassIndex = { 0 };
+	_uint		iPassIndex = { 0 };
 
 	if (LIGHT_DESC::TYPE_DIRECTIONAL == m_LightDesc.eType)
 	{
-		pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4));
+		if (FAILED(pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4))))
+			return E_FAIL;
+
 		iPassIndex = 1;
 	}
 	else
 	{
+		/*pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4));
+		pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4));*/
+
 		iPassIndex = 2;
 	}
+
+	if (FAILED(pShader->Bind_RawValue("g_vLightDiffuse", &m_LightDesc.vDiffuse, sizeof(_float4))))
+		return E_FAIL;
+	if (FAILED(pShader->Bind_RawValue("g_vLightAmbient", &m_LightDesc.vAmbient, sizeof(_float4))))
+		return E_FAIL;
 
 	pShader->Begin(iPassIndex);
 

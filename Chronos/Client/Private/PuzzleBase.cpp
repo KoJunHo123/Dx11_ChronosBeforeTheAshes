@@ -8,6 +8,7 @@
 
 #include "Monster.h"
 #include "Teleport.h"
+#include "Particle_Spawn.h"
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -152,6 +153,11 @@ void CPuzzleBase::Late_Update(_float fTimeDelta)
 	}
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pNavigationCom);
+#endif
+
 }
 
 HRESULT CPuzzleBase::Render()
@@ -178,9 +184,6 @@ HRESULT CPuzzleBase::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	m_pNavigationCom->Render();
-#endif
 
 	return S_OK;
 }
@@ -978,127 +981,121 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 	// 요 범위 내에서 현재 파트 인덱스에 따라서 몬스터 할당.
 	vector<_uint> AddIndices;
 
-	CMonster::MONSTER_DESC desc = {};
-	desc.fRotationPerSec = XMConvertToRadians(90.f);
-	desc.fSpeedPerSec = 1.f;
-
-	desc.vRotation = {};
-	desc.vScale = { 1.f, 1.f, 1.f };
+	_int iStartCellIndex = { 0 };
 
 
 	if (PART_PIECE_00 == iPartIndex && false == m_bPartActive[PART_PIECE_00])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
 
 		m_bPartActive[PART_PIECE_00] = true;
 	}
 	else if (PART_PIECE_01 == iPartIndex && false == m_bPartActive[PART_PIECE_01])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
 		m_bPartActive[PART_PIECE_01] = true;
 	}
 	else if (PART_PIECE_02 == iPartIndex && false == m_bPartActive[PART_PIECE_02])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
-
 
 		m_bPartActive[PART_PIECE_02] = true;
 	}
 	else if (PART_PIECE_10 == iPartIndex && false == m_bPartActive[PART_PIECE_10])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
 		m_bPartActive[PART_PIECE_10] = true;
 	}
 	else if (PART_PIECE_12 == iPartIndex && false == m_bPartActive[PART_PIECE_12])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
 		m_bPartActive[PART_PIECE_12] = true;
@@ -1107,69 +1104,64 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 	{
 		for(size_t i = 0; i < 8; ++i)
 		{
-			desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-			if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+			if(FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 				return E_FAIL;
+			//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			//	return E_FAIL;
 		}
 
 		m_bPartActive[PART_PIECE_21] = true;
 	}
 	else if (PART_PIECE_22 == iPartIndex && false == m_bPartActive[PART_PIECE_22])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 			return E_FAIL;
 
 		m_bPartActive[PART_PIECE_22] = true;
 	}
 
-	else if (PART_PIECE_22 == iPartIndex && false == m_bPartActive[PART_PIECE_22])
+	else if (PART_PIECE_REPLACEMENT == iPartIndex && false == m_bPartActive[PART_PIECE_REPLACEMENT])
 	{
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
+			return E_FAIL;
+		iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 			return E_FAIL;
 
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-			return E_FAIL;
-
-		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-			return E_FAIL;
-
-		m_bPartActive[PART_PIECE_22] = true;
+		m_bPartActive[PART_PIECE_REPLACEMENT] = true;
 		}
 
 	return S_OK;
@@ -1213,6 +1205,28 @@ HRESULT CPuzzleBase::Add_Teleport(_fvector vPos)
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"), TEXT("Prototype_GameObject_Teleport"), &desc)))
 		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CPuzzleBase::Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset)
+{
+	CParticle_Spawn::PARTICLE_SPAWN_DESC desc = {};
+
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 1.f;
+	desc.iSpawnCellIndex = iSpawnCellIndex;
+	XMStoreFloat3(&desc.vPos, m_pNavigationCom->Get_CellCenterPos(desc.iSpawnCellIndex));
+	desc.vPos.y += fOffset;
+	desc.eType = (CParticle_Spawn::MONSTER_TYPE)iType;
+
+	if (-1 == desc.iSpawnCellIndex)
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spawn"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
 
 	return S_OK;
 }

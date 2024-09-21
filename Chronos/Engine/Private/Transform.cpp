@@ -79,11 +79,9 @@ _bool CTransform::LookDir(_fvector vDir, _float fRatio)
 {
 	_float3		vScale = Get_Scaled();
 
-	_vector vNormalDir = XMVector3Normalize(vDir);
-	_vector		vLook = XMVectorLerp(Get_State(STATE_LOOK), vNormalDir, fRatio);
-
+	_vector		vNormalDir = XMVector3Normalize(vDir);
+	_vector		vLook = XMVectorLerp(XMVector3Normalize(Get_State(STATE_LOOK)), vNormalDir, fRatio);
 	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
-
 	_vector		vUp = XMVector3Cross(vLook, vRight);
 
 	if (true == XMVector3Equal(vLook, XMVectorSet(0.f, 0.f, 0.f, 0.f))
@@ -268,7 +266,7 @@ void CTransform::Rotation(_fvector vAxis, _float fRadian)
 	_vector		vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f) * vScaled.y;
 	_vector		vLook = XMVectorSet(0.f, 0.f, 1.f, 0.f) * vScaled.z;
 
-	_matrix		RotationMatrix = XMMatrixRotationAxis(vAxis, fRadian);
+	 _matrix		RotationMatrix = XMMatrixRotationAxis(vAxis, fRadian);
 
 	Set_State(STATE_RIGHT, XMVector3TransformNormal(vRight, RotationMatrix));
 	Set_State(STATE_UP, XMVector3TransformNormal(vUp, RotationMatrix));

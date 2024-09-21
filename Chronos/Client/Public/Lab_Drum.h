@@ -10,7 +10,7 @@ BEGIN(Client)
 class CLab_Drum final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_MACE, PART_BELLY, PART_EFFECT, PART_END };
+	enum PARTID { PART_BODY, PART_MACE, PART_BELLY, PART_EFFECT_DEATH, PART_END };
 	enum STATE { STATE_ATTACK, STATE_SUMMON, STATE_IDLE, STATE_IMPACT, STATE_SPAWN, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
@@ -40,6 +40,7 @@ private:
 	_float m_fAttackDelay = { 0.f };
 	_float m_fAttackTime = { 0.f };
 	_float m_fSummonDelay = { 0.f };
+	_bool m_bSummon = { false };
 
 	// ÆÄÃ÷¶û °øÀ¯ÇÏ´Â º¯¼ö
 	_uint m_iState = { STATE_END };
@@ -51,7 +52,7 @@ private:
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
-	HRESULT Summon_Troll();
+	HRESULT Add_SpawnParticle(_float fOffset);
 
 public:
 	static CLab_Drum* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

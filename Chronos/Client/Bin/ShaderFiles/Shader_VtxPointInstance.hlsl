@@ -12,6 +12,7 @@ struct VS_IN
 	/* InputSlot : 1 */ 
     row_major float4x4 TransformMatrix : WORLD; //row_majo : 행을 기준으로.
 	float2 vLifeTime : COLOR0;
+    float4 vColor : COLOR1;
 };
 
 struct VS_OUT
@@ -21,6 +22,7 @@ struct VS_OUT
 	float4 vPosition : POSITION;
 	float2 vPSize : PSIZE;
 	float2 vLifeTime : COLOR0;	
+    float4 vColor : COLOR1;
 };
 
 /* 1. 정점의 변환과정을 수행한다. */
@@ -38,7 +40,8 @@ VS_OUT VS_MAIN(/*정점*/VS_IN In)
 	Out.vPosition = vPosition;
 	Out.vPSize = In.vPSize;
 	Out.vLifeTime = In.vLifeTime;
-
+    Out.vColor = In.vColor;
+	
 	return Out;
 }
 
@@ -49,6 +52,7 @@ struct GS_IN
 	float4 vPosition : POSITION;
 	float2 vPSize : PSIZE;
 	float2 vLifeTime : COLOR0;
+    float4 vColor : COLOR1;
 };
 
 struct GS_OUT
@@ -56,6 +60,7 @@ struct GS_OUT
 	float4 vPosition : SV_POSITION;
 	float2 vTexcoord : TEXCOORD0;
 	float2 vLifeTime : COLOR0;
+    float4 vColor : COLOR1;
 };
 
 // void GS_MAIN(triangle GS_IN In[3], )
@@ -74,18 +79,22 @@ void GS_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> Container)
 	Out[0].vPosition = float4(In[0].vPosition.xyz + vRight + vUp, 1.f);
 	Out[0].vTexcoord = float2(0.f, 0.f);
 	Out[0].vLifeTime = In[0].vLifeTime;
+    Out[0].vColor = In[0].vColor;
 
 	Out[1].vPosition = float4(In[0].vPosition.xyz - vRight + vUp, 1.f);
 	Out[1].vTexcoord = float2(1.f, 0.f);
 	Out[1].vLifeTime = In[0].vLifeTime;
+    Out[1].vColor = In[0].vColor;
 
 	Out[2].vPosition = float4(In[0].vPosition.xyz - vRight - vUp, 1.f);
 	Out[2].vTexcoord = float2(1.f, 1.f);
 	Out[2].vLifeTime = In[0].vLifeTime;
+    Out[2].vColor = In[0].vColor;
 
 	Out[3].vPosition = float4(In[0].vPosition.xyz + vRight - vUp, 1.f);
 	Out[3].vTexcoord = float2(0.f, 1.f);
 	Out[3].vLifeTime = In[0].vLifeTime;
+    Out[3].vColor = In[0].vColor;
 
 	matrix		matVP = mul(g_ViewMatrix, g_ProjMatrix);
 
@@ -116,6 +125,7 @@ struct PS_IN
 	float4 vPosition : SV_POSITION;
 	float2 vTexcoord : TEXCOORD0;	
 	float2 vLifeTime : COLOR0;
+    float4 vColor : COLOR1;
 };
 
 struct PS_OUT
@@ -134,9 +144,7 @@ PS_OUT PS_MAIN(PS_IN In)
 	if (Out.vColor.a <= 0.3f)
 		discard;
 
-	Out.vColor.rgb = (float3)0.f;
-
-	Out.vColor.r = In.vLifeTime.y / In.vLifeTime.x;		//0~1
+	Out.vColor.rgb = In.vColor.rgb;
 	Out.vColor.a = Out.vColor.a * (1.f - (In.vLifeTime.y / In.vLifeTime.x));	//1~0
 
 	if (In.vLifeTime.y >= In.vLifeTime.x)	// 1보다 커지면 꺼.
@@ -145,7 +153,21 @@ PS_OUT PS_MAIN(PS_IN In)
 	return Out;
 }
 
+PS_OUT PS_SPAWN_MAIN(PS_IN In)
+{
+	PS_OUT Out = (PS_OUT) 0;
+	
+	Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
 
+	if (Out.vColor.a <= 0.3f)
+		discard;
+	
+    Out.vColor.r = In.vColor.r * (1.f - ((In.vLifeTime.y / In.vLifeTime.x) * 0.25f));
+    Out.vColor.g = In.vColor.g * (1.f - ((In.vLifeTime.y / In.vLifeTime.x) * 0.25f));
+    Out.vColor.b = In.vColor.b * (1.f - ((In.vLifeTime.y / In.vLifeTime.x) * 0.25f));
+
+	return Out;
+}
 
 technique11	DefaultTechnique
 {
@@ -161,6 +183,16 @@ technique11	DefaultTechnique
 		PixelShader = compile ps_5_0 PS_MAIN();
 	}
 
+    pass SPAWN
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = compile gs_5_0 GS_MAIN();
+        PixelShader = compile ps_5_0 PS_SPAWN_MAIN();
+    }
 	/* 디스토션 + 블렌딩 */
 	//pass Effect
 	//{

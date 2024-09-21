@@ -10,11 +10,13 @@ public:
 	{
 		_uint		iNumInstance;
 		_float3		vCenter;
-		_float3		vPivot;
 		_float3		vRange;
+		_float3		vExceptRange;
 		_float2		vSize;
 		_float2		vSpeed;
 		_float2		vLifeTime;
+		_float4		vMinColor;
+		_float4		vMaxColor;
 		_bool		isLoop;
 
 	}INSTANCE_DESC;
@@ -24,15 +26,15 @@ protected:
 	virtual ~CVIBuffer_Instancing() = default;
 
 public:
-	virtual HRESULT Initialize_Prototype(const INSTANCE_DESC& Desc);
+	virtual HRESULT Initialize_Prototype(const CVIBuffer_Instancing::INSTANCE_DESC& Desc);
 	virtual HRESULT Initialize(void* pArg) override;
 	virtual HRESULT Bind_Buffers() override;
 	virtual HRESULT Render() override;
 
 public:
-	virtual void Spread(_float fTimeDelta) = 0;
-	virtual void Drop(_float fTimeDelta) = 0;
-	virtual void Move_Dir(_float fTimeDelta, _fvector vDir) = 0;
+	virtual _bool Spread(_fvector vPivot, _float fSpeed, _float fTimeDelta);
+	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fTimeDelta);
+	virtual _bool Converge(_fvector vPivot, _float fSpeed, _float fTimeDelta);
 
 protected:
 	ID3D11Buffer* m_pVBInstance = { nullptr };
@@ -43,10 +45,12 @@ protected:
 	_uint						m_iIndexCountPerInstance = { 0 };
 	_uint						m_iNumInstance = { 0 };
 	_float3						m_vCenterPos = {};
-	_float3						m_vPivotPos = {};
 	_float3						m_vRange = {};
+	_float3						m_vExceptRange = {};
 	_float2						m_vSize = {};
 	_float2						m_vLifeTime = {};
+	_float4						m_vMinColor = {};
+	_float4						m_vMaxColor = {};
 	_bool						m_isLoop = {};
 	_float* m_pSpeed = { nullptr };
 

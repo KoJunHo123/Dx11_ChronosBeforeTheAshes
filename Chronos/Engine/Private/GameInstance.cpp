@@ -273,6 +273,12 @@ HRESULT CGameInstance::Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, C
 {
 	return m_pRenderer->Add_RenderObject(eRenderGroupID, pRenderObject);
 }
+#ifdef _DEBUG
+HRESULT CGameInstance::Add_DebugObject(CComponent* pDebugObject)
+{
+	return m_pRenderer->Add_DebugObject(pDebugObject);
+}
+#endif
 #pragma endregion
 
 #pragma region PIPELINE
@@ -326,11 +332,21 @@ _bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvect
 #pragma region COLLISION_MANAGER
 void CGameInstance::Add_CollisionKeys(const _wstring strCollisionFirst, const _wstring strCollisionSecond)
 {
+	if (nullptr == m_pCollision_Manager)
+		return;
 	return m_pCollision_Manager->Add_CollisionKeys(strCollisionFirst, strCollisionSecond);
 }
 void CGameInstance::Add_Collider_OnLayers(const _wstring strCollisionKey, CCollider* pCollider)
 {
+	if (nullptr == m_pCollision_Manager)
+		return;
 	return m_pCollision_Manager->Add_Collider_OnLayers(strCollisionKey, pCollider);
+}
+void CGameInstance::Erase_Collider(const _wstring strCollisionKey, CCollider* pCollider)
+{
+	if (nullptr == m_pCollision_Manager)
+		return;
+	return m_pCollision_Manager->Erase_Collider(strCollisionKey, pCollider);
 }
 #pragma endregion
 

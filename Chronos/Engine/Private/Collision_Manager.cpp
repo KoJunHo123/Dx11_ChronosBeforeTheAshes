@@ -21,15 +21,22 @@ void CCollision_Manager::Update()
 			continue;
 		for (auto& iterSour = m_ColliderLayers.at(m_CollisionKeysFirst[i]).begin(); iterSour != m_ColliderLayers.at(m_CollisionKeysFirst[i]).end(); ++iterSour)
 		{
+			if (nullptr == *iterSour)
+			{
+				m_ColliderLayers.at(m_CollisionKeysFirst[i]).erase(iterSour);
+				continue;
+			}
+
 			for (auto& iterDest = m_ColliderLayers.at(m_CollisionKeysSecond[i]).begin(); iterDest != m_ColliderLayers.at(m_CollisionKeysSecond[i]).end(); ++iterDest)
 			{
 				if (*iterSour == *iterDest)
 					continue;
 
-				if (nullptr == *iterSour)
-					m_ColliderLayers.at(m_CollisionKeysFirst[i]).erase(iterSour);
 				if (nullptr == *iterDest)
+				{
 					m_ColliderLayers.at(m_CollisionKeysSecond[i]).erase(iterDest);
+					continue;
+				}
 
 				(*iterSour)->Intersect(m_CollisionKeysSecond[i], *iterDest);
 				(*iterDest)->Intersect(m_CollisionKeysFirst[i], *iterSour);
@@ -47,7 +54,26 @@ void CCollision_Manager::Add_Collider_OnLayers(const _wstring strCollisionKey, c
 	}
 	
 	m_ColliderLayers.at(strCollisionKey).emplace_back(pCollider);
-	Safe_AddRef(pCollider);
+}
+
+void CCollision_Manager::Erase_Collider(const _wstring strCollisionKey, CCollider* pCollider)
+{
+	auto& PairIter = m_ColliderLayers.find(strCollisionKey);
+
+	if (m_ColliderLayers.end() == PairIter)
+		return;
+
+	for (auto iter = (*PairIter).second.begin(); iter != (*PairIter).second.end();)
+	{
+		if (pCollider == *iter)
+		{
+			iter = (*PairIter).second.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
 }
 
 CCollision_Manager* CCollision_Manager::Create()
@@ -67,9 +93,4 @@ void CCollision_Manager::Free()
 {
 	__super::Free();
 
-	for (auto& Pair : m_ColliderLayers)
-	{
-		for (auto& elem : Pair.second)
-			Safe_Release(elem);
-	}
 }

@@ -50,6 +50,7 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
     m_pRatio = pDesc->pRatio;
     m_fSpeed = 5.f;
 
+
     return S_OK;
 }
 
@@ -193,6 +194,7 @@ void CLab_Troll_Body::Late_Update(_float fTimeDelta)
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
 }
 
 HRESULT CLab_Troll_Body::Render()

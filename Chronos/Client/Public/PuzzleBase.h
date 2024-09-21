@@ -78,6 +78,8 @@ private:
 
 	HRESULT Add_Teleport(_fvector vPos);
 
+	HRESULT Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset);
+
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;

@@ -15,31 +15,33 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype
 	, m_iIndexCountPerInstance{ Prototype.m_iIndexCountPerInstance }
 	, m_iInstanceStride{ Prototype.m_iInstanceStride }
 	, m_vCenterPos{ Prototype.m_vCenterPos }
-	, m_vPivotPos{ Prototype.m_vPivotPos }
 	, m_vRange{ Prototype.m_vRange }
 	, m_pInstanceVertices{ Prototype.m_pInstanceVertices }
 	, m_pSpeed{ Prototype.m_pSpeed }
 	, m_vLifeTime{ Prototype.m_vLifeTime }
+	, m_vMinColor { Prototype.m_vMinColor }
+	, m_vMaxColor { Prototype.m_vMaxColor }
 	, m_isLoop{ Prototype.m_isLoop }
 
 {
 }
 
-HRESULT CVIBuffer_Instancing::Initialize_Prototype(const INSTANCE_DESC& Desc)
+HRESULT CVIBuffer_Instancing::Initialize_Prototype(const CVIBuffer_Instancing::INSTANCE_DESC& Desc)
 {
 	m_iNumInstance = Desc.iNumInstance;
 	m_vCenterPos = Desc.vCenter;
 	m_vRange = Desc.vRange;
+	m_vExceptRange = Desc.vExceptRange;
 	m_vSize = Desc.vSize;
-	m_vPivotPos = Desc.vPivot;
 	m_vLifeTime = Desc.vLifeTime;
+	m_vMinColor = Desc.vMinColor;
+	m_vMaxColor = Desc.vMaxColor;
 	m_isLoop = Desc.isLoop;
 
 	m_pSpeed = new _float[m_iNumInstance];
 
 	for (size_t i = 0; i < m_iNumInstance; i++)
 		m_pSpeed[i] = m_pGameInstance->Get_Random(Desc.vSpeed.x, Desc.vSpeed.y);
-
 
 	return S_OK;
 }
@@ -84,16 +86,26 @@ HRESULT CVIBuffer_Instancing::Render()
 	return S_OK;
 }
 
+_bool CVIBuffer_Instancing::Spread(_fvector vPivot, _float fSpeed, _float fTimeDelta)
+{
+	return _bool();
+}
+
+_bool CVIBuffer_Instancing::Move_Dir(_fvector vDir, _float fSpeed, _float fTimeDelta)
+{
+	return _bool();
+}
+
+_bool CVIBuffer_Instancing::Converge(_fvector vPivot, _float fSpeed, _float fTimeDelta)
+{
+	return _bool();
+}
+
 
 void CVIBuffer_Instancing::Free()
 {
 	__super::Free();
 
-	if (false == m_isCloned)
-	{
-		Safe_Delete_Array(m_pSpeed);
-		Safe_Delete_Array(m_pInstanceVertices);
-	}
 
 	Safe_Release(m_pVBInstance);
 }

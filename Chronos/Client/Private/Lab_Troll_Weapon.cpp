@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Player.h"
+#include "Particle_Attack.h"
 
 CLab_Troll_Weapon::CLab_Troll_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
@@ -35,6 +36,7 @@ HRESULT CLab_Troll_Weapon::Initialize(void* pArg)
     m_pSocketMatrix = pDesc->pSocketBoneMatrix;
 
     m_pRatio = pDesc->pRatio;
+    m_vCenter = pDesc->vCenter;
 
     if (FAILED(Ready_Components(pDesc->vExtents, pDesc->vCenter, pDesc->vAngles)))
         return E_FAIL;
@@ -70,6 +72,9 @@ void CLab_Troll_Weapon::Update(_float fTimeDelta)
 void CLab_Troll_Weapon::Late_Update(_float fTimeDelta)
 {
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+#ifdef _DEBUG
+    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 
 }
 
@@ -103,9 +108,6 @@ HRESULT CLab_Troll_Weapon::Render()
             return E_FAIL;
     }
 
-#ifdef  _DEBUG
-    m_pColliderCom->Render();
-#endif //  _DEBUG
 
     return S_OK;
 }
@@ -116,6 +118,14 @@ void CLab_Troll_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pC
     {
         CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
         pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+        
+
+        _vector vCenter = XMLoadFloat3(&m_vCenter);
+        vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));
+        
+        _vector vPos = (vCenter + pCollisionObject->Get_Position()) * 0.5f;
+
+        Add_AttackParticle(vCenter, XMVectorSet(0.f, 0.f, 0.f, 0.f));
     }
 }
 
@@ -141,11 +151,27 @@ HRESULT CLab_Troll_Weapon::Ready_Components(_float3 vExtents, _float3 vCenter, _
     ColliderDesc.pOwnerObject = this;
     ColliderDesc.pBoundingDesc = &ColliderOBBDesc;
     ColliderDesc.bCollisionOnce = true;
+    ColliderDesc.strColliderTag = TEXT("Coll_Monster_Attack");
 
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
         TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
         return E_FAIL;
-    m_pGameInstance->Add_Collider_OnLayers(TEXT("Coll_Monster_Attack"), m_pColliderCom);
+
+    return S_OK;
+}
+
+HRESULT CLab_Troll_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
+{
+    CParticle_Attack::PARTICLE_ATTACK_DESC desc = {};
+
+    desc.fRotationPerSec = 0.f;
+    desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&desc.vPos, vPos);
+    XMStoreFloat3(&desc.vPivot, vPivot);
+    desc.eType = CParticle_Attack::TYPE_MONSTER;
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Attack"), &desc)))
+        return E_FAIL;
 
     return S_OK;
 }
