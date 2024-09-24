@@ -99,6 +99,8 @@ private:
 private:
 	_char m_szModelFilePath[MAX_PATH] = {};
 	_float4 m_vTranslationChange = {};
+	_char	m_szTexturePath[MAX_PATH] = {};
+
 
 private:
 	HRESULT	Ready_Meshes();

@@ -201,6 +201,52 @@ _bool CVIBuffer_Rect_Instance::Spread(_fvector vPivot, _fvector vLocalLook, _flo
 	return isOver;
 }
 
+_bool CVIBuffer_Rect_Instance::Spread_Dir(_fvector vPivot, _fvector vLocalPos, _float fSpeed, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	// 기존에는 SubResource에 저장된 걸 m_pVBInstance에 저장했다면,
+	// m_pVBInstance에 저장된 걸 SubResource에 가져오는 거.
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXRECTINSTANCE* pVertices = static_cast<VTXRECTINSTANCE*>(SubResource.pData);
+	_bool isOver = true;
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector		vDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - vPivot, 0.f);
+
+		_float3		vScale = _float3{ XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vRight))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vUp))),
+			XMVectorGetX(XMVector3Length(XMLoadFloat4(&pVertices[i].vLook))) };
+
+		_fvector vCamDir = vLocalPos - XMLoadFloat4(&pVertices[i].vTranslation);
+
+		_vector		vUp = XMVector3Normalize(vDir);
+		_vector     vRight = XMVector3Cross(XMVector3Normalize(vCamDir), vUp);
+		_vector     vLook = XMVector3Cross(vUp, vRight);
+
+		XMStoreFloat4(&pVertices[i].vRight, XMVector3Normalize(vRight) * vScale.x);
+		XMStoreFloat4(&pVertices[i].vUp, XMVector3Normalize(vUp) * vScale.y);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vLook) * vScale.z);
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta);
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXRECTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			isOver = false;
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+	return isOver;
+}
+
 _bool CVIBuffer_Rect_Instance::Move_Dir(_fvector vDir, _fvector vLocalLook, _float fSpeed, _float fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};

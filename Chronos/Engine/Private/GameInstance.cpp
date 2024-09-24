@@ -52,7 +52,7 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pInput_Device)
 		return E_FAIL;
 
-	m_pPicking = CPicking::Create(*ppDevice, *ppContext, EngineDesc.hWnd, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY);
+	m_pPicking = CPicking::Create(*ppDevice, *ppContext, EngineDesc.hWnd);
 	if (nullptr == m_pPicking)
 		return E_FAIL;
 
@@ -90,8 +90,6 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 {
 	/* 현재 키보드와 마우스의 상태를 받아올꺼야. */
 	m_pInput_Device->Update();
-
-	m_pPicking->Update();
 
 	m_pObject_Manager->Priority_Update(fTimeDelta);
 
@@ -273,6 +271,10 @@ HRESULT CGameInstance::Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, C
 {
 	return m_pRenderer->Add_RenderObject(eRenderGroupID, pRenderObject);
 }
+HRESULT CGameInstance::Bind_DefaultTexture(CShader* pShader, const _char* pConstantName)
+{
+	return m_pRenderer->Bind_DefaultTexture(pShader, pConstantName);
+}
 #ifdef _DEBUG
 HRESULT CGameInstance::Add_DebugObject(CComponent* pDebugObject)
 {
@@ -314,17 +316,9 @@ _vector CGameInstance::Get_CamPosition_Vector() const
 #pragma endregion
 
 #pragma region PICKING
-void CGameInstance::Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix)
+_bool CGameInstance::Picking(_int iOffset, _float3* pPickPos)
 {
-	return m_pPicking->Transform_ToLocalSpace(WorldMatrix);
-}
-_bool CGameInstance::isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
-{
-	return m_pPicking->isPicked_InWorldSpace(vPointA, vPointB, vPointC, pOut);
-}
-_bool CGameInstance::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
-{
-	return m_pPicking->isPicked_InLocalSpace(vPointA, vPointB, vPointC, pOut);
+	return m_pPicking->Picking(iOffset, pPickPos);
 }
 #pragma endregion
 
@@ -397,6 +391,11 @@ HRESULT CGameInstance::End_MRT()
 HRESULT CGameInstance::Bind_RT_ShaderResource(CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName)
 {
 	return m_pTarget_Manager->Bind_ShaderResource(pShader, strTargetTag, pConstantName);
+}
+
+HRESULT CGameInstance::Copy_RenderTarget(const _wstring& strTargetTag, ID3D11Texture2D* pTexture)
+{
+	return m_pTarget_Manager->Copy_RenderTarget(strTargetTag, pTexture);
 }
 
 #ifdef _DEBUG

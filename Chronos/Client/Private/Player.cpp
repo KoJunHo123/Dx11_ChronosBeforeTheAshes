@@ -114,7 +114,7 @@ void CPlayer::Intersect(const _wstring strColliderTag, CGameObject* pCollisionOb
 
 }
 
-void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+_bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
     if(false == m_bNonIntersect)
     {
@@ -134,7 +134,8 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
                     static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
                 else
                     static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
-                return;
+
+                return false;
             }
         }
 
@@ -151,7 +152,11 @@ void CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
         else
             m_pFSM->Set_State(STATE_IMPACT);
+
+        return true;
     }
+
+    return false;
 }
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)

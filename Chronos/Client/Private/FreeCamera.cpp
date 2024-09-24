@@ -43,6 +43,7 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 
 	m_fSpeed = 1.f;
 
+
 	return S_OK;
 }
 

@@ -51,6 +51,7 @@ _bool CBounding_AABB::Intersect(CCollider::TYPE eColliderType, CBounding* pBound
 	{
 	case CCollider::TYPE_AABB:
 		m_isColl = m_pBoundingDesc->Intersects(*(dynamic_cast<CBounding_AABB*>(pBounding)->Get_Desc()));
+
 		break;
 
 	case CCollider::TYPE_OBB:

@@ -166,9 +166,6 @@
     <Filter Include="02.GameObjects\08.Particle">
       <UniqueIdentifier>{aee74885-e953-4549-b916-6f6c61854de7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\08.Particle\Particle_Attack">
-      <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\04.Monster\Monster_Particle">
       <UniqueIdentifier>{aa9841c7-c60b-4e9f-9f29-1dc2126f3583}</UniqueIdentifier>
     </Filter>
@@ -178,14 +175,35 @@
     <Filter Include="02.GameObjects\08.Particle\Particle_Spawn">
       <UniqueIdentifier>{0d93fb87-9f74-40fc-af88-478eab6ff0c9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\08.Particle\Particle_Flash">
-      <UniqueIdentifier>{8178cb37-fbbc-4cee-9ea7-70c3b134a607}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\08.Particle\Particle_Snow">
       <UniqueIdentifier>{4c3d7214-8ee4-4e5e-9fa7-9191797edd0f}</UniqueIdentifier>
     </Filter>
     <Filter Include="02.GameObjects\08.Particle\Particle_Smoke">
       <UniqueIdentifier>{75eadc74-a06d-4bc1-9ca9-ef8fe2783954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect">
+      <UniqueIdentifier>{1fc329ac-4d52-40eb-b33b-432027b72c9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Flash">
+      <UniqueIdentifier>{8178cb37-fbbc-4cee-9ea7-70c3b134a607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Spark">
+      <UniqueIdentifier>{e9ba73ce-6a0a-4809-9c85-6cfab4a9dd71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Spark">
+      <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Blood">
+      <UniqueIdentifier>{d4f2d926-6b28-4aad-9b10-f314feed4932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Blood\BloodCore">
+      <UniqueIdentifier>{17040dd2-771a-4dae-8565-8abc0aac87b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Blood\BloodSpray">
+      <UniqueIdentifier>{4a5ee403-744a-4e11-bf76-fdc1e5dd3027}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\DefaultCamera">
+      <UniqueIdentifier>{b1fe764a-1626-4929-b382-0ff749f16492}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -224,9 +242,6 @@
     </ClInclude>
     <ClInclude Include="..\Public\Terrain.h">
       <Filter>02.GameObjects\01.Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\FreeCamera.h">
-      <Filter>02.GameObjects\99.Camera</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Labyrinth.h">
       <Filter>02.GameObjects\02.Labyrinth</Filter>
@@ -339,8 +354,8 @@
     <ClInclude Include="..\public\Teleport.h">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Particle_Attack.h">
-      <Filter>02.GameObjects\08.Particle\Particle_Attack</Filter>
+    <ClInclude Include="..\public\Particle_Spark.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Spark</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Particle_Monster_Death.h">
       <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
@@ -348,14 +363,26 @@
     <ClInclude Include="..\public\Particle_Spawn.h">
       <Filter>02.GameObjects\08.Particle\Particle_Spawn</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Particle_Flash.h">
-      <Filter>02.GameObjects\08.Particle\Particle_Flash</Filter>
+    <ClInclude Include="..\public\Effect_Flash.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Flash</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Particle_Snow.h">
       <Filter>02.GameObjects\08.Particle\Particle_Snow</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Particle_Smoke.h">
       <Filter>02.GameObjects\08.Particle\Particle_Smoke</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Effect_Spark.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Spark</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Effect_BloodCore.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Effect_BloodSpray.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodSpray</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FreeCamera.h">
+      <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -385,9 +412,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Terrain.cpp">
       <Filter>02.GameObjects\01.Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="..\private\FreeCamera.cpp">
-      <Filter>02.GameObjects\99.Camera</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Labyrinth.cpp">
       <Filter>02.GameObjects\02.Labyrinth</Filter>
@@ -497,8 +521,8 @@
     <ClCompile Include="..\private\Teleport.cpp">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Particle_Attack.cpp">
-      <Filter>02.GameObjects\08.Particle\Particle_Attack</Filter>
+    <ClCompile Include="..\private\Particle_Spark.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Spark</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Particle_Monster_Death.cpp">
       <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
@@ -506,14 +530,26 @@
     <ClCompile Include="..\private\Particle_Spawn.cpp">
       <Filter>02.GameObjects\08.Particle\Particle_Spawn</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Particle_Flash.cpp">
-      <Filter>02.GameObjects\08.Particle\Particle_Flash</Filter>
+    <ClCompile Include="..\private\Effect_Flash.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Flash</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Particle_Snow.cpp">
       <Filter>02.GameObjects\08.Particle\Particle_Snow</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Particle_Smoke.cpp">
       <Filter>02.GameObjects\08.Particle\Particle_Smoke</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Effect_Spark.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Spark</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Effect_BloodCore.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Effect_BloodSpray.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodSpray</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FreeCamera.cpp">
+      <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

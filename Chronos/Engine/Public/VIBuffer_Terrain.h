@@ -15,8 +15,6 @@ public:
 	virtual HRESULT Initialize_Prototype(const _tchar* pHeightMapFilePath);
 	virtual HRESULT Initialize(void* pArg) override;
 
-public:
-	virtual _bool isPicking(const _matrix& WorldMatrix, _vector* pOut) override;
 
 private:
 	_uint			m_iNumVerticesX = {};

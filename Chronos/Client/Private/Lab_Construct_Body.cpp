@@ -161,9 +161,10 @@ HRESULT CLab_Construct_Body::Render()
         return E_FAIL;
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
+
+
     if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
         return E_FAIL;
-
     if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
         return E_FAIL;
 
@@ -175,8 +176,8 @@ HRESULT CLab_Construct_Body::Render()
 
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
-        /*if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
-            return E_FAIL;*/
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+            return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(0)))
             return E_FAIL;

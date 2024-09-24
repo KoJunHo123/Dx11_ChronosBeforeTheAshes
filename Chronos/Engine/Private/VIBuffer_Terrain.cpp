@@ -161,53 +161,6 @@ HRESULT CVIBuffer_Terrain::Initialize(void * pArg)
 	return S_OK;
 }
 
-_bool CVIBuffer_Terrain::isPicking(const _matrix& WorldMatrix, _vector* pOut)
-{
-	/* 마우스 레이와 레이포스를 로컬로 던졌다. */
-	m_pGameInstance->Transform_MouseRay_ToLocalSpace(WorldMatrix);
-
-	for (size_t i = 0; i < m_iNumVerticesZ - 1; i++)
-	{
-		for (size_t j = 0; j < m_iNumVerticesX - 1; j++)
-		{
-			_uint		iIndex = i * m_iNumVerticesX + j;
-
-			_uint		iIndices[4] = {
-				iIndex + m_iNumVerticesX, /* 왼위*/
-				iIndex + m_iNumVerticesX + 1, /* 오위 */
-				iIndex + 1, /* 오아 */
-				iIndex /* 왼아 */
-			};
-
-			_vector pVecticesVec[4] = {
-				XMLoadFloat4(&m_pVerticesPos[iIndices[0]]),
-				XMLoadFloat4(&m_pVerticesPos[iIndices[1]]),
-				XMLoadFloat4(&m_pVerticesPos[iIndices[2]]),
-				XMLoadFloat4(&m_pVerticesPos[iIndices[3]])
-			};
-
-			/* 오른쪽 위 삼각형 */
-			if (true == m_pGameInstance->isPicked_InLocalSpace(pVecticesVec[0],
-				pVecticesVec[1],
-				pVecticesVec[2],
-				pOut))
-				goto Compute_WorldPos;
-
-
-			/* 왼쪽 아래 삼각형 */
-			if (true == m_pGameInstance->isPicked_InLocalSpace(pVecticesVec[0],
-				pVecticesVec[2],
-				pVecticesVec[3],
-				pOut))
-				goto Compute_WorldPos;
-		}
-	}
-	return false;
-
-Compute_WorldPos:
-	*pOut = XMVector4Transform(*pOut, WorldMatrix);
-	return true;
-}
 
 CVIBuffer_Terrain * CVIBuffer_Terrain::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar* pHeightMapFilePath)
 {

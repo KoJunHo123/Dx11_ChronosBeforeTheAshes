@@ -110,7 +110,7 @@ HRESULT CParticle_Monster_Death::Ready_Components(PARTICLE_DEATH_DESC* pDesc)
     CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
     ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
 #pragma region POINT_INSTANCE
-    /* For. Prototype_Component_VIBuffer_Particle_Attack */
+    /* For. Prototype_Component_VIBuffer_Particle_Spark */
     ParticleDesc.iNumInstance = pDesc->iNumInstance;
     ParticleDesc.vCenter = pDesc->vCenter;
     ParticleDesc.vRange = pDesc->vRange;	// 이게 첫 생성 범위

@@ -59,12 +59,16 @@
 #include "Pedestal.h"
 
 // 파티클
-#include "Particle_Attack.h"
+#include "Particle_Spark.h"
 #include "Particle_Spawn.h"
-#include "Particle_Flash.h"
 #include "Particle_Snow.h"
 #include "Particle_Smoke.h"
 
+// 이펙트
+#include "Effect_Flash.h"
+#include "Effect_Spark.h"
+#include "Effect_BloodCore.h"
+#include "Effect_BloodSpray.h"
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice { pDevice }
@@ -135,7 +139,7 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다."));
 	/* For. Prototype_Component_Texture_BackGround */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_BackGround"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Logo.png"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Etc/Logo.png"), 1))))
 		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
@@ -176,7 +180,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/Particle.png"), 1))))
 		return E_FAIL;
 	
-	/* For. Prototype_Component_Texture_Particle */
+	/* For. Prototype_Component_Texture_Particle_Spark */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Spark"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_LightLong_A.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Snow */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Snow"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/Snow.png"), 1))))
 		return E_FAIL;
@@ -195,6 +204,32 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Smoke"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/Smoke_RGB.png"), 1))))
 		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Spark */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Spark"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/Spark.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_BloodCore */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodCore"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d.png"), 2))))
+		return E_FAIL;
+
+	///* For. Prototype_Component_Texture_BloodCore_N */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodCore_N"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d_N.png"), 2))))
+		return E_FAIL;
+
+	///* For. Prototype_Component_Texture_BloodSpray */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d.png"), 6))))
+		return E_FAIL;
+
+	///* For. Prototype_Component_Texture_BloodSpray_N */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray_N"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d_N.png"), 6))))
+		return E_FAIL;
+
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
 #pragma region VIBUFFER
@@ -215,25 +250,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
-	/* For. Prototype_Component_VIBuffer_Particle_Attack_Player */
-	ParticleDesc.iNumInstance = 100;
+	/* For. Prototype_Component_VIBuffer_Particle_Spark */
+	ParticleDesc.iNumInstance = 20;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);	// 이게 첫 생성 범위
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.1f, 0.2f);		// 이게 크기
-	ParticleDesc.vSpeed = _float2(1.f, 3.f);
-	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);		// 이게 크기
+	//ParticleDesc.vSize = _float2(1.f, 2.f);		// 이게 크기
+	ParticleDesc.vSpeed = _float2(15.f, 20.f);
+	ParticleDesc.vLifeTime = _float2(0.2f, 0.4f);
 	ParticleDesc.vMinColor = _float4(1.f, 0.647f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 0.4f, 1.f);
 	ParticleDesc.isLoop = false;
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Attack_Player"),
-		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
-		return E_FAIL;
-
-	/* For. Prototype_Component_VIBuffer_Particle_Attack_Monster */
-	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 1.f);
-	ParticleDesc.vMaxColor = _float4(0.f, 0.f, 0.f, 1.f);
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Attack_Monster"),
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spark"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
@@ -282,10 +311,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 #pragma region LABYRINTH
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
-	// PreTransformMatrix = XMMatrixIdentity();
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-	//	return E_FAIL;
+	PreTransformMatrix = XMMatrixIdentity();
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+		return E_FAIL;
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
@@ -680,9 +709,9 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 #pragma endregion
 #pragma region PARTICLE
-	/* For. Prototype_GameObject_Particle_Attack */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Attack"),
-		CParticle_Attack::Create(m_pDevice, m_pContext))))
+	/* For. Prototype_GameObject_Particle_Spark */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Spark"),
+		CParticle_Spark::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	/* For. Prototype_GameObject_Particle_Spawn */
@@ -690,11 +719,6 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CParticle_Spawn::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
-	/* For. Prototype_GameObject_Particle_Flash */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Flash"),
-		CParticle_Flash::Create(m_pDevice, m_pContext))))
-		return E_FAIL;
-
 	/* For. Prototype_GameObject_Particle_Snow */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Snow"),
 		CParticle_Snow::Create(m_pDevice, m_pContext))))
@@ -704,6 +728,28 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Smoke"),
 		CParticle_Smoke::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+#pragma endregion
+#pragma region EFFECT
+	/* For. Prototype_GameObject_Effect_Flash */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Flash"),
+		CEffect_Flash::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Effect_Spark */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Spark"),
+		CEffect_Spark::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Effect_BloodCore */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_BloodCore"),
+		CEffect_BloodCore::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Effect_BloodSpray */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_BloodSpray"),
+		CEffect_BloodSpray::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 

@@ -5,7 +5,8 @@
 
 #include "Monster.h"
 
-#include "Particle_Attack.h"
+#include "Particle_Spark.h"
+
 
 CPlayer_Weapon::CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPlayer_Part(pDevice, pContext)
@@ -57,7 +58,7 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
 		m_pColliderCom->Set_OnCollision(false);
 	}
-
+	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
 	return OBJ_NOEVENT;
 }
@@ -116,6 +117,7 @@ HRESULT CPlayer_Weapon::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
+
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
 		return E_FAIL;
 
@@ -127,6 +129,8 @@ HRESULT CPlayer_Weapon::Render()
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
 
 		if (FAILED(m_pShaderCom->Begin(1)))
@@ -144,13 +148,19 @@ void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pColl
 	_uint iDamage = m_iDamage;
 	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim || PLAYER_ATK_POWER_02 == *m_pPlayerAnim || PLAYER_ATK_RUN == *m_pPlayerAnim)
 		iDamage = m_iDamage * 2;
-
+	//iDamage = 0;
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
 		pMonster->Be_Damaged(iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
 
-		Add_AttackParticle(XMLoadFloat3(&m_vTailPos), XMVectorSet(0.f, 0.f, 0.f, 0.f));
+		_vector vTargetPos = pCollisionObject->Get_Position();
+		vTargetPos.m128_f32[1] = m_vTailPos.y;
+		_vector vDir = vTargetPos - XMLoadFloat3(&m_vTailPos);
+		_vector vPos = XMLoadFloat3(&m_vTailPos) + vDir * 0.5f;
+		_vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
+
+		Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir) * 0.1f);
 	}
 }
 
@@ -187,15 +197,14 @@ HRESULT CPlayer_Weapon::Ready_Components()
 
 HRESULT CPlayer_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
 {
-	CParticle_Attack::PARTICLE_ATTACK_DESC desc = {};
+	CParticle_Spark::Particle_Spark_DESC desc = {};
 
 	desc.fRotationPerSec = 0.f;
 	desc.fSpeedPerSec = 1.f;
 	XMStoreFloat3(&desc.vPos, vPos);
 	XMStoreFloat3(&desc.vPivot, vPivot);
-	desc.eType = CParticle_Attack::TYPE_PLAYER;
 
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Attack"), &desc)))
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spark"), &desc)))
 		return E_FAIL;
 
 	return S_OK;

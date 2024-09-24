@@ -50,7 +50,7 @@ public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 
 public:
-	void Be_Damaged(_uint iDamage, _fvector vAttackPos);
+	_bool Be_Damaged(_uint iDamage, _fvector vAttackPos);
 
 public:
 	class CFSM* m_pFSM = { nullptr };

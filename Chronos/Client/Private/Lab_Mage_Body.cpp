@@ -4,7 +4,7 @@
 
 #include "Lab_Mage.h"
 
-#include "Particle_Flash.h"
+#include "Effect_Flash.h"
 
 CLab_Mage_Body::CLab_Mage_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
@@ -304,6 +304,7 @@ HRESULT CLab_Mage_Body::Render()
         return E_FAIL;
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
+
     if (FAILED(m_pShaderCom->Bind_RawValue("g_fRatio", m_pRatio, sizeof(_float))))
         return E_FAIL;
 
@@ -318,8 +319,9 @@ HRESULT CLab_Mage_Body::Render()
 
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
-        /*if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
-            return E_FAIL;*/
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+            return E_FAIL;
+
 
         if (FAILED(m_pShaderCom->Begin(0)))
             return E_FAIL;
@@ -387,14 +389,14 @@ _vector CLab_Mage_Body::Find_TeleportPos()
 
 HRESULT CLab_Mage_Body::Add_FlashParticle(_fvector vPos, _float fOffset)
 {
-    CParticle_Flash::FLASH_DESC desc = {};
+    CEffect_Flash::FLASH_DESC desc = {};
 
     desc.fRotationPerSec = 0.f;
     desc.fSpeedPerSec = 1.f;
     XMStoreFloat3(&desc.vPos, vPos);
     desc.vPos.y += fOffset;
 
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Flash"), &desc)))
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Flash"), &desc)))
         return E_FAIL;
 
     return S_OK;

@@ -161,6 +161,7 @@ _bool CVIBuffer_Point_Instance::Spread(_fvector vPivot, _float fSpeed, _float fT
 			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta);
 
 		pVertices[i].vLifeTime.y += fTimeDelta;
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
 
 		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
 		{

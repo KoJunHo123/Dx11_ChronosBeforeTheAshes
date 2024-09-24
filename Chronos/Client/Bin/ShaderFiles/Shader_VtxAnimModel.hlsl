@@ -3,7 +3,9 @@
 /* float2 float3 float4 == vector */
 
 matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
+
 texture2D g_DiffuseTexture;
+texture2D g_ComboTexture;
 texture2D g_NoiseTexture;
 float g_fRatio;
 
@@ -28,6 +30,7 @@ struct VS_OUT
     float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
+    float4 vProjPos : TEXCOORD2;
 };
 
 VS_OUT VS_MAIN( /*정점*/VS_IN In)
@@ -53,7 +56,8 @@ VS_OUT VS_MAIN( /*정점*/VS_IN In)
     Out.vNormal = normalize(mul(vNormal, g_WorldMatrix));
     Out.vTexcoord = In.vTexcoord;
     Out.vWorldPos = mul(vPosition, g_WorldMatrix);  // 월드 좌표만 따로 전달.
-
+    Out.vProjPos = Out.vPosition;
+    
     return Out;
 }
 
@@ -64,37 +68,40 @@ struct PS_IN
     float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
+    float4 vProjPos : TEXCOORD2;
 };
 
 struct PS_OUT
 {
     vector vDiffuse : SV_TARGET0;
     vector vNormal : SV_TARGET1;
+    vector vDepth : SV_TARGET2;
+    vector vCombo : SV_TARGET3;
+    vector vPickDepth : SV_TARGET4;
 };
-
 
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 	
     vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
-
     if (0.3f >= vMtrlDiffuse.a)
         discard;
     
     vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
-	
     if (g_fRatio > vMtrlNoise.r)
         discard;
     
-    Out.vDiffuse = vMtrlDiffuse;
+    vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
     
-    // -1~1 : 0~1로 변경.
+    Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
-
+    Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
+    Out.vCombo = vMtrlComb;
+    Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
+    
     return Out;
 }
-
 
 
 technique11 DefaultTechnique
@@ -109,4 +116,6 @@ technique11 DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
     }
+
+
 }

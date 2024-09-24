@@ -60,7 +60,8 @@ HRESULT CLevel_GamePlay::Render()
 }
 
 HRESULT CLevel_GamePlay::Ready_Lights()
-{	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
+{	
+	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
 	LIGHT_DESC			LightDesc{};
 
 	ZeroMemory(&LightDesc, sizeof LightDesc);
@@ -101,8 +102,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
 		return E_FAIL;
 
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+		return E_FAIL;
 
 	return S_OK;
 }
