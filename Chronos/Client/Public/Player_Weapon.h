@@ -49,6 +49,7 @@ private:
 
 private:
 	_float3 m_vTailPos = {};
+	_float3 m_vPrePosition = {};
 
 private:
 	_uint m_iDamage = { 0 };

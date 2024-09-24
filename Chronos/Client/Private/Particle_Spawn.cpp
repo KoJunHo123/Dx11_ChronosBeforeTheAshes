@@ -44,8 +44,8 @@ _uint CParticle_Spawn::Priority_Update(_float fTimeDelta)
 {
     if (true == m_bDead)
         return OBJ_DEAD;
-
-    m_fSpeed += fTimeDelta * 10.f;
+     
+    m_fSpeed += fTimeDelta * 30.f;
 
     if (false == m_bSpawn)
     {
@@ -117,7 +117,7 @@ HRESULT CParticle_Spawn::Ready_Components()
         return E_FAIL;
 
     /* FOR.Com_Texture */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle"),
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Spark"),
         TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
         return E_FAIL;
 

@@ -3,7 +3,7 @@
 #include "GameInstance.h"
 
 #include "Player.h"
-#include "Particle_Attack.h"
+#include "Effect_BloodCore.h"
 
 CLab_Troll_Weapon::CLab_Troll_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
@@ -50,6 +50,8 @@ _uint CLab_Troll_Weapon::Priority_Update(_float fTimeDelta)
 {
     m_pColliderCom->Set_OnCollision(*m_pAttackActive);
 
+    XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
+
     return OBJ_NOEVENT;
 }
 
@@ -67,6 +69,7 @@ void CLab_Troll_Weapon::Update(_float fTimeDelta)
     // -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
     m_pColliderCom->Update(&m_WorldMatrix);
+
 }
 
 void CLab_Troll_Weapon::Late_Update(_float fTimeDelta)
@@ -100,6 +103,8 @@ HRESULT CLab_Troll_Weapon::Render()
     {
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+            return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(1)))
             return E_FAIL;
@@ -117,15 +122,17 @@ void CLab_Troll_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pC
     if (true == *m_pAttackActive && TEXT("Coll_Player") == strColliderTag)
     {
         CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
-        pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
-        
-
-        _vector vCenter = XMLoadFloat3(&m_vCenter);
-        vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));
-        
-        _vector vPos = (vCenter + pCollisionObject->Get_Position()) * 0.5f;
-
-        Add_AttackParticle(vCenter, XMVectorSet(0.f, 0.f, 0.f, 0.f));
+        if (true == pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
+        {
+            _vector vCenter = XMLoadFloat3(&m_vCenter);
+            vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));
+            _vector vTargetPos = pCollisionObject->Get_Position();
+            vTargetPos.m128_f32[1] = vCenter.m128_f32[1];
+            _vector vDir = vTargetPos - vCenter;
+            _vector vPos = vCenter + vDir * 0.5f;
+            _vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
+            Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir));
+        }
     }
 }
 
@@ -160,17 +167,17 @@ HRESULT CLab_Troll_Weapon::Ready_Components(_float3 vExtents, _float3 vCenter, _
     return S_OK;
 }
 
-HRESULT CLab_Troll_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
+HRESULT CLab_Troll_Weapon::Add_AttackParticle(_fvector vPos, _fvector vDir)
 {
-    CParticle_Attack::PARTICLE_ATTACK_DESC desc = {};
+    CEffect_BloodCore::BLOOD_DESC desc = {};
 
     desc.fRotationPerSec = 0.f;
     desc.fSpeedPerSec = 1.f;
     XMStoreFloat3(&desc.vPos, vPos);
-    XMStoreFloat3(&desc.vPivot, vPivot);
-    desc.eType = CParticle_Attack::TYPE_MONSTER;
+    XMStoreFloat3(&desc.vDir, vDir);
+    desc.vScale = _float3(5.f, 5.f, 5.f);
 
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Attack"), &desc)))
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_BloodCore"), &desc)))
         return E_FAIL;
 
     return S_OK;

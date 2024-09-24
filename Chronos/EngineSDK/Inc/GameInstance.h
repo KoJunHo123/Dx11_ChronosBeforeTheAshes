@@ -78,6 +78,7 @@ public:
 
 #pragma region RENDERER
 	HRESULT Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
+	HRESULT Bind_DefaultTexture(class CShader* pShader, const _char* pConstantName);
 #ifdef _DEBUG
 	HRESULT Add_DebugObject(class CComponent* pDebugObject);
 #endif
@@ -90,15 +91,12 @@ public:
 	_matrix Get_Transform_Matrix(CPipeLine::D3DTRANSFORMSTATE eState) const;
 	_float4x4 Get_Transform_Inverse_Float4x4(CPipeLine::D3DTRANSFORMSTATE eState) const;
 	_matrix Get_Transform_Inverse_Matrix(CPipeLine::D3DTRANSFORMSTATE eState) const;
-
 	_float4 Get_CamPosition_Float4() const;
 	_vector Get_CamPosition_Vector() const;
 #pragma endregion
 
 #pragma region PICKING
-	void Transform_MouseRay_ToLocalSpace(const _matrix& WorldMatrix);
-	_bool isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
-	_bool isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut);
+	_bool Picking(_int iOffset, _float3* pPickPos);
 #pragma endregion
 
 #pragma region COLLISION_MANAGER
@@ -123,6 +121,8 @@ public:
 	HRESULT Begin_MRT(const _wstring& strMRTTag);
 	HRESULT End_MRT();
 	HRESULT Bind_RT_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
+	HRESULT Copy_RenderTarget(const _wstring& strTargetTag, ID3D11Texture2D* pTexture);
+
 #ifdef _DEBUG
 public:
 	HRESULT Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);

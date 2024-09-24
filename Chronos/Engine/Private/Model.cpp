@@ -4,6 +4,8 @@
 #include "Texture.h"
 #include "Bone.h"
 #include "Animation.h"
+#include "GameInstance.h"
+
 
 CModel::CModel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CComponent{ pDevice, pContext }
@@ -149,6 +151,9 @@ HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTe
 {
 	_uint iMaterialIndex = m_Meshes[iMeshIndex]->Get_MaterialIndex();
 
+	if (nullptr == m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType])
+		return m_pGameInstance->Bind_DefaultTexture(pShader, pConstantName);
+
 	return m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType]->Bind_ShadeResource(pShader, pConstantName, 0);
 }
 
@@ -224,10 +229,36 @@ HRESULT CModel::Ready_Materials()
 			_char				szFileName[MAX_PATH] = "";
 			_char				szExt[MAX_PATH] = "";
 
-			_char				szTexturePath[MAX_PATH] = "";
 
+			if (aiTextureType_COMBO == j && nullptr != MeshMaterial.pMaterialTextures[aiTextureType_DIFFUSE])
+			{
+				_splitpath_s(m_szModelFilePath, szDrive, MAX_PATH, szDirectory, MAX_PATH, nullptr, 0, nullptr, 0);
+				_splitpath_s(m_szTexturePath, nullptr, 0, nullptr, 0, szFileName, MAX_PATH, szExt, MAX_PATH);
+
+				size_t len = strlen(szFileName);
+				if (len > 4)
+					szFileName[len - 4] = '\0';
+				strcat_s(szFileName, "Comb");
+
+				memset(m_szTexturePath, 0, sizeof(_char) * MAX_PATH);
+				strcpy_s(m_szTexturePath, szDrive);
+				strcat_s(m_szTexturePath, szDirectory);
+				strcat_s(m_szTexturePath, szFileName);
+				strcat_s(m_szTexturePath, szExt);
+
+				path filePath = m_szTexturePath;
+				if (exists(filePath))
+				{
+					_tchar				szFinalPath[MAX_PATH] = TEXT("");
+					MultiByteToWideChar(CP_ACP, 0, m_szTexturePath, strlen(m_szTexturePath), szFinalPath, MAX_PATH);
+					MeshMaterial.pMaterialTextures[j] = CTexture::Create(m_pDevice, m_pContext, szFinalPath, 1);
+					if (nullptr == MeshMaterial.pMaterialTextures[j])
+						return E_FAIL;
+				}
+			}
 
 			infile.read(reinterpret_cast<_char*>(strTexturePath), sizeof(_char) * MAX_PATH);
+
 
 			if (0 == strTexturePath[0])
 				continue;
@@ -235,21 +266,21 @@ HRESULT CModel::Ready_Materials()
 			_splitpath_s(m_szModelFilePath, szDrive, MAX_PATH, szDirectory, MAX_PATH, nullptr, 0, nullptr, 0);
 			_splitpath_s(strTexturePath, nullptr, 0, nullptr, 0, szFileName, MAX_PATH, szExt, MAX_PATH);
 
-
-			strcpy_s(szTexturePath, szDrive);
-			strcat_s(szTexturePath, szDirectory);
-			strcat_s(szTexturePath, szFileName);
-			strcat_s(szTexturePath, szExt);
+			memset(m_szTexturePath, 0, sizeof(_char) * MAX_PATH);
+			strcpy_s(m_szTexturePath, szDrive);
+			strcat_s(m_szTexturePath, szDirectory);
+			strcat_s(m_szTexturePath, szFileName);
+			strcat_s(m_szTexturePath, szExt);
 
 			_tchar				szFinalPath[MAX_PATH] = TEXT("");
 
-			MultiByteToWideChar(CP_ACP, 0, szTexturePath, strlen(szTexturePath), szFinalPath, MAX_PATH);
+			MultiByteToWideChar(CP_ACP, 0, m_szTexturePath, strlen(m_szTexturePath), szFinalPath, MAX_PATH);
 			
 			MeshMaterial.pMaterialTextures[j] = CTexture::Create(m_pDevice, m_pContext, szFinalPath, 1);
 			if (nullptr == MeshMaterial.pMaterialTextures[j])
 				return E_FAIL;
-		}
 
+		}
 		m_Materials.emplace_back(MeshMaterial);
 	}
 	infile.close();

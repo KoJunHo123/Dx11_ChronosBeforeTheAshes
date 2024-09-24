@@ -52,21 +52,19 @@ _uint CParticle_Smoke::Priority_Update(_float fTimeDelta)
 
 void CParticle_Smoke::Update(_float fTimeDelta)
 {
-    _vector vCamLook = m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_VIEW).r[2];
+    _vector vCamPos = m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_VIEW).r[3];
 
-    vCamLook = XMVector3TransformNormal(vCamLook, m_pTransformCom->Get_WorldMatrix_Inverse());
+    vCamPos = XMVector3TransformCoord(vCamPos, m_pTransformCom->Get_WorldMatrix_Inverse());
 
     m_fRatio += fTimeDelta;
-    m_fSpeed -= fTimeDelta * 1.f;
+    m_fSpeed -= fTimeDelta * 0.5f;
 
     if (m_fSpeed < 0.f)
         m_fSpeed = 0.f;
 
-
     // 버퍼로 퍼지면서, 커지면서, 돌아
-    m_pVIBufferCom->Spread(XMVectorSet(0.f, 0.f, 0.f, 1.f), vCamLook, m_fSpeed, fTimeDelta);
+    m_pVIBufferCom->Spread_Dir(XMVectorSet(0.f, 0.f, 0.f, 1.f), vCamPos, m_fSpeed, fTimeDelta);
     m_pVIBufferCom->Scaling(XMLoadFloat3(&m_vScale), fTimeDelta);
-    m_pVIBufferCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_LOOK), XMConvertToRadians(90.f), fTimeDelta * m_iTurnDir);
 }
 
 void CParticle_Smoke::Late_Update(_float fTimeDelta)

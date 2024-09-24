@@ -46,6 +46,7 @@ using namespace DirectX;
 #include <string>
 #include <iostream>
 #include <io.h>
+#include <filesystem>
 
 using namespace std;
 
@@ -64,7 +65,7 @@ namespace Engine
     enum aiTextureType {
         aiTextureType_NONE = 0,
         aiTextureType_DIFFUSE = 1,
-        aiTextureType_SPECULAR = 2,
+        aiTextureType_COMBO = 2,
         aiTextureType_AMBIENT = 3,
         aiTextureType_EMISSIVE = 4,
         aiTextureType_HEIGHT = 5,

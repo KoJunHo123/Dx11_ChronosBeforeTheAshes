@@ -59,6 +59,13 @@ void CRenderTarget::Clear()
 	m_pContext->ClearRenderTargetView(m_pRTV, (_float*)&m_vClearColor);
 }
 
+HRESULT CRenderTarget::Copy(ID3D11Texture2D* pTexture)
+{
+	m_pContext->CopyResource(pTexture, m_pTexture2D);
+
+	return S_OK;
+}
+
 #ifdef _DEBUG
 HRESULT CRenderTarget::Initialize_Debug(_float fX, _float fY, _float fSizeX, _float fSizeY)
 {

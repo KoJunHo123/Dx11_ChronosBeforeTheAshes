@@ -21,6 +21,8 @@ public:
 	HRESULT Add_RenderObject(RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
 	HRESULT Draw();
 
+	HRESULT Bind_DefaultTexture(class CShader* pShader, const _char* pConstantName);
+
 #ifdef _DEBUG
 
 public:
@@ -42,6 +44,7 @@ private:
 private:
 	class CShader* m_pShader = { nullptr };
 	class CVIBuffer_Rect* m_pVIBuffer = { nullptr };
+	class CTexture* m_pDefaultTexture = { nullptr };
 
 	_float4x4					m_WorldMatrix{}, m_ViewMatrix{}, m_ProjMatrix{};
 

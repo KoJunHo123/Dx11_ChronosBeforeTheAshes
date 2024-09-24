@@ -17,6 +17,7 @@ public:
 
 public:
 	virtual _bool Spread(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
+	virtual _bool Spread_Dir(_fvector vPivot, _fvector vLocalPos, _float fSpeed, _float fTimeDelta);
 	virtual _bool Move_Dir(_fvector vDir, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
 	virtual _bool Converge(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
 

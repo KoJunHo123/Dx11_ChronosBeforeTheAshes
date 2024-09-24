@@ -1,4 +1,5 @@
 #include "..\Public\BlendObject.h"
+#include "GameInstance.h"
 
 
 CBlendObject::CBlendObject(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -45,18 +46,10 @@ HRESULT CBlendObject::Render()
 
 HRESULT CBlendObject::Compute_ViewZ(const _wstring & strTransformComTag)
 {
-	/*CTransform*		pTransformCom = dynamic_cast<CTransform*>(Find_Component(strTransformComTag));
-	if (nullptr == pTransformCom)
-		return E_FAIL;
+	_vector			vWorldPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+	_matrix		ViewMatrix = m_pGameInstance->Get_Transform_Matrix(CPipeLine::D3DTS_VIEW);
+	m_fViewZ = XMVector3TransformCoord(vWorldPos, ViewMatrix).m128_f32[2];
 
-	_float3			vWorldPos = pTransformCom->Get_State(CTransform::STATE_POSITION);
-
-	_float4x4		ViewMatrix{};
-
-	m_pGraphic_Device->GetTransform(D3DTS_VIEW, &ViewMatrix);
-
-	m_fViewZ = (*D3DXVec3TransformCoord(&vWorldPos, &vWorldPos, &ViewMatrix)).z;
-*/
 	return S_OK;
 }
 

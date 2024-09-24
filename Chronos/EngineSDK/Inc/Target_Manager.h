@@ -17,6 +17,7 @@ public:
 	HRESULT Begin_MRT(const _wstring& strMRTTag);
 	HRESULT End_MRT();
 	HRESULT Bind_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
+	HRESULT Copy_RenderTarget(const _wstring& strTargetTag, ID3D11Texture2D* pTexture);
 
 #ifdef _DEBUG
 public:

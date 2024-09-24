@@ -1,108 +1,98 @@
 #include "..\Public\Picking.h"
+
 #include "GameInstance.h"
 
 CPicking::CPicking(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: m_pDevice{ pDevice }
 	, m_pContext{ pContext }
-	, m_pGameInstance{CGameInstance::Get_Instance()}
+	, m_pGameInstance{ CGameInstance::Get_Instance() }
 {
+	Safe_AddRef(m_pGameInstance);
 	Safe_AddRef(m_pDevice);
 	Safe_AddRef(m_pContext);
-	Safe_AddRef(m_pGameInstance);
 }
 
-HRESULT CPicking::Initialize(HWND hWnd, _uint iWinSizeX, _uint iWinSizeY)
+HRESULT CPicking::Initialize(HWND hWnd)
 {
 	m_hWnd = hWnd;
+	_uint			iNumViewports = { 1 };
 
-	m_iWinSizeX = iWinSizeX;
+	D3D11_VIEWPORT	ViewportDesc{};
 
-	m_iWinSizeY = iWinSizeY;
+	m_pContext->RSGetViewports(&iNumViewports, &ViewportDesc);
 
-	return S_OK;
+	D3D11_TEXTURE2D_DESC	TextureDesc{};
+	ZeroMemory(&TextureDesc, sizeof(D3D11_TEXTURE2D_DESC));
+
+	TextureDesc.Width = m_iViewportWidth = ViewportDesc.Width;
+	TextureDesc.Height = m_iViewportHeight = ViewportDesc.Height;
+	TextureDesc.MipLevels = 1;
+	TextureDesc.ArraySize = 1;
+	TextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	TextureDesc.SampleDesc.Quality = 0;
+	TextureDesc.SampleDesc.Count = 1;
+
+	TextureDesc.Usage = D3D11_USAGE_STAGING;
+	/* 추후에 어떤 용도로 바인딩 될 수 있는 View타입의 텍스쳐를 만들기위한 Texture2D입니까? */
+	TextureDesc.BindFlags = 0;
+
+	TextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	TextureDesc.MiscFlags = 0;
+
+	if (FAILED(m_pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_pPickDepthTexture)))
+		return E_FAIL;
 }
 
-void CPicking::Update()
+_bool CPicking::Picking(_int iOffset, _float3* pPickPos)
 {
+	/*m_pContext->CopyResource(m_pPickDepthTexture, );*/
+
+	if (FAILED(m_pGameInstance->Copy_RenderTarget(TEXT("Target_PickDepth"), m_pPickDepthTexture)))
+		return false;
+
 	POINT			ptMouse{};
-
 	GetCursorPos(&ptMouse);
-
-	/* 뷰포트 == 로컬 * 월드행렬 * 뷰행렬 * 투영행렬 /w -> 뷰포트 변환 */
 	ScreenToClient(m_hWnd, &ptMouse);
+	ptMouse.y += iOffset;
 
-	/* 투영스페이스 == 로컬 * 월드행렬 * 뷰행렬 * 투영행렬 /w */
-	_float4		vMousePos{};
-	vMousePos.x = ptMouse.x / (m_iWinSizeX * 0.5f) - 1.f;
-	vMousePos.y = ptMouse.y / (m_iWinSizeY * -0.5f) + 1.f;
-	vMousePos.z = 0.f; /* Near평면을 클릭한거야!! */
-	vMousePos.w = 1.f;
+	_uint		iPixelIndex = ptMouse.y * m_iViewportWidth + ptMouse.x;
 
-	_vector vMouseVec = XMLoadFloat4(&vMousePos);
+	D3D11_MAPPED_SUBRESOURCE		SubResource{};
 
-	/* 뷰스페이스 == 로컬 * 월드행렬 * 뷰행렬 */
-	_matrix			ProjMatrixInv = m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_PROJ);
-	vMouseVec = XMVector3TransformCoord(vMouseVec, ProjMatrixInv);
+	m_pContext->Map(m_pPickDepthTexture, 0, D3D11_MAP_READ, 0, &SubResource);
 
-	/* 뷰스페이스 상에서의 마우스 레이와 레이의 시작점을 구해놓는다. */
-	/* 뷰스페이스 상이기 때문에 카메라 좌표는 원점이다. */
-	m_vRayPos = _float4(0.f, 0.f, 0.f, 1.f);
-	XMStoreFloat4(&m_vRayDir, vMouseVec - XMLoadFloat4(&m_vRayPos));
+	_float		fProjZ = ((_float4*)SubResource.pData)[iPixelIndex].x;
+	_bool		isPicked = static_cast<_bool>(((_float4*)SubResource.pData)[iPixelIndex].w);
 
-	/* 월드스페이스 == 로컬 * 월드행렬 */
-	_matrix			ViewMatrixInv = m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_VIEW);
+	m_pContext->Unmap(m_pPickDepthTexture, 0);
 
-	XMStoreFloat4(&m_vRayPos, XMVector3TransformCoord(XMLoadFloat4(&m_vRayPos), ViewMatrixInv));
-	XMStoreFloat4(&m_vRayDir, XMVector3TransformNormal(XMLoadFloat4(&m_vRayDir), ViewMatrixInv));
+	if (false == isPicked)
+		return false;
 
-	XMStoreFloat4(&m_vRayDir, XMVector4Normalize(XMLoadFloat4(&m_vRayDir)));
+	_float4 vProjPos{};
+
+	/* 투영공간상의 위치. */
+	vProjPos.x = ptMouse.x / (m_iViewportWidth * 0.5f) - 1.f;
+	vProjPos.y = ptMouse.y / -(m_iViewportHeight * 0.5f) + 1.f;
+	vProjPos.z = fProjZ;
+	vProjPos.w = 1.f;
+
+	/* 뷰공간상의 위치. */
+	_vector	vViewPos = XMVector3TransformCoord(XMLoadFloat4(&vProjPos), m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_PROJ));
+
+	_vector vWorldPos = XMVector3TransformCoord(vViewPos, m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_VIEW));
+
+	XMStoreFloat3(pPickPos, vWorldPos);
+
+	return true;
 }
 
-void CPicking::Transform_ToLocalSpace(const _matrix& WorldMatrix)
-{
-	_matrix		WorldMatrixInverse = XMMatrixInverse(nullptr, WorldMatrix);
-
-	XMStoreFloat4(&m_vRayPos_InLocalSpace, XMVector3TransformCoord(XMLoadFloat4(&m_vRayPos), WorldMatrixInverse));
-	XMStoreFloat4(&m_vRayDir_InLocalSpace, XMVector3TransformNormal(XMLoadFloat4(&m_vRayDir), WorldMatrixInverse));
-	
-	XMStoreFloat4(&m_vRayDir_InLocalSpace, XMVector4Normalize(XMLoadFloat4(&m_vRayDir_InLocalSpace)));
-}
-
-_bool CPicking::isPicked_InWorldSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
-{
-	_float		fU{}, fV{}, fDist{};
-
-	_vector vOrigin = XMLoadFloat4(&m_vRayPos);
-	_vector vDirection = XMLoadFloat4(&m_vRayDir);
-
-	if (TRUE == TriangleTests::Intersects(vOrigin, vDirection, vPointA, vPointB, vPointC, fDist))
-	{
-		*pOut = vOrigin + vDirection * fDist;
-		return true;
-	}
-	return false;
-}
-
-_bool CPicking::isPicked_InLocalSpace(const _fvector& vPointA, const _fvector& vPointB, const _fvector& vPointC, _vector* pOut)
-{
-	_float		fU{}, fV{}, fDist{};
-
-	_vector vOrigin = XMLoadFloat4(&m_vRayPos_InLocalSpace);
-	_vector vDirection = XMLoadFloat4(&m_vRayDir_InLocalSpace);
-
-	if (TRUE == TriangleTests::Intersects(vOrigin, vDirection, vPointA, vPointB, vPointC, fDist))
-	{
-		*pOut = vOrigin + vDirection * fDist;
-		return true;
-	}
-	return false;
-}
-
-CPicking* CPicking::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, HWND hWnd, _uint iWinSizeX, _uint iWinSizeY)
+CPicking* CPicking::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, HWND hWnd)
 {
 	CPicking* pInstance = new CPicking(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize(hWnd, iWinSizeX, iWinSizeY)))
+	if (FAILED(pInstance->Initialize(hWnd)))
 	{
 		MSG_BOX(TEXT("Failed to Created : CPicking"));
 		Safe_Release(pInstance);
@@ -111,11 +101,14 @@ CPicking* CPicking::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext,
 	return pInstance;
 }
 
+
 void CPicking::Free()
 {
 	__super::Free();
 
-	Safe_Release(m_pDevice);
-	Safe_Release(m_pContext);
+
 	Safe_Release(m_pGameInstance);
+	Safe_Release(m_pContext);
+	Safe_Release(m_pDevice);
+	Safe_Release(m_pPickDepthTexture);
 }

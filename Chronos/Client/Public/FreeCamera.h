@@ -25,7 +25,6 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-
 private:
 	_float				m_fSensor = { 0.f };	// °¨µµ
 	class CTransform*	m_pPlayerTransformCom = { nullptr };
