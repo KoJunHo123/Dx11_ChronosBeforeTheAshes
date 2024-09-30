@@ -148,6 +148,10 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 	desc.vRotation = {};
 	desc.vScale = { 1.f, 1.f, 1.f };
 
+	desc.iStartCellIndex = 150;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
+		return E_FAIL;
+
 	desc.iStartCellIndex = 10;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
 		return E_FAIL;

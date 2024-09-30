@@ -5,6 +5,7 @@
 #include "Lab_Mage.h"
 
 #include "Effect_Flash.h"
+#include "Particle_Smoke.h"
 
 CLab_Mage_Body::CLab_Mage_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CPartObject(pDevice, pContext)
@@ -389,15 +390,40 @@ _vector CLab_Mage_Body::Find_TeleportPos()
 
 HRESULT CLab_Mage_Body::Add_FlashParticle(_fvector vPos, _float fOffset)
 {
-    CEffect_Flash::FLASH_DESC desc = {};
+    CEffect_Flash::FLASH_DESC Flash_Desc = {};
 
-    desc.fRotationPerSec = 0.f;
-    desc.fSpeedPerSec = 1.f;
-    XMStoreFloat3(&desc.vPos, vPos);
-    desc.vPos.y += fOffset;
+    Flash_Desc.fRotationPerSec = 0.f;
+    Flash_Desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&Flash_Desc.vPos, vPos);
+    Flash_Desc.vPos.y += fOffset;
+    Flash_Desc.vColor = _float4(0.294f, 0.f, 0.502f, 1.f);;
 
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Flash"), &desc)))
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Flash"), &Flash_Desc)))
         return E_FAIL;
+
+    CParticle_Smoke::SMOKE_DESC SmokeDesc{};
+    // XMStoreFloat3(&SmokeDesc.vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    SmokeDesc.vPos = Flash_Desc.vPos;
+    SmokeDesc.vPos.y += 1.f;
+    SmokeDesc.vScale = _float3(5.f, 5.f, 5.f);
+    SmokeDesc.vColor = _float4(0.f, 0.f, 0.f, 1.f);
+    //SparkDesc.vColor = _float4(0.541f, 0.169f, 0.886f, 0.f);
+
+    SmokeDesc.iNumInstance = 10;
+    SmokeDesc.vCenter = _float3(0.f, 0.f, 0.f);
+    SmokeDesc.vRange = _float3(2.f, 2.f, 2.f);
+    SmokeDesc.vExceptRange = _float3(0.0f, 0.0f, 0.f);
+    SmokeDesc.vLifeTime = _float2(0.5f, 1.f);
+    SmokeDesc.vMaxColor = _float4(0.f, 0.f, 0.f, 1.f);
+    SmokeDesc.vMinColor = _float4(1.f, 1.f, 1.f, 1.f);
+    SmokeDesc.vSize = _float2(1.f, 2.f);
+    SmokeDesc.vSpeed = _float2(1.f, 2.f);
+
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Smoke"), &SmokeDesc)))
+        return E_FAIL;
+
+
 
     return S_OK;
 }

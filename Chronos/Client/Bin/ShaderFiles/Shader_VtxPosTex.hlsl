@@ -148,11 +148,29 @@ PS_OUT PS_SPARK_MAIN(PS_IN In)
     Out.vColor = g_Texture.Sample(LinearSampler, vTexcoord);
 	
     Out.vColor.a = Out.vColor.r;
-    Out.vColor.rgb = g_vColor.rgb;
+    
+    if (Out.vColor.a < 0.1f)
+        discard;
+    
+    Out.vColor.rgb = g_vColor.rgb * (1 - Out.vColor.a);
     
     return Out;
 }
 
+PS_OUT PS_FLARE_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
+	
+    Out.vColor.a = Out.vColor.r * saturate(g_vColor.a);
+    
+    Out.vColor.r = 1.f - (1 - g_vColor.r) * (1 - Out.vColor.a * 2.f);
+    Out.vColor.g = 1.f - (1 - g_vColor.g) * (1 - Out.vColor.a * 2.f);
+    Out.vColor.b = 1.f - (1 - g_vColor.b) * (1 - Out.vColor.a * 2.f);
+        
+    return Out;
+}
 
 technique11	DefaultTechnique
 {
@@ -199,6 +217,17 @@ technique11	DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_SPARK_MAIN();
+    }
+
+    pass FLARE
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_FLARE_MAIN();
     }
 
 }

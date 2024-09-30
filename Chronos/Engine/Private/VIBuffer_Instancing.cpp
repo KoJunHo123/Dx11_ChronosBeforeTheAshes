@@ -21,7 +21,6 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype
 	, m_vLifeTime{ Prototype.m_vLifeTime }
 	, m_vMinColor { Prototype.m_vMinColor }
 	, m_vMaxColor { Prototype.m_vMaxColor }
-	, m_isLoop{ Prototype.m_isLoop }
 
 {
 }
@@ -36,7 +35,6 @@ HRESULT CVIBuffer_Instancing::Initialize_Prototype(const CVIBuffer_Instancing::I
 	m_vLifeTime = Desc.vLifeTime;
 	m_vMinColor = Desc.vMinColor;
 	m_vMaxColor = Desc.vMaxColor;
-	m_isLoop = Desc.isLoop;
 
 	m_pSpeed = new _float[m_iNumInstance];
 
@@ -86,21 +84,24 @@ HRESULT CVIBuffer_Instancing::Render()
 	return S_OK;
 }
 
-_bool CVIBuffer_Instancing::Spread(_fvector vPivot, _float fSpeed, _float fTimeDelta)
+_bool CVIBuffer_Instancing::Spread(_fvector vPivot, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta)
 {
 	return _bool();
 }
 
-_bool CVIBuffer_Instancing::Move_Dir(_fvector vDir, _float fSpeed, _float fTimeDelta)
+_bool CVIBuffer_Instancing::Move_Dir(_fvector vDir, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta)
 {
 	return _bool();
 }
 
-_bool CVIBuffer_Instancing::Converge(_fvector vPivot, _float fSpeed, _float fTimeDelta)
+_bool CVIBuffer_Instancing::Converge(_fvector vPivot, _float fSpeed, _bool isLoop, _float fTimeDelta)
 {
 	return _bool();
 }
 
+void CVIBuffer_Instancing::Reset()
+{
+}
 
 void CVIBuffer_Instancing::Free()
 {

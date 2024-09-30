@@ -40,6 +40,7 @@ private:
 private:
 	HRESULT Ready_Resources_For_LogoLevel();
 	HRESULT Ready_Resources_For_GamePlayLevel();
+	HRESULT Load_Particle();
 
 public:
 	static CLoader* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, LEVELID eNextLevelID);

@@ -173,6 +173,8 @@
     <ClInclude Include="..\public\Boss_Lab.h" />
     <ClInclude Include="..\public\Boss_Lab_Attack.h" />
     <ClInclude Include="..\public\Boss_Lab_Body.h" />
+    <ClInclude Include="..\public\Effect_Flare.h" />
+    <ClInclude Include="..\public\Boss_Lab_Teleport_Stone.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
     <ClInclude Include="..\Public\Client_Enum.h" />
     <ClInclude Include="..\public\Effect_BloodCore.h" />
@@ -200,7 +202,10 @@
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Labyrinth.h" />
     <ClInclude Include="..\public\Monster.h" />
-    <ClInclude Include="..\public\Particle_Spark.h" />
+    <ClInclude Include="..\public\Particle_AttackLight.h" />
+    <ClInclude Include="..\public\Boss_Lab_Teleport_Smoke.h" />
+    <ClInclude Include="..\public\Particle_LaunchStone.h" />
+    <ClInclude Include="..\public\Particle_LaunchWaterDrop.h" />
     <ClInclude Include="..\public\Particle_Monster_Death.h" />
     <ClInclude Include="..\public\Particle_Smoke.h" />
     <ClInclude Include="..\public\Particle_Snow.h" />
@@ -234,6 +239,8 @@
     <ClCompile Include="..\private\Boss_Lab.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Body.cpp" />
+    <ClCompile Include="..\private\Effect_Flare.cpp" />
+    <ClCompile Include="..\private\Boss_Lab_Teleport_Stone.cpp" />
     <ClCompile Include="..\private\Effect_BloodCore.cpp" />
     <ClCompile Include="..\private\Effect_BloodSpray.cpp" />
     <ClCompile Include="..\private\Effect_Spark.cpp" />
@@ -259,7 +266,10 @@
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Labyrinth.cpp" />
     <ClCompile Include="..\private\Monster.cpp" />
-    <ClCompile Include="..\private\Particle_Spark.cpp" />
+    <ClCompile Include="..\private\Particle_AttackLight.cpp" />
+    <ClCompile Include="..\private\Boss_Lab_Teleport_Smoke.cpp" />
+    <ClCompile Include="..\private\Particle_LaunchStone.cpp" />
+    <ClCompile Include="..\private\Particle_LaunchWaterDrop.cpp" />
     <ClCompile Include="..\private\Particle_Monster_Death.cpp" />
     <ClCompile Include="..\private\Particle_Smoke.cpp" />
     <ClCompile Include="..\private\Particle_Snow.cpp" />

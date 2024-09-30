@@ -7,6 +7,7 @@
 
 #include "Particle_Monster_Death.h"
 #include "Particle_Spawn.h"
+#include "Effect_Spark.h"
 
 CLab_Drum::CLab_Drum(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -292,12 +293,23 @@ HRESULT CLab_Drum::Add_SpawnParticle(_float fOffset)
     desc.iSpawnCellIndex = m_pNavigationCom->Get_CanMoveCellIndex_InNear();
     XMStoreFloat3(&desc.vPos, m_pNavigationCom->Get_CellCenterPos(desc.iSpawnCellIndex));
     desc.vPos.y += fOffset;
-    desc.eType = CParticle_Spawn::TYPE_TROLL;
 
     if (-1 == desc.iSpawnCellIndex)
         return E_FAIL;
 
     if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spawn"), &desc)))
+        return E_FAIL;
+
+    CEffect_Spark::SPARK_DESC SparkDesc = {};
+    SparkDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    SparkDesc.fSpeedPerSec = 0.f;
+    SparkDesc.vPos = desc.vPos;
+    //SparkDesc.vColor = { 0.188f, 0.098f, 0.204f, 1.f };
+    SparkDesc.vColor = _float4(0.541f, 0.169f, 0.886f, 0.f);
+    SparkDesc.vScale = { 8.f, 8.f, 8.f };
+    SparkDesc.fIndexSpeed = 60.f;
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Spark"), &SparkDesc)))
         return E_FAIL;
 
     return S_OK;

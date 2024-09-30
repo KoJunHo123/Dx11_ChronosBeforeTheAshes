@@ -164,6 +164,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="..\..\..\..\..\OneDrive\바탕 화면\제목 없음.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

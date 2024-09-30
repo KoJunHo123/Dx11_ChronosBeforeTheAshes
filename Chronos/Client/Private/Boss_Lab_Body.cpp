@@ -4,6 +4,7 @@
 
 #include "Boss_Lab.h"
 
+
 CBoss_Lab_Body::CBoss_Lab_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
 {
@@ -17,6 +18,11 @@ CBoss_Lab_Body::CBoss_Lab_Body(const CBoss_Lab_Body& Prototype)
 const _float4x4* CBoss_Lab_Body::Get_BoneMatrix_Ptr(const _char* pBoneName) const
 {
 	return m_pModelCom->Get_BoneCombindTransformationMatrix_Ptr(pBoneName);
+}
+
+_uint CBoss_Lab_Body::Get_FrameIndex()
+{
+	return m_pModelCom->Get_KeyFrameIndex();
 }
 
 HRESULT CBoss_Lab_Body::Initialize_Prototype()
@@ -231,16 +237,16 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 			if (BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND == m_eBossAnim)
 			{
-				if (3.f < m_fTeleportTime)
+				if (2.f < m_fTeleportTime)
 				{
 					if (m_iTeleportCount < 2)
 					{
 						m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH;
 						++m_iTeleportCount;
-						m_fTeleportTime = 0.f;
 
 						_vector vPlayerPos = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0))->Get_State(CTransform::STATE_POSITION);
 						m_pBossTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos);
+						// 튀어나오는 파티클 on
 
 						*m_pAttackActive_Body = true;
 					}
@@ -255,11 +261,16 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 			{
 				if (BOSS_LAB_TELEPORT_START == m_eBossAnim || BOSS_LAB_TELEPORT_LAUNCH == m_eBossAnim)
 				{
+					m_fTeleportTime = 0.f;
+
 					m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
 					*m_pAttackActive_Body = false;
 				}
 				else if (BOSS_LAB_TELEPORT_APPEAR == m_eBossAnim)
 				{
+					m_pNavigationCom->Set_CurrentCellIndex_ByPos(m_pBossTransformCom->Get_State(CTransform::STATE_POSITION));
+					m_pBossTransformCom->Fix_OnCell(m_pNavigationCom);
+
 					*m_pAnimOver = true;
 					*m_pAnimStart = false;
 					m_fTeleportTime = 0.f;

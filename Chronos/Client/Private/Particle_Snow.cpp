@@ -37,7 +37,7 @@ _uint CParticle_Snow::Priority_Update(_float fTimeDelta)
 
 void CParticle_Snow::Update(_float fTimeDelta)
 {
-	m_pVIBufferCom->Move_Dir(XMVectorSet(0.f, -1.f, 0.f, 0.f), 1.f, fTimeDelta);
+	m_pVIBufferCom->Move_Dir(XMVectorSet(0.f, -1.f, 0.f, 0.f), 1.f, 0.f,  true, fTimeDelta);
 }
 
 void CParticle_Snow::Late_Update(_float fTimeDelta)

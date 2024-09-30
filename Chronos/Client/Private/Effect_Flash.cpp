@@ -32,13 +32,8 @@ HRESULT CEffect_Flash::Initialize(void* pArg)
     m_pTransformCom->Set_Scaled(10.f, 10.f, 10.f);
 
     m_vDivide = _float2(6.f, 6.f);
-    m_vTeleportColor = _float4(0.294f, 0.f, 0.502f, 1.f);
-
-    CParticle_Smoke::SMOKE_DESC desc{};
-    // XMStoreFloat3(&desc.vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
-    desc.vPos = pDesc->vPos;
-    desc.vPos.y += 1.f;
-    m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Smoke"), &desc);
+    //m_vTeleportColor = _float4(0.294f, 0.f, 0.502f, 1.f);
+    m_vTeleportColor = pDesc->vColor;
 
 
     return S_OK;

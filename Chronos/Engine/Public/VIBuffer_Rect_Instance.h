@@ -16,13 +16,18 @@ public:
 	virtual HRESULT Initialize(void* pArg) override;
 
 public:
-	virtual _bool Spread(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
-	virtual _bool Spread_Dir(_fvector vPivot, _fvector vLocalPos, _float fSpeed, _float fTimeDelta);
-	virtual _bool Move_Dir(_fvector vDir, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
-	virtual _bool Converge(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fTimeDelta);
+	virtual _bool Spread(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta);
+	virtual _bool Spread_Dir(_fvector vPivot, _fvector vLocalPos, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta);
+
+	virtual _bool Converge(_fvector vPivot, _fvector vLocalLook, _float fSpeed, _bool isLoop, _float fTimeDelta);
+	virtual _bool Converge_Dir(_fvector vPivot, _fvector vLocalPos, _float fSpeed, _bool isLoop, _float fTimeDelta);
+
+	virtual _bool Move_Dir(_fvector vDir, _fvector vLocalLook, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta);
 
 	void Scaling(_fvector vAddScale, _float fTimeDelta);
 	void Turn(_fvector vAxis, _float fRotatioPerSec, _float fTimeDelta);
+
+	virtual void Reset() override;
 
 private:
 	_float Get_Radian(_fvector vMoveDir);

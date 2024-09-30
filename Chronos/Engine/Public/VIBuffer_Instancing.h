@@ -17,7 +17,6 @@ public:
 		_float2		vLifeTime;
 		_float4		vMinColor;
 		_float4		vMaxColor;
-		_bool		isLoop;
 
 	}INSTANCE_DESC;
 protected:
@@ -32,9 +31,11 @@ public:
 	virtual HRESULT Render() override;
 
 public:
-	virtual _bool Spread(_fvector vPivot, _float fSpeed, _float fTimeDelta);
-	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fTimeDelta);
-	virtual _bool Converge(_fvector vPivot, _float fSpeed, _float fTimeDelta);
+	virtual _bool Spread(_fvector vPivot, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta);
+	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta);
+	virtual _bool Converge(_fvector vPivot, _float fSpeed, _bool isLoop, _float fTimeDelta);
+
+	virtual void Reset();
 
 protected:
 	ID3D11Buffer* m_pVBInstance = { nullptr };
@@ -51,7 +52,6 @@ protected:
 	_float2						m_vLifeTime = {};
 	_float4						m_vMinColor = {};
 	_float4						m_vMaxColor = {};
-	_bool						m_isLoop = {};
 	_float* m_pSpeed = { nullptr };
 
 

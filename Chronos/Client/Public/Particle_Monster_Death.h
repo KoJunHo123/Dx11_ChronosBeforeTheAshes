@@ -25,7 +25,7 @@ public:
 		_float2		vSpeed;
 		_float2		vLifeTime;
 	} PARTICLE_DEATH_DESC;
-protected:
+private:
 	CParticle_Monster_Death(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CParticle_Monster_Death(const CParticle_Monster_Death& Prototype);
 	virtual ~CParticle_Monster_Death() = default;

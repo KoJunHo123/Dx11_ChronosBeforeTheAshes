@@ -233,6 +233,9 @@
     <Text Include="ReadMe.txt">
       <Filter>98.Default</Filter>
     </Text>
+    <Text Include="..\..\..\..\..\OneDrive\바탕 화면\제목 없음.txt">
+      <Filter>99.Defines</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl">

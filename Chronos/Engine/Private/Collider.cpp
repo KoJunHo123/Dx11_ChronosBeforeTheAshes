@@ -106,7 +106,7 @@ HRESULT CCollider::Render()
 
 _bool CCollider::Intersect(const _wstring strColliderTag, CCollider* pTargetCollider)
 {
-	if (true == m_bOnCollision && true == m_pBounding->Intersect(pTargetCollider->m_eColliderType, pTargetCollider->m_pBounding))
+	if (true == m_bOnCollision && true == pTargetCollider->m_bOnCollision &&true == m_pBounding->Intersect(pTargetCollider->m_eColliderType, pTargetCollider->m_pBounding))
 	{
 		if(true == m_bCollisionOnce)
 		{

@@ -190,9 +190,6 @@
     <Filter Include="02.GameObjects\09.Effect\Effect_Spark">
       <UniqueIdentifier>{e9ba73ce-6a0a-4809-9c85-6cfab4a9dd71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\08.Particle\Particle_Spark">
-      <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\09.Effect\Effect_Blood">
       <UniqueIdentifier>{d4f2d926-6b28-4aad-9b10-f314feed4932}</UniqueIdentifier>
     </Filter>
@@ -204,6 +201,24 @@
     </Filter>
     <Filter Include="02.GameObjects\99.Camera\DefaultCamera">
       <UniqueIdentifier>{b1fe764a-1626-4929-b382-0ff749f16492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_AttackLight">
+      <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Smoke">
+      <UniqueIdentifier>{7b334a4e-14bc-4703-bb22-b3dfbc9ccbfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Stone">
+      <UniqueIdentifier>{433af42f-b4a2-4aed-addf-41c0c77c4090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Flare">
+      <UniqueIdentifier>{6434659f-93fe-45cd-839d-5c17f4bb9ed2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_LaunchStone">
+      <UniqueIdentifier>{ef056f68-7c44-4e27-bfc6-950d65f3d1a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_LaunchWaterDrop">
+      <UniqueIdentifier>{bdd1bfe8-1910-4531-b9f1-8688aba6b153}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -354,8 +369,8 @@
     <ClInclude Include="..\public\Teleport.h">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Particle_Spark.h">
-      <Filter>02.GameObjects\08.Particle\Particle_Spark</Filter>
+    <ClInclude Include="..\public\Particle_AttackLight.h">
+      <Filter>02.GameObjects\08.Particle\Particle_AttackLight</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Particle_Monster_Death.h">
       <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
@@ -383,6 +398,21 @@
     </ClInclude>
     <ClInclude Include="..\public\FreeCamera.h">
       <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab_Teleport_Smoke.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Smoke</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab_Teleport_Stone.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Stone</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Effect_Flare.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Flare</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_LaunchStone.h">
+      <Filter>02.GameObjects\08.Particle\Particle_LaunchStone</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_LaunchWaterDrop.h">
+      <Filter>02.GameObjects\08.Particle\Particle_LaunchWaterDrop</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -521,8 +551,8 @@
     <ClCompile Include="..\private\Teleport.cpp">
       <Filter>02.GameObjects\07.Interaction\Teleport</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Particle_Spark.cpp">
-      <Filter>02.GameObjects\08.Particle\Particle_Spark</Filter>
+    <ClCompile Include="..\private\Particle_AttackLight.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_AttackLight</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Particle_Monster_Death.cpp">
       <Filter>02.GameObjects\04.Monster\Monster_Particle\Death</Filter>
@@ -550,6 +580,21 @@
     </ClCompile>
     <ClCompile Include="..\private\FreeCamera.cpp">
       <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab_Teleport_Smoke.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Smoke</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab_Teleport_Stone.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Stone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Effect_Flare.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Flare</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_LaunchStone.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_LaunchStone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_LaunchWaterDrop.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_LaunchWaterDrop</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

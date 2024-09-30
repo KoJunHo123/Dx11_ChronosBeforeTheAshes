@@ -10,7 +10,9 @@ BEGIN(Client)
 class CBoss_Lab final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_ATTACK_LH, PART_ATTACK_RH, PART_ATTACK_BODY, PART_EFFECT_DEATH, PART_END };
+	enum PARTID { PART_BODY, PART_ATTACK_LH, PART_ATTACK_RH, PART_ATTACK_BODY, PART_EFFECT_DEATH, 
+		PART_TELEPORT_SMOKE, PART_TELEPORT_SMOKE_BOIL, PART_TELEPORT_SMOKE_SPLASH, PART_TELEPORT_STONE, PART_TELEPORT_LIGHT, 
+		PART_CHARGE_SMOKE_LEFT, PART_CHARGE_SMOKE_RIGHT, PART_END };
 	enum STATE { 
 		STATE_CHARGE	= 0x0001, 
 		STATE_RUSH		= 0x0002,
@@ -59,12 +61,19 @@ private:
 	_bool m_bAttackActive_RH = { false };
 	_bool m_bAttackActive_Body = { false };
 
+	_bool m_bLaunchStart = { false };
+	_bool m_bLaunchEffect = { false };
+	_bool m_bLaunchOver = { false };
+	_bool m_bEncounter = { false };
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
 
 private:
 	_bool Contain_State(_uint iState);
+	HRESULT Add_TeleportEffect();
+
+	HRESULT Add_LaunchEffect(_fvector vPos);
 
 public:
 	static CBoss_Lab* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

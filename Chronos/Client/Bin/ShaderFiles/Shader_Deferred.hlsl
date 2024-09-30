@@ -100,8 +100,9 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_DIRECTIONAL(PS_IN In)
     
     vector vCombo = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
     
+    //float fMetallic = vCombo.g * vCombo.b + vCombo.r;
     float fMetallic = vCombo.g * vCombo.b;
-    Out.vShade = g_vLightDiffuse * saturate(max(dot(normalize(g_vLightDir) * -1.f, vNormal), 0.f) + (g_vLightAmbient + float4(vCombo.r, vCombo.r, vCombo.r, 1.f)));
+    Out.vShade = (1 - fMetallic) * g_vLightDiffuse * saturate(max(dot(normalize(g_vLightDir) * -1.f, vNormal), 0.f)) + (g_vLightAmbient);
     
     vector vReflect = reflect(normalize(g_vLightDir), normalize(vNormal));
 

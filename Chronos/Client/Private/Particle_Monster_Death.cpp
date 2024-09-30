@@ -62,7 +62,7 @@ void CParticle_Monster_Death::Update(_float fTimeDelta)
         vMove = XMVector3TransformNormal(vMove, XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_WorldMatrix)));
         XMStoreFloat3(&m_vPivot, XMLoadFloat3(&m_vPivot) - vMove);
 
-        if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), vCamLook, 1.f, fTimeDelta))
+        if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), vCamLook, 1.f, -0.01f, false, fTimeDelta))
             m_bDead = true;
     }
 }
@@ -84,7 +84,7 @@ HRESULT CParticle_Monster_Death::Render()
     if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
         return E_FAIL;
 
-    if (FAILED(m_pShaderCom->Begin(0)))
+    if (FAILED(m_pShaderCom->Begin(3)))
         return E_FAIL;
 
     if (FAILED(m_pVIBufferCom->Bind_Buffers()))
@@ -103,14 +103,12 @@ HRESULT CParticle_Monster_Death::Ready_Components(PARTICLE_DEATH_DESC* pDesc)
         return E_FAIL;
 
     /* FOR.Com_Texture */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle"),
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Stone"),
         TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
         return E_FAIL;
 
     CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
     ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
-#pragma region POINT_INSTANCE
-    /* For. Prototype_Component_VIBuffer_Particle_Spark */
     ParticleDesc.iNumInstance = pDesc->iNumInstance;
     ParticleDesc.vCenter = pDesc->vCenter;
     ParticleDesc.vRange = pDesc->vRange;	// 이게 첫 생성 범위
@@ -119,8 +117,7 @@ HRESULT CParticle_Monster_Death::Ready_Components(PARTICLE_DEATH_DESC* pDesc)
     ParticleDesc.vSpeed = pDesc->vSpeed;
     ParticleDesc.vLifeTime = pDesc->vLifeTime;
     ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 1.f);
-    ParticleDesc.vMaxColor = _float4(0.f, 0.f, 0.f, 1.f);
-    ParticleDesc.isLoop = false;
+    ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
 
     /* FOR.Com_VIBuffer */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Rect"),

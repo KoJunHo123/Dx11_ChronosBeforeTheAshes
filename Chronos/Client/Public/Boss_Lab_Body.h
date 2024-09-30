@@ -42,6 +42,8 @@ public:
 	void Set_Intro(_bool bIntro) {
 		m_bIntro = bIntro;
 	}
+	_uint Get_FrameIndex();
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -88,6 +90,7 @@ private:
 
 private:
 	void Play_Animation(_float fTimeDelta);
+
 
 public:
 	static CBoss_Lab_Body* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

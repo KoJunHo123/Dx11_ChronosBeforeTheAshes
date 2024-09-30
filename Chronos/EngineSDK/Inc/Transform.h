@@ -70,6 +70,7 @@ public:
 	void Rotation(_float fX, _float fY, _float fZ);
 
 	void SetUp_OnCell(class CNavigation* pNavigation);
+	void Fix_OnCell(class CNavigation* pNavigation);
 	
 	void Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fDistance, _float fTimeDelta);
 

@@ -7,6 +7,13 @@
 #include "Boss_Lab_Attack.h"
 
 #include "Particle_Monster_Death.h"
+#include "Boss_Lab_Teleport_Smoke.h"
+#include "Boss_Lab_Teleport_Stone.h"
+
+#include "Effect_Flare.h"
+
+#include "Particle_LaunchStone.h"
+#include "Particle_LaunchWaterDrop.h"
 
 CBoss_Lab::CBoss_Lab(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CMonster(pDevice, pContext)
@@ -35,6 +42,7 @@ HRESULT CBoss_Lab::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_iState = STATE_APPEAR;
+
 
 	m_iMaxHP = 100;
 	m_iHP = m_iMaxHP;
@@ -80,13 +88,18 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Set_On();
 	}
 
+	_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
+
 	if(true == Contain_State(STATE_IDLE | STATE_WALK | STATE_APPEAR))
 	{
-		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-		vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
 		m_pTransformCom->LookAt(vPlayerPos, 0.1f);
 	}
-	
+	else if (true == Contain_State(STATE_CHARGE))
+	{
+		m_pTransformCom->LookAt(vPlayerPos, 0.02f);
+	}
+
 	if (true == Contain_State(STATE_WALK))
 	{
 		m_pTransformCom->Go_Straight(fTimeDelta * m_fSpeed, m_pNavigationCom);
@@ -94,10 +107,20 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	
 	if (true == Contain_State(STATE_APPEAR))
 	{
+		CBoss_Lab_Body* pBody = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY]);
+
 		if (fDistance < 30.f)
 		{
-			dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Set_Intro(true);
+			pBody->Set_Intro(true);
 		}
+
+		if (false == m_bEncounter && 31 <= pBody->Get_FrameIndex() && BOSS_LAB_TELEPORT_LAUNCH_ROAR == pBody->Get_CurrentAnim())
+		{
+			Add_LaunchEffect(Get_Position());
+			static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE_SPLASH])->Set_On(Get_Position());
+			m_bEncounter = true;
+		}
+
 		if(true == m_bAnimOver)
 		{
 			m_iState &= ~STATE_APPEAR;
@@ -143,7 +166,12 @@ void CBoss_Lab::Update(_float fTimeDelta)
 				if (0 == iRandomNum)
 					m_iState |= STATE_CHARGE;
 				else
+				{
 					m_iState |= STATE_TELEPORT;
+					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
+					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
+					Add_TeleportEffect();
+				}
 			}
 		}
 		else
@@ -162,6 +190,50 @@ void CBoss_Lab::Update(_float fTimeDelta)
 
 	m_fAttackDelay += fTimeDelta;
 
+	if (true == Contain_State(STATE_TELEPORT))
+	{
+		CBoss_Lab_Body* pBody = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY]);
+		
+
+		if (BOSS_LAB_TELEPORT_LAUNCH == pBody->Get_CurrentAnim() )
+		{
+			_vector vPos = Get_Position();
+			vPos = XMVectorSetY(vPos, XMVectorGetY(m_pNavigationCom->Get_CellCenterPos(m_pNavigationCom->Get_CurrentCellIndex())));
+
+			if(false == m_bLaunchStart)
+			{
+				static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE_BOIL])->Set_On(vPos);
+				m_bLaunchStart = true;
+			}
+			if(false == m_bLaunchEffect && 35 <= pBody->Get_FrameIndex())
+			{
+				Add_LaunchEffect(vPos);
+				static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE_SPLASH])->Set_On(vPos);
+				m_bLaunchEffect = true;
+			}
+		}
+		else
+		{
+			static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE_BOIL])->Set_Off();
+			m_bLaunchEffect = false;
+			m_bLaunchStart = false;
+		}
+
+		if(BOSS_LAB_TELEPORT_APPEAR == pBody->Get_CurrentAnim())
+		{
+			if (false == m_bLaunchOver && 2 <= pBody->Get_FrameIndex())
+			{
+				Add_LaunchEffect(Get_Position());
+				static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE_SPLASH])->Set_On(Get_Position());
+				m_bLaunchOver = true;
+			}
+		}
+		else
+		{
+			m_bLaunchOver = false;
+		}
+	}
+
 	for (auto& pPartObject : m_Parts)
 	{
 		if (nullptr == pPartObject)
@@ -170,6 +242,8 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	}
 
 	__super::Update(fTimeDelta);
+
+	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
 
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
@@ -301,6 +375,82 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	if (FAILED(__super::Add_PartObject(PART_EFFECT_DEATH, TEXT("Prototype_GameObject_Particle_Monster_Death"), &DeathDesc)))
 		return E_FAIL;
 
+	CBoss_Lab_Teleport_Smoke::BOSSTELEPORT_SMOKE_DESC SmokeDesc = {};
+	SmokeDesc.fRotationPerSec = 0.f;
+	SmokeDesc.fSpeedPerSec = 1.f;
+	
+	SmokeDesc.iNumInstance = 100;
+	SmokeDesc.vCenter = { 0.f, 1.f, 0.f };
+	SmokeDesc.vRange = { 15.f, 1.f, 15.f };
+	SmokeDesc.vExceptRange = { 7.f, 1.f, 7.f };
+	SmokeDesc.vSize = { 0.5f, 1.f };
+	SmokeDesc.vSpeed = { -1.f, 3.f };
+	SmokeDesc.vLifeTime = { 1.f, 2.f };
+	SmokeDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
+	SmokeDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
+	
+	SmokeDesc.vScale = { 5.f, 5.f, 5.f };
+	SmokeDesc.fSpeed = 3.f;
+	SmokeDesc.fGravity = 0.03f;
+	SmokeDesc.vPivot = { 0.f, -4.f, 0.f };
+	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	SmokeDesc.isLoop = false;
+	if (FAILED(__super::Add_PartObject(PART_TELEPORT_SMOKE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"), &SmokeDesc)))
+		return E_FAIL;
+
+	SmokeDesc.fRotationPerSec = 0.f;
+	SmokeDesc.fSpeedPerSec = 1.f;
+
+	SmokeDesc.iNumInstance = 300;
+	SmokeDesc.vCenter = { 0.f, 0.f, 0.f };
+	SmokeDesc.vRange = { 15.f, 1.f, 15.f };
+	SmokeDesc.vExceptRange = { 0.f, 0.f, 0.f };
+	SmokeDesc.vSize = { 2.f, 4.f };
+	SmokeDesc.vSpeed = { 4.f, 8.f };
+	SmokeDesc.vLifeTime = { 0.5f, 1.f };
+	SmokeDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
+	SmokeDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
+
+	SmokeDesc.vScale = { 10.f, 10.f, 10.f };
+	SmokeDesc.fSpeed = 1.f;
+	SmokeDesc.fGravity = 0.1f;
+	SmokeDesc.vPivot = { 0.f, -5.f, 0.f };
+	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	SmokeDesc.isLoop = true;
+	if (FAILED(__super::Add_PartObject(PART_TELEPORT_SMOKE_BOIL, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"), &SmokeDesc)))
+		return E_FAIL;
+
+	SmokeDesc.fRotationPerSec = 0.f;
+	SmokeDesc.fSpeedPerSec = 1.f;
+
+	SmokeDesc.iNumInstance = 30;
+	SmokeDesc.vCenter = { 0.f, 1.f, 0.f };
+	SmokeDesc.vRange = { 8.f, 4.f, 8.f };
+	SmokeDesc.vExceptRange = { 0.f, 0.f, 0.f };
+	SmokeDesc.vSize = { 2.f, 4.f };
+	SmokeDesc.vSpeed = { 10.f, 15.f };
+	SmokeDesc.vLifeTime = { 1.f, 2.f };
+	SmokeDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
+	SmokeDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
+
+	SmokeDesc.vScale = { 1.f, 1.f, 1.f };
+	SmokeDesc.fSpeed = 1.f;
+	SmokeDesc.fGravity = 0.2f;
+	SmokeDesc.vPivot = { 0.f, -3.f, 0.f };
+	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	SmokeDesc.isLoop = false;
+	if (FAILED(__super::Add_PartObject(PART_TELEPORT_SMOKE_SPLASH, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"), &SmokeDesc)))
+		return E_FAIL;
+
+	CBoss_Lab_Teleport_Stone::BOSSTELEPORT_STONE_DESC StoneDesc = {};
+
+	StoneDesc.fRotationPerSec = 0.f;
+	StoneDesc.fSpeedPerSec = 1.f;
+	StoneDesc.fSpeed = 1.f;
+	StoneDesc.fGravity = 0.03f;
+	if (FAILED(__super::Add_PartObject(PART_TELEPORT_STONE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Stone"), &StoneDesc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -310,6 +460,42 @@ _bool CBoss_Lab::Contain_State(_uint iState)
 		return true;
 
 	return false;
+}
+
+HRESULT CBoss_Lab::Add_TeleportEffect()
+{
+	CEffect_Flare::FLARE_DESC LightDesc = {};
+
+	LightDesc.fRotationPerSec = 0.f;
+	LightDesc.fSpeedPerSec = 0.f;
+	LightDesc.vColor = { 0.541f, 0.169f, 0.886f, 0.f };
+	LightDesc.vScale = { 100.f, 100.f, 100.f };
+	XMStoreFloat3(&LightDesc.vPos, Get_Position());
+
+	m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Flare"), &LightDesc);
+
+	return S_OK;
+}
+
+HRESULT CBoss_Lab::Add_LaunchEffect(_fvector vPos)
+{
+	CParticle_LaunchStone::PARTICLE_LAUNCHSTONE_DESC StoneDesc{};
+	StoneDesc.fRotationPerSec = 0.f;
+	StoneDesc.fSpeedPerSec = 0.f;
+	StoneDesc.vPivot = {0.f, -10.f, 0.f};
+	XMStoreFloat3(&StoneDesc.vPos, vPos);
+
+	m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_LaunchStone"), &StoneDesc);
+
+	CParticle_LaunchWaterDrop::PARTICLE_LAUNCHWATERDROP_DESC WaterDropDesc{};
+	WaterDropDesc.fRotationPerSec = 0.f;
+	WaterDropDesc.fSpeedPerSec = 0.f;
+	WaterDropDesc.vPivot = { 0.f, -10.f, 0.f };
+	WaterDropDesc.vPos = StoneDesc.vPos;
+
+	m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_LaunchWaterDrop"), &WaterDropDesc);
+
+	return S_OK;
 }
 
 CBoss_Lab* CBoss_Lab::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

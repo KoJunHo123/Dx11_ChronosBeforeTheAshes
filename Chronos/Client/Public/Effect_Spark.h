@@ -16,8 +16,9 @@ public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
 		_float3 vPos;
-		_float3 vPivot;
+		_float3 vScale;
 		_float4 vColor;
+		_float fIndexSpeed;
 	}SPARK_DESC;
 private:
 	CEffect_Spark(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -41,11 +42,12 @@ private:
 	_float4 m_vColor = {};
 
 	_float2 m_vDivide = { };
+	_float3 m_vScale = {};
 	_float m_fTexIndex = { 0 };
+	_float m_fIndexSpeed = { 0.f };
 
 private:
 	HRESULT Ready_Components();
-	HRESULT Add_SparkParticle(_fvector vPos, _fvector vPivot);
 
 public:
 	static CEffect_Spark* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

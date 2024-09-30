@@ -259,21 +259,6 @@ HRESULT CLab_Mage::Ready_PartObjects()
     return S_OK;
 }
 
-HRESULT CLab_Mage::Add_SpawnParticle(_fvector vPos, _float fOffset)
-{
-    CParticle_Spawn::PARTICLE_SPAWN_DESC desc = {};
-
-    desc.fRotationPerSec = 0.f;
-    desc.fSpeedPerSec = 1.f;
-    XMStoreFloat3(&desc.vPos, vPos);
-    desc.vPos.y += fOffset;
-
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spawn"), &desc)))
-        return E_FAIL;
-
-    return S_OK;
-
-}
 
 CLab_Mage* CLab_Mage::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

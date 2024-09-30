@@ -19,14 +19,15 @@ public:
 		_float3 vCenter;
 		_float3 vRange;
 		_float3 vExceptRange;
+		_float2 vLifeTime;
+		_float4 vMaxColor;
+		_float4 vMinColor;
 		_float2 vSize;
 		_float2 vSpeed;
-		_float2 vLifeTime;
-		_float4 vMinColor;
-		_float4 vMaxColor;
-		_bool isLoop;
 
 		_float3 vPos;
+		_float3 vScale;
+		_float4 vColor;
 	} SMOKE_DESC;
 
 private:
@@ -48,13 +49,13 @@ private:
 	class CVIBuffer_Rect_Instance* m_pVIBufferCom = { nullptr };
 
 private:
-	_float m_fRatio = { 0.f };
 	_float m_fSpeed = { 0.f };
 	_float3 m_vScale = {};
+	_float m_fRatioSpeed = { 0 };
+	_float4 m_vColor = {};
 	
-	_int m_iTurnDir = {};
 private:
-	HRESULT Ready_Components();
+	HRESULT Ready_Components(const SMOKE_DESC& Desc);
 
 public:
 	static CParticle_Smoke* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

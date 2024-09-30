@@ -304,6 +304,13 @@ void CTransform::SetUp_OnCell(CNavigation* pNavigation)
 	Set_State(STATE_POSITION, vPos);
 }
 
+void CTransform::Fix_OnCell(CNavigation* pNavigation)
+{
+	_vector vPos = Get_State(STATE_POSITION);
+	_float fY = pNavigation->Compute_Height(vPos);
+	Set_State(STATE_POSITION, vPos);
+}
+
 void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float fDistance, _float fTimeDelta)
 {
 	Set_State(STATE_POSITION, vCenter);

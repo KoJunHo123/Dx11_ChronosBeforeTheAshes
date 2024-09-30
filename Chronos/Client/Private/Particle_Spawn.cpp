@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Monster.h"
+#include "Particle_Smoke.h"
 
 
 CParticle_Spawn::CParticle_Spawn(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -31,11 +32,11 @@ HRESULT CParticle_Spawn::Initialize(void* pArg)
         return E_FAIL;
 
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&pDesc->vPos));
-    m_eType = pDesc->eType;
     m_iSpawnCellIndex = pDesc->iSpawnCellIndex;
 
     m_vPivot = _float3(0.f, 0.f, 0.f);
     m_fSpeed = 1.f;
+
 
     return S_OK;
 }
@@ -44,36 +45,35 @@ _uint CParticle_Spawn::Priority_Update(_float fTimeDelta)
 {
     if (true == m_bDead)
         return OBJ_DEAD;
-     
-    m_fSpeed += fTimeDelta * 30.f;
 
-    if (false == m_bSpawn)
+    
+    if (false == m_bConvergeOver)
     {
-        _bool bPupple{ false }, bWhite{ false };
-        bPupple = m_pVIBufferCom_Pupple->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, fTimeDelta);
-        bWhite = m_pVIBufferCom_White->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, fTimeDelta);
-
-        if (true == bPupple && true == bWhite)
-        {
-            Add_Monster();
-            m_bSpawn = true;
-        }
+        m_bConvergeOver = m_pVIBufferCom_Converge->Converge(XMLoadFloat3(&m_vPivot), m_fSpeed, false, fTimeDelta);
     }
-    else
+
+    if(true == m_bSpread)
     {
-        _bool bPupple{ false }, bWhite{ false };
-        bPupple = m_pVIBufferCom_Pupple->Converge(XMLoadFloat3(&m_vPivot), m_fSpeed, fTimeDelta);
-        bWhite = m_pVIBufferCom_White->Converge(XMLoadFloat3(&m_vPivot), m_fSpeed, fTimeDelta);
-
-        if (true == bPupple && true == bWhite)
-            m_bDead = true;
+        m_pVIBufferCom_Spread->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 0.f, false, fTimeDelta);
     }
+    m_fSpawnTime += fTimeDelta;
+
+    if (false == m_bSpread && 0.5f < m_fSpawnTime)
+    {
+        m_bSpread = true;
+        Add_Monster();
+        Add_ParticleSmoke();
+    }
+
 
     return OBJ_NOEVENT;
 }
 
 void CParticle_Spawn::Update(_float fTimeDelta)
 {
+
+    
+    
 }
 
 void CParticle_Spawn::Late_Update(_float fTimeDelta)
@@ -94,18 +94,23 @@ HRESULT CParticle_Spawn::Render()
     if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
         return E_FAIL;
 
-    if (FAILED(m_pShaderCom->Begin(1)))
+    if (FAILED(m_pShaderCom->Begin(3)))
         return E_FAIL;
 
-    if (FAILED(m_pVIBufferCom_Pupple->Bind_Buffers()))
-        return E_FAIL;
-    if (FAILED(m_pVIBufferCom_Pupple->Render()))
-        return E_FAIL;
-
-    if (FAILED(m_pVIBufferCom_White->Bind_Buffers()))
-        return E_FAIL;
-    if (FAILED(m_pVIBufferCom_White->Render()))
-        return E_FAIL;
+    if(false == m_bConvergeOver)
+    {
+        if (FAILED(m_pVIBufferCom_Converge->Bind_Buffers()))
+            return E_FAIL;
+        if (FAILED(m_pVIBufferCom_Converge->Render()))
+            return E_FAIL;
+    }
+    if (true == m_bSpread)
+    {
+        if (FAILED(m_pVIBufferCom_Spread->Bind_Buffers()))
+            return E_FAIL;
+        if (FAILED(m_pVIBufferCom_Spread->Render()))
+            return E_FAIL;
+    }
     return S_OK;
 }
 
@@ -117,18 +122,18 @@ HRESULT CParticle_Spawn::Ready_Components()
         return E_FAIL;
 
     /* FOR.Com_Texture */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Spark"),
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_LightLong"),
         TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
         return E_FAIL;
 
-    /* FOR.Com_VIBuffer */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Pupple"),
-        TEXT("Com_VIBuffer_Pupple"), reinterpret_cast<CComponent**>(&m_pVIBufferCom_Pupple))))
+    /* FOR.Com_VIBuffer_Converge */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Converge"),
+        TEXT("Com_VIBuffer_Converge"), reinterpret_cast<CComponent**>(&m_pVIBufferCom_Converge))))
         return E_FAIL;
 
-    /* FOR.Com_VIBuffer */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_White"),
-        TEXT("Com_VIBuffer_White"), reinterpret_cast<CComponent**>(&m_pVIBufferCom_White))))
+    /* FOR.Com_VIBuffer_Spread */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Spread"),
+        TEXT("Com_VIBuffer_Spread"), reinterpret_cast<CComponent**>(&m_pVIBufferCom_Spread))))
         return E_FAIL;
 
     return S_OK;
@@ -146,32 +151,31 @@ HRESULT CParticle_Spawn::Add_Monster()
     if (-1 == desc.iStartCellIndex)
         return E_FAIL;
 
-    switch (m_eType)
-    {
-    case TYPE_TROLL:
-        if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-            return E_FAIL;
-        break;
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+        return E_FAIL;
 
-    case TYPE_MAGE:
-        if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-            return E_FAIL;
-        break;
+    return S_OK;
+}
 
-    case TYPE_DRUM:
-        if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-            return E_FAIL;
-        break;
+HRESULT CParticle_Spawn::Add_ParticleSmoke()
+{
+    CParticle_Smoke::SMOKE_DESC SmokeDesc = {};
+    XMStoreFloat3(&SmokeDesc.vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    SmokeDesc.vScale = _float3(5.f, 5.f, 5.f);
+    //SmokeDesc.vColor =_float4(0.541f, 0.169f, 0.886f, 1.f);
+    SmokeDesc.vColor =_float4(0.f, 0.f, 0.f, 1.f);
 
-    case TYPE_CONSTRUCT:
-        if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-            return E_FAIL;
-        break;
+    SmokeDesc.iNumInstance = 10;
+    SmokeDesc.vCenter = _float3(0.f, 0.f, 0.f);
+    SmokeDesc.vRange = _float3(2.f, 2.f, 2.f);
+    SmokeDesc.vExceptRange = _float3(0.0f, 0.0f, 0.f);
+    SmokeDesc.vLifeTime = _float2(1.f, 1.5f);
+    SmokeDesc.vMaxColor = _float4(0.f, 0.f, 0.f, 1.f);
+    SmokeDesc.vMinColor = _float4(1.f, 1.f, 1.f, 1.f);
+    SmokeDesc.vSize = _float2(1.f, 2.f);
+    SmokeDesc.vSpeed = _float2(1.f, 2.f);
 
-    case TYPE_END:
-        break;
-    }
-    
+    m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Smoke"), &SmokeDesc);
 
     return S_OK;
 }
@@ -208,6 +212,6 @@ void CParticle_Spawn::Free()
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pTextureCom);
-    Safe_Release(m_pVIBufferCom_Pupple);
-    Safe_Release(m_pVIBufferCom_White);
+    Safe_Release(m_pVIBufferCom_Converge);
+    Safe_Release(m_pVIBufferCom_Spread);
 }

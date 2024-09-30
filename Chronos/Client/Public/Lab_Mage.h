@@ -52,7 +52,6 @@ private:
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
-	HRESULT Add_SpawnParticle(_fvector vPos, _float fOffset);
 
 public:
 	static CLab_Mage* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

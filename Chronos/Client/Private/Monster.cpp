@@ -135,4 +135,5 @@ void CMonster::Free()
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pPlayerTransformCom);
 	Safe_Release(m_pNoiseTextureCom);
+
 }

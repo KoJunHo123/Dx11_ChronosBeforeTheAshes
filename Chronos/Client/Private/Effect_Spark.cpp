@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Effect_Spark.h"
 #include "GameInstance.h"
-#include "Particle_Spark.h"
 
 CEffect_Spark::CEffect_Spark(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CBlendObject(pDevice, pContext)
@@ -29,9 +28,10 @@ HRESULT CEffect_Spark::Initialize(void* pArg)
         return E_FAIL;
 
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&pDesc->vPos));
-    m_pTransformCom->Set_Scaled(1.f, 1.f, 1.f);
 
     m_vColor = pDesc->vColor;
+    m_fIndexSpeed = pDesc->fIndexSpeed;
+    m_vScale = pDesc->vScale;
     m_vDivide = _float2(6.f, 6.f);
     
     return S_OK;
@@ -50,7 +50,10 @@ void CEffect_Spark::Update(_float fTimeDelta)
     _matrix ViewInverse = m_pGameInstance->Get_Transform_Inverse_Matrix(CPipeLine::D3DTS_VIEW);
     m_pTransformCom->LookDir(ViewInverse.r[2]);
 
-    m_fTexIndex += fTimeDelta * 60.f;
+    m_fTexIndex += fTimeDelta * m_fIndexSpeed;
+
+    _float fRatio = 1.f - (m_fTexIndex / (m_vDivide.x * m_vDivide.y - 1.f));
+    m_pTransformCom->Set_Scaled(m_vScale.x * fRatio, m_vScale.y * fRatio, m_vScale.z * fRatio);
 
     if (m_fTexIndex > m_vDivide.x * m_vDivide.y - 1.f)
     {
@@ -96,7 +99,6 @@ HRESULT CEffect_Spark::Render()
     if (FAILED(m_pVIBufferCom->Render()))
         return E_FAIL;
 
-
     return S_OK;
 }
 
@@ -115,23 +117,6 @@ HRESULT CEffect_Spark::Ready_Components()
     /* FOR.Com_VIBuffer_Rect */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Rect"),
         TEXT("Com_VIBuffer_Pupple"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
-        return E_FAIL;
-
-
-    return S_OK;
-}
-
-HRESULT CEffect_Spark::Add_SparkParticle(_fvector vPos, _fvector vPivot)
-{
-
-    CParticle_Spark::Particle_Spark_DESC desc = {};
-
-    desc.fRotationPerSec = 0.f;
-    desc.fSpeedPerSec = 1.f;
-    XMStoreFloat3(&desc.vPos, vPos);
-    XMStoreFloat3(&desc.vPivot, vPivot);
-
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spark"), &desc)))
         return E_FAIL;
 
     return S_OK;

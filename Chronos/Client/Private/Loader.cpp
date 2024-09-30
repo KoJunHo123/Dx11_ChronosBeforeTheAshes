@@ -32,6 +32,8 @@
 #include "Boss_Lab.h"
 #include "Boss_Lab_Body.h"
 #include "Boss_Lab_Attack.h"
+#include "Boss_Lab_Teleport_Smoke.h"
+#include "Boss_Lab_Teleport_Stone.h"
 
 // 몬스터 : 석상
 #include "Lab_Construct.h"
@@ -59,16 +61,19 @@
 #include "Pedestal.h"
 
 // 파티클
-#include "Particle_Spark.h"
+#include "Particle_AttackLight.h"
 #include "Particle_Spawn.h"
 #include "Particle_Snow.h"
 #include "Particle_Smoke.h"
+#include "Particle_LaunchStone.h"
+#include "Particle_LaunchWaterDrop.h"
 
 // 이펙트
 #include "Effect_Flash.h"
 #include "Effect_Spark.h"
 #include "Effect_BloodCore.h"
 #include "Effect_BloodSpray.h"
+#include "Effect_Flare.h"
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice { pDevice }
@@ -175,14 +180,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Noise/Noise_%d.png"), 4))))
 		return E_FAIL;
 
-	/* For. Prototype_Component_Texture_Particle */
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/Particle.png"), 1))))
+	/* For. Prototype_Component_Texture_Particle_Stone */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Stone"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/Stone.png"), 1))))
 		return E_FAIL;
 	
+	/* For. Prototype_Component_Texture_Particle_LightLong */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_LightLong"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_LightLong_A.png"), 1))))
+		return E_FAIL;
+
 	/* For. Prototype_Component_Texture_Particle_Spark */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Spark"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_LightLong_A.png"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/Particle_Spark.png"), 1))))
 		return E_FAIL;
 
 	/* For. Prototype_Component_Texture_Snow */
@@ -198,6 +208,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_Component_Texture_Glow */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Glow"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/Glow_3.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Flare */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Flare"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Flare_%d.png"), 2))))
 		return E_FAIL;
 
 	/* For. Prototype_Component_Texture_Smoke */
@@ -248,6 +263,9 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CVIBuffer_Rect_Instance::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if(FAILED(Load_Particle()))
+		return E_FAIL;
+
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
 	/* For. Prototype_Component_VIBuffer_Particle_Spark */
@@ -255,36 +273,13 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);	// 이게 첫 생성 범위
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.2f, 0.4f);		// 이게 크기
+	ParticleDesc.vSize = _float2(0.3f, 0.6f);		// 이게 크기
 	//ParticleDesc.vSize = _float2(1.f, 2.f);		// 이게 크기
-	ParticleDesc.vSpeed = _float2(15.f, 20.f);
+	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	ParticleDesc.vLifeTime = _float2(0.2f, 0.4f);
 	ParticleDesc.vMinColor = _float4(1.f, 0.647f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 0.4f, 1.f);
-	ParticleDesc.isLoop = false;
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spark"),
-		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
-		return E_FAIL;
-
-	/* For. Prototype_Component_VIBuffer_Particle_Spawn_Pupple */
-	ParticleDesc.iNumInstance = 1500;
-	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.05f);	// 이게 첫 생성 범위
-	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.1f, 0.2f);		// 이게 크기
-	ParticleDesc.vSpeed = _float2(0.25f, 0.5f);
-	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
-	ParticleDesc.vMinColor = _float4(0.294f, 0.f, 0.502f, 1.f);
-	ParticleDesc.vMaxColor = _float4(0.441f, 0.f, 0.703f, 1.f);
-	ParticleDesc.isLoop = false;
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Pupple"),
-		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
-		return E_FAIL;
-
-	/* For. Prototype_Component_VIBuffer_Particle_Spawn_White */
-	ParticleDesc.vMinColor = _float4(0.676f, 0.558f, 0.75f, 1.f);
-	ParticleDesc.vMaxColor = _float4(0.902f, 0.745f, 1.f, 1.f);
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_White"),
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_AttackLight"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
@@ -300,9 +295,59 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vLifeTime = _float2(4.f, 8.f);
 	ParticleDesc.vMinColor = _float4(1.f, 1.f, 1.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
-	ParticleDesc.isLoop = true;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Snow"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Boss_Teleport_Stone */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+
+	ParticleDesc.iNumInstance = 1000;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(5.f, 1.f, 5.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.5f, 0.7f);
+	ParticleDesc.vSpeed = _float2(5.f, 10.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 0.f);
+	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Boss_Teleport_Stone"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Launch_Stone */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+
+	ParticleDesc.iNumInstance = 500;
+	ParticleDesc.vCenter = _float3(0.f, 1.f, 0.f);
+	ParticleDesc.vRange = _float3(5.f, 1.f, 5.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(10.f, 20.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 0.f);
+	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Launch_Stone"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Launch_WaterDrop */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+
+	ParticleDesc.iNumInstance = 500;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(5.f, 1.f, 5.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(15.f, 20.f);
+	ParticleDesc.vLifeTime = _float2(2.f, 4.f);
+	ParticleDesc.vMinColor = _float4(0.416f, 0.353f, 0.804f, 0.f);
+	ParticleDesc.vMaxColor = _float4(0.482f, 0.408f, 9.933f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Launch_WaterDrop"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
@@ -624,6 +669,17 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Attack"),
 		CBoss_Lab_Attack::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Boss_Lab_Teleport_Smoke */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"),
+		CBoss_Lab_Teleport_Smoke::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Boss_Lab_Teleport_Stone */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Teleport_Stone"),
+		CBoss_Lab_Teleport_Stone::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER_CONSTRUCT
 	/* For. Prototype_GameObject_Lab_Construct */
@@ -711,7 +767,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 #pragma region PARTICLE
 	/* For. Prototype_GameObject_Particle_Spark */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Spark"),
-		CParticle_Spark::Create(m_pDevice, m_pContext))))
+		CParticle_AttackLight::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	/* For. Prototype_GameObject_Particle_Spawn */
@@ -727,6 +783,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Particle_Smoke */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Smoke"),
 		CParticle_Smoke::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_LaunchStone */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_LaunchStone"),
+		CParticle_LaunchStone::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_LaunchWaterDrop */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_LaunchWaterDrop"),
+		CParticle_LaunchWaterDrop::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region EFFECT
@@ -750,6 +816,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CEffect_BloodSpray::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Effect_Flare */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Flare"),
+		CEffect_Flare::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
@@ -757,6 +827,77 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	return S_OK;
 }
+
+HRESULT CLoader::Load_Particle()
+{
+	_char ConvergeFilePath[MAX_PATH]{ "../Bin/SaveData/Spawn/Converge_Particle.dat" };
+	ifstream infile_Converge(ConvergeFilePath, ios::binary);
+
+	if (!infile_Converge.is_open())
+		return E_FAIL;
+	while (true)
+	{
+		CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
+
+		infile_Converge.read(reinterpret_cast<_char*>(&ParticleDesc), sizeof(CVIBuffer_Instancing::INSTANCE_DESC));
+
+		ParticleDesc.vMinColor = {0.137f, 0.f, 0.204f, 1.f};
+		ParticleDesc.vMaxColor = {0.188f, 0.098f, 0.216f, 1.f};
+		//ParticleDesc.vSize.x *= 0.5f;
+		//ParticleDesc.vSize.y *= 0.5f;
+		ParticleDesc.vRange = { 8.f, 8.f, 8.f };
+		ParticleDesc.vSpeed.x *= 2.f;
+		ParticleDesc.vSpeed.y *= 2.f;
+		//ParticleDesc.vMinColor = { 0.541f, 0.f, 0.827f, 1.f };
+		//ParticleDesc.vMaxColor = { 0.580f, 0.169f, 0.886f, 1.f };
+		// ParticleDesc.iNumInstance = 500;
+
+
+		if (true == infile_Converge.eof())
+			break;
+
+		if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Converge"),
+			CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+			return E_FAIL;
+	}
+	infile_Converge.close();
+
+	_char SpreadFilePath[MAX_PATH] = { "../Bin/SaveData/Spawn/Spread_Particle.dat" };
+	ifstream infile_Spread(SpreadFilePath, ios::binary);
+
+	if (!infile_Spread.is_open())
+		return E_FAIL;
+	while (true)
+	{
+		CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
+
+		infile_Spread.read(reinterpret_cast<_char*>(&ParticleDesc), sizeof(CVIBuffer_Instancing::INSTANCE_DESC));
+
+		//ParticleDesc.vMinColor = { 0.541f, 0.f, 0.827f, 1.f };
+		//ParticleDesc.vMaxColor = { 0.580f, 0.169f, 0.886f, 1.f };
+		ParticleDesc.vMinColor = { 0.137f, 0.f, 0.204f, 1.f };
+		ParticleDesc.vMaxColor = { 0.188f, 0.098f, 0.216f, 1.f };
+
+		/*ParticleDesc.vSize.x *= 0.5f;
+		ParticleDesc.vSize.y *= 0.5f;*/
+
+		ParticleDesc.vSpeed.x *= 2.f;
+		ParticleDesc.vSpeed.y *= 2.f;
+		ParticleDesc.vLifeTime.x *= 0.5f;
+		ParticleDesc.vLifeTime.y *= 0.5f;
+
+		if (true == infile_Spread.eof())
+			break;
+
+		if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Spawn_Spread"),
+			CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+			return E_FAIL;
+	}
+	infile_Spread.close();
+
+	return S_OK;
+}
+
 
 CLoader * CLoader::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, LEVELID eNextLevelID)
 {

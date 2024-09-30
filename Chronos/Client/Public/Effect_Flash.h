@@ -16,6 +16,7 @@ public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
 		_float3 vPos;
+		_float4 vColor;
 	}FLASH_DESC;
 private:
 	CEffect_Flash(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

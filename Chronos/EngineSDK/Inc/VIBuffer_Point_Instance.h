@@ -16,10 +16,10 @@ public:
 	virtual HRESULT Initialize(void* pArg) override;
 
 public:
-	virtual _bool Spread(_fvector vPivot, _float fSpeed, _float fTimeDelta) override;
-	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fTimeDelta) override;
-	virtual _bool Converge(_fvector vPivot, _float fSpeed, _float fTimeDelta) override;
-
+	virtual _bool Spread(_fvector vPivot, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta) override;
+	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta) override;
+	virtual _bool Converge(_fvector vPivot, _float fSpeed, _bool isLoop, _float fTimeDelta) override;
+	virtual void Reset() override;
 public:
 	static CVIBuffer_Point_Instance* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc);
 	virtual CComponent* Clone(void* pArg) override;

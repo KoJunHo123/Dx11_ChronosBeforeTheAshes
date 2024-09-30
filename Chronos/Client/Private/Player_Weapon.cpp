@@ -5,7 +5,7 @@
 
 #include "Monster.h"
 
-#include "Particle_Spark.h"
+#include "Particle_AttackLight.h"
 
 
 CPlayer_Weapon::CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -41,7 +41,7 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 
 	m_pRatio = pDesc->pRatio;
 
-	m_iDamage = 100;
+	m_iDamage = 0;
 
 	return S_OK;
 }
@@ -97,6 +97,17 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 	_matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
 	XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
 	m_pColliderCom->Update(&m_WorldMatrix);
+
+	if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_P))
+	{
+		if (0 == m_iDamage)
+			m_iDamage = 10;
+		else if (10 == m_iDamage)
+			m_iDamage = 100;
+		else
+			m_iDamage = 0;
+	}
+
 }
 
 void CPlayer_Weapon::Late_Update(_float fTimeDelta)
@@ -148,7 +159,7 @@ void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pColl
 	_uint iDamage = m_iDamage;
 	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim || PLAYER_ATK_POWER_02 == *m_pPlayerAnim || PLAYER_ATK_RUN == *m_pPlayerAnim)
 		iDamage = m_iDamage * 2;
-	//iDamage = 0;
+
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
@@ -197,7 +208,7 @@ HRESULT CPlayer_Weapon::Ready_Components()
 
 HRESULT CPlayer_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
 {
-	CParticle_Spark::Particle_Spark_DESC desc = {};
+	CParticle_AttackLight::PARTICLE_SPARK_DESC desc = {};
 
 	desc.fRotationPerSec = 0.f;
 	desc.fSpeedPerSec = 1.f;
