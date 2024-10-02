@@ -50,8 +50,11 @@ void CPlayer_Body::Update(_float fTimeDelta)
 {
 	m_pModelCom->SetUp_Animation(*m_pPlayerAnim, Animation_Loop(), Animation_NonInterpolate());
 
-	Play_Animation(fTimeDelta);
+	
+
+	Play_Animation(fTimeDelta * *m_pSpeed);
 	*m_pFrameIndex = Get_FrameIndex();
+
 }
 
 void CPlayer_Body::Late_Update(_float fTimeDelta)

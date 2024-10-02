@@ -175,6 +175,7 @@
     <ClInclude Include="..\public\Boss_Lab_Body.h" />
     <ClInclude Include="..\Public\Camera_Container.h" />
     <ClInclude Include="..\public\Camera_Interaction.h" />
+    <ClInclude Include="..\public\DragonHeart.h" />
     <ClInclude Include="..\public\Effect_Flare.h" />
     <ClInclude Include="..\public\Boss_Lab_Teleport_Stone.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
@@ -184,6 +185,8 @@
     <ClInclude Include="..\public\Effect_Spark.h" />
     <ClInclude Include="..\public\FloorChunk.h" />
     <ClInclude Include="..\public\Camera_Shorder.h" />
+    <ClInclude Include="..\public\Inventory.h" />
+    <ClInclude Include="..\public\Item.h" />
     <ClInclude Include="..\public\Lab_Construct.h" />
     <ClInclude Include="..\public\Lab_Construct_Body.h" />
     <ClInclude Include="..\public\Lab_Construct_Attack.h" />
@@ -237,6 +240,8 @@
     <ClInclude Include="..\public\UI_LogoMaze.h" />
     <ClInclude Include="..\public\UI_LogoTitle.h" />
     <ClInclude Include="..\public\UI_TextBox.h" />
+    <ClInclude Include="..\public\WayPoint.h" />
+    <ClInclude Include="..\public\WayPoint_InterColl.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -249,6 +254,7 @@
     <ClCompile Include="..\private\Boss_Lab_Body.cpp" />
     <ClCompile Include="..\Private\Camera_Container.cpp" />
     <ClCompile Include="..\private\Camera_Interaction.cpp" />
+    <ClCompile Include="..\private\DragonHeart.cpp" />
     <ClCompile Include="..\private\Effect_Flare.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Teleport_Stone.cpp" />
     <ClCompile Include="..\private\Effect_BloodCore.cpp" />
@@ -256,6 +262,8 @@
     <ClCompile Include="..\private\Effect_Spark.cpp" />
     <ClCompile Include="..\private\FloorChunk.cpp" />
     <ClCompile Include="..\private\Camera_Shorder.cpp" />
+    <ClCompile Include="..\private\Inventory.cpp" />
+    <ClCompile Include="..\private\Item.cpp" />
     <ClCompile Include="..\private\Lab_Construct.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Body.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Attack.cpp" />
@@ -309,6 +317,8 @@
     <ClCompile Include="..\private\UI_LogoMaze.cpp" />
     <ClCompile Include="..\private\UI_LogoTitle.cpp" />
     <ClCompile Include="..\private\UI_TextBox.cpp" />
+    <ClCompile Include="..\private\WayPoint.cpp" />
+    <ClCompile Include="..\private\WayPoint_InterColl.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

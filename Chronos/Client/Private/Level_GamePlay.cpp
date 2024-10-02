@@ -10,6 +10,7 @@
 #include "Layer.h"
 #include "PuzzleBase.h"
 #include "Pedestal.h"
+#include "WayPoint.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -85,7 +86,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
-	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);
+	LightDesc.vDirection = _float4(-1.f, -5.f, -1.f, 0.f);
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
 	LightDesc.vAmbient = _float4(0.4f, 0.4f, 0.4f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
@@ -109,8 +110,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
 		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-		return E_FAIL;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+	//	return E_FAIL;
 
 	return S_OK;
 }
@@ -200,6 +201,9 @@ HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
 	if (FAILED(Ready_Layer_Pedestal()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_Waypoint()))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -266,6 +270,19 @@ HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
 	}
 
 	infile.close();
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Waypoint()
+{
+	CWayPoint::WAYPOINT_DESC desc;
+	desc.fRotationPerSec = 0.;
+	desc.fSpeedPerSec = 1.f;
+	desc.vPos = _float3(66.5f, 5.f, 101.5f);
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_WayPoint"), &desc)))
+		return E_FAIL;
 
 	return S_OK;
 }

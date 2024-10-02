@@ -36,6 +36,7 @@ private:
 	HRESULT Ready_Layer_Puzzle();
 	HRESULT Ready_Layer_Teleport();
 	HRESULT Ready_Layer_Pedestal();
+	HRESULT Ready_Layer_Waypoint();
 
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex);

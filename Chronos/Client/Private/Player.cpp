@@ -126,7 +126,25 @@ void CPlayer::Update(_float fTimeDelta)
 
         m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 
-        cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
+        //cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
+        //_float3 vPos = {};
+        //XMStoreFloat3(&vPos, Get_Position());
+
+        //cout << vPos.x << endl;
+        //cout << vPos.y << endl;
+        //cout << vPos.z << endl << endl;
+
+        if (PLAYER_ACTION_DRAGONHEART == m_ePlayerAnim && 67 == m_iKeyFrameIndex)
+        {
+            m_iHP = m_iMaxHP;
+            // 이펙트든 파티클이든 아무거나......
+        }
+
+        else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 == m_iKeyFrameIndex)
+        {
+            // 
+        }
+        
     }
 }
 
@@ -328,7 +346,18 @@ HRESULT CPlayer::Ready_States()
     if (FAILED(m_pFSM->Add_State(CPlayer_Impact::Create(&ImpactDesc))))
         return E_FAIL;
 
-    if (FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&desc))))
+    CPlayer_Action::PLAYER_ACTION_DESC ActionDesc = {};
+    ActionDesc.pFSM = m_pFSM;
+    ActionDesc.pNavigationCom = m_pNavigationCom;
+    ActionDesc.pTransformCom = m_pTransformCom;
+    ActionDesc.Parts = &m_Parts;
+    ActionDesc.pIsFinished = &m_isFinished;
+    ActionDesc.pPlayerAnim = &m_ePlayerAnim;
+    ActionDesc.pSpeed = &m_fSpeed;
+    ActionDesc.pCameraLook = &m_vCameraLook;
+    ActionDesc.pPlayerColliderCom = m_pColliderCom;
+
+    if (FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&ActionDesc))))
         return E_FAIL;
     return S_OK;
 }
