@@ -44,7 +44,7 @@ HRESULT CPicking::Initialize(HWND hWnd)
 		return E_FAIL;
 }
 
-_bool CPicking::Picking(_int iOffset, _float3* pPickPos)
+_bool CPicking::Picking(_float3* pPickPos)
 {
 	/*m_pContext->CopyResource(m_pPickDepthTexture, );*/
 
@@ -54,7 +54,10 @@ _bool CPicking::Picking(_int iOffset, _float3* pPickPos)
 	POINT			ptMouse{};
 	GetCursorPos(&ptMouse);
 	ScreenToClient(m_hWnd, &ptMouse);
-	ptMouse.y += iOffset;
+
+	if (ptMouse.y < 0 || m_iViewportHeight <= ptMouse.y ||
+		ptMouse.x < 0 || m_iViewportWidth <= ptMouse.x)
+		return false;
 
 	_uint		iPixelIndex = ptMouse.y * m_iViewportWidth + ptMouse.x;
 

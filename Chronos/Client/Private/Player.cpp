@@ -13,6 +13,10 @@
 #include "Player_Weapon.h"
 #include "Player_Shield.h"
 
+#include "Camera_Container.h"
+#include "Camera_Shorder.h"
+#include "Camera.h"
+
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
 {
@@ -62,50 +66,107 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
+    // 임시. 수정 위치로 나중에 변경.
+    XMStoreFloat3(&m_vSavePos, Get_Position());
+
     return S_OK;
 }
 
 _uint CPlayer::Priority_Update(_float fTimeDelta)
 {
-    if (true == m_bDead)
-        return OBJ_DEAD;
+    m_pCurrentCamera = dynamic_cast<CCamera*>(static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0))->Get_PartObject());
 
-    m_fRatio = 0.f;
-    m_pColliderCom->Set_OnCollision(true);
-    m_pFSM->Priority_Update(fTimeDelta);
+    if(CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+    {
+        if (true == m_bDead)
+        {
+            Set_Position(XMLoadFloat3(&m_vSavePos));
+            m_pFSM->Set_State(STATE_MOVE);
+            m_iHP = m_iMaxHP;
+
+            m_bDead = false;
+            m_bRevive = true;
+        }
+
+        if (true == m_bRevive)
+        {
+            m_fDeathDelay += fTimeDelta;
+            if(1.f < m_fDeathDelay)
+            {
+                if(true==m_pGameInstance->FadeOut(fTimeDelta))
+                {
+                    m_fDeathDelay = 0.f;
+                    m_bRevive = false;
+                }
+            }
+        }
+
+
+        m_fRatio = 0.f;
+        m_pColliderCom->Set_OnCollision(true);
+        m_pFSM->Priority_Update(fTimeDelta);
+    }
 
     return OBJ_NOEVENT;
 }
 
 void CPlayer::Update(_float fTimeDelta)
 {
-    XMStoreFloat3(&m_vCameraLook, static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), g_strTransformTag))->Get_State(CTransform::STATE_LOOK));
+    if (CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+    {
+        XMStoreFloat3(&m_vCameraLook, static_cast<CCamera_Shorder*>(m_pCurrentCamera)->Get_CameraLook());
 
-    m_vCameraLook.y = 0.f;
+        m_vCameraLook.y = 0.f;
 
-    m_pFSM->Update(fTimeDelta);
+        
+        //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
+        //    m_pFSM->Set_State(STATE_JUMP);
 
-    m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
-    m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+        m_pFSM->Update(fTimeDelta);
+
+        m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+
+        cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
+    }
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {	
-    m_pFSM->Late_Update(fTimeDelta);
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+    if (CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+    {
+        m_pFSM->Late_Update(fTimeDelta);
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+        if (m_iHP <= 0)
+        {
+            if(STATE_JUMP == m_pFSM->Get_State())
+            {
+                if(true == m_pGameInstance->FadeIn(fTimeDelta))
+                    m_bDead = true;
+            }
+            else if (STATE_IMPACT == m_pFSM->Get_State())
+            {
+                if (true == m_isFinished)
+                {
+                    if (true == m_pGameInstance->FadeIn(fTimeDelta))
+                        m_bDead = true;
+                }
+            }
+        }
 
 #ifdef _DEBUG
-    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+        m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
+    }
 }
 
 HRESULT CPlayer::Render()
 {
-    if (FAILED(m_pFSM->Render()))
-        return E_FAIL;
-
-
+    if (CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+    {
+        if (FAILED(m_pFSM->Render()))
+            return E_FAIL;
+    }
     return S_OK;
 }
 
@@ -116,7 +177,7 @@ void CPlayer::Intersect(const _wstring strColliderTag, CGameObject* pCollisionOb
 
 _bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
-    if(false == m_bNonIntersect)
+    if(false == m_bNonIntersect && 0 < m_iHP)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
         _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
@@ -148,7 +209,7 @@ _bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 
         static_cast<CPlayer_Impact*>(m_pFSM->Get_State(CPlayer::STATE_IMPACT))->Set_HittedAngle(XMConvertToDegrees(fRadian));
 
-        if (STATE_IMPACT == m_pFSM->Get_State())
+        if (STATE_IMPACT == m_pFSM->Get_State() && false == m_bDead)
             static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Reset_Animation();
         else
             m_pFSM->Set_State(STATE_IMPACT);
@@ -224,7 +285,19 @@ HRESULT CPlayer::Ready_States()
         return E_FAIL;
     if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&desc))))
         return E_FAIL;
-    if(FAILED(m_pFSM->Add_State(CPlayer_Jump::Create(&desc))))
+
+
+    CPlayer_Jump::PLAYER_STATE_JUMP_DESC JumpDesc{};
+    JumpDesc.pFSM = m_pFSM;
+    JumpDesc.pNavigationCom = m_pNavigationCom;
+    JumpDesc.pTransformCom = m_pTransformCom;
+    JumpDesc.Parts = &m_Parts;
+    JumpDesc.pIsFinished = &m_isFinished;
+    JumpDesc.pPlayerAnim = &m_ePlayerAnim;
+    JumpDesc.pSpeed = &m_fSpeed;
+    JumpDesc.pCameraLook = &m_vCameraLook;
+    JumpDesc.pHP = &m_iHP;
+    if(FAILED(m_pFSM->Add_State(CPlayer_Jump::Create(&JumpDesc))))
         return E_FAIL;
 
     CPlayer_Block::PLAYER_STATE_BLOCK_DESC BlockDesc = {};
@@ -354,6 +427,7 @@ HRESULT CPlayer::Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
 
     return S_OK;
 }
+
 
 
 CPlayer* CPlayer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

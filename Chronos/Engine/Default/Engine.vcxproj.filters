@@ -190,6 +190,9 @@
     <Filter Include="01.Utility\10.Lights\Manager">
       <UniqueIdentifier>{d9c92ee4-0702-4951-9bb9-ce091a11ec9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\02.GameObjects\02.UI\Blend_UI_Object">
+      <UniqueIdentifier>{3833ff60-8576-4321-99b1-286716dd121a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -365,6 +368,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Light_Manager.cpp">
       <Filter>01.Utility\10.Lights\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Blend_UI_Object.cpp">
+      <Filter>01.Utility\02.GameObjects\02.UI\Blend_UI_Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -553,6 +559,9 @@
     </ClInclude>
     <ClInclude Include="..\public\Light_Manager.h">
       <Filter>01.Utility\10.Lights\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Blend_UI_Object.h">
+      <Filter>01.Utility\02.GameObjects\02.UI\Blend_UI_Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -63,7 +63,7 @@ void CEffect_Spark::Update(_float fTimeDelta)
 
 void CEffect_Spark::Late_Update(_float fTimeDelta)
 {
-    if (FAILED(Compute_ViewZ(g_strTransformTag)))
+    if (FAILED(Compute_ViewZ()))
         return;
 
     m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);

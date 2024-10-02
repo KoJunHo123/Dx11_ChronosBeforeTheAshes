@@ -45,7 +45,7 @@ _uint CParticle_AttackLight::Priority_Update(_float fTimeDelta)
 
 void CParticle_AttackLight::Update(_float fTimeDelta)
 {
-    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 0.4f, false, fTimeDelta))
+    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 1.f, false, fTimeDelta))
         m_bDead = true;
 
     //m_vPivot.y += fTimeDelta * 7.5f;
@@ -54,7 +54,7 @@ void CParticle_AttackLight::Update(_float fTimeDelta)
 
 void CParticle_AttackLight::Late_Update(_float fTimeDelta)
 {	
-    if (FAILED(Compute_ViewZ(g_strTransformTag)))
+    if (FAILED(Compute_ViewZ()))
         return;
 
     m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);

@@ -79,7 +79,8 @@ HRESULT CTeleport_Container::Ready_PartObject()
         return E_FAIL;
 
     _uint iPartID = { 0 };
-    _uint iIndex = 0;
+    _uint iIndex = { 0 };
+
     while (true)
     {
         _float3 vPos = {};
@@ -94,6 +95,15 @@ HRESULT CTeleport_Container::Ready_PartObject()
         desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
         desc.vPos = vPos;
         desc.vTeleportPos = {};
+
+        if (iIndex < 2)
+            desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
+        else if (iIndex < 4)
+            desc.vColor = _float4(1.f, 1.f, 0.4f, 1.f);
+        else if (iIndex < 6)
+            desc.vColor = _float4(0.863f, 0.078f, 0.235f, 1.f);
+        else
+            desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
 
         CGameObject* pPartObject = m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Teleport"), &desc);
 

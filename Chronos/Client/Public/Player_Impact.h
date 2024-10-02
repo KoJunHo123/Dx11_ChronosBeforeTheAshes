@@ -32,6 +32,7 @@ public:
 
 private:
 	_int* m_pHP = { nullptr };
+	_bool* m_pDead = { nullptr };
 	_float m_fHittedAngle = { 0.f };
 	
 public:

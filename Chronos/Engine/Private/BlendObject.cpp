@@ -44,11 +44,11 @@ HRESULT CBlendObject::Render()
 }
 
 
-HRESULT CBlendObject::Compute_ViewZ(const _wstring & strTransformComTag)
+HRESULT CBlendObject::Compute_ViewZ()
 {
 	_vector		vWorldPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 	_matrix		ViewMatrix = m_pGameInstance->Get_Transform_Matrix(CPipeLine::D3DTS_VIEW);
-	m_fViewZ = XMVector3TransformCoord(vWorldPos, ViewMatrix).m128_f32[2];
+	m_fViewZ = XMVectorGetZ(XMVector3TransformCoord(vWorldPos, ViewMatrix));
 
 	return S_OK;
 }

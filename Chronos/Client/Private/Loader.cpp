@@ -5,8 +5,14 @@
 
 // 오브젝트
 
-// 지형
+// 로고
 #include "BackGround.h"
+#include "UI_GlowStar.h"
+#include "UI_LogoTitle.h"
+#include "UI_LogoMaze.h"
+#include "UI_TextBox.h"
+
+// 지형
 #include "Labyrinth.h"
 #include "Terrain.h"
 #include "FloorChunk.h"
@@ -15,9 +21,12 @@
 // 퍼즐
 #include "PuzzleBase.h"
 #include "PuzzlePart.h"
+#include "Puzzle_InterColl.h"
 
 // 카메라
-#include "FreeCamera.h"
+#include "Camera_Container.h"
+#include "Camera_Shorder.h"
+#include "Camera_Interaction.h"
 
 // 플레이어
 #include "Player.h"
@@ -74,6 +83,7 @@
 #include "Effect_BloodCore.h"
 #include "Effect_BloodSpray.h"
 #include "Effect_Flare.h"
+
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice { pDevice }
@@ -142,10 +152,29 @@ void CLoader::Draw_LoadingText()
 HRESULT CLoader::Ready_Resources_For_LogoLevel()
 {
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다."));
-	/* For. Prototype_Component_Texture_BackGround */
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_BackGround"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Etc/Logo.png"), 1))))
+#pragma region BACKGROUND
+	/* For. Prototype_Component_Texture_UI_MainMenu_BackGround */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UI_MainMenu_BackGround"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/MainMenu_BackGround.png"), 1))))
 		return E_FAIL;
+#pragma endregion
+
+#pragma region UI
+	/* For. Prototype_Component_Texture_UI_Glow_Star */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UI_Glow_Star"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Glow_Star.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Logo_Title */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UI_Logo_Title"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Logo.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Main_TextBox */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UI_TextBox"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Main_TextBox.png"), 1))))
+		return E_FAIL;
+#pragma endregion
 
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
 
@@ -154,10 +183,29 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
-	/* For. Prototype_GameObject_BackGround */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BackGround"),
-		CBackGround::Create(m_pDevice, m_pContext))))
+
+#pragma region UI
+	/* For. Prototype_GameObject_UI_GlowStar */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_GlowStar"),
+		CUI_GlowStar::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_LogoTitle */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_LogoTitle"),
+		CUI_LogoTitle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_LogoMaze */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_LogoMaze"),
+		CUI_LogoMaze::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_TextBox */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_TextBox"),
+		CUI_TextBox::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+#pragma endregion
 
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
@@ -268,7 +316,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
-	/* For. Prototype_Component_VIBuffer_Particle_Spark */
+	/* For. Prototype_Component_VIBuffer_Particle_AttackLight */
 	ParticleDesc.iNumInstance = 20;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);	// 이게 첫 생성 범위
@@ -595,9 +643,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
 #pragma region CAMERA
-	/* For. Prototype_GameObject_FreeCamera */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FreeCamera"),
-		CFreeCamera::Create(m_pDevice, m_pContext))))
+	/* For. Prototype_GameObject_Camera_Container */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Container"),
+		CCamera_Container::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Camera_Shorder */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Shorder"),
+		CCamera_Shorder::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Camera_Shorder */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Interaction"),
+		CCamera_Interaction::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region LABYRINTH
@@ -625,6 +683,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_PuzzlePart */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_PuzzlePart"),
 		CPuzzlePart::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Puzzle_InterColl */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Puzzle_InterColl"),
+		CPuzzle_InterColl::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region PLAYER
@@ -821,6 +884,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CEffect_Flare::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
+
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
 	m_isFinished = true;

@@ -25,9 +25,16 @@ private:
 	ID3D11Device*			m_pDevice = { nullptr };
 	ID3D11DeviceContext*	m_pContext = { nullptr };
 
+private:
+	TCHAR      m_szFPS[32];
+	_int         m_iFPS;
+	_float      m_fFrameTime = 0.f;
+
 private:	
 	HRESULT Ready_Prototype_Component_Static();
+	HRESULT Ready_Prototype_GameObject_Static();
 	HRESULT Open_Level(LEVELID eStartLevelID);
+	HRESULT FrameOut(_float fTimeDelta);
 
 public:
 	static CMainApp* Create();

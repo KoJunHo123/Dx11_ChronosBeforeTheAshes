@@ -28,7 +28,7 @@ HRESULT CFont_Manager::Add_Font(const _wstring& strFontTag, const _tchar* pFontF
 	return S_OK;
 }
 
-HRESULT CFont_Manager::Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+HRESULT CFont_Manager::Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale, _bool bCenterAligned)
 {
 	CCustomFont* pFont = Find_Font(strFontTag);
 
@@ -37,7 +37,7 @@ HRESULT CFont_Manager::Render(const _wstring& strFontTag, const _tchar* pText, _
 
 	m_pContext->GSSetShader(nullptr, nullptr, 0);
 
-	return pFont->Render(pText, vPosition, vColor, fRadian, vPivot, fScale);
+	return pFont->Render(pText, vPosition, vColor, fRadian, vPivot, fScale, bCenterAligned);
 }
 
 CCustomFont* CFont_Manager::Find_Font(const _wstring& strFontTag)

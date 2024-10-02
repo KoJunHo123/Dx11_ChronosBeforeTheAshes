@@ -9,7 +9,8 @@ CPlayer_Impact::CPlayer_Impact()
 
 HRESULT CPlayer_Impact::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+	if(FAILED(__super::Initialize(pArg)))
+		return E_FAIL;
 
 	PLAYER_STATE_IMPACT_DESC* pDesc = static_cast<PLAYER_STATE_IMPACT_DESC*>(pArg);
 
@@ -32,22 +33,25 @@ void CPlayer_Impact::Priority_Update(_float fTimeDelta)
 
 void CPlayer_Impact::Update(_float fTimeDelta)
 {
-	if (90 > abs(m_fHittedAngle))
+	if(*m_pPlayerAnim != PLAYER_IMPACT_DEATH_F && *m_pPlayerAnim != PLAYER_IMPACT_DEATH_B)
 	{
-		if (*m_pHP <= 0)
-			*m_pPlayerAnim = PLAYER_IMPACT_DEATH_F;
+		if (90 > abs(m_fHittedAngle))
+		{
+			if (*m_pHP <= 0)
+				*m_pPlayerAnim = PLAYER_IMPACT_DEATH_F;
+			else
+				*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMF;
+		}
 		else
-			*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMF;
-	}
-	else
-	{
-		if (*m_pHP <= 0)
-			*m_pPlayerAnim = PLAYER_IMPACT_DEATH_B;
-		else
-			*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMB;
+		{
+			if (*m_pHP <= 0)
+				*m_pPlayerAnim = PLAYER_IMPACT_DEATH_B;
+			else
+				*m_pPlayerAnim = PLAYER_IMPACT_HEAVY_FROMB;
+		}
 	}
 
-	if (true == *m_pIsFinished)
+	if (true == *m_pIsFinished && 0 < *m_pHP)
 	{
 		*m_pIsFinished = false;
 		m_pFSM->Set_State(CPlayer::STATE_MOVE);

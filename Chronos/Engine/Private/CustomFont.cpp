@@ -16,11 +16,18 @@ HRESULT CCustomFont::Initialize(const _tchar* pFontFilePath)
 	return S_OK;
 }
 
-HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale, _bool bCenterAligned)
 {
+	_vector vPos = vPosition;
+	if(true == bCenterAligned)
+	{
+		_vector vSize = m_pFont->MeasureString(pText);
+		vPos -= vSize * 0.5f * fScale;
+	}
+
 	m_pBatch->Begin();
 
-	m_pFont->DrawString(m_pBatch, pText, vPosition, vColor, fRadian, vPivot, fScale);
+	m_pFont->DrawString(m_pBatch, pText, vPos, vColor, fRadian, vPivot, fScale);
 
 	m_pBatch->End();
 

@@ -25,7 +25,7 @@ public:
 	virtual HRESULT Render();
 
 public:
-	HRESULT Compute_ViewZ(const _wstring& strTransformComTag);
+	HRESULT Compute_ViewZ();
 
 protected:
 	_float				m_fViewZ = { 0.0f };

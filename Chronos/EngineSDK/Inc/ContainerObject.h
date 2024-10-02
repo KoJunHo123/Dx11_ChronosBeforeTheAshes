@@ -12,6 +12,7 @@ protected:
 
 public:
 	virtual class CComponent* Find_PartComponent(const _wstring& strComponentTag, _uint iPartObjIndex);
+	virtual class CPartObject* Get_PartObject(_uint iIndex);
 
 public:
 	virtual HRESULT Initialize_Prototype();

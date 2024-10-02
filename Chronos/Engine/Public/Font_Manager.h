@@ -13,7 +13,7 @@ private:
 public:
 	HRESULT Initialize();
 	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
-	HRESULT Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale);
+	HRESULT Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale, _bool bCenterAligned);
 
 private:
 	ID3D11Device* m_pDevice = { nullptr };

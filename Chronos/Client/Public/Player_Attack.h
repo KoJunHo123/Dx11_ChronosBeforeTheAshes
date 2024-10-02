@@ -10,7 +10,7 @@ class CPlayer_Attack final : public CPlayer_State
 		ATTACK_BACK, ATTACK_RUN, ATTACK_DODGE,
 		ATTACK_END
 	};
-protected:
+private:
 	CPlayer_Attack();
 	virtual ~CPlayer_Attack() = default;
 

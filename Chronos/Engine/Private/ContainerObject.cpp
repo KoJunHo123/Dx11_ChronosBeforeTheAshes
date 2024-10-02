@@ -20,6 +20,14 @@ CComponent* CContainerObject::Find_PartComponent(const _wstring& strComponentTag
 	return m_Parts[iPartObjIndex]->Find_Component(strComponentTag);
 }
 
+CPartObject* CContainerObject::Get_PartObject(_uint iIndex)
+{
+	if (m_Parts.size() <= iIndex)
+		return nullptr;
+
+	return m_Parts[iIndex];
+}
+
 HRESULT CContainerObject::Initialize_Prototype()
 {
 	return S_OK;

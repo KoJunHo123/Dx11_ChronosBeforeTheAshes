@@ -156,11 +156,11 @@ _bool CVIBuffer_Point_Instance::Spread(_fvector vPivot, _float fSpeed, _float fG
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
 		_vector		vDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - vPivot, 0.f);
-		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta;
+		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed;
 		vMoveDir = XMVectorSetY(vMoveDir, XMVectorGetY(vMoveDir) - fGravity * pVertices[i].vLifeTime.y);
 		pVertices[i].vLifeTime.y += fTimeDelta;
 
-		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir);
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
 
 		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
 
@@ -190,11 +190,11 @@ _bool CVIBuffer_Point_Instance::Move_Dir(_fvector vDir, _float fSpeed, _float fG
 	_bool isOver = { true };
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
-		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta;
+		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed;
 		vMoveDir = XMVectorSetY(vMoveDir, XMVectorGetY(vMoveDir) - fGravity * pVertices[i].vLifeTime.y);
 		pVertices[i].vLifeTime.y += fTimeDelta;
 
-		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir);
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
 
 		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
 

@@ -5,7 +5,7 @@
 BEGIN(Client)
 class CPlayer_Action final : public CPlayer_State
 {
-protected:
+private:
 	CPlayer_Action();
 	virtual ~CPlayer_Action() = default;
 

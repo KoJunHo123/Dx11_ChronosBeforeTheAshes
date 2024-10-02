@@ -11,8 +11,10 @@ CLevel::CLevel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	Safe_AddRef(m_pContext);
 }
 
-HRESULT CLevel::Initialize()
+HRESULT CLevel::Initialize(_uint iLevelIndex)
 {
+	m_iLevelIndex = iLevelIndex;
+
 	return S_OK;
 }
 

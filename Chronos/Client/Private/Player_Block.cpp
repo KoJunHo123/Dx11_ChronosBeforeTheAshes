@@ -10,7 +10,8 @@ CPlayer_Block::CPlayer_Block()
 
 HRESULT CPlayer_Block::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+	if(FAILED(__super::Initialize(pArg)))
+		return E_FAIL;
 
 	PLAYER_STATE_BLOCK_DESC* pDesc = static_cast<PLAYER_STATE_BLOCK_DESC*>(pArg);
 

@@ -16,6 +16,7 @@ private:
 
 public:
 	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
+	class CGameObject* Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iObjectIndex);
 	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
 
 public:

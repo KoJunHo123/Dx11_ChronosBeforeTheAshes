@@ -49,7 +49,7 @@ public:
 #pragma endregion
 
 #pragma region LEVEL_MANAGER
-	HRESULT Change_Level(_uint iLevelIndex, class CLevel* pNextLevel);
+	void Change_Level(class CLevel* pNextLevel);
 #pragma endregion
 
 #pragma region OBJECT_MANAGER
@@ -63,6 +63,7 @@ public:
 	list<class CGameObject*> Get_GameObjects(_uint iLevelIndex, const _wstring& strLayerTag);
 	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
 	class CComponent* Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
+	class CGameObject* Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iObjectIndex);
 #pragma endregion
 
 
@@ -79,6 +80,9 @@ public:
 #pragma region RENDERER
 	HRESULT Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
 	HRESULT Bind_DefaultTexture(class CShader* pShader, const _char* pConstantName);
+	_bool FadeIn(_float fTimeDelta);
+	_bool FadeOut(_float fTimeDelta);
+
 #ifdef _DEBUG
 	HRESULT Add_DebugObject(class CComponent* pDebugObject);
 #endif
@@ -96,7 +100,7 @@ public:
 #pragma endregion
 
 #pragma region PICKING
-	_bool Picking(_int iOffset, _float3* pPickPos);
+	_bool Picking(_float3* pPickPos);
 #pragma endregion
 
 #pragma region COLLISION_MANAGER
@@ -107,7 +111,7 @@ public:
 
 #pragma region FONT_MANAGER
 	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
-	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f);
+	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f, _bool bCenterAligned = false);
 #pragma endregion
 
 #pragma region CULLING
@@ -118,7 +122,7 @@ public:
 #pragma region TARGET_MANAGER
 	HRESULT Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
 	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
-	HRESULT Begin_MRT(const _wstring& strMRTTag);
+	HRESULT Begin_MRT(const _wstring& strMRTTag, ID3D11DepthStencilView* pDSV = nullptr);
 	HRESULT End_MRT();
 	HRESULT Bind_RT_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
 	HRESULT Copy_RenderTarget(const _wstring& strTargetTag, ID3D11Texture2D* pTexture);

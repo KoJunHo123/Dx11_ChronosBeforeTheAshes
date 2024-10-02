@@ -29,6 +29,11 @@ HRESULT CLabyrinth::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	m_vColors[COLOR_YELLOW] = _float4(1.f, 1.f, 0.4f, 1.f);
+	m_vColors[COLOR_PUPPLE] = _float4(0.541f, 0.169f, 0.886f, 1.f);
+	m_vColors[COLOR_RED] = _float4(0.863f, 0.078f, 0.235f, 1.f);
+	m_vColors[COLOR_DEFAULT] = _float4(1.f, 1.f, 1.f, 1.f);
+
 	return S_OK;
 }
 
@@ -49,6 +54,7 @@ void CLabyrinth::Late_Update(_float fTimeDelta)
 	
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
 }
 
 HRESULT CLabyrinth::Render()
@@ -65,9 +71,15 @@ HRESULT CLabyrinth::Render()
 
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
+		_float4 vColor = m_vColors[Select_Color(i)];
+		if (FAILED(m_pShaderCom->Bind_RawValue("g_vEmissiveColor", &vColor, sizeof(_float4))))
+			return E_FAIL;
+
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
 			return E_FAIL;
 
 		if (FAILED(m_pShaderCom->Begin(0)))
@@ -76,6 +88,38 @@ HRESULT CLabyrinth::Render()
 		if (FAILED(m_pModelCom->Render(i)))
 			return E_FAIL;
 	}
+	return S_OK;
+}
+
+HRESULT CLabyrinth::Render_LightDepth()
+{
+	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
+		return E_FAIL;
+
+	_float4x4		ViewMatrix;
+	XMStoreFloat4x4(&ViewMatrix, XMMatrixLookAtLH(XMVectorSet(0.f, 20.f, -15.f, 1.f), XMVectorSet(0.f, 0.f, 0.f, 1.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)));
+
+	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &ViewMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+		return E_FAIL;
+
+	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
+
+	for (size_t i = 0; i < iNumMeshes; i++)
+	{
+
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+			return E_FAIL;
+
+		if (FAILED(m_pShaderCom->Begin(2)))
+			return E_FAIL;
+
+		if (FAILED(m_pModelCom->Render(i)))
+			return E_FAIL;
+	}
+
+
 	return S_OK;
 }
 
@@ -92,6 +136,18 @@ HRESULT CLabyrinth::Ready_Components()
 		return E_FAIL;
 
 	return S_OK;
+}
+
+CLabyrinth::COLOR CLabyrinth::Select_Color(_uint iMeshIndex)
+{
+	if (12 == iMeshIndex || 13 == iMeshIndex || 71 == iMeshIndex)
+		return COLOR_RED;
+	else if (35 == iMeshIndex || 37 == iMeshIndex || 72 == iMeshIndex)
+		return COLOR_PUPPLE;
+	else if (51 == iMeshIndex || 54 == iMeshIndex || 70 == iMeshIndex)
+		return COLOR_YELLOW;
+
+	return COLOR_DEFAULT;
 }
 
 CLabyrinth * CLabyrinth::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)

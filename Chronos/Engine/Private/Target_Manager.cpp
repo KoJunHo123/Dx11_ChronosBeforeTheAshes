@@ -50,7 +50,7 @@ HRESULT CTarget_Manager::Add_MRT(const _wstring& strMRTTag, const _wstring& strT
 
     return S_OK;
 }
-HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
+HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag, ID3D11DepthStencilView* pDSV)
 {
     list<CRenderTarget*>* pMRTList = Find_MRT(strMRTTag);
 
@@ -68,9 +68,15 @@ HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
         pRenderTargets[iIndex++] = pRenderTarget->Get_RTV();    // MRT에 저장되어 있는 렌더 타겟들 안에 있는 렌더타겟뷰를 위에 선언한 배열에 싹 가져옴.
     }
 
-    m_pContext->OMSetRenderTargets(iIndex, pRenderTargets, m_pDepthStencilView);    // 위에서 싹싹 긁어모은 렌더타겟뷰들을 장치에 세팅함.
-    // 그러면 그동안 백버퍼의 뷰에는 안그려짐.
-    // 그 대신 이거 그리는 중이니까.
+    if (nullptr != pDSV)
+    {
+        // 다 지우고 다시 묶어.
+        m_pContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+        m_pContext->OMSetRenderTargets(iIndex, pRenderTargets, pDSV);
+    }
+
+    else
+        m_pContext->OMSetRenderTargets(iIndex, pRenderTargets, m_pDepthStencilView);
 
     return S_OK;
 }

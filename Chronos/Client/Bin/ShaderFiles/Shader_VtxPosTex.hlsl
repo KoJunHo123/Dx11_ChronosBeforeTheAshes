@@ -17,7 +17,9 @@ texture2D		g_Texture;
 float2			g_TexDivide;
 int				g_iTexIndex;
 
-float4			g_vColor;
+float4          g_vColor = { 1.f, 1.f, 1.f, 1.f };
+
+float           g_fRatio;
 
 struct VS_IN
 {
@@ -80,8 +82,36 @@ PS_OUT PS_MAIN(PS_IN In)
 
     if (Out.vColor.a < 0.1f)
         discard;
-
+    
 	return Out;
+}
+
+/* 1. 픽셀의 최종적인 색상을 결정한다. */
+PS_OUT PS_BLENDUI_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+
+    Out.vColor.a *= g_fRatio;
+    
+    return Out;
+}
+
+
+/* 1. 픽셀의 최종적인 색상을 결정한다. */
+PS_OUT PS_COLOR_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+
+    if (Out.vColor.a < 0.1f)
+        discard;
+    
+    Out.vColor = g_vColor;
+    
+    return Out;
 }
 
 PS_OUT PS_SPRITE_MAIN(PS_IN In)
@@ -229,5 +259,29 @@ technique11	DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_FLARE_MAIN();
     }
+
+    pass BLENDUI
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_BLENDUI_MAIN();
+    }
+
+    pass COLORUI
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_COLOR_MAIN();
+    }
+
+
 
 }

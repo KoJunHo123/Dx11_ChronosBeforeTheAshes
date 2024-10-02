@@ -7,6 +7,7 @@ BEGIN(Engine)
 class CNavigation;
 class CShader;
 class CModel;
+class CCollider;
 END
 
 BEGIN(Client)
@@ -20,7 +21,7 @@ public:
 		_float3 vRotation;
 	}PUZZLEBASE_DESC;
 
-	enum PART { PART_PIECE_00, PART_PIECE_01, PART_PIECE_02, PART_PIECE_10, PART_PIECE_11, PART_PIECE_12, PART_PIECE_21, PART_PIECE_22, PART_PIECE_REPLACEMENT, PART_END };
+	enum PART { PART_PIECE_00, PART_PIECE_01, PART_PIECE_02, PART_PIECE_10, PART_PIECE_11, PART_PIECE_12, PART_PIECE_21, PART_PIECE_22, PART_PIECE_REPLACEMENT, PART_INTERACTION_COLL, PART_END };
 	enum LOCATION { LEFT_TOP, MIDDLE_TOP, RIGHT_TOP, LEFT_MIDDLE, MIDDLE_MIDDLE, RIGHT_MIDDLE, LEFT_DOWN, MIDDLE_DOWN, RIGHT_DOWN, LOCATION_END };
 
 private:
@@ -36,10 +37,14 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+public:
+	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
+
 private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CCollider* m_pColliderCom = { nullptr };
 
 	class CNavigation* m_pPlayerNavigationCom = { nullptr };
 
@@ -50,6 +55,8 @@ private:
 
 	// 플레이어 사망 시 싹 다 false로 변경.
 	_bool m_bPartActive[PART_END] = {};
+
+	class CCamera_Container* m_pCameraContainer = { nullptr };
 
 private:
 	HRESULT Ready_Components();
@@ -79,6 +86,9 @@ private:
 	HRESULT Add_Teleport(_fvector vPos);
 
 	HRESULT Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset);
+
+	LOCATION Find_Location_ByPos(_fvector vPos);
+	_bool Check_InFloor();
 
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

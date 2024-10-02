@@ -27,6 +27,8 @@ public:
 	HRESULT Update(_float fTimeDelta);
 	HRESULT Late_Update(_float fTimeDelta);
 
+	class CGameObject* Get_GameObject(_uint iObjectIndex);
+
 	class CComponent* Find_Component(const _wstring& strComponentTag, _uint iIndex);
 	class CComponent* Find_PartComponent(const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
 

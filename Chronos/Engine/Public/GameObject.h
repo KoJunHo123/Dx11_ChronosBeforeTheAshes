@@ -21,12 +21,22 @@ protected:
 	virtual ~CGameObject() = default;
 
 public:
+	_bool Get_Dead() {
+		return m_bDead;
+	}
+
+	void Set_Dead() {
+		m_bDead = true;
+	}
+
+public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg = nullptr);
 	virtual _uint Priority_Update(_float fTimeDelta);
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
 	virtual HRESULT Render();
+	virtual HRESULT Render_LightDepth() { return S_OK; }
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);

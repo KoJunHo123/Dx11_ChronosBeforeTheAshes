@@ -5,9 +5,10 @@ matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 
 texture2D		g_DiffuseTexture;
 texture2D       g_ComboTexture;
+texture2D       g_EmissiveTexture;
 texture2D		g_NoiseTexture;
 float			g_fRatio;
-
+float4          g_vEmissiveColor;
 
 struct VS_IN
 {
@@ -63,6 +64,7 @@ struct PS_OUT
     vector vDepth : SV_TARGET2;
     vector vCombo : SV_TARGET3;
     vector vPickDepth : SV_TARGET4;
+    vector vEmissive : SV_TARGET5;
 };
 
 PS_OUT PS_MAIN(PS_IN In)
@@ -75,6 +77,7 @@ PS_OUT PS_MAIN(PS_IN In)
         discard;
     
     vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vMtrlEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
 
     
     Out.vDiffuse = vMtrlDiffuse;
@@ -82,6 +85,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     Out.vCombo = vMtrlComb;
     Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
+    Out.vEmissive = vMtrlEmissive * g_vEmissiveColor;
 
     return Out;
 }
@@ -101,15 +105,32 @@ PS_OUT PS_MAIN_WEAPON(PS_IN In)
         discard;
     
     vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vMtrlEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
 
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     Out.vCombo = vMtrlComb;
     Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
+    Out.vEmissive = vMtrlEmissive * g_vEmissiveColor;
 
     return Out;
 }
+
+struct PS_OUT_LIGHTDEPTH
+{
+    vector vLightDepth : SV_TARGET0;
+};
+
+PS_OUT_LIGHTDEPTH PS_MAIN_LIGHTDEPTH(PS_IN In)
+{
+    PS_OUT_LIGHTDEPTH Out = (PS_OUT_LIGHTDEPTH) 0;
+
+    Out.vLightDepth = vector(In.vProjPos.w / 1000.f, 0.f, 0.f, 0.f);
+
+    return Out;
+}
+
 
 technique11	DefaultTechnique
 {
@@ -134,4 +155,16 @@ technique11	DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_WEAPON();
     }
+
+    pass LightDepth
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_LIGHTDEPTH();
+    }
+
 }

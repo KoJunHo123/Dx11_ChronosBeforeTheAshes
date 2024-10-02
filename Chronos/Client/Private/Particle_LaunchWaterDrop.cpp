@@ -44,13 +44,13 @@ _uint CParticle_LaunchWaterDrop::Priority_Update(_float fTimeDelta)
 
 void CParticle_LaunchWaterDrop::Update(_float fTimeDelta)
 {
-    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 0.3f, false, fTimeDelta))
+    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 10.f, false, fTimeDelta))
         m_bDead = true;
 }
 
 void CParticle_LaunchWaterDrop::Late_Update(_float fTimeDelta)
 {
-    if (FAILED(Compute_ViewZ(g_strTransformTag)))
+    if (FAILED(Compute_ViewZ()))
         return;
 
     m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);

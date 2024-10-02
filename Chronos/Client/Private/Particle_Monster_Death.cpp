@@ -62,7 +62,7 @@ void CParticle_Monster_Death::Update(_float fTimeDelta)
         vMove = XMVector3TransformNormal(vMove, XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_WorldMatrix)));
         XMStoreFloat3(&m_vPivot, XMLoadFloat3(&m_vPivot) - vMove);
 
-        if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), vCamLook, 1.f, -0.01f, false, fTimeDelta))
+        if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), vCamLook, 1.f, -2.f, false, fTimeDelta))
             m_bDead = true;
     }
 }

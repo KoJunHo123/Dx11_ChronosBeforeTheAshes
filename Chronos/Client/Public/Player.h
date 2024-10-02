@@ -10,6 +10,7 @@ class CFSM;
 class CNavigation;
 class CCollider;
 class CState;
+class CCamera;
 END
 
 BEGIN(Client)
@@ -36,6 +37,9 @@ public:
 	virtual void Set_Position(_vector vPos) {
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
 		m_pNavigationCom->Set_CurrentCellIndex_ByPos(vPos);
+	}
+	void Set_SavePos(_fvector vPos) {
+		XMStoreFloat3(&m_vSavePos, vPos);
 	}
 
 public:
@@ -78,6 +82,13 @@ public:
 	
 	// 사라지는 거인데 0으로 고정할 예정.
 	_float m_fRatio = { 0.f };
+
+	_float3 m_vSavePos = {};
+
+	class CCamera* m_pCurrentCamera = { nullptr };
+	_bool m_bRevive = { false };
+
+	_float m_fDeathDelay = { 0.f };
 
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);

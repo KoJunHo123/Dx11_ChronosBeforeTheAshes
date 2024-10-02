@@ -3,12 +3,16 @@
 #include "GameInstance.h"
 
 #include "PuzzlePart.h"
+#include "Puzzle_InterColl.h"
+
 #include"Cell.h"
 #include "FloorChunk.h"
 
 #include "Monster.h"
 #include "Teleport.h"
 #include "Particle_Spawn.h"
+
+#include "Camera_Container.h"
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -48,6 +52,11 @@ HRESULT CPuzzleBase::Initialize(void* pArg)
 	m_pPlayerNavigationCom = static_cast<CNavigation*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), TEXT("Com_Navigation")));
 	Safe_AddRef(m_pPlayerNavigationCom);
 
+	m_pColliderCom->Set_OnCollision(true);
+
+	m_pCameraContainer = static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0));
+	Safe_AddRef(m_pCameraContainer);
+
 	return S_OK;
 }
 
@@ -59,7 +68,9 @@ _uint CPuzzleBase::Priority_Update(_float fTimeDelta)
 			continue;
 		pPartObject->Priority_Update(fTimeDelta);
 	}
-	Instead_Picking();
+
+	if(CCamera_Container::CAMERA_INTERACTION == m_pCameraContainer->Get_CurrentCamera())
+		Instead_Picking();
 
 	// 파츠 바꾸는 거.
 	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_0) && nullptr == m_Parts[PART_PIECE_REPLACEMENT])
@@ -100,6 +111,7 @@ void CPuzzleBase::Update(_float fTimeDelta)
 {
 	_uint iPlayerCellIndex = m_pPlayerNavigationCom->Get_CurrentCellIndex();
 
+
 	_uint iSetIndex = { 0 };
 	if (0 == iPlayerCellIndex % 2)
 		iSetIndex = iPlayerCellIndex + 1;
@@ -134,13 +146,12 @@ void CPuzzleBase::Update(_float fTimeDelta)
 	for (auto& FloorChunk : FloorChunkList)
 	{
 		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
-		if (false == m_pNavigationCom->Get_CellActive(pFloorChunk->Get_CellIndex()))
+		if (false == m_pNavigationCom->Get_CellActive(pFloorChunk->Get_CellIndex()) || false == Check_InFloor())
 		{
 			pFloorChunk->Set_Dead();
 		}
 	}
-
-
+	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CPuzzleBase::Late_Update(_float fTimeDelta)
@@ -153,8 +164,9 @@ void CPuzzleBase::Late_Update(_float fTimeDelta)
 	}
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
-	
+
 #ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom);
 	m_pGameInstance->Add_DebugObject(m_pNavigationCom);
 #endif
 
@@ -172,11 +184,17 @@ HRESULT CPuzzleBase::Render()
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
+	_float4 vColor = { 1.f, 1.f, 1.f, 1.f };
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_vEmissiveColor", &vColor, sizeof(_float4))))
+		return E_FAIL;
+
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
 			return E_FAIL;
 
 		if (FAILED(m_pShaderCom->Begin(0)))
@@ -188,6 +206,44 @@ HRESULT CPuzzleBase::Render()
 
 
 	return S_OK;
+}
+
+void CPuzzleBase::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
+{
+	if (TEXT("Coll_Player") == strColliderTag)
+	{
+		_vector vDir = {};
+		_vector vCollisionPos = pCollisionObject->Get_Position();
+		vDir = vCollisionPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_float fX = abs(vDir.m128_f32[0]);
+		_float fY = abs(vDir.m128_f32[1]);
+		_float fZ = abs(vDir.m128_f32[2]);
+
+		_float fLength = { 0.f };
+
+		if (fX >= fY && fX >= fZ)
+		{
+			vDir = XMVectorSet(vDir.m128_f32[0], 0.f, 0.f, 0.f);	// 나가야 되는 방향.
+			fLength = vSourInterval.x + vDestInterval.x;	// 전체 거리.
+		}
+		else if (fY >= fX && fY >= fZ)
+		{
+			vDir = XMVectorSet(0.f, vDir.m128_f32[1], 0.f, 0.f);
+			fLength = vSourInterval.y + vDestInterval.y;
+		}
+		else if (fZ >= fX && fZ >= fY)
+		{
+			vDir = XMVectorSet(0.f, 0.f, vDir.m128_f32[2], 0.f);
+			fLength = vSourInterval.z + vDestInterval.z;
+		}
+
+		fLength -= XMVectorGetX(XMVector3Length(vDir));
+		vDir = XMVector3Normalize(vDir) * fLength;
+		// 충돌된 방향만 갖고온 extents만큼 빼주기.
+		pCollisionObject->Set_Position(vCollisionPos + vDir);
+	}
+
 }
 
 HRESULT CPuzzleBase::Ready_Components()
@@ -205,6 +261,21 @@ HRESULT CPuzzleBase::Ready_Components()
 	/* FOR.Com_Navigation */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
 		TEXT("Com_Navigation"), reinterpret_cast<CComponent**>(&m_pNavigationCom))))
+		return E_FAIL;
+
+	CBounding_AABB::BOUNDING_AABB_DESC BoundingDesc = {};
+	BoundingDesc.vCenter = { 0.f, 0.f, 0.f };
+	BoundingDesc.vExtents = { 3.f, 3.f, 3.f };
+	
+	CCollider::COLLIDER_DESC CollDesc = {};
+	CollDesc.bCollisionOnce = false;
+	CollDesc.pOwnerObject = this;
+	CollDesc.strColliderTag = TEXT("Coll_Obstacle");
+	CollDesc.pBoundingDesc = &BoundingDesc;
+
+	/* FOR.Com_Collider */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
+		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &CollDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -345,117 +416,33 @@ HRESULT CPuzzleBase::Ready_Parts()
 	fill(CellIndices, CellIndices + 255, 1);
 	Update_Cell(m_eEmplaceLocation, CellIndices);
 
+	CPuzzle_InterColl::PART_INTERCOLL_DESC InterDesc = {};
+	InterDesc.fRotationPerSec = 0.f;
+	InterDesc.fSpeedPerSec = 0.f;
+	InterDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+	if (FAILED(__super::Add_PartObject(PART_INTERACTION_COLL, TEXT("Prototype_GameObject_Puzzle_InterColl"), &InterDesc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 
 void CPuzzleBase::Instead_Picking()
 {
-	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_1))
+	_float3 vPickPos = {};
+	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON) && true == m_pGameInstance->Picking(&vPickPos))
 	{
-		// 픽셀 피킹 배우면 피킹된 좌표를 기준으로 LOCATION 찾아서 그걸로 할 예정.
-		CPuzzlePart* pPart = Find_Part(LEFT_TOP);
-		if (nullptr == pPart)
-			return;
-		
-		_uint iRow = LEFT_TOP / 3;
-		_uint iColumn = LEFT_TOP % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_2))
-	{
-		CPuzzlePart* pPart = Find_Part(MIDDLE_TOP);
+		// 좌표로 로케이션 찾는 함수.
+		// 그 로케이션으로 밑에거 삭 해주면 끝.
+		LOCATION eLocation = Find_Location_ByPos(XMLoadFloat3(&vPickPos));
+
+		CPuzzlePart* pPart = Find_Part(eLocation);
 		if (nullptr == pPart)
 			return;
 
-		_uint iRow = MIDDLE_TOP / 3;
-		_uint iColumn = MIDDLE_TOP % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_3))
-	{
-		CPuzzlePart* pPart = Find_Part(RIGHT_TOP);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = RIGHT_TOP / 3;
-		_uint iColumn = RIGHT_TOP % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_4))
-	{
-		CPuzzlePart* pPart = Find_Part(LEFT_MIDDLE);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = LEFT_MIDDLE / 3;
-		_uint iColumn = LEFT_MIDDLE % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_5))
-	{
-		CPuzzlePart* pPart = Find_Part(MIDDLE_MIDDLE);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = MIDDLE_MIDDLE / 3;
-		_uint iColumn = MIDDLE_MIDDLE % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_6))
-	{
-		CPuzzlePart* pPart = Find_Part(RIGHT_MIDDLE);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = RIGHT_MIDDLE / 3;
-		_uint iColumn = RIGHT_MIDDLE % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_7))
-	{
-		CPuzzlePart* pPart = Find_Part(LEFT_DOWN);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = LEFT_DOWN / 3;
-		_uint iColumn = LEFT_DOWN % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_8))
-	{
-		CPuzzlePart* pPart = Find_Part(MIDDLE_DOWN);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = MIDDLE_DOWN / 3;
-		_uint iColumn = MIDDLE_DOWN % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
-		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
-		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
-	}
-	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_9))
-	{
-		CPuzzlePart* pPart = Find_Part(RIGHT_DOWN);
-		if (nullptr == pPart)
-			return;
-
-		_uint iRow = RIGHT_DOWN / 3;
-		_uint iColumn = RIGHT_DOWN % 3;
-		LOCATION eLocation = (LOCATION)pPart->Get_Location();
+		_uint iRow = eLocation / 3;
+		_uint iColumn = eLocation % 3;
+		//eLocation = (LOCATION)pPart->Get_Location();
 		Compare_EmplaceLocation(eLocation, pPart, iRow, iColumn);
 		pPart->Set_Location(eLocation, m_PuzzlePartPoses[eLocation]);
 	}
@@ -730,7 +717,6 @@ void CPuzzleBase::Update_Cell(LOCATION eLocation, _uint* pCellStates)
 			++iStateIndex;
 		}
 	}
-
 }
 
 void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellIndex, _uint iPartIndex)
@@ -1204,6 +1190,7 @@ HRESULT CPuzzleBase::Add_Teleport(_fvector vPos)
 	desc.pParentWorldMatrix = nullptr;
 	XMStoreFloat3(&desc.vPos, vPos);
 	XMStoreFloat3(&desc.vTeleportPos, pTransform->Get_State(CTransform::STATE_POSITION));
+	desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"), TEXT("Prototype_GameObject_Teleport"), &desc)))
 		return E_FAIL;
@@ -1230,6 +1217,36 @@ HRESULT CPuzzleBase::Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float
 	return S_OK;
 
 	return S_OK;
+}
+
+CPuzzleBase::LOCATION CPuzzleBase::Find_Location_ByPos(_fvector vPos)
+{
+	_float fSize = m_PuzzlePartPoses[RIGHT_MIDDLE].x * 0.5f;
+
+	_float3 vLocalPos = {};
+
+	XMStoreFloat3(&vLocalPos, XMVector3TransformCoord(vPos, m_pTransformCom->Get_WorldMatrix_Inverse()));
+
+	for (size_t i = 0; i < LOCATION_END; ++i)
+	{
+		if (m_PuzzlePartPoses[i].x - fSize <= vLocalPos.x && vLocalPos.x <= m_PuzzlePartPoses[i].x + fSize &&
+			m_PuzzlePartPoses[i].z - fSize <= vLocalPos.z && vLocalPos.z <= m_PuzzlePartPoses[i].z + fSize)
+		{
+			return (LOCATION)i;
+		}
+	}
+
+	return LOCATION_END;
+}
+
+_bool CPuzzleBase::Check_InFloor()
+{
+	_int iPlayerIndex = m_pPlayerNavigationCom->Get_CurrentCellIndex();
+	if(m_iPuzzleCellIndex <= iPlayerIndex || (6089 != iPlayerIndex && 6090 != iPlayerIndex && 6091 != iPlayerIndex)
+		|| (6049 != iPlayerIndex && 6050 != iPlayerIndex) || (6082 != iPlayerIndex && 6083 != iPlayerIndex))
+		return true;
+
+	return false;
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -1263,4 +1280,7 @@ void CPuzzleBase::Free()
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pPlayerNavigationCom);
+	Safe_Release(m_pColliderCom);
+
+	Safe_Release(m_pCameraContainer);
 }
