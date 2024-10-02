@@ -253,6 +253,21 @@
     <Filter Include="02.GameObjects\05.Puzzle\PuzzleInter">
       <UniqueIdentifier>{3b00a354-cd0d-4ef8-9c27-d32f577b99bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\11.WayPoint">
+      <UniqueIdentifier>{46e60916-c99b-44cb-b00d-f96563cdb526}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\11.WayPoint\WayPoint_Interaction">
+      <UniqueIdentifier>{253bc240-b02b-4bcc-abca-13be8e312cd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\12.Inventory">
+      <UniqueIdentifier>{39e29d83-a52c-4a02-a820-fa759a73e723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\12.Inventory\Item">
+      <UniqueIdentifier>{d67427ad-a8a3-4fba-af1d-2e634a23f5eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\12.Inventory\Item\DragonHeart">
+      <UniqueIdentifier>{a01dabdd-e621-4e18-8314-f6e76ca21a7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -471,6 +486,21 @@
     <ClInclude Include="..\public\Puzzle_InterColl.h">
       <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\WayPoint.h">
+      <Filter>02.GameObjects\11.WayPoint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\WayPoint_InterColl.h">
+      <Filter>02.GameObjects\11.WayPoint\WayPoint_Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Inventory.h">
+      <Filter>02.GameObjects\12.Inventory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Item.h">
+      <Filter>02.GameObjects\12.Inventory\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\DragonHeart.h">
+      <Filter>02.GameObjects\12.Inventory\Item\DragonHeart</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -676,6 +706,21 @@
     </ClCompile>
     <ClCompile Include="..\private\Puzzle_InterColl.cpp">
       <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WayPoint.cpp">
+      <Filter>02.GameObjects\11.WayPoint</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WayPoint_InterColl.cpp">
+      <Filter>02.GameObjects\11.WayPoint\WayPoint_Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Inventory.cpp">
+      <Filter>02.GameObjects\12.Inventory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Item.cpp">
+      <Filter>02.GameObjects\12.Inventory\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\DragonHeart.cpp">
+      <Filter>02.GameObjects\12.Inventory\Item\DragonHeart</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

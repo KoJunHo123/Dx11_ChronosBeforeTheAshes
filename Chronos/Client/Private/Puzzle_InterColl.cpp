@@ -76,7 +76,6 @@ void CPuzzle_InterColl::Intersect(const _wstring strColliderTag, CGameObject* pC
 			}
 		}
 	}
-
 }
 
 HRESULT CPuzzle_InterColl::Ready_Components()

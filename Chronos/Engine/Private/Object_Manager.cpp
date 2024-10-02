@@ -112,6 +112,7 @@ HRESULT CObject_Manager::Priority_Update(_float fTimeDelta)
 			Pair.second->Priority_Update(fTimeDelta);	
 		}	
 	}
+
 	return S_OK;
 }
 

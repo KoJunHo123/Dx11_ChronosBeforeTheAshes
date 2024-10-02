@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "Player_Body.h"
 
+#include "Player_Action.h"
+
 CPlayer_Move::CPlayer_Move()
 {
 }
@@ -254,6 +256,20 @@ void CPlayer_Move::Change_State()
 		m_pFSM->Set_State(CPlayer::STATE_ATTACK);
 	else if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
 		m_pFSM->Set_State(CPlayer::STATE_BLOCK);
+	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_R))
+	{
+		m_pFSM->Set_State(CPlayer::STATE_ACTION);
+			
+		CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(CPlayer::STATE_ACTION));
+		pAction->Set_State(CPlayer_Action::STATE_DRAGONHEART);
+	}
+	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_G))
+	{
+		m_pFSM->Set_State(CPlayer::STATE_ACTION);
+
+		CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(CPlayer::STATE_ACTION));
+		pAction->Set_State(CPlayer_Action::STATE_DRAGONSTONE);
+	}
 }
 
 CPlayer_Move* CPlayer_Move::Create(void* pArg)

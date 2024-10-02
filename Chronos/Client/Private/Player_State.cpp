@@ -60,6 +60,7 @@ void CPlayer_State::Update(_float fTimeDelta)
             continue;
         pPartObject->Update(fTimeDelta);
     }
+
     m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
 }
 

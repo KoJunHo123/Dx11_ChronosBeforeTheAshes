@@ -22,7 +22,6 @@ public:
 		_float3 vPos;
 		_float3 vScale;
 		_float3 vRotation;
-
 		_int iStartCellIndex;
 	}PLAYER_DESC;
 

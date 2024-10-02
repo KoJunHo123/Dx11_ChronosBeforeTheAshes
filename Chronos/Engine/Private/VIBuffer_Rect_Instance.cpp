@@ -226,7 +226,7 @@ _bool CVIBuffer_Rect_Instance::Spread_Dir(_fvector vPivot, _fvector vLocalPos, _
 
 		_fvector vCamDir = vLocalPos - XMLoadFloat4(&pVertices[i].vTranslation);
 
-		_vector		vUp = XMVector3Normalize(vDir);
+		_vector		vUp = XMVector3Normalize(vMoveDir);
 		_vector     vRight = XMVector3Cross(XMVector3Normalize(vCamDir), vUp);
 		_vector     vLook = XMVector3Cross(vUp, vRight);
 

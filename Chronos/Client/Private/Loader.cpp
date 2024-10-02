@@ -68,6 +68,8 @@
 #include "Teleport.h"
 #include "Teleport_Container.h"
 #include "Pedestal.h"
+#include "WayPoint.h"
+#include "WayPoint_InterColl.h"
 
 // ÆÄÆ¼Å¬
 #include "Particle_AttackLight.h"
@@ -404,10 +406,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 #pragma region LABYRINTH
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
-	PreTransformMatrix = XMMatrixIdentity();
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-		return E_FAIL;
+	//PreTransformMatrix = XMMatrixIdentity();
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+	//	return E_FAIL;
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
@@ -449,6 +451,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Teleport"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Teleport/Teleport_A", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Crystal */
+	PreTransformMatrix = XMMatrixScaling(5.f, 5.f, 5.f) * XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Crystal"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Crystal/Crystal", PreTransformMatrix))))
 		return E_FAIL;
 
 #pragma endregion
@@ -822,10 +830,21 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTeleport_Container::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	/* For. Prototype_GameObject_Teleport_Pedestal */
+	/* For. Prototype_GameObject_Pedestal */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Pedestal"),
 		CPedestal::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_WayPoint */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint"),
+		CWayPoint::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_WayPoint_InterColl */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint_InterColl"),
+		CWayPoint_InterColl::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region PARTICLE
 	/* For. Prototype_GameObject_Particle_Spark */

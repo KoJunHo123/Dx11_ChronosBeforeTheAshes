@@ -978,44 +978,12 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
 		//	return E_FAIL;
 
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
 		m_bPartActive[PART_PIECE_00] = true;
 	}
 	else if (PART_PIECE_01 == iPartIndex && false == m_bPartActive[PART_PIECE_01])
 	{
 		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 		//	return E_FAIL;
 
 		m_bPartActive[PART_PIECE_01] = true;
@@ -1026,38 +994,10 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 		//	return E_FAIL;
 
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
 		m_bPartActive[PART_PIECE_02] = true;
 	}
 	else if (PART_PIECE_10 == iPartIndex && false == m_bPartActive[PART_PIECE_10])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
 		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 		//	return E_FAIL;
@@ -1068,22 +1008,6 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 	{
 		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
 		//	return E_FAIL;
 
 		m_bPartActive[PART_PIECE_12] = true;
@@ -1107,23 +1031,6 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
 		//	return E_FAIL;
 
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
 
 		m_bPartActive[PART_PIECE_22] = true;
 	}
@@ -1132,21 +1039,6 @@ HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uin
 	{
 		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
 		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
 		//	return E_FAIL;
 
 		m_bPartActive[PART_PIECE_REPLACEMENT] = true;

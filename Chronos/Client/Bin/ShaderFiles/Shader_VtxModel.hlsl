@@ -86,7 +86,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.vCombo = vMtrlComb;
     Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
     Out.vEmissive = vMtrlEmissive * g_vEmissiveColor;
-
+    
     return Out;
 }
 

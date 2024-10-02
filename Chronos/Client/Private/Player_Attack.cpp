@@ -83,7 +83,7 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 				|| m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_SPACE))
 				m_pFSM->Set_State(CPlayer::STATE_MOVE);
 
-			if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON) && true == *m_pIsFinished)
+			if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
 				m_pFSM->Set_State(CPlayer::STATE_BLOCK);
 		}
 	}
