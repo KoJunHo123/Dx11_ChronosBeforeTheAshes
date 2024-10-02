@@ -17,6 +17,7 @@ public:
 	{
 		_float3 vPos;
 		_float3 vTeleportPos;
+		_float4 vColor;
 	}TELEPORT_DESC;
 private:
 	CTeleport(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -46,6 +47,7 @@ private:
 
 private:
 	_float3 m_vTeleportPos = {};
+	_float4 m_vColor = {};
 
 private:
 	HRESULT Ready_Components();

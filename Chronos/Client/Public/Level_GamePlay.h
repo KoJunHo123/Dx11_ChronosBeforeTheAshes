@@ -16,9 +16,13 @@ private:
 	virtual ~CLevel_GamePlay() = default;
 
 public:
-	virtual HRESULT Initialize() override;
+	virtual HRESULT Initialize(_uint iLevelIndex) override;
 	virtual void Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
+
+private:
+	_bool m_bLevelStart = { false };
+	class CPlayer* m_pPlayer = { nullptr };
 
 private:
 	HRESULT Ready_Lights();
@@ -34,7 +38,7 @@ private:
 	HRESULT Ready_Layer_Pedestal();
 
 public:
-	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex);
 	virtual void Free() override;
 };
 

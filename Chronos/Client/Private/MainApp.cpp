@@ -4,6 +4,8 @@
 #include "Level_Loading.h"
 #include "GameInstance.h"
 
+#include "BackGround.h"
+#include "UI_LoadingMaze.h"
 
 CMainApp::CMainApp()
 	: m_pGameInstance { CGameInstance::Get_Instance() }
@@ -37,6 +39,9 @@ HRESULT CMainApp::Initialize()
 	if (FAILED(Ready_Prototype_Component_Static()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Prototype_GameObject_Static()))
+		return E_FAIL;
+
 	if (FAILED(Open_Level(LEVEL_LOGO)))
 		return E_FAIL;
 
@@ -63,6 +68,9 @@ HRESULT CMainApp::Initialize()
 void CMainApp::Update(_float fTimeDelta)
 {
 	m_pGameInstance->Update_Engine(fTimeDelta);
+
+	if (FAILED(FrameOut(fTimeDelta)))
+		return;
 }
 
 HRESULT CMainApp::Render()
@@ -85,8 +93,6 @@ HRESULT CMainApp::Render()
 
 HRESULT CMainApp::Ready_Prototype_Component_Static()
 {
-	
-
 	/* For.Prototype_Component_Shader_VtxPosTex */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxPosTex"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxPosTex.hlsl"), VTXPOSTEX::Elements, VTXPOSTEX::iNumElements))))
@@ -102,8 +108,33 @@ HRESULT CMainApp::Ready_Prototype_Component_Static()
 		CVIBuffer_Rect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_UI_BackGround_Black */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Texture_UI_BackGround_Black"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Black.png"), 1))))
+		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_UI_Logo_Maze */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Texture_UI_Logo_Maze"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Logo_Maze.png"), 1))))
+		return E_FAIL;
 
+	return S_OK;
+}
+
+HRESULT CMainApp::Ready_Prototype_GameObject_Static()
+{
+#pragma region BACKGROUND
+	/* For. Prototype_GameObject_BackGround */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BackGround"),
+		CBackGround::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_LoadingMaze */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_LoadingMaze"),
+		CUI_LoadingMaze::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+#pragma endregion
 
 	return S_OK;
 }
@@ -113,8 +144,25 @@ HRESULT CMainApp::Open_Level(LEVELID eStartLevelID)
 	/* 어떤 레벨을 선택하던 로딩 레벨로 선 진입한다.  */
 	/* 로딩레벨에서 내가 선택한 레벨에 필요한 자원을 준비한다. */
 	/* 로딩 레벨은 다음레벨(내가 선택한 레벨)이 누구인지를 인지해야한다. */
-	if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, eStartLevelID))))
-		return E_FAIL;
+	m_pGameInstance->Change_Level(CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_LOADING, eStartLevelID));
+
+	return S_OK;
+}
+
+HRESULT CMainApp::FrameOut(_float fTimeDelta)
+{
+	++m_iFPS;
+
+	m_fFrameTime += fTimeDelta;
+
+	if (m_fFrameTime > 1.f)
+	{
+		swprintf_s(m_szFPS, L"FPS : %d", m_iFPS);
+		SetWindowText(g_hWnd, m_szFPS);
+
+		m_iFPS = 0;
+		m_fFrameTime = 0.f;
+	}
 
 	return S_OK;
 }

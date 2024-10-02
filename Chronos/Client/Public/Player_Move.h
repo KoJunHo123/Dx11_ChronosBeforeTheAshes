@@ -11,7 +11,7 @@ public:
 		_bool* pNonIntersect = { nullptr };
 	}PLAYER_STATE_MOVE_DESC;
 	enum PLAYER_MOVE_STATE { MOVE_IDLE, MOVE_WALK, MOVE_JOG, MOVE_DODGE, MOVE_END };
-protected:
+private:
 	CPlayer_Move();
 	virtual ~CPlayer_Move() = default;
 

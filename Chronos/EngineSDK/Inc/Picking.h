@@ -12,7 +12,7 @@ private:
 
 public:
 	HRESULT Initialize(HWND hWnd);
-	_bool Picking(_int iOffset, _float3* pPickPos);
+	_bool Picking(_float3* pPickPos);
 
 private:
 	ID3D11Device* m_pDevice = { nullptr };

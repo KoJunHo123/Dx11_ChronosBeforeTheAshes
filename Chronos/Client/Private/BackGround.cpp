@@ -20,21 +20,20 @@ HRESULT CBackGround::Initialize_Prototype()
 
 HRESULT CBackGround::Initialize(void * pArg)
 {
-	UI_DESC			Desc{};
+	UI_BACKGROUND_DESC*			pDesc = static_cast<UI_BACKGROUND_DESC*>(pArg);
 
-	Desc.fX = g_iWinSizeX >> 1;
-	Desc.fY = g_iWinSizeY >> 1;
-	Desc.fSizeX = g_iWinSizeX;
-	Desc.fSizeY = g_iWinSizeY;
-
-	Desc.fSpeedPerSec = 10.f;
-	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	pDesc->fX = g_iWinSizeX >> 1;
+	pDesc->fY = g_iWinSizeY >> 1;
+	pDesc->fSizeX = g_iWinSizeX;
+	pDesc->fSizeY = g_iWinSizeY;
+	pDesc->fSpeedPerSec = 10.f;
+	pDesc->fRotationPerSec = XMConvertToRadians(90.0f);
 
 	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
-	if (FAILED(__super::Initialize(&Desc)))
+	if (FAILED(__super::Initialize(pDesc)))
 		return E_FAIL;
 
-	if (FAILED(Ready_Components()))
+	if (FAILED(Ready_Components(pDesc->eLevelID)))
 		return E_FAIL;
 
 	return S_OK;
@@ -62,7 +61,6 @@ void CBackGround::Late_Update(_float fTimeDelta)
 
 HRESULT CBackGround::Render()
 {
-
 	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
@@ -84,17 +82,31 @@ HRESULT CBackGround::Render()
 	return S_OK;
 }
 
-HRESULT CBackGround::Ready_Components()
+HRESULT CBackGround::Ready_Components(LEVELID eLevelID)
 {
 	/* FOR.Com_Shader */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxPosTex"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
-	/* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_BackGround"),
-		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
-		return E_FAIL;
+	_wstring strTextureTag = TEXT("");
+
+	switch (eLevelID)
+	{
+	case LEVEL_LOGO:
+		/* FOR.Com_Texture */
+		if (FAILED(__super::Add_Component(eLevelID, TEXT("Prototype_Component_Texture_UI_MainMenu_BackGround"),
+			TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
+			return E_FAIL;
+		break;
+
+	case LEVEL_LOADING:
+		/* FOR.Com_Texture */
+		if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Texture_UI_BackGround_Black"),
+			TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
+			return E_FAIL;
+		break;
+	}
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"),
@@ -116,8 +128,6 @@ CBackGround * CBackGround::Create(ID3D11Device * pDevice, ID3D11DeviceContext * 
 
 	return pInstance;
 }
-
-
 
 CGameObject * CBackGround::Clone(void * pArg)
 {

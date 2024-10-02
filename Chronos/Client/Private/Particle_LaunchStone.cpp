@@ -47,7 +47,7 @@ _uint CParticle_LaunchStone::Priority_Update(_float fTimeDelta)
 
 void CParticle_LaunchStone::Update(_float fTimeDelta)
 {
-    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 0.2f, false, fTimeDelta))
+    if (true == m_pVIBufferCom->Spread(XMLoadFloat3(&m_vPivot), m_fSpeed, 15.f, false, fTimeDelta))
         m_bDead = true;
 }
 

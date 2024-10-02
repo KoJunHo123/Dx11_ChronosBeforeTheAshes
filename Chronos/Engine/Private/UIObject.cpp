@@ -64,12 +64,21 @@ void CUIObject::Late_Update(_float fTimeDelta)
 	m_pTransformCom->Set_Scaled(m_fSizeX, m_fSizeY, 1.f);
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, 
-		XMVectorSet(m_fX - m_fViewWidth * 0.5f, -m_fY + m_fViewHeight * 0.5f, 0.f, 1.f));	
+		XMVectorSet(m_fX - m_fViewWidth * 0.5f, -m_fY + m_fViewHeight * 0.5f, 0.f, 1.f));
 }
 
 HRESULT CUIObject::Render()
 {
 	return S_OK;
+}
+
+_bool CUIObject::On_MousePoint(POINT ptMouse)
+{
+	if (m_fX - (m_fSizeX * 0.5f) < ptMouse.x && ptMouse.x < m_fX + (m_fSizeX * 0.5f)
+		&& m_fY - (m_fSizeY * 0.5f) < ptMouse.y && ptMouse.y < m_fY + (m_fSizeY * 0.5f))
+		return true;
+
+	return false;
 }
 
 

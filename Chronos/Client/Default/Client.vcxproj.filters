@@ -199,9 +199,6 @@
     <Filter Include="02.GameObjects\09.Effect\Effect_Blood\BloodSpray">
       <UniqueIdentifier>{4a5ee403-744a-4e11-bf76-fdc1e5dd3027}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\99.Camera\DefaultCamera">
-      <UniqueIdentifier>{b1fe764a-1626-4929-b382-0ff749f16492}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\08.Particle\Particle_AttackLight">
       <UniqueIdentifier>{6196d147-51dc-4479-849e-94783fb878ba}</UniqueIdentifier>
     </Filter>
@@ -219,6 +216,42 @@
     </Filter>
     <Filter Include="02.GameObjects\08.Particle\Particle_LaunchWaterDrop">
       <UniqueIdentifier>{bdd1bfe8-1910-4531-b9f1-8688aba6b153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI">
+      <UniqueIdentifier>{30b63fa9-995e-4385-b067-20a90cae3897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Logo">
+      <UniqueIdentifier>{ccab4a9b-f6f1-4a13-a60a-8e2c1afcc421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Logo\GlowStar">
+      <UniqueIdentifier>{5a9fd8c7-8e33-444f-a989-c240bd1b88a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Logo\LogoTitle">
+      <UniqueIdentifier>{89354f8d-7249-44de-aef5-bc9ca11366c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Logo\LogoMaze">
+      <UniqueIdentifier>{2f635f06-1039-4cad-bfdf-704361dda03b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Logo\TextBox">
+      <UniqueIdentifier>{f167159d-8147-45a3-add6-2e6023698127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\Loading">
+      <UniqueIdentifier>{6340d2b7-abd4-4b4a-b199-c86f2ebd67b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\Container">
+      <UniqueIdentifier>{ab6a11de-ffe0-41dd-93b0-29478d27ffc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\Object">
+      <UniqueIdentifier>{df18fcac-6a22-4701-8901-db3d783a16fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\Object\Camera_Shorder">
+      <UniqueIdentifier>{b1fe764a-1626-4929-b382-0ff749f16492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\Object\Camera_Interaction">
+      <UniqueIdentifier>{74d75fee-b338-4c56-9797-e74730e1de0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\05.Puzzle\PuzzleInter">
+      <UniqueIdentifier>{3b00a354-cd0d-4ef8-9c27-d32f577b99bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -396,8 +429,8 @@
     <ClInclude Include="..\public\Effect_BloodSpray.h">
       <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodSpray</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\FreeCamera.h">
-      <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
+    <ClInclude Include="..\public\Camera_Shorder.h">
+      <Filter>02.GameObjects\99.Camera\Object\Camera_Shorder</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Boss_Lab_Teleport_Smoke.h">
       <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Smoke</Filter>
@@ -413,6 +446,30 @@
     </ClInclude>
     <ClInclude Include="..\public\Particle_LaunchWaterDrop.h">
       <Filter>02.GameObjects\08.Particle\Particle_LaunchWaterDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_GlowStar.h">
+      <Filter>02.GameObjects\10.UI\Logo\GlowStar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_LogoTitle.h">
+      <Filter>02.GameObjects\10.UI\Logo\LogoTitle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_LogoMaze.h">
+      <Filter>02.GameObjects\10.UI\Logo\LogoMaze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_TextBox.h">
+      <Filter>02.GameObjects\10.UI\Logo\TextBox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_LoadingMaze.h">
+      <Filter>02.GameObjects\10.UI\Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Camera_Container.h">
+      <Filter>02.GameObjects\99.Camera\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Camera_Interaction.h">
+      <Filter>02.GameObjects\99.Camera\Object\Camera_Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Puzzle_InterColl.h">
+      <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -578,8 +635,8 @@
     <ClCompile Include="..\private\Effect_BloodSpray.cpp">
       <Filter>02.GameObjects\09.Effect\Effect_Blood\BloodSpray</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\FreeCamera.cpp">
-      <Filter>02.GameObjects\99.Camera\DefaultCamera</Filter>
+    <ClCompile Include="..\private\Camera_Shorder.cpp">
+      <Filter>02.GameObjects\99.Camera\Object\Camera_Shorder</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab_Teleport_Smoke.cpp">
       <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Teleport_Smoke</Filter>
@@ -595,6 +652,30 @@
     </ClCompile>
     <ClCompile Include="..\private\Particle_LaunchWaterDrop.cpp">
       <Filter>02.GameObjects\08.Particle\Particle_LaunchWaterDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_GlowStar.cpp">
+      <Filter>02.GameObjects\10.UI\Logo\GlowStar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_LogoTitle.cpp">
+      <Filter>02.GameObjects\10.UI\Logo\LogoTitle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_LogoMaze.cpp">
+      <Filter>02.GameObjects\10.UI\Logo\LogoMaze</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_TextBox.cpp">
+      <Filter>02.GameObjects\10.UI\Logo\TextBox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_LoadingMaze.cpp">
+      <Filter>02.GameObjects\10.UI\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Camera_Container.cpp">
+      <Filter>02.GameObjects\99.Camera\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Camera_Interaction.cpp">
+      <Filter>02.GameObjects\99.Camera\Object\Camera_Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Puzzle_InterColl.cpp">
+      <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

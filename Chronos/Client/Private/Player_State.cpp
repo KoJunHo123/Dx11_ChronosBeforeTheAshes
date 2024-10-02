@@ -60,6 +60,7 @@ void CPlayer_State::Update(_float fTimeDelta)
             continue;
         pPartObject->Update(fTimeDelta);
     }
+    m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
 }
 
 void CPlayer_State::Late_Update(_float fTimeDelta)
@@ -87,7 +88,6 @@ HRESULT CPlayer_State::ExitState(void** pArg)
 void CPlayer_State::Look_CameraDir()
 {
     m_pTransformCom->LookDir(XMLoadFloat3(m_pCameraLook), 0.3f);
-
 }
 
 void CPlayer_State::Free()

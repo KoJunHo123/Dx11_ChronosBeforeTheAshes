@@ -12,7 +12,8 @@ CPlayer_Attack::CPlayer_Attack()
 
 HRESULT CPlayer_Attack::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+	if(FAILED(__super::Initialize(pArg)))
+		return E_FAIL;
 
 	return S_OK;
 }

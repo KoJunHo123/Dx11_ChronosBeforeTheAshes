@@ -33,7 +33,7 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pTarget_Manager)
 		return E_FAIL;
 
-	m_pRenderer = CRenderer::Create(*ppDevice, *ppContext);
+	m_pRenderer = CRenderer::Create(*ppDevice, *ppContext, EngineDesc.iWinSizeX, EngineDesc.iWinSizeY);
 	if (nullptr == m_pRenderer)
 		return E_FAIL;
 
@@ -181,9 +181,9 @@ _bool CGameInstance::Get_DIMouseState_Up(MOUSEKEYSTATE eMouse)
 
 #pragma region LEVEL_MANAGER
 
-HRESULT CGameInstance::Change_Level(_uint iLevelIndex, CLevel* pNextLevel)
+void CGameInstance::Change_Level(CLevel* pNextLevel)
 {
-	return m_pLevel_Manager->Change_Level(iLevelIndex, pNextLevel);
+	return m_pLevel_Manager->Change_Level(pNextLevel);
 }
 
 #pragma endregion
@@ -234,6 +234,10 @@ CComponent* CGameInstance::Find_PartComponent(_uint iLevelIndex, const _wstring&
 {
 	return m_pObject_Manager->Find_PartComponent(iLevelIndex, strLayerTag, strComponentTag, iIndex, iPartObjIndex);
 }
+CGameObject* CGameInstance::Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iObjectIndex)
+{
+	return m_pObject_Manager->Get_GameObject(iLevelIndex, strLayerTag, iObjectIndex);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER
@@ -274,6 +278,14 @@ HRESULT CGameInstance::Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, C
 HRESULT CGameInstance::Bind_DefaultTexture(CShader* pShader, const _char* pConstantName)
 {
 	return m_pRenderer->Bind_DefaultTexture(pShader, pConstantName);
+}
+_bool CGameInstance::FadeIn(_float fTimeDelta)
+{
+	return m_pRenderer->FadeIn(fTimeDelta);
+}
+_bool CGameInstance::FadeOut(_float fTimeDelta)
+{
+	return m_pRenderer->FadeOut(fTimeDelta);
 }
 #ifdef _DEBUG
 HRESULT CGameInstance::Add_DebugObject(CComponent* pDebugObject)
@@ -316,9 +328,9 @@ _vector CGameInstance::Get_CamPosition_Vector() const
 #pragma endregion
 
 #pragma region PICKING
-_bool CGameInstance::Picking(_int iOffset, _float3* pPickPos)
+_bool CGameInstance::Picking(_float3* pPickPos)
 {
-	return m_pPicking->Picking(iOffset, pPickPos);
+	return m_pPicking->Picking(pPickPos);
 }
 #pragma endregion
 
@@ -350,9 +362,9 @@ HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontF
 {
 	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
 }
-HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale, _bool bCenterAligned)
 {
-	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
+	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale, bCenterAligned);
 }
 #pragma endregion
 
@@ -379,9 +391,9 @@ HRESULT CGameInstance::Add_MRT(const _wstring& strMRTTag, const _wstring& strTar
 	return m_pTarget_Manager->Add_MRT(strMRTTag, strTargetTag);
 }
 
-HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag)
+HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag, ID3D11DepthStencilView* pDSV)
 {
-	return m_pTarget_Manager->Begin_MRT(strMRTTag);
+	return m_pTarget_Manager->Begin_MRT(strMRTTag, pDSV);
 }
 
 HRESULT CGameInstance::End_MRT()

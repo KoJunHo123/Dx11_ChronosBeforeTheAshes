@@ -6,11 +6,14 @@ matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 
 texture2D g_DiffuseTexture;
 texture2D g_ComboTexture;
+texture2D g_EmissiveTexture;
 texture2D g_NoiseTexture;
 float g_fRatio;
 
 /* 뼈행렬들(내 모델 전체의 뼈행렬들(x), 현재 그리는 메시에게 영향을 주는 뼈행렬들(o) */
 matrix g_BoneMatrices[512];
+
+float4 g_vEmissiveColor;
 
 
 struct VS_IN
@@ -78,6 +81,7 @@ struct PS_OUT
     vector vDepth : SV_TARGET2;
     vector vCombo : SV_TARGET3;
     vector vPickDepth : SV_TARGET4;
+    vector vEmissive : SV_TARGET5;
 };
 
 PS_OUT PS_MAIN(PS_IN In)
@@ -92,6 +96,8 @@ PS_OUT PS_MAIN(PS_IN In)
     if (g_fRatio > vMtrlNoise.r)
         discard;
     
+    vector vMtrlEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+    
     vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
     
     Out.vDiffuse = vMtrlDiffuse;
@@ -99,6 +105,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     Out.vCombo = vMtrlComb;
     Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
+    Out.vEmissive = vMtrlEmissive * g_vEmissiveColor;
     
     return Out;
 }

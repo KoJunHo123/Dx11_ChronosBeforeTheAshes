@@ -7,7 +7,8 @@ CPlayer_Action::CPlayer_Action()
 
 HRESULT CPlayer_Action::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+	if(FAILED(__super::Initialize(pArg)))
+		return E_FAIL;
 
 	return S_OK;
 }

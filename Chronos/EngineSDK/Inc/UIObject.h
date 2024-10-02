@@ -27,6 +27,8 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+public:
+	virtual _bool On_MousePoint(POINT ptMouse);
 
 protected:
 	_float				m_fX{}, m_fY{}, m_fSizeX{}, m_fSizeY{};

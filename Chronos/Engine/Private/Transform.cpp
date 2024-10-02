@@ -323,7 +323,7 @@ void CTransform::Orbit(_fvector vAxis, _fvector vCenter, _float fLimit, _float f
 	
 	_vector vMovedLook = XMVector3TransformNormal(vLook, RotationMatrix);
 
-	_vector vNonY_MovedLook = XMVectorSet(vMovedLook.m128_f32[0], 0.f, vMovedLook.m128_f32[2], vMovedLook.m128_f32[3]);
+	_vector vNonY_MovedLook = XMVectorSetY(vMovedLook, 0.f);
 
 	_float fDot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(vMovedLook), XMVector3Normalize(vNonY_MovedLook)));
 

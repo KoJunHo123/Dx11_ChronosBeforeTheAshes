@@ -4,7 +4,7 @@
 
 BEGIN(Engine)
 
-class CCell final : public CBase
+class ENGINE_DLL CCell final : public CBase
 {
 public:
 	enum TYPE { TYPE_WALK, TYPE_FALL, TYPE_END };

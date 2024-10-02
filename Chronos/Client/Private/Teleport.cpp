@@ -30,6 +30,7 @@ HRESULT CTeleport::Initialize(void* pArg)
     m_pColliderCom->Set_OnCollision(true);
 
     m_vTeleportPos = pDesc->vTeleportPos;
+    m_vColor = pDesc->vColor;
 	return S_OK;
 }
 
@@ -63,11 +64,16 @@ HRESULT CTeleport::Render()
 
     _uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vEmissiveColor", &m_vColor, sizeof(_float4))))
+        return E_FAIL;
+
     for (size_t i = 0; i < iNumMeshes; i++)
     {
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
+            return E_FAIL;
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(0)))

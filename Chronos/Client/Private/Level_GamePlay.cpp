@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "..\Public\Level_GamePlay.h"
-#include "FreeCamera.h"
+#include "Camera_Container.h"
 #include "GameInstance.h"
 
 #include "Monster.h"
@@ -16,8 +16,11 @@ CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 {
 }
 
-HRESULT CLevel_GamePlay::Initialize()
+HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 {
+	if (FAILED(__super::Initialize(iLevelIndex)))
+		return E_FAIL;
+
 	if (FAILED(Ready_Lights()))
 		return E_FAIL;
 
@@ -44,18 +47,34 @@ HRESULT CLevel_GamePlay::Initialize()
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player_Attack"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster_Attack"), TEXT("Coll_Player"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Interaction"));
+	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Obstacle"));
+
+	m_bLevelStart = true;
 
 	return S_OK;
 }
 
 void CLevel_GamePlay::Update(_float fTimeDelta)
 {
+	if (true == m_bLevelStart)
+	{
+		if (true == m_pGameInstance->FadeOut(fTimeDelta))
+		{
+			m_bLevelStart = false;
+		}
+	}
+
+	if (true == m_pPlayer->Get_Dead())
+	{
+		m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+
+		if (FAILED(Ready_Layer_Monster()))
+			return;
+	}
 }
 
 HRESULT CLevel_GamePlay::Render()
 {
-	SetWindowText(g_hWnd, TEXT("게임플레이레벨입니다."));
-
 	return S_OK;
 }
 
@@ -79,19 +98,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 {
-	CFreeCamera::CAMERA_FREE_DESC		Desc{};
-
-	Desc.fSensor = 0.1f;
-	Desc.vEye = _float4(0.f, 10.f, -10.f, 1.f);
-	Desc.vAt = _float4(0.f, 0.f, 0.f, 1.f);
-	Desc.fFovy = XMConvertToRadians(60.0f);
-	Desc.fNear = 0.1f;
-	Desc.fFar = 1000.f;
-	Desc.fSpeedPerSec = 30.f;
-	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
-	Desc.fAspect = (_float)g_iWinSizeX / g_iWinSizeY;
-
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), TEXT("Prototype_GameObject_FreeCamera"), &Desc)))
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), TEXT("Prototype_GameObject_Camera_Container"))))
 		return E_FAIL;
 
 	return S_OK;
@@ -132,6 +139,9 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player()
 	}
 
 	infile.close();
+
+	m_pPlayer = static_cast<CPlayer*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Player"), 0));
+	Safe_AddRef(m_pPlayer);
 
 	return S_OK;
 }
@@ -260,11 +270,11 @@ HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
 	return S_OK;
 }
 
-CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex)
 {
 	CLevel_GamePlay*		pInstance = new CLevel_GamePlay(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize()))
+	if (FAILED(pInstance->Initialize(iLevelIndex)))
 	{
 		MSG_BOX(TEXT("Failed to Created : CLevel_GamePlay"));
 		Safe_Release(pInstance);
@@ -277,4 +287,5 @@ void CLevel_GamePlay::Free()
 {
 	__super::Free();
 
+	Safe_Release(m_pPlayer);
 }

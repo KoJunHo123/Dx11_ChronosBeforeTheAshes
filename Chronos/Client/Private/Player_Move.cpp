@@ -11,7 +11,8 @@ CPlayer_Move::CPlayer_Move()
 
 HRESULT CPlayer_Move::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+	if(FAILED(__super::Initialize(pArg)))
+		return E_FAIL;
 
 	PLAYER_STATE_MOVE_DESC* pDesc = static_cast<PLAYER_STATE_MOVE_DESC*>(pArg);
 

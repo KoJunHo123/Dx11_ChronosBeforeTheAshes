@@ -62,7 +62,7 @@ void CParticle_Smoke::Update(_float fTimeDelta)
 void CParticle_Smoke::Late_Update(_float fTimeDelta)
 {
 
-    if (FAILED(Compute_ViewZ(g_strTransformTag)))
+    if (FAILED(Compute_ViewZ()))
         return;
 
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);

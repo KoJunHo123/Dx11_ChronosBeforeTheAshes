@@ -89,6 +89,9 @@ HRESULT CPlayer_Body::Render()
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
+			return E_FAIL;
+
 		if (FAILED(m_pShaderCom->Begin(0)))
 			return E_FAIL;
 
@@ -196,7 +199,8 @@ _bool CPlayer_Body::Animation_Loop()
 		PLAYER_MOVE_WALK_B == *m_pPlayerAnim ||
 		PLAYER_MOVE_WALK_F == *m_pPlayerAnim ||
 		PLAYER_MOVE_WALK_L == *m_pPlayerAnim ||
-		PLAYER_MOVE_WALK_R == *m_pPlayerAnim
+		PLAYER_MOVE_WALK_R == *m_pPlayerAnim ||
+		PLAYER_JUMP_FALL == *m_pPlayerAnim
 		)
 		return true;
 

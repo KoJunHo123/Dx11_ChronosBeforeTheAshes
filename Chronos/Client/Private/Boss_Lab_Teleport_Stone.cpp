@@ -27,7 +27,7 @@ HRESULT CBoss_Lab_Teleport_Stone::Initialize(void* pArg)
     if (FAILED(Ready_Components()))
         return E_FAIL;
     
-    m_vPivot = { 0.f, -2.f, 0.f };
+    m_vPivot = { 0.f, -8.f, 0.f };
     m_fSpeed = pDesc->fSpeed;
     m_fGravity = pDesc->fGravity;
 

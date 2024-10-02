@@ -55,6 +55,8 @@ public:
 		return m_isChange;
 	}
 
+
+
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath, _fmatrix PreTransformMatrix);
 	virtual HRESULT Initialize(void* pArg) override;

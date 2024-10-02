@@ -163,15 +163,15 @@ void CBoss_Lab::Update(_float fTimeDelta)
 			{
 				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
 
-				if (0 == iRandomNum)
-					m_iState |= STATE_CHARGE;
-				else
-				{
+				//if (0 == iRandomNum)
+				//	m_iState |= STATE_CHARGE;
+				//else
+				//{
 					m_iState |= STATE_TELEPORT;
 					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
 					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
 					Add_TeleportEffect();
-				}
+				//}
 			}
 		}
 		else
@@ -194,7 +194,6 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	{
 		CBoss_Lab_Body* pBody = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY]);
 		
-
 		if (BOSS_LAB_TELEPORT_LAUNCH == pBody->Get_CurrentAnim() )
 		{
 			_vector vPos = Get_Position();
@@ -241,9 +240,11 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		pPartObject->Update(fTimeDelta);
 	}
 
-	__super::Update(fTimeDelta);
-
-	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
+	if (false == Contain_State(STATE_TELEPORT | STATE_APPEAR))
+	{
+		m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
+	}
+		
 
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
@@ -380,19 +381,19 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	SmokeDesc.fSpeedPerSec = 1.f;
 	
 	SmokeDesc.iNumInstance = 100;
-	SmokeDesc.vCenter = { 0.f, 1.f, 0.f };
+	SmokeDesc.vCenter = { 0.f, 0.f, 0.f };
 	SmokeDesc.vRange = { 15.f, 1.f, 15.f };
 	SmokeDesc.vExceptRange = { 7.f, 1.f, 7.f };
 	SmokeDesc.vSize = { 0.5f, 1.f };
-	SmokeDesc.vSpeed = { -1.f, 3.f };
+	SmokeDesc.vSpeed = { 1.f, 3.f };
 	SmokeDesc.vLifeTime = { 1.f, 2.f };
 	SmokeDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
 	SmokeDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
 	
 	SmokeDesc.vScale = { 5.f, 5.f, 5.f };
 	SmokeDesc.fSpeed = 3.f;
-	SmokeDesc.fGravity = 0.03f;
-	SmokeDesc.vPivot = { 0.f, -4.f, 0.f };
+	SmokeDesc.fGravity = 2.f;
+	SmokeDesc.vPivot = { 0.f, -8.f, 0.f };
 	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
 	SmokeDesc.isLoop = false;
 	if (FAILED(__super::Add_PartObject(PART_TELEPORT_SMOKE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"), &SmokeDesc)))
@@ -413,7 +414,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 
 	SmokeDesc.vScale = { 10.f, 10.f, 10.f };
 	SmokeDesc.fSpeed = 1.f;
-	SmokeDesc.fGravity = 0.1f;
+	SmokeDesc.fGravity = 5.f;
 	SmokeDesc.vPivot = { 0.f, -5.f, 0.f };
 	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
 	SmokeDesc.isLoop = true;
@@ -435,7 +436,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 
 	SmokeDesc.vScale = { 1.f, 1.f, 1.f };
 	SmokeDesc.fSpeed = 1.f;
-	SmokeDesc.fGravity = 0.2f;
+	SmokeDesc.fGravity = 7.f;
 	SmokeDesc.vPivot = { 0.f, -3.f, 0.f };
 	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
 	SmokeDesc.isLoop = false;
@@ -447,7 +448,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	StoneDesc.fRotationPerSec = 0.f;
 	StoneDesc.fSpeedPerSec = 1.f;
 	StoneDesc.fSpeed = 1.f;
-	StoneDesc.fGravity = 0.03f;
+	StoneDesc.fGravity = 3.f;
 	if (FAILED(__super::Add_PartObject(PART_TELEPORT_STONE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Stone"), &StoneDesc)))
 		return E_FAIL;
 

@@ -12,7 +12,7 @@ public:
 	}PLAYER_STATE_BLOCK_DESC;
 	enum PLAYER_BLOCK_STATE{ BLOCK_START, BLOCK_IDLE, BLOCK_WALK, BLOCK_IMPACT, BLOCK_IMPACT_BREAK, BLOCK_END };
 
-protected:
+private:
 	CPlayer_Block();
 	virtual ~CPlayer_Block() = default;
 

@@ -19,6 +19,16 @@ void CLevel_Manager::Update(_float fTimeDelta)
 {
 	if (nullptr != m_pCurrentLevel)
 		m_pCurrentLevel->Update(fTimeDelta);
+
+	if (m_pNextLevel->Get_LevelIndex() != m_pCurrentLevel->Get_LevelIndex())
+	{
+		/* 기존 레벨용 자원(객체)을 삭제한다. */
+		m_pGameInstance->Clear(m_pCurrentLevel->Get_LevelIndex());
+
+		Safe_Release(m_pCurrentLevel);
+
+		m_pCurrentLevel = m_pNextLevel;
+	}
 }
 
 HRESULT CLevel_Manager::Render()
@@ -29,18 +39,11 @@ HRESULT CLevel_Manager::Render()
 	return S_OK;
 }
 
-HRESULT CLevel_Manager::Change_Level(_uint iLevelIndex, CLevel * pNextLevel)
+void CLevel_Manager::Change_Level(CLevel* pNextLevel)
 {
-	/* 기존 레벨용 자원(객체)을 삭제한다. */
-	m_pGameInstance->Clear(m_iLevelIndex);
-
-	Safe_Release(m_pCurrentLevel);
-
-	m_pCurrentLevel = pNextLevel;
-
-	m_iLevelIndex = iLevelIndex;
-	
-	return S_OK;
+	if (nullptr == m_pCurrentLevel)
+		m_pCurrentLevel = pNextLevel;
+	m_pNextLevel = pNextLevel;
 }
 
 CLevel_Manager * CLevel_Manager::Create()
