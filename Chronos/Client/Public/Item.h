@@ -36,9 +36,9 @@ public:
 	virtual _uint Priority_Update(_float fTimeDelta);
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
-	virtual HRESULT Render();
+	virtual HRESULT Render(const _float4x4& WorldMatrix);
 
-	virtual _bool Use_Item();
+	virtual _bool Use_Item(class CPlayer* pPlayer = nullptr);
 
 protected:
 	_uint m_iItemCount = { 0 };

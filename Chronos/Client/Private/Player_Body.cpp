@@ -37,6 +37,8 @@ HRESULT CPlayer_Body::Initialize(void* pArg)
 
 	m_pRatio = pDesc->pRatio;
 
+	m_fStartSpeed = *m_pSpeed;
+
 	return S_OK;
 }
 
@@ -50,9 +52,7 @@ void CPlayer_Body::Update(_float fTimeDelta)
 {
 	m_pModelCom->SetUp_Animation(*m_pPlayerAnim, Animation_Loop(), Animation_NonInterpolate());
 
-	
-
-	Play_Animation(fTimeDelta * *m_pSpeed);
+	Play_Animation(fTimeDelta * (*m_pSpeed / m_fStartSpeed));
 	*m_pFrameIndex = Get_FrameIndex();
 
 }
@@ -81,8 +81,13 @@ HRESULT CPlayer_Body::Render()
 	if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
 		return E_FAIL;
 
-	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
+	_float4 vColor = { 1.f, 1.f, 1.f, 1.f };
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_vEmissiveColor", &vColor, sizeof(_float4))))
+		return E_FAIL;
 
+
+	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
+	
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
 		if (FAILED(m_pModelCom->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i)))

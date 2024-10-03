@@ -13,6 +13,7 @@ public:
 	typedef struct : CPlayer_State::PLAYER_STATE_DESC
 	{
 		class CCollider* pPlayerColliderCom = { nullptr };
+		_bool* pItemUsed = { nullptr };
 	}PLAYER_ACTION_DESC;
 
 	enum PLAYER_ACTION_STATE { STATE_DRAGONHEART, STATE_DRAGONSTONE, STATE_TELEPORT, STATE_WAYPOINT, STATE_REVIVE, STATE_END };
@@ -43,6 +44,7 @@ private:
 	class CCollider* m_pPlayerColliderCom = { nullptr };
 	PLAYER_ACTION_STATE m_eState = { STATE_END };
 	_float3 m_vTargetPosition = {};
+	_bool* m_pItemUsed = { nullptr };
 
 public:
 	static CPlayer_Action* Create(void* pArg);

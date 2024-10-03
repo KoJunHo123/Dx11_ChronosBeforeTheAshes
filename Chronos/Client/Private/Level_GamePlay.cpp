@@ -11,6 +11,8 @@
 #include "PuzzleBase.h"
 #include "Pedestal.h"
 #include "WayPoint.h"
+#include "Puzzle_Item.h"
+#include "RuneKey.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -26,6 +28,9 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 		return E_FAIL;
 
 	if (FAILED(Ready_Layer_BackGround()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Inventory()))
 		return E_FAIL;
 
 	if (FAILED(Ready_Layer_Player()))
@@ -110,8 +115,17 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
 		return E_FAIL;
 
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-	//	return E_FAIL;
+#ifndef _DEBUG
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+		return E_FAIL;
+#endif
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Inventory()
+{
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Inventory"), TEXT("Prototype_GameObject_Inventory"))))
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -251,6 +265,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
 	if (!infile.is_open())
 		return E_FAIL;
 
+	_uint iIndex = 0;
 	while (true)
 	{
 		_float3 vPos = {};
@@ -264,9 +279,35 @@ HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
 		desc.fRotationPerSec = 0.f;
 		desc.fSpeedPerSec = 1.f;
 		desc.vPos = vPos;
+		
+		
+		if (0 == iIndex)
+		{
+			desc.strItemTag = TEXT("Item_ReplacePuzzle");
+			desc.vRotation = { XMConvertToRadians(-45.f), XMConvertToRadians(180.f), 0.f };
+
+			CPuzzle_Item::PUZZLEITEM_DESC ItemDesc = {};
+			ItemDesc.fRotationPerSec = 0.f;
+			ItemDesc.fSpeedPerSec = 1.f;
+
+			desc.pItem = static_cast<CItem*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_PuzzleItem"), &desc));
+		}
+		else if (1 == iIndex)
+		{
+			desc.strItemTag = TEXT("Item_RuneKey");
+			desc.vRotation = { XMConvertToRadians(45.f), XMConvertToRadians(180.f), 0.f };
+
+			CRuneKey::RUNEKYE_DESC ItemDesc = {};
+			ItemDesc.fRotationPerSec = 0.f;
+			ItemDesc.fSpeedPerSec = 1.f;
+
+			desc.pItem = static_cast<CItem*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_RuneKey"), &desc));
+		}
 
 		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Pedestal"), &desc)))
 			return E_FAIL;
+
+		++iIndex;
 	}
 
 	infile.close();

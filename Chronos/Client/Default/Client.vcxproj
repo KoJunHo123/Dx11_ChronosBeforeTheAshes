@@ -170,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
+    <ClInclude Include="..\public\RuneKey.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
     <ClInclude Include="..\public\Boss_Lab_Attack.h" />
     <ClInclude Include="..\public\Boss_Lab_Body.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="..\public\Camera_Shorder.h" />
     <ClInclude Include="..\public\Inventory.h" />
     <ClInclude Include="..\public\Item.h" />
+    <ClInclude Include="..\public\Pedestal_Item.h" />
     <ClInclude Include="..\public\Lab_Construct.h" />
     <ClInclude Include="..\public\Lab_Construct_Body.h" />
     <ClInclude Include="..\public\Lab_Construct_Attack.h" />
@@ -216,12 +218,14 @@
     <ClInclude Include="..\public\Particle_Snow.h" />
     <ClInclude Include="..\public\Particle_Spawn.h" />
     <ClInclude Include="..\public\Pedestal.h" />
+    <ClInclude Include="..\public\Pedestal_InterColl.h" />
     <ClInclude Include="..\public\Player.h" />
     <ClInclude Include="..\public\Player_Action.h" />
     <ClInclude Include="..\public\Player_Attack.h" />
     <ClInclude Include="..\public\Player_Block.h" />
     <ClInclude Include="..\public\Player_Body.h" />
     <ClInclude Include="..\public\Player_Impact.h" />
+    <ClInclude Include="..\public\Player_Item.h" />
     <ClInclude Include="..\public\Player_Jump.h" />
     <ClInclude Include="..\public\Player_Move.h" />
     <ClInclude Include="..\public\Player_Part.h" />
@@ -231,6 +235,7 @@
     <ClInclude Include="..\public\PuzzleBase.h" />
     <ClInclude Include="..\public\PuzzlePart.h" />
     <ClInclude Include="..\public\Puzzle_InterColl.h" />
+    <ClInclude Include="..\Public\Puzzle_Item.h" />
     <ClInclude Include="..\public\Sky.h" />
     <ClInclude Include="..\public\Teleport.h" />
     <ClInclude Include="..\public\Teleport_Container.h" />
@@ -249,6 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
+    <ClCompile Include="..\private\RuneKey.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Body.cpp" />
@@ -264,6 +270,7 @@
     <ClCompile Include="..\private\Camera_Shorder.cpp" />
     <ClCompile Include="..\private\Inventory.cpp" />
     <ClCompile Include="..\private\Item.cpp" />
+    <ClCompile Include="..\private\Pedestal_Item.cpp" />
     <ClCompile Include="..\private\Lab_Construct.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Body.cpp" />
     <ClCompile Include="..\private\Lab_Construct_Attack.cpp" />
@@ -293,12 +300,14 @@
     <ClCompile Include="..\private\Particle_Snow.cpp" />
     <ClCompile Include="..\private\Particle_Spawn.cpp" />
     <ClCompile Include="..\private\Pedestal.cpp" />
+    <ClCompile Include="..\private\Pedestal_InterColl.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
     <ClCompile Include="..\private\Player_Action.cpp" />
     <ClCompile Include="..\private\Player_Attack.cpp" />
     <ClCompile Include="..\private\Player_Block.cpp" />
     <ClCompile Include="..\private\Player_Body.cpp" />
     <ClCompile Include="..\private\Player_Impact.cpp" />
+    <ClCompile Include="..\private\Player_Item.cpp" />
     <ClCompile Include="..\private\Player_Jump.cpp" />
     <ClCompile Include="..\private\Player_Move.cpp" />
     <ClCompile Include="..\private\Player_Part.cpp" />
@@ -308,6 +317,7 @@
     <ClCompile Include="..\private\PuzzleBase.cpp" />
     <ClCompile Include="..\private\PuzzlePart.cpp" />
     <ClCompile Include="..\private\Puzzle_InterColl.cpp" />
+    <ClCompile Include="..\Private\Puzzle_Item.cpp" />
     <ClCompile Include="..\private\Sky.cpp" />
     <ClCompile Include="..\private\Teleport.cpp" />
     <ClCompile Include="..\private\Teleport_Container.cpp" />

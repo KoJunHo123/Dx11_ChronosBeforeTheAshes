@@ -20,11 +20,14 @@ HRESULT CItem::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
+	m_iItemCount = 1;
+
 	return S_OK;
 }
 
 _uint CItem::Priority_Update(_float fTimeDelta)
 {
+
 	return OBJ_NOEVENT;
 }
 
@@ -36,20 +39,18 @@ void CItem::Late_Update(_float fTimeDelta)
 {
 }
 
-HRESULT CItem::Render()
+HRESULT CItem::Render(const _float4x4& WorldMatrix)
 {
 	return S_OK;
 }
 
-_bool CItem::Use_Item()
+_bool CItem::Use_Item(class CPlayer* pPlayer)
 {
-	if (0 < m_iItemCount)
-		--m_iItemCount;
-
 	if (0 == m_iItemCount)
-		return true;
+		return false;
 
-	return false;
+	--m_iItemCount;
+	return true;
 }
 
 void CItem::Free()

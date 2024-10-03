@@ -27,6 +27,8 @@ public:
 
 	enum PLAYER_STATE{ STATE_MOVE, STATE_ATTACK, STATE_JUMP, STATE_BLOCK, STATE_IMPACT, STATE_ACTION, STATE_END};
 	enum PLAYER_PART{ PART_BODY, PART_WEAPON, PART_SHIELD, PART_ITEM, PART_EFFECT, PART_END };
+	enum PLAYER_SKILL { SKILL_RED, SKILL_PUPPLE, SKILL_END };
+
 private:
 	CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CPlayer(const CPlayer& Prototype);
@@ -39,6 +41,13 @@ public:
 	}
 	void Set_SavePos(_fvector vPos) {
 		XMStoreFloat3(&m_vSavePos, vPos);
+	}
+
+	void Recovery_HP() {
+		m_iHP = m_iMaxHP;
+	}
+	void Get_Skill(_uint iSkillIndex) {
+		m_HaveSkill[iSkillIndex] = true;
 	}
 
 public:
@@ -64,11 +73,15 @@ public:
 	// 상태와 파츠가 공유해야 하는 변수들
 	PLAYER_ANIM m_ePlayerAnim = { PLAYER_ANIM_END };
 	_float m_fSpeed = { 0.f };
+	_float m_fStartSpeed = { 0.f };
 	_bool m_isFinished = { false };
 	_float3 m_vCameraLook = {};
 
 	// 무기랑 공유하는 변수
 	_uint m_iKeyFrameIndex = { 0 };
+
+	// 아이템이랑 공유하는 변수
+	_bool m_bItemUsed = { false };
 
 	// 체력
 	_int m_iHP = { 0 };
@@ -76,6 +89,9 @@ public:
 	// 스테미너
 	_int m_iStamina = { 0 };
 	_int m_iMaxStamina = { 0 };
+	// 스킬 게이지
+	_float m_fSkillGage = { 0 };
+
 	// 닷지시 무적
 	_bool m_bNonIntersect = { false };
 	
@@ -88,16 +104,29 @@ public:
 	_bool m_bRevive = { false };
 
 	_float m_fDeathDelay = { 0.f };
+	_float m_fSkillDuration = { 0.f };
+
+	class CInventory* m_pInventory = { nullptr };
+
+	// 현재 플레이어 스킬
+	_bool m_HaveSkill[SKILL_END] = {};
+	_uint m_eCurrentSkill = { SKILL_RED };
+	_bool m_bDrain = { false };
 
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);
 	HRESULT Ready_States();
 	HRESULT Ready_Parts();
+	HRESULT Ready_Inventory();
 
 private:
 	HRESULT Ready_Body(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
 	HRESULT Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
 	HRESULT Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
+	HRESULT Ready_Item(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
+
+private:
+	void Anim_Frame_Control();
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

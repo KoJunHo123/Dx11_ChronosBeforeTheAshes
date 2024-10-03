@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Inventory.h"
+#include "GameInstance.h"
+
 #include "Item.h"
 
 CInventory::CInventory(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -30,11 +32,23 @@ HRESULT CInventory::Initialize(void* pArg)
 
 _uint CInventory::Priority_Update(_float fTimeDelta)
 {
+    for (auto& iter = m_Items.begin(); iter != m_Items.end();)
+    {
+        if (OBJ_DEAD == iter->second->Priority_Update(fTimeDelta))
+        {
+            Safe_Release(iter->second);
+            iter = m_Items.erase(iter);
+        }
+        else
+            ++iter;
+    }
+
     return OBJ_NOEVENT;
 }
 
 void CInventory::Update(_float fTimeDelta)
 {
+    cout << m_Items.size() << endl;
 }
 
 void CInventory::Late_Update(_float fTimeDelta)
@@ -52,7 +66,7 @@ void CInventory::Add_Item(const _wstring strItemKey, CItem* pAddItem)
     CItem* pItem = Find_Item(strItemKey);
     if (nullptr == pItem)
     {
-        m_Items.emplace(strItemKey, pItem);
+        m_Items.emplace(strItemKey, pAddItem);
         return;
     }
 

@@ -51,6 +51,8 @@ private:
 
 	_float* m_pRatio = { nullptr };
 
+	_float m_fStartSpeed = { 0.f };
+
 private:
 	void Play_Animation(_float fTimeDelta);	
 	_vector Get_Rotation(_matrix WorldMatrix, _vector vExist);

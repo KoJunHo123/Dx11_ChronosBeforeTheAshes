@@ -20,6 +20,9 @@ public:
 		class CTexture* pNoiseTextureCom = { nullptr };
 
 		_float* pRatio = { nullptr };
+		_bool* pDrain = { nullptr };
+		_int* pHP = { nullptr };
+		_int iMaxHP = { 0 };
 	}PLAYER_WEAPON_DESC;
 private:
 	CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -55,6 +58,9 @@ private:
 	_uint m_iDamage = { 0 };
 	_bool m_bAttackActive = { false };
 	_float* m_pRatio = { nullptr };
+	_bool* m_pDrain = { nullptr };
+	_int* m_pHP = { nullptr };
+	_int m_iMaxHP = { 0 };
 
 private:
 	HRESULT Ready_Components();

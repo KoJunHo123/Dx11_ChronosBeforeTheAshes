@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Player.h"
+#include "Player_Item.h"
 
 CPlayer_Action::CPlayer_Action()
 {
@@ -16,6 +17,7 @@ HRESULT CPlayer_Action::Initialize(void* pArg)
 	PLAYER_ACTION_DESC* pDesc = static_cast<PLAYER_ACTION_DESC*>(pArg);
 
 	m_pPlayerColliderCom = pDesc->pPlayerColliderCom;
+	m_pItemUsed = pDesc->pItemUsed;
 
 	Safe_AddRef(m_pPlayerColliderCom);
 
@@ -46,7 +48,9 @@ void CPlayer_Action::Update(_float fTimeDelta)
 	
 
 	if (true == *m_pIsFinished)
+	{
 		m_pFSM->Set_State(CPlayer::STATE_MOVE);
+	}
 
 	__super::Update(fTimeDelta);
 }
@@ -66,6 +70,9 @@ HRESULT CPlayer_Action::Render()
 HRESULT CPlayer_Action::ExitState(void** pArg)
 {
 	__super::ExitState(pArg);
+
+	*m_pItemUsed = false;
+	static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM])->Release_Item();
 
 	m_pPlayerColliderCom->Set_OnCollision(true);
 

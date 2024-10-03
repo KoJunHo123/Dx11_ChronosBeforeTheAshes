@@ -2,6 +2,9 @@
 #include "Pedestal.h"
 #include "GameInstance.h"
 
+#include "Pedestal_Item.h"
+#include "Pedestal_InterColl.h"
+
 CPedestal::CPedestal(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
 {
@@ -19,31 +22,58 @@ HRESULT CPedestal::Initialize_Prototype()
 
 HRESULT CPedestal::Initialize(void* pArg)
 {
+	PEDESTAL_DESC* pDesc = static_cast<PEDESTAL_DESC*>(pArg);
+
+	m_pItem = pDesc->pItem;
+
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	PEDESTAL_DESC* pDesc = static_cast<PEDESTAL_DESC*>(pArg);
+	if (FAILED(Ready_Parts(pDesc->strItemTag, pDesc->vRotation)))
+		return E_FAIL;
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&pDesc->vPos));
+	m_pColliderCom->Set_OnCollision(true);
 
 	return S_OK;
 }
 
 _uint CPedestal::Priority_Update(_float fTimeDelta)
 {
+	for (auto& Part : m_Parts)
+	{
+		if (nullptr == Part)
+			continue;
+		Part->Priority_Update(fTimeDelta);
+	}
+
 	return OBJ_NOEVENT;
 }
 
 void CPedestal::Update(_float fTimeDelta)
 {
+	for (auto& Part : m_Parts)
+	{
+		if (nullptr == Part)
+			continue;
+		Part->Update(fTimeDelta);
+	}
+
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CPedestal::Late_Update(_float fTimeDelta)
 {
+	for (auto& Part : m_Parts)
+	{
+		if (nullptr == Part)
+			continue;
+		Part->Late_Update(fTimeDelta);
+	}
+
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 #ifdef _DEBUG
@@ -86,7 +116,36 @@ void CPedestal::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 {
 	if (TEXT("Coll_Player") == strColliderTag)
 	{
+		_vector vDir = {};
+		_vector vCollisionPos = pCollisionObject->Get_Position();
+		vDir = vCollisionPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
+		_float fX = abs(vDir.m128_f32[0]);
+		_float fY = abs(vDir.m128_f32[1]);
+		_float fZ = abs(vDir.m128_f32[2]);
+
+		_float fLength = { 0.f };
+
+		if (fX >= fY && fX >= fZ)
+		{
+			vDir = XMVectorSet(vDir.m128_f32[0], 0.f, 0.f, 0.f);	// 나가야 되는 방향.
+			fLength = vSourInterval.x + vDestInterval.x;	// 전체 거리.
+		}
+		else if (fY >= fX && fY >= fZ)
+		{
+			vDir = XMVectorSet(0.f, vDir.m128_f32[1], 0.f, 0.f);
+			fLength = vSourInterval.y + vDestInterval.y;
+		}
+		else if (fZ >= fX && fZ >= fY)
+		{
+			vDir = XMVectorSet(0.f, 0.f, vDir.m128_f32[2], 0.f);
+			fLength = vSourInterval.z + vDestInterval.z;
+		}
+
+		fLength -= XMVectorGetX(XMVector3Length(vDir));
+		vDir = XMVector3Normalize(vDir) * fLength;
+		// 충돌된 방향만 갖고온 extents만큼 빼주기.
+		pCollisionObject->Set_Position(vCollisionPos + vDir);
 	}
 }
 
@@ -114,6 +173,33 @@ HRESULT CPedestal::Ready_Components()
 
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CPedestal::Ready_Parts(const _wstring strItemTag, _float3 vRotation)
+{
+	m_Parts.resize(PART_END);
+	CPedestal_Item::PEDESTAL_ITEM_DESC ItemDesc = {};
+	ItemDesc.fOffset = 4.75f;
+	ItemDesc.fRotationPerSec = 0.f;
+	ItemDesc.fSpeedPerSec = 1.f;
+	ItemDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	ItemDesc.vRotation = vRotation;
+	ItemDesc.ppItem = &m_pItem;
+
+	if (FAILED(__super::Add_PartObject(PART_ITEM, TEXT("Prototype_GameObject_Pedestal_Item"), &ItemDesc)))
+		return E_FAIL;
+
+	CPedestal_InterColl::PART_INTERCOLL_DESC InterCollDesc = {};
+	InterCollDesc.fRotationPerSec = 0.f;
+	InterCollDesc.fSpeedPerSec = 0.f;
+	InterCollDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	InterCollDesc.ppItem = &m_pItem;
+	InterCollDesc.strItemTag = strItemTag;
+
+	if (FAILED(__super::Add_PartObject(PART_INTERCOLL, TEXT("Prototype_GameObject_Pedestal_InterColl"), &InterCollDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -152,4 +238,5 @@ void CPedestal::Free()
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pColliderCom);
+	Safe_Release(m_pItem);
 }

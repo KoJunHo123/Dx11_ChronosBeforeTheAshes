@@ -26,8 +26,9 @@ private:
 
 private:
 	HRESULT Ready_Lights();
-	HRESULT Ready_Layer_Camera();	
+	HRESULT Ready_Layer_Camera();
 	HRESULT Ready_Layer_BackGround();
+	HRESULT Ready_Layer_Inventory();
 	HRESULT Ready_Layer_Player();
 	HRESULT Ready_Layer_Monster();
 	HRESULT Ready_Layer_Paticle();

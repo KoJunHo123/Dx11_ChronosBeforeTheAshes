@@ -48,9 +48,6 @@ _bool CKeyManager::Key_Up(int _iKey)
 {
     if (1 == _iKey)
     {
-        cout << "Áö±Ý" << endl;
-        cout << (GetAsyncKeyState(_iKey) & 0x8000) << endl;
-        cout << m_bKeyState[_iKey] << endl;
     }
 
 

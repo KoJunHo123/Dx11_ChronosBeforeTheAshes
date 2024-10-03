@@ -33,6 +33,7 @@
 #include "Player_Body.h"
 #include "Player_Weapon.h"
 #include "Player_Shield.h"
+#include "Player_Item.h"
 
 // 몬스터
 #include "Particle_Monster_Death.h"
@@ -64,10 +65,16 @@
 #include "Lab_Troll_Body.h"
 #include "Lab_Troll_Weapon.h"
 
-// 상호작용
+// 상호작용 : 텔레포트
 #include "Teleport.h"
 #include "Teleport_Container.h"
+
+// 상호작용 : 거치대
 #include "Pedestal.h"
+#include "Pedestal_Item.h"
+#include "Pedestal_InterColl.h"
+
+// 상호작용 : 웨이포인트
 #include "WayPoint.h"
 #include "WayPoint_InterColl.h"
 
@@ -85,6 +92,14 @@
 #include "Effect_BloodCore.h"
 #include "Effect_BloodSpray.h"
 #include "Effect_Flare.h"
+
+// 인벤토리
+#include "Inventory.h"
+
+// 아이템
+#include "DragonHeart.h"
+#include "Puzzle_Item.h"
+#include "RuneKey.h"
 
 
 CLoader::CLoader(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
@@ -280,17 +295,17 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d.png"), 2))))
 		return E_FAIL;
 
-	///* For. Prototype_Component_Texture_BloodCore_N */
+	//* For. Prototype_Component_Texture_BloodCore_N */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodCore_N"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d_N.png"), 2))))
 		return E_FAIL;
 
-	///* For. Prototype_Component_Texture_BloodSpray */
+	//* For. Prototype_Component_Texture_BloodSpray */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d.png"), 6))))
 		return E_FAIL;
 
-	///* For. Prototype_Component_Texture_BloodSpray_N */
+	//* For. Prototype_Component_Texture_BloodSpray_N */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray_N"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d_N.png"), 6))))
 		return E_FAIL;
@@ -406,10 +421,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 #pragma region LABYRINTH
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
-	//PreTransformMatrix = XMMatrixIdentity();
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-	//	return E_FAIL;
+#ifndef _DEBUG
+	PreTransformMatrix = XMMatrixIdentity();
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+		return E_FAIL;
+#endif
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
 	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
@@ -577,6 +594,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Monster/Lab_Troll/Lab_Troll_Knife", PreTransformMatrix))))
 		 return E_FAIL;
 #pragma endregion
+#pragma region ITEM
+	 /* For. Prototype_Component_Model_Item_DragonHeart */
+	 PreTransformMatrix = XMMatrixIdentity();
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Item_DragonHeart"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Item/DragonHeart/DragonHeart", PreTransformMatrix))))
+		 return E_FAIL;
+
+	 /* For. Prototype_Component_Model_Item_RuneKey */
+	 PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Item_RuneKey"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Item/RuneKey/RuneKey", PreTransformMatrix))))
+		 return E_FAIL;
+#pragma endregion
 
 	lstrcpy(m_szLoadingText, TEXT("셰이더을(를) 로딩중입니다."));
 #pragma region SHADER
@@ -718,6 +748,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Shield"),
 		CPlayer_Shield::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Player_Item */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Item"),
+		CPlayer_Item::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER
 	/* For. Prototype_GameObject_Particle_Monster_Death */
@@ -819,7 +855,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CLab_Troll_Weapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
-#pragma region INTERACTION
+#pragma region INTERACTION TELEPORT
 	/* For. Prototype_GameObject_Teleport */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Teleport"),
 		CTeleport::Create(m_pDevice, m_pContext))))
@@ -829,12 +865,24 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Teleport_Container"),
 		CTeleport_Container::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
+#pragma endregion
+#pragma region INTERACTION PEDESTAL
 	/* For. Prototype_GameObject_Pedestal */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Pedestal"),
 		CPedestal::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Pedestal_Item */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Pedestal_Item"),
+		CPedestal_Item::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Pedestal_InterColl */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Pedestal_InterColl"),
+		CPedestal_InterColl::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region INTERACTION WAYPOINT
 	/* For. Prototype_GameObject_WayPoint */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint"),
 		CWayPoint::Create(m_pDevice, m_pContext))))
@@ -844,8 +892,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint_InterColl"),
 		CWayPoint_InterColl::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
 #pragma endregion
+
 #pragma region PARTICLE
 	/* For. Prototype_GameObject_Particle_Spark */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Spark"),
@@ -901,6 +949,28 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Effect_Flare */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Flare"),
 		CEffect_Flare::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region INVENTORY
+	/* For. Prototype_GameObject_Inventory */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Inventory"),
+		CInventory::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region ITEM
+	/* For. Prototype_GameObject_DragonHeart */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_DragonHeart"),
+		CDragonHeart::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_PuzzleItem */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_PuzzleItem"),
+		CPuzzle_Item::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_RuneKey */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_RuneKey"),
+		CRuneKey::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 

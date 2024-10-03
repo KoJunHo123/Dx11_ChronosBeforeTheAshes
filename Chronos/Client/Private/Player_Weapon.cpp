@@ -40,8 +40,11 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 	Safe_AddRef(m_pNoiseTextureCom);
 
 	m_pRatio = pDesc->pRatio;
+	m_pDrain = pDesc->pDrain;
+	m_pHP = pDesc->pHP;
+	m_iMaxHP = pDesc->iMaxHP;
 
-	m_iDamage = 0;
+	m_iDamage = 10;
 
 	return S_OK;
 }
@@ -135,6 +138,10 @@ HRESULT CPlayer_Weapon::Render()
 	if (FAILED(m_pNoiseTextureCom->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 3)))
 		return E_FAIL;
 
+	_float4 vColor = { 1.f, 1.f, 1.f, 1.f };
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_vEmissiveColor", &vColor, sizeof(_float4))))
+		return E_FAIL;
+
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
 	for (size_t i = 0; i < iNumMeshes; i++)
@@ -164,6 +171,15 @@ void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pColl
 
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
+		if (true == *m_pDrain)
+		{
+			_int iHP = *m_pHP + m_iDamage;
+			if (m_iMaxHP < iHP)
+				*m_pHP = m_iMaxHP;
+			else
+				*m_pHP = iHP;
+		}
+
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
 		pMonster->Be_Damaged(iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
 

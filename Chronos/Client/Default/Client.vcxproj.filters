@@ -112,9 +112,6 @@
     <Filter Include="02.GameObjects\07.Interaction\Teleport\Container">
       <UniqueIdentifier>{1a9c4513-25cd-4b41-8483-9f3fef57cb33}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\07.Interaction\Pedestal\Item">
-      <UniqueIdentifier>{9c84d946-24e1-4d74-bbf2-011e2b257667}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\04.Monster\Monster_Object">
       <UniqueIdentifier>{d4e3013a-f616-4c3e-a5f2-35c7f545d4da}</UniqueIdentifier>
     </Filter>
@@ -253,20 +250,32 @@
     <Filter Include="02.GameObjects\05.Puzzle\PuzzleInter">
       <UniqueIdentifier>{3b00a354-cd0d-4ef8-9c27-d32f577b99bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\11.WayPoint">
-      <UniqueIdentifier>{46e60916-c99b-44cb-b00d-f96563cdb526}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\11.WayPoint\WayPoint_Interaction">
-      <UniqueIdentifier>{253bc240-b02b-4bcc-abca-13be8e312cd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\12.Inventory">
+    <Filter Include="02.GameObjects\11.Inventory">
       <UniqueIdentifier>{39e29d83-a52c-4a02-a820-fa759a73e723}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\12.Inventory\Item">
+    <Filter Include="02.GameObjects\11.Inventory\Item">
       <UniqueIdentifier>{d67427ad-a8a3-4fba-af1d-2e634a23f5eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\12.Inventory\Item\DragonHeart">
+    <Filter Include="02.GameObjects\11.Inventory\Item\DragonHeart">
       <UniqueIdentifier>{a01dabdd-e621-4e18-8314-f6e76ca21a7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\WayPoint">
+      <UniqueIdentifier>{46e60916-c99b-44cb-b00d-f96563cdb526}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\WayPoint\WayPoint_Interaction">
+      <UniqueIdentifier>{253bc240-b02b-4bcc-abca-13be8e312cd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\Pedestal\Pedestal_Item">
+      <UniqueIdentifier>{9c84d946-24e1-4d74-bbf2-011e2b257667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\11.Inventory\Item\RuneKey">
+      <UniqueIdentifier>{fc7bd929-70a7-4ab8-bef4-befaffb41ffe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\Pedestal\Pedestal_InterColl">
+      <UniqueIdentifier>{d3a8ee8f-e5fd-4936-a0dd-500a1b842db6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\11.Inventory\Item\Puzzle_Item">
+      <UniqueIdentifier>{b3a8bc48-5c4d-4ee4-902f-8f02d70d0758}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -487,19 +496,34 @@
       <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
     </ClInclude>
     <ClInclude Include="..\public\WayPoint.h">
-      <Filter>02.GameObjects\11.WayPoint</Filter>
+      <Filter>02.GameObjects\07.Interaction\WayPoint</Filter>
     </ClInclude>
     <ClInclude Include="..\public\WayPoint_InterColl.h">
-      <Filter>02.GameObjects\11.WayPoint\WayPoint_Interaction</Filter>
+      <Filter>02.GameObjects\07.Interaction\WayPoint\WayPoint_Interaction</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Inventory.h">
-      <Filter>02.GameObjects\12.Inventory</Filter>
+      <Filter>02.GameObjects\11.Inventory</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Item.h">
-      <Filter>02.GameObjects\12.Inventory\Item</Filter>
+      <Filter>02.GameObjects\11.Inventory\Item</Filter>
     </ClInclude>
     <ClInclude Include="..\public\DragonHeart.h">
-      <Filter>02.GameObjects\12.Inventory\Item\DragonHeart</Filter>
+      <Filter>02.GameObjects\11.Inventory\Item\DragonHeart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Item.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\RuneKey.h">
+      <Filter>02.GameObjects\11.Inventory\Item\RuneKey</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Puzzle_Item.h">
+      <Filter>02.GameObjects\11.Inventory\Item\Puzzle_Item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Pedestal_InterColl.h">
+      <Filter>02.GameObjects\07.Interaction\Pedestal\Pedestal_InterColl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Pedestal_Item.h">
+      <Filter>02.GameObjects\07.Interaction\Pedestal\Pedestal_Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -708,19 +732,34 @@
       <Filter>02.GameObjects\05.Puzzle\PuzzleInter</Filter>
     </ClCompile>
     <ClCompile Include="..\private\WayPoint.cpp">
-      <Filter>02.GameObjects\11.WayPoint</Filter>
+      <Filter>02.GameObjects\07.Interaction\WayPoint</Filter>
     </ClCompile>
     <ClCompile Include="..\private\WayPoint_InterColl.cpp">
-      <Filter>02.GameObjects\11.WayPoint\WayPoint_Interaction</Filter>
+      <Filter>02.GameObjects\07.Interaction\WayPoint\WayPoint_Interaction</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Inventory.cpp">
-      <Filter>02.GameObjects\12.Inventory</Filter>
+      <Filter>02.GameObjects\11.Inventory</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Item.cpp">
-      <Filter>02.GameObjects\12.Inventory\Item</Filter>
+      <Filter>02.GameObjects\11.Inventory\Item</Filter>
     </ClCompile>
     <ClCompile Include="..\private\DragonHeart.cpp">
-      <Filter>02.GameObjects\12.Inventory\Item\DragonHeart</Filter>
+      <Filter>02.GameObjects\11.Inventory\Item\DragonHeart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Item.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\RuneKey.cpp">
+      <Filter>02.GameObjects\11.Inventory\Item\RuneKey</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Puzzle_Item.cpp">
+      <Filter>02.GameObjects\11.Inventory\Item\Puzzle_Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Pedestal_InterColl.cpp">
+      <Filter>02.GameObjects\07.Interaction\Pedestal\Pedestal_InterColl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Pedestal_Item.cpp">
+      <Filter>02.GameObjects\07.Interaction\Pedestal\Pedestal_Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

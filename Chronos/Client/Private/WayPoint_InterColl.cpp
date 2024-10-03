@@ -59,7 +59,6 @@ void CWayPoint_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 {
 	if (TEXT("Coll_Player") == strColliderTag && m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_E))
 	{
-		cout << "YESSSS" << endl;
 	}
 }
 

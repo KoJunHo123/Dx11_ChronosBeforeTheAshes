@@ -12,10 +12,14 @@
 #include "Player_Body.h"
 #include "Player_Weapon.h"
 #include "Player_Shield.h"
+#include "Player_Item.h"
 
 #include "Camera_Container.h"
 #include "Camera_Shorder.h"
-#include "Camera.h"
+
+#include "Inventory.h"
+
+#include "DragonHeart.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -34,6 +38,15 @@ HRESULT CPlayer::Initialize_Prototype()
 
 HRESULT CPlayer::Initialize(void* pArg)
 {
+    m_fSpeed = 4.f * 5.f;
+    m_fStartSpeed = m_fSpeed;
+
+    m_iMaxHP = 100;
+    m_iHP = m_iMaxHP;
+
+    m_iMaxStamina = 100;
+    m_iStamina = m_iMaxStamina;
+
     PLAYER_DESC* pDesc = static_cast<PLAYER_DESC*>(pArg);
 
     /* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
@@ -44,6 +57,8 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_pTransformCom->Set_Scaled(pDesc->vScale.x, pDesc->vScale.y, pDesc->vScale.z);
     m_pTransformCom->Rotation(XMConvertToRadians(pDesc->vRotation.x), XMConvertToRadians(pDesc->vRotation.y), XMConvertToRadians(pDesc->vRotation.z));
 
+    if (FAILED(Ready_Inventory()))
+        return E_FAIL;
 
     if (FAILED(Ready_Components(pDesc->iStartCellIndex)))
         return E_FAIL;
@@ -56,18 +71,16 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pFSM->Set_State(STATE_MOVE);
 
-    m_fSpeed = 4.f * 5.f;
 
-    m_iMaxHP = 100;
-    m_iHP = m_iMaxHP;
-
-    m_iMaxStamina = 100;
-    m_iStamina = m_iMaxStamina;
 
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     // 임시. 수정 위치로 나중에 변경.
     XMStoreFloat3(&m_vSavePos, Get_Position());
+
+    m_fRatio = 0.f;
+    m_HaveSkill[SKILL_RED] = true;
+    m_HaveSkill[SKILL_PUPPLE] = true;
 
     return S_OK;
 }
@@ -97,12 +110,21 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
                 {
                     m_fDeathDelay = 0.f;
                     m_bRevive = false;
+                    m_fSkillGage = 0.f;
                 }
             }
         }
 
+        if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_T) && m_fSkillDuration <= 0.f)
+        {
+            _uint iCurrentSkill = (_uint)m_eCurrentSkill;
+            if (true == m_HaveSkill[++iCurrentSkill])
+                m_eCurrentSkill = iCurrentSkill;
 
-        m_fRatio = 0.f;
+            if (SKILL_END == m_eCurrentSkill)
+                m_eCurrentSkill = SKILL_RED;
+        }
+
         m_pColliderCom->Set_OnCollision(true);
         m_pFSM->Priority_Update(fTimeDelta);
     }
@@ -134,17 +156,7 @@ void CPlayer::Update(_float fTimeDelta)
         //cout << vPos.y << endl;
         //cout << vPos.z << endl << endl;
 
-        if (PLAYER_ACTION_DRAGONHEART == m_ePlayerAnim && 67 == m_iKeyFrameIndex)
-        {
-            m_iHP = m_iMaxHP;
-            // 이펙트든 파티클이든 아무거나......
-        }
-
-        else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 == m_iKeyFrameIndex)
-        {
-            // 
-        }
-        
+        Anim_Frame_Control();
     }
 }
 
@@ -169,6 +181,23 @@ void CPlayer::Late_Update(_float fTimeDelta)
                     if (true == m_pGameInstance->FadeIn(fTimeDelta))
                         m_bDead = true;
                 }
+            }
+        }
+
+        // 스킬 진행중
+        if (0.f < m_fSkillDuration)
+            m_fSkillDuration -= fTimeDelta;
+        else
+        {
+            switch (m_eCurrentSkill)
+            {
+            case SKILL_RED:
+                m_fSpeed = m_fStartSpeed;
+                break;
+
+            case SKILL_PUPPLE:
+                m_bDrain = false;
+                break;
             }
         }
 
@@ -356,6 +385,7 @@ HRESULT CPlayer::Ready_States()
     ActionDesc.pSpeed = &m_fSpeed;
     ActionDesc.pCameraLook = &m_vCameraLook;
     ActionDesc.pPlayerColliderCom = m_pColliderCom;
+    ActionDesc.pItemUsed = &m_bItemUsed;
 
     if (FAILED(m_pFSM->Add_State(CPlayer_Action::Create(&ActionDesc))))
         return E_FAIL;
@@ -385,6 +415,29 @@ HRESULT CPlayer::Ready_Parts()
 
     if (FAILED(Ready_Shield(desc)))
         return E_FAIL;
+
+    if (FAILED(Ready_Item(desc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CPlayer::Ready_Inventory()
+{
+    m_pInventory = static_cast<CInventory*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Inventory"), 0));
+    if (nullptr == m_pInventory)
+        return E_FAIL;
+    Safe_AddRef(m_pInventory);
+
+    CDragonHeart::DRAGONHEART_DESC desc = {};
+    desc.fRotationPerSec = XMConvertToRadians(90.f);
+    desc.fSpeedPerSec = 1.f;
+
+    CItem* pItem = static_cast<CItem*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_DragonHeart"), &desc));
+    if (nullptr == pItem)
+        return E_FAIL;
+
+    m_pInventory->Add_Item(TEXT("Item_DragonHeart"), pItem);
 
     return S_OK;
 }
@@ -428,6 +481,9 @@ HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     desc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
     desc.pNoiseTextureCom = m_pNoiseTextureCom;
     desc.pRatio = &m_fRatio;
+    desc.pDrain = &m_bDrain;
+    desc.iMaxHP = m_iMaxHP;
+    desc.pHP = &m_iHP;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
         return E_FAIL;
@@ -457,7 +513,65 @@ HRESULT CPlayer::Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     return S_OK;
 }
 
+HRESULT CPlayer::Ready_Item(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
+{
+    CPlayer_Item::PLAYER_ITEM_DESC desc = {};
+    desc.fRotationPerSec = BaseDesc.fRotationPerSec;
+    desc.fSpeedPerSec = BaseDesc.fSpeedPerSec;
+    desc.pFSM = BaseDesc.pFSM;
+    desc.pIsFinished = BaseDesc.pIsFinished;
+    desc.pParentWorldMatrix = BaseDesc.pParentWorldMatrix;
+    desc.pPlayerAnim = BaseDesc.pPlayerAnim;
+    desc.pSpeed = BaseDesc.pSpeed;
+    desc.pFrameIndex = BaseDesc.pFrameIndex;
 
+    desc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Item");
+    desc.pInventory = m_pInventory;
+
+    if (FAILED(__super::Add_PartObject(PART_ITEM, TEXT("Prototype_GameObject_Player_Item"), &desc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+void CPlayer::Anim_Frame_Control()
+{
+    if (PLAYER_ACTION_DRAGONHEART == m_ePlayerAnim )
+    {
+        if (30 <= m_iKeyFrameIndex && m_iKeyFrameIndex <67)
+        {
+            CPlayer_Item* pItem = static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM]);
+            if(true == pItem->IsEmpty())
+            {
+                pItem->Set_Item(TEXT("Item_DragonHeart"));
+            }
+        }
+        else if(false == m_bItemUsed && 67 <= m_iKeyFrameIndex)
+        {
+            m_bItemUsed = true;
+            static_cast<CDragonHeart*>(m_pInventory->Find_Item(TEXT("Item_DragonHeart")))->Use_Item(this);
+            static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Release_Item();
+        }
+    }
+    else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 <= m_iKeyFrameIndex)
+    {
+        if (m_fSkillDuration <= 0.f)
+        {
+            switch (m_eCurrentSkill)
+            {
+            case SKILL_RED:
+                m_fSpeed *= 1.2f;
+                break;
+
+            case SKILL_PUPPLE:
+                m_bDrain = true;
+                break;
+            }
+
+            m_fSkillDuration = 10.f;
+        }
+    }
+}
 
 CPlayer* CPlayer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
@@ -493,4 +607,5 @@ void CPlayer::Free()
     Safe_Release(m_pNavigationCom);
     Safe_Release(m_pColliderCom);
     Safe_Release(m_pNoiseTextureCom);
+    Safe_Release(m_pInventory);
 }

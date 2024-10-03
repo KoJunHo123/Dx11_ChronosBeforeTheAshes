@@ -158,7 +158,6 @@ void CLab_Troll::Intersect(const _wstring strColliderTag, CGameObject* pCollisio
 void CLab_Troll::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 {
     m_iHP -= iDamage;
-    cout << m_iHP << endl;
     _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
     _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
 
