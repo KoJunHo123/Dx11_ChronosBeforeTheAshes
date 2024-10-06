@@ -14,6 +14,7 @@ public:
 	typedef struct : public CPartObject::PARTOBJ_DESC
 	{
 		_float fOffset;
+		_bool* pUnLock;
 	}INTERCOLL_DESC;
 private:
 	CDoorLock_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -32,6 +33,7 @@ public:
 
 private:
 	class CCollider* m_pColliderCom = { nullptr };
+	_bool* m_pUnLock;
 
 private:
 	HRESULT Ready_Components(_float fOffset);

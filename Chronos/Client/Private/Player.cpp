@@ -290,8 +290,11 @@ void CPlayer::Set_SavePos(_fvector vPos)
     XMStoreFloat3(&m_vSavePos, Get_Position());
 }
 
-void CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
+_bool CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
 {
+    if (nullptr == m_pInventory->Find_Item(TEXT("Item_RuneKey")))
+        return false;
+
     _vector vPlayerPos = XMVectorSetY(vPos, XMVectorGetY(Get_Position()));
     _vector vAt = XMVectorSetY(vLookAt, XMVectorGetY(Get_Position()));
 
@@ -299,6 +302,8 @@ void CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
     m_pTransformCom->LookAt(vAt);
     m_pFSM->Set_State(STATE_ACTION);
     static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION))->Set_State(CPlayer_Action::STATE_RUNEKEY);
+
+    return true;
 }
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)

@@ -91,6 +91,7 @@
 // 상호작용 : 도어락
 #include "DoorLock.h"
 #include "DoorLock_InterColl.h"
+#include "DoorLock_Effect.h"
 
 // 파티클
 #include "Particle_AttackLight.h"
@@ -383,6 +384,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Glow_01.png"), 1))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_Particle_Smoke_2x2 */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Smoke_2x2"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_EFF_Smoke_25_M.dds"), 1))))
+		return E_FAIL;
 
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
@@ -980,6 +985,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_DoorLock_InterColl */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_DoorLock_InterColl"),
 		CDoorLock_InterColl::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_DoorLock_Effect */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_DoorLock_Effect"),
+		CDoorLock_Effect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region PARTICLE

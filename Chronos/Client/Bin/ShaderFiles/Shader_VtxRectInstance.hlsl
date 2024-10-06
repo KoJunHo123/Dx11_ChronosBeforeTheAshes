@@ -5,6 +5,8 @@ texture2D		g_Texture;
 
 float4 g_vColor;
 
+
+
 struct VS_IN
 {
 	/* InputSlot : 0 */
@@ -218,11 +220,44 @@ PS_OUT PS_STONE_MAIN(PS_IN In)
     return Out;
 }
 
+PS_OUT PS_BLENDSMOKE_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 start = (float2) 0;
+    float2 over = (float2) 0;
+	
+    int iTexIndex = (int) (In.vColor.r * 100) % 4;
+    
+    start.x = (0.5f) * iTexIndex;
+    start.y = (0.5f) * (int) (iTexIndex / 2);
+	
+    over.x = start.x + (0.5f);
+    over.y = start.y + (0.5f);
+	
+    float2 vTexcoord = start + (over - start) * In.vTexcoord;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, vTexcoord);
+
+    Out.vColor.a = Out.vColor.r;
+	
+    Out.vColor.a *= 1 - (In.vLifeTime.y / In.vLifeTime.x);
+    Out.vColor.a *= 2.f;
+	
+    if (Out.vColor.a < 0.5f)
+        discard;
+	
+    float fRatio = 2 * (Out.vColor.a - 0.5f);
+    Out.vColor.rgb = g_vColor * fRatio;
+    
+    return Out;
+}
+
 
 technique11	DefaultTechnique
 {
 	/* 빛연산 + 림라이트 + ssao + 노멀맵핑 + pbr*/
-	pass UI
+	pass UI // 0
 	{
 		SetRasterizerState(RS_Default);
 		SetDepthStencilState(DSS_Default, 0);
@@ -233,7 +268,7 @@ technique11	DefaultTechnique
 		PixelShader = compile ps_5_0 PS_MAIN();
 	}
 
-    pass SMOKE
+    pass SMOKE // 1
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -244,7 +279,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_SMOKE_MAIN();
     }
 
-    pass BOSS_TELEPORT
+    pass BOSS_TELEPORT // 2
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -255,7 +290,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_BOSS_TELEPORT_MAIN();
     }
 
-    pass STONE
+    pass STONE // 3
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -265,10 +300,15 @@ technique11	DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_STONE_MAIN();
     }
-	/* 디스토션 + 블렌딩 */
-	//pass Effect
-	//{
-	//	VertexShader = compile vs_5_0 VS_MAIN_Special();
-	//	PixelShader = compile ps_5_0 PS_MAIN_Special();
-	//}
+
+    pass BLENDSMOKE // 4
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_BLENDSMOKE_MAIN();
+    }
 }

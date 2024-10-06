@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "DoorLock_InterColl.h"
+#include "DoorLock_Effect.h"
 
 CDoorLock::CDoorLock(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -43,6 +44,9 @@ HRESULT CDoorLock::Initialize(void* pArg)
 
 _uint CDoorLock::Priority_Update(_float fTimeDelta)
 {
+	if (true == m_bDead)
+		return OBJ_DEAD;
+
 	for (auto& Part : m_Parts)
 	{
 		if (nullptr == Part)
@@ -64,6 +68,19 @@ void CDoorLock::Update(_float fTimeDelta)
 
 		Part->Update(fTimeDelta);
 	}
+
+	if(true == m_bUnLock)
+	{
+		m_fDelay += fTimeDelta;
+		if(8.f < m_fDelay)
+		{
+			m_bLoop = false;
+			_vector vPos = Get_Position();
+			if (true == m_pTransformCom->MoveTo(XMVectorSet(XMVectorGetX(vPos), 0.f, XMVectorGetZ(vPos), 1.f), fTimeDelta))
+				m_bDead = true;
+		}
+	}
+
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
@@ -178,14 +195,42 @@ HRESULT CDoorLock::Ready_PartObject()
 {
 	m_Parts.resize(PART_END);
 
-	CDoorLock_InterColl::INTERCOLL_DESC desc = {};
-	desc.fRotationPerSec = 0.f;
-	desc.fSpeedPerSec = 1.f;
-	desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-	desc.fOffset = m_pTransformCom->Get_Scaled().y * 0.5f;
+	CDoorLock_InterColl::INTERCOLL_DESC InterCollDesc = {};
+	InterCollDesc.fRotationPerSec = 0.f;
+	InterCollDesc.fSpeedPerSec = 1.f;
+	InterCollDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	InterCollDesc.fOffset = m_pTransformCom->Get_Scaled().y * 0.5f;
+	InterCollDesc.pUnLock = &m_bUnLock;
 
-	if(FAILED(__super::Add_PartObject(PART_INTERCOLL, TEXT("Prototype_GameObject_DoorLock_InterColl"), &desc)))
+	if(FAILED(__super::Add_PartObject(PART_INTERCOLL, TEXT("Prototype_GameObject_DoorLock_InterColl"), &InterCollDesc)))
 		return E_FAIL;
+
+	CDoorLock_Effect::EFFECT_DESC EffectDesc = {};
+	EffectDesc.fRotationPerSec = 0.f;
+	EffectDesc.fSpeedPerSec = 1.f;
+
+	EffectDesc.iNumInstance = 1000;
+	EffectDesc.vCenter = { 0.f, 0.f, 0.f };
+	EffectDesc.vRange = { 10.f, 1.f, 1.f };
+	EffectDesc.vExceptRange = { 0.f, 0.f, 0.f };
+	EffectDesc.vSize = { 0.5f, 1.f };
+	EffectDesc.vSpeed = { 2.f, 4.f };
+	EffectDesc.vLifeTime = { 2.f, 4.f };
+	EffectDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
+	EffectDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
+	
+	EffectDesc.vScale = { 3.f, 3.f, 3.f };
+	EffectDesc.fSpeed = 1.f;
+	EffectDesc.fGravity = 0.f;
+	EffectDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	EffectDesc.vMoveDir = { 0.f, 1.f, 0.f };
+
+	EffectDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	EffectDesc.pLoop = &m_bLoop;
+
+	if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_DoorLock_Effect"), &EffectDesc)))
+		return E_FAIL;
+
 
 	return S_OK;
 }
