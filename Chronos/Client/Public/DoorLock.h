@@ -19,7 +19,7 @@ public:
 		_float3 vPos;
 	}DOORLOCK_DESC;
 
-	enum PART { PART_INTERCOLL, PART_END};
+	enum PART { PART_INTERCOLL, PART_EFFECT, PART_END };
 
 private:
 	CDoorLock(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -40,6 +40,10 @@ private:
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
 
+	_bool m_bUnLock = { false };
+	_bool m_bLoop = { true };
+
+	_float m_fDelay = 0.f;
 
 private:
 	HRESULT Ready_Components();

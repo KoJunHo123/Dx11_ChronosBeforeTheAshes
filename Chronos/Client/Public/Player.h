@@ -88,7 +88,7 @@ public:
 public:
 	_bool Be_Damaged(_float fDamage, _fvector vAttackPos);
 	void Set_SavePos(_fvector vPos);
-	void Use_Runekey(_fvector vPos, _fvector vLookAt);
+	_bool Use_Runekey(_fvector vPos, _fvector vLookAt);
 
 public:
 	class CFSM* m_pFSM = { nullptr };

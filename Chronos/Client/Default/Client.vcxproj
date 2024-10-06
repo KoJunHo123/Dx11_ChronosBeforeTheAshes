@@ -171,6 +171,7 @@
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\DoorLock.h" />
+    <ClInclude Include="..\public\DoorLock_Effect.h" />
     <ClInclude Include="..\Public\DoorLock_InterColl.h" />
     <ClInclude Include="..\public\RuneKey.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
@@ -265,6 +266,7 @@
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\DoorLock.cpp" />
+    <ClCompile Include="..\private\DoorLock_Effect.cpp" />
     <ClCompile Include="..\Private\DoorLock_InterColl.cpp" />
     <ClCompile Include="..\private\RuneKey.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />

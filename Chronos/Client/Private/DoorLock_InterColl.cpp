@@ -33,6 +33,8 @@ HRESULT CDoorLock_InterColl::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_pColliderCom->Set_OnCollision(true);
+	m_pUnLock = desc->pUnLock;
+
 	return S_OK;
 }
 
@@ -69,8 +71,7 @@ void CDoorLock_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 			_vector vPos = XMLoadFloat4x4(&m_WorldMatrix).r[3];
 			vPos.m128_f32[0] -= 0.125f;
 			vPos = XMVectorSetZ(vPos, XMVectorGetZ(vPos) - 4.f);
-			static_cast<CPlayer*>(pCollisionObject)->Use_Runekey(vPos, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
-
+			*m_pUnLock = static_cast<CPlayer*>(pCollisionObject)->Use_Runekey(vPos, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 		}
 	}
 
