@@ -39,17 +39,41 @@ public:
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
 		m_pNavigationCom->Set_CurrentCellIndex_ByPos(vPos);
 	}
-	void Set_SavePos(_fvector vPos) {
-		XMStoreFloat3(&m_vSavePos, vPos);
-	}
 
 	void Recovery_HP() {
-		m_iHP = m_iMaxHP;
+		m_fHP = m_fMaxHP;
 	}
-	void Get_Skill(_uint iSkillIndex) {
+	void Acquire_Skill(_uint iSkillIndex) {
 		m_HaveSkill[iSkillIndex] = true;
 	}
 
+	_uint Get_Skill() {
+		return m_eCurrentSkill;
+	}
+
+	_float Get_HP() {
+		return m_fHP;
+	}
+
+	_float Get_MaxHP() {
+		return m_fMaxHP;
+	}
+
+	_float Get_Stamina() {
+		return m_fStamina;
+	}
+
+	_float Get_MaxStamina() {
+		return m_fMaxStamina;
+	}
+
+	_float Get_SkillGage() {
+		return m_fSkillGage;
+	}
+
+	_float Get_MaxSkillGage() {
+		return m_fMaxSkillGage;
+	}
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
@@ -62,7 +86,9 @@ public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 
 public:
-	_bool Be_Damaged(_uint iDamage, _fvector vAttackPos);
+	_bool Be_Damaged(_float fDamage, _fvector vAttackPos);
+	void Set_SavePos(_fvector vPos);
+	void Use_Runekey(_fvector vPos, _fvector vLookAt);
 
 public:
 	class CFSM* m_pFSM = { nullptr };
@@ -84,13 +110,14 @@ public:
 	_bool m_bItemUsed = { false };
 
 	// 체력
-	_int m_iHP = { 0 };
-	_int m_iMaxHP = { 0 };
+	_float m_fHP = { 0 };
+	_float m_fMaxHP = { 0 };
 	// 스테미너
-	_int m_iStamina = { 0 };
-	_int m_iMaxStamina = { 0 };
+	_float m_fStamina = { 0 };
+	_float m_fMaxStamina = { 0 };
 	// 스킬 게이지
 	_float m_fSkillGage = { 0 };
+	_float m_fMaxSkillGage = { 0 };
 
 	// 닷지시 무적
 	_bool m_bNonIntersect = { false };

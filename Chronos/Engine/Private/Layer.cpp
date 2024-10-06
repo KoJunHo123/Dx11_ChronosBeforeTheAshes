@@ -105,7 +105,10 @@ void CLayer::Release_Object()
 void CLayer::Clear()
 {
 	for (auto& pGameObject : m_GameObjects)
+	{
+		pGameObject->Set_Dead();
 		Safe_Release(pGameObject);
+	}
 	m_GameObjects.clear();
 }
 

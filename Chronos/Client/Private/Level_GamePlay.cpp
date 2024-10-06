@@ -13,6 +13,11 @@
 #include "WayPoint.h"
 #include "Puzzle_Item.h"
 #include "RuneKey.h"
+#include "DoorLock.h"
+#include "Inventory.h"
+
+#include "UI_PlayerBase.h"
+
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -45,6 +50,8 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 	if (FAILED(Ready_Layer_Interaction()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_UI()))
+		return E_FAIL;
 	//if (FAILED(Ready_Layer_Paticle()))
 	//	return E_FAIL;
 
@@ -124,7 +131,11 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Inventory()
 {
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Inventory"), TEXT("Prototype_GameObject_Inventory"))))
+	CGameObject::GAMEOBJECT_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Inventory"), TEXT("Prototype_GameObject_Inventory"), &desc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -218,6 +229,9 @@ HRESULT CLevel_GamePlay::Ready_Layer_Interaction()
 	if (FAILED(Ready_Layer_Waypoint()))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_DoorLock()))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -251,7 +265,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Puzzle()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Teleport()
 {
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_Teleport_Container"))))
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_TeleportContainer"), TEXT("Prototype_GameObject_Teleport_Container"))))
 		return E_FAIL;
 	
 	return S_OK;
@@ -295,7 +309,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_Pedestal()
 		else if (1 == iIndex)
 		{
 			desc.strItemTag = TEXT("Item_RuneKey");
-			desc.vRotation = { XMConvertToRadians(45.f), XMConvertToRadians(180.f), 0.f };
+			desc.vRotation = { 0.f, XMConvertToRadians(90.f), XMConvertToRadians(-45.f)};
+			//desc.vRotation = { 0.f, 0.f, 0.f };
 
 			CRuneKey::RUNEKYE_DESC ItemDesc = {};
 			ItemDesc.fRotationPerSec = 0.f;
@@ -323,6 +338,32 @@ HRESULT CLevel_GamePlay::Ready_Layer_Waypoint()
 	desc.vPos = _float3(66.5f, 5.f, 101.5f);
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_WayPoint"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_DoorLock()
+{
+	CDoorLock::DOORLOCK_DESC desc = {};
+
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+	desc.vPos = _float3(69.f, 5.f, 634.f);
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), TEXT("Prototype_GameObject_DoorLock"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_UI()
+{
+	CUI_PlayerBase::PLAYERBASE_DESC desc = {};
+	desc.fRotationPerSec = 0.f;
+	desc.fSpeedPerSec = 0.f;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_PlayerBase"), &desc)))
 		return E_FAIL;
 
 	return S_OK;

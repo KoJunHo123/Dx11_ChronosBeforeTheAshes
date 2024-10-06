@@ -34,11 +34,12 @@ HRESULT CLab_Construct::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-    m_iMaxHP = 100;
-    m_iHP = m_iMaxHP;
+    m_fMaxHP = 100.f;
+    m_fHP = m_fMaxHP;
 
     m_iState = STATE_IDLE;
     m_pColliderCom->Set_OnCollision(true);
+    m_fOffset = 9.f;
 
     return S_OK;
 }
@@ -63,8 +64,11 @@ void CLab_Construct::Update(_float fTimeDelta)
 {
     m_fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
-    if (m_fDistance < 30.f)
+    if (m_fDistance < 30.f && false == m_bAggro)
+    {
         m_bAggro = true;
+        Add_MonsterHPBar();
+    }
 
     if(STATE_ATTACK != m_iState)
     {
@@ -88,7 +92,7 @@ void CLab_Construct::Update(_float fTimeDelta)
 
     m_fAttackDelay += fTimeDelta;
 
-    if (m_iHP <= 0 && STATE_DEATH != m_iState)
+    if (m_fHP <= 0.f && STATE_DEATH != m_iState)
     {
         m_iState = STATE_DEATH;
         m_isFinished = false;
@@ -149,11 +153,12 @@ void CLab_Construct::Intersect(const _wstring strColliderTag, CGameObject* pColl
 
 }
 
-void CLab_Construct::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+void CLab_Construct::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
-    m_iHP -= iDamage;
+    __super::Be_Damaged(fDamage, vAttackPos);
+    m_fHP -= fDamage;
 
-    if(iDamage > 15)
+    if(fDamage > 15)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
         _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
@@ -211,7 +216,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     
     BodyDesc.pState = &m_iState;
     BodyDesc.pIsFinished = &m_isFinished;
-    BodyDesc.pHP = &m_iHP;
+    BodyDesc.pHP = &m_fHP;
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pSwordAttackActive = &m_bSwordAttackActive;
     BodyDesc.pShieldAttackActive = &m_bShieldAttackActive;
@@ -231,7 +236,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     AttackDesc.vCenter = { 0.f, -3.f, 0.f };
     AttackDesc.vExtents = { 1.f, 3.5f, 1.f };
     AttackDesc.pAttackActive = &m_bSwordAttackActive;
-    AttackDesc.iDamage = 10;
+    AttackDesc.fDamage = 10.f;
     if (FAILED(__super::Add_PartObject(PART_SWORD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))
         return E_FAIL;
 
@@ -240,7 +245,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     AttackDesc.vCenter = { 0.f, 0.5f, 0.f };
     AttackDesc.vExtents = { 0.5f, 0.5f, 0.5f };
     AttackDesc.pAttackActive = &m_bShieldAttackActive;
-    AttackDesc.iDamage = 5;
+    AttackDesc.fDamage = 5.f;
     if (FAILED(__super::Add_PartObject(PART_SHIELD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))
         return E_FAIL;
 

@@ -3,6 +3,13 @@
 #include "Client_Defines.h"
 #include "GameObject.h"
 
+BEGIN(Engine)
+class CShader;
+class CVIBuffer_Rect;
+class CTexture;
+END
+
+
 BEGIN(Client)
 class CInventory final : public CGameObject
 {

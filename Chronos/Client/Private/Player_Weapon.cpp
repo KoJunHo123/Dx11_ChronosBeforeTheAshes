@@ -42,24 +42,39 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 	m_pRatio = pDesc->pRatio;
 	m_pDrain = pDesc->pDrain;
 	m_pHP = pDesc->pHP;
-	m_iMaxHP = pDesc->iMaxHP;
+	m_fMaxHP = pDesc->fMaxHP;
+	m_pStamina = pDesc->pStamina;
+	m_pSkillGage = pDesc->pSkillGage;
+	m_fMaxSkillGage = pDesc->fMaxSkillGage;
 
-	m_iDamage = 10;
+	m_fDamage = 10.f;
 
 	return S_OK;
 }
 
 _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 {
-	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
+	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State())
 	{
-		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
-		m_pColliderCom->Set_OnCollision(true);
-	}
-	else
-	{
-		m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
-		m_pColliderCom->Set_OnCollision(false);
+		if(true == IsAttackAnim() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
+		{
+			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
+			m_pColliderCom->Set_OnCollision(true);
+			if (false == m_bStaminaDown)
+			{
+				*m_pStamina -= 10.f;
+				if (*m_pStamina < 0.f)
+					*m_pStamina = 0.f;
+
+				m_bStaminaDown = true;
+			}
+		}
+		else
+		{
+			m_bStaminaDown = false;
+			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
+			m_pColliderCom->Set_OnCollision(false);
+		}
 	}
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
@@ -101,14 +116,15 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 	XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
 	m_pColliderCom->Update(&m_WorldMatrix);
 
+	// 만간에 지우자.
 	if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_P))
 	{
-		if (0 == m_iDamage)
-			m_iDamage = 10;
-		else if (10 == m_iDamage)
-			m_iDamage = 100;
+		if (0.f == m_fDamage)
+			m_fDamage = 10.f;
+		else if (10.f == m_fDamage)
+			m_fDamage = 100.f;
 		else
-			m_iDamage = 0;
+			m_fDamage = 0.f;
 	}
 
 }
@@ -148,6 +164,8 @@ HRESULT CPlayer_Weapon::Render()
 	{
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
@@ -165,23 +183,28 @@ HRESULT CPlayer_Weapon::Render()
 
 void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
 {
-	_uint iDamage = m_iDamage;
+	_float fDamage = m_fDamage;
 	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim || PLAYER_ATK_POWER_02 == *m_pPlayerAnim || PLAYER_ATK_RUN == *m_pPlayerAnim)
-		iDamage = m_iDamage * 2;
+		fDamage = m_fDamage * 2;
 
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
+		*m_pSkillGage += fDamage;
+
+		if (m_fMaxSkillGage < *m_pSkillGage)
+			*m_pSkillGage = m_fMaxSkillGage;
+
 		if (true == *m_pDrain)
 		{
-			_int iHP = *m_pHP + m_iDamage;
-			if (m_iMaxHP < iHP)
-				*m_pHP = m_iMaxHP;
+			_float fHP = *m_pHP + fDamage;
+			if (m_fMaxHP < fHP)
+				*m_pHP = m_fMaxHP;
 			else
-				*m_pHP = iHP;
+				*m_pHP = fHP;
 		}
 
 		CMonster* pMonster = static_cast<CMonster*>(pCollisionObject);
-		pMonster->Be_Damaged(iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+		pMonster->Be_Damaged(fDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
 
 		_vector vTargetPos = pCollisionObject->Get_Position();
 		vTargetPos.m128_f32[1] = m_vTailPos.y;
@@ -237,6 +260,23 @@ HRESULT CPlayer_Weapon::Add_AttackParticle(_fvector vPos, _fvector vPivot)
 		return E_FAIL;
 
 	return S_OK;
+}
+
+_bool CPlayer_Weapon::IsAttackAnim()
+{
+	if (
+		PLAYER_ATK_LIGHT_01 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_02 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_03 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_04 == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_01 == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_02 == *m_pPlayerAnim ||
+		PLAYER_ATK_RUN == *m_pPlayerAnim)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 CPlayer_Weapon* CPlayer_Weapon::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

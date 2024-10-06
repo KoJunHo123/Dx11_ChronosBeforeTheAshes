@@ -33,12 +33,13 @@ HRESULT CLab_Troll::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-    m_iMaxHP = 100;
-    m_iHP = m_iMaxHP;
+    m_fMaxHP = 30.f;
+    m_fHP = m_fMaxHP;
 
     m_iState = STATE_SPAWN;
     m_pColliderCom->Set_OnCollision(true);
 
+    m_fOffset = 4.f;
 
     return S_OK;
 }
@@ -64,8 +65,11 @@ void CLab_Troll::Update(_float fTimeDelta)
     m_fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
 
-    if (m_fDistance < 30.f)
+    if (m_fDistance < 30.f && false == m_bAggro)
+    {
         m_bAggro = true;
+        Add_MonsterHPBar();
+    }
 
     if (STATE_ATTACK != m_iState)
     {
@@ -97,7 +101,7 @@ void CLab_Troll::Update(_float fTimeDelta)
 
     m_fAttackDelay += fTimeDelta;
 
-    if (m_iHP <= 0)
+    if (m_fHP <= 0.f)
     {
         m_iState = STATE_DEATH;
         m_isFinished = false;
@@ -155,9 +159,11 @@ void CLab_Troll::Intersect(const _wstring strColliderTag, CGameObject* pCollisio
 
 }
 
-void CLab_Troll::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+void CLab_Troll::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
-    m_iHP -= iDamage;
+    __super::Be_Damaged(fDamage, vAttackPos);
+
+    m_fHP -= fDamage;
     _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
     _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
 
@@ -172,7 +178,7 @@ void CLab_Troll::Be_Damaged(_uint iDamage, _fvector vAttackPos)
         fRadian *= -1.f;
 
     CLab_Troll_Body* pBody = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY]);
-    pBody->Set_HittedDesc(XMConvertToDegrees(fRadian), iDamage);
+    pBody->Set_HittedDesc(XMConvertToDegrees(fRadian), fDamage);
 
     if (STATE_IMPACT == m_iState)
         pBody->Reset_Animation();
@@ -213,7 +219,7 @@ HRESULT CLab_Troll::Ready_PartObjects()
 
     BodyDesc.pState = &m_iState;
     BodyDesc.pIsFinished = &m_isFinished;
-    BodyDesc.pHP = &m_iHP;
+    BodyDesc.pHP = &m_fHP;
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pLeftAttackActive = &m_bLeftAttackActive;
     BodyDesc.pRightAttackActive = &m_bRightAttackActive;
@@ -232,7 +238,7 @@ HRESULT CLab_Troll::Ready_PartObjects()
     WeaponDesc.vCenter = { 0.f, 0.f, 0.5f };
     WeaponDesc.vExtents = { 1.f, 1.f, 1.f };
     WeaponDesc.pAttackActive = &m_bLeftAttackActive;
-    WeaponDesc.iDamage = 10;
+    WeaponDesc.fDamage = 10.f;
     WeaponDesc.pRatio = &m_fRatio;
     WeaponDesc.pNoiseTextureCom = m_pNoiseTextureCom;
 
@@ -241,7 +247,7 @@ HRESULT CLab_Troll::Ready_PartObjects()
   
     WeaponDesc.pSocketBoneMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Weapon_Dagger_R");
     WeaponDesc.pAttackActive = &m_bRightAttackActive;   
-    WeaponDesc.iDamage = 10;
+    WeaponDesc.fDamage = 10.f;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON_R, TEXT("Prototype_GameObject_Lab_Troll_Weapon"), &WeaponDesc)))
         return E_FAIL;
@@ -264,6 +270,7 @@ HRESULT CLab_Troll::Ready_PartObjects()
 
     return S_OK;
 }
+
 
 CLab_Troll* CLab_Troll::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

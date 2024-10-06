@@ -170,6 +170,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
+    <ClInclude Include="..\Public\DoorLock.h" />
+    <ClInclude Include="..\Public\DoorLock_InterColl.h" />
     <ClInclude Include="..\public\RuneKey.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
     <ClInclude Include="..\public\Boss_Lab_Attack.h" />
@@ -240,20 +242,30 @@
     <ClInclude Include="..\public\Teleport.h" />
     <ClInclude Include="..\public\Teleport_Container.h" />
     <ClInclude Include="..\Public\Terrain.h" />
+    <ClInclude Include="..\public\UI_BossHPBarDeco.h" />
+    <ClInclude Include="..\public\UI_BossHPBar.h" />
+    <ClInclude Include="..\public\UI_BossHPBarGlow.h" />
+    <ClInclude Include="..\public\UI_DragonHeart.h" />
+    <ClInclude Include="..\Public\UI_DragonStone.h" />
+    <ClInclude Include="..\Public\UI_GageBar.h" />
     <ClInclude Include="..\public\UI_GlowStar.h" />
     <ClInclude Include="..\public\UI_LoadingMaze.h" />
     <ClInclude Include="..\public\UI_LogoMaze.h" />
     <ClInclude Include="..\public\UI_LogoTitle.h" />
+    <ClInclude Include="..\public\UI_PlayerBase.h" />
     <ClInclude Include="..\public\UI_TextBox.h" />
     <ClInclude Include="..\public\WayPoint.h" />
     <ClInclude Include="..\public\WayPoint_InterColl.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="UI_MonsterHPBar.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
+    <ClCompile Include="..\Private\DoorLock.cpp" />
+    <ClCompile Include="..\Private\DoorLock_InterColl.cpp" />
     <ClCompile Include="..\private\RuneKey.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />
@@ -322,14 +334,22 @@
     <ClCompile Include="..\private\Teleport.cpp" />
     <ClCompile Include="..\private\Teleport_Container.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
+    <ClCompile Include="..\private\UI_BossHPBarDeco.cpp" />
+    <ClCompile Include="..\private\UI_BossHPBar.cpp" />
+    <ClCompile Include="..\private\UI_BossHPBarGlow.cpp" />
+    <ClCompile Include="..\private\UI_DragonHeart.cpp" />
+    <ClCompile Include="..\Private\UI_DragonStone.cpp" />
+    <ClCompile Include="..\Private\UI_GageBar.cpp" />
     <ClCompile Include="..\private\UI_GlowStar.cpp" />
     <ClCompile Include="..\private\UI_LoadingMaze.cpp" />
     <ClCompile Include="..\private\UI_LogoMaze.cpp" />
     <ClCompile Include="..\private\UI_LogoTitle.cpp" />
+    <ClCompile Include="..\private\UI_PlayerBase.cpp" />
     <ClCompile Include="..\private\UI_TextBox.cpp" />
     <ClCompile Include="..\private\WayPoint.cpp" />
     <ClCompile Include="..\private\WayPoint_InterColl.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="UI_MonsterHPBar.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

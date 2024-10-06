@@ -34,13 +34,14 @@ HRESULT CWayPoint::Initialize(void* pArg)
 
 	Set_Position(XMLoadFloat3(&pDesc->vPos));
 
-	m_pColliderCom->Set_OnCollision(true);
 
 	return S_OK;
 }
 
 _uint CWayPoint::Priority_Update(_float fTimeDelta)
 {
+	m_pColliderCom->Set_OnCollision(m_bIntersect);
+
 	for (auto& Part : m_Parts)
 	{
 		if (nullptr == Part)
@@ -48,7 +49,6 @@ _uint CWayPoint::Priority_Update(_float fTimeDelta)
 
 		Part->Priority_Update(fTimeDelta);
 	}
-
 
 	return OBJ_NOEVENT;
 }
@@ -100,6 +100,8 @@ HRESULT CWayPoint::Render()
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
@@ -165,8 +167,6 @@ HRESULT CWayPoint::Ready_Components()
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 
-
-	
 	CBounding_AABB::BOUNDING_AABB_DESC BoundingDesc = {};
 	BoundingDesc.vCenter = { 0.f, m_pTransformCom->Get_Scaled().y * 0.5f, 0.f };
 	BoundingDesc.vExtents = { 2.f, 5.f, 2.f };
@@ -194,6 +194,7 @@ HRESULT CWayPoint::Ready_PartObject()
 	desc.fSpeedPerSec = 1.f;
 	desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
 	desc.fOffset = m_pTransformCom->Get_Scaled().y * 0.5f;
+	desc.pIntersect = &m_bIntersect;
 
 	if(FAILED(__super::Add_PartObject(PART_INTERCOLL, TEXT("Prototype_GameObject_WayPoint_InterColl"), &desc)))
 		return E_FAIL;

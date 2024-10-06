@@ -25,7 +25,7 @@ HRESULT CLab_Construct_Attack::Initialize(void* pArg)
 	ATTACK_DESC* pDesc = static_cast<ATTACK_DESC*>(pArg);
 
 	m_pSocketMatrix = pDesc->pSocketMatrix;
-	m_iDamage = pDesc->iDamage;
+	m_fDamage = pDesc->fDamage;
 	m_pAttackActive = pDesc->pAttackActive;
 	m_vCenter = pDesc->vCenter;
 
@@ -80,9 +80,9 @@ void CLab_Construct_Attack::Intersect(const _wstring strColliderTag, CGameObject
 	if (true == *m_pAttackActive && TEXT("Coll_Player") == strColliderTag)
 	{
 		CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
-		pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+		pPlayer->Be_Damaged(m_fDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]);
 
-		if (true == pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
+		if (true == pPlayer->Be_Damaged(m_fDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
 		{
 			_vector vCenter = XMLoadFloat3(&m_vCenter);
 			vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));

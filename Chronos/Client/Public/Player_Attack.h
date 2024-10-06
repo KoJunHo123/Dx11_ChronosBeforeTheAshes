@@ -5,11 +5,18 @@
 BEGIN(Client)
 class CPlayer_Attack final : public CPlayer_State
 {
+public:
 	enum PLAYER_ATTACK_STATE{ ATTACK_LIGHT,
 		ATTACK_POWER_CHARGE, ATTACK_POWER,
 		ATTACK_BACK, ATTACK_RUN, ATTACK_DODGE,
 		ATTACK_END
 	};
+
+	typedef struct : CPlayer_State::PLAYER_STATE_DESC
+	{
+		_float* pStamina = { nullptr };
+	}PLAYER_ATTACK_DESC;
+
 private:
 	CPlayer_Attack();
 	virtual ~CPlayer_Attack() = default;
@@ -38,6 +45,8 @@ private:
 	_uint m_iMaxLight = 4;
 	// 강공격 최대 개수
 	_uint m_iMaxPower = 2;
+
+	_float* m_pStamina = { nullptr };
 
 
 public:

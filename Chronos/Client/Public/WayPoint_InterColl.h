@@ -3,12 +3,18 @@
 #include "Client_Defines.h"
 #include "PartObject.h"
 
+BEGIN(Engine)
+class CCollider;
+END
+
+BEGIN(Client)
 class CWayPoint_InterColl final : public CPartObject
 {
 public:
 	typedef struct : public CPartObject::PARTOBJ_DESC
 	{
 		_float fOffset;
+		_bool* pIntersect;
 	}INTERCOLL_DESC;
 private:
 	CWayPoint_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -27,7 +33,7 @@ public:
 
 private:
 	class CCollider* m_pColliderCom = { nullptr };
-
+	_bool* m_pIntersect = { nullptr };
 private:
 	HRESULT Ready_Components(_float fOffset);
 public:
@@ -35,4 +41,4 @@ public:
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 };
-
+END

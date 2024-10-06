@@ -13,6 +13,7 @@
 #include "Particle_Spawn.h"
 
 #include "Camera_Container.h"
+#include "Teleport_Container.h"
 
 CPuzzleBase::CPuzzleBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -56,7 +57,7 @@ HRESULT CPuzzleBase::Initialize(void* pArg)
 
 	m_pCameraContainer = static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0));
 	Safe_AddRef(m_pCameraContainer);
-
+	
 	return S_OK;
 }
 
@@ -73,35 +74,9 @@ _uint CPuzzleBase::Priority_Update(_float fTimeDelta)
 		Instead_Picking();
 
 	// 파츠 바꾸는 거.
-	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_0) && nullptr == m_Parts[PART_PIECE_REPLACEMENT])
+	if (true == m_bPuzzleReplace && nullptr == m_Parts[PART_PIECE_REPLACEMENT])
 	{
-		_uint CellIndices[255] = {};
-		CPuzzlePart* pPart = static_cast<CPuzzlePart*>(m_Parts[PART_PIECE_11]);
-
-		CPuzzlePart::PUZZLEPART_DESC desc{};
-			
-		desc.fRotationPerSec = XMConvertToRadians(90.f);
-		desc.fSpeedPerSec = 1.f;
-		desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-
-
-		desc.strModelTag = TEXT("Prototype_Component_Model_Puzzle_ReplacementPiece");
-		desc.iCurrentLocation = pPart->Get_Location();
-		XMStoreFloat3(&desc.vPos, pPart->Get_CurrentPos());
-		desc.vRotation = {};
-		desc.vScale = { 1.f, 1.f, 1.f };
-
-		Make_Road(PART_PIECE_REPLACEMENT, CellIndices);
-		desc.pCellIndices = CellIndices;
-		Update_Cell((LOCATION)pPart->Get_Location(), CellIndices);
-
-		if (FAILED(__super::Add_PartObject(PART_PIECE_REPLACEMENT, TEXT("Prototype_GameObject_PuzzlePart"), &desc)))
-			MSG_BOX(TEXT("바꾸기 실패..."));
-
-		CPuzzlePart* pPartReplcae = static_cast<CPuzzlePart*>(m_Parts[PART_PIECE_REPLACEMENT]);
-		pPartReplcae->Exchange_Part(pPart);
-
-		Safe_Release(m_Parts[PART_PIECE_11]);
+		Puzzle_Replace();
 	}
 
 	return OBJ_NOEVENT;
@@ -146,9 +121,12 @@ void CPuzzleBase::Update(_float fTimeDelta)
 	for (auto& FloorChunk : FloorChunkList)
 	{
 		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
-		if (false == m_pNavigationCom->Get_CellActive(pFloorChunk->Get_CellIndex()) || false == Check_InFloor())
+		if (false == m_pNavigationCom->Get_CellActive(pFloorChunk->Get_CellIndex()) || true == Check_OutFloor())
 		{
 			pFloorChunk->Set_Dead();
+			if (0 != m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Teleport")))
+				m_pGameInstance->Release_Object(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"));
+
 		}
 	}
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
@@ -191,6 +169,8 @@ HRESULT CPuzzleBase::Render()
 	for (size_t i = 0; i < iNumMeshes; i++)
 	{
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
@@ -420,6 +400,7 @@ HRESULT CPuzzleBase::Ready_Parts()
 	InterDesc.fRotationPerSec = 0.f;
 	InterDesc.fSpeedPerSec = 0.f;
 	InterDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	InterDesc.pPuzzleReplace = &m_bPuzzleReplace;
 
 	if (FAILED(__super::Add_PartObject(PART_INTERACTION_COLL, TEXT("Prototype_GameObject_Puzzle_InterColl"), &InterDesc)))
 		return E_FAIL;
@@ -1074,15 +1055,17 @@ _uint CPuzzleBase::Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint
 
 HRESULT CPuzzleBase::Add_Teleport(_fvector vPos)
 {
-	CTransform* pTransform = static_cast<CTransform*>(m_pGameInstance->Find_PartComponent(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), g_strTransformTag, 1, 6));
-
 	CTeleport::TELEPORT_DESC desc = { };
 	desc.fRotationPerSec = 0.f;
 	desc.fSpeedPerSec = 1.f;
 	desc.pParentWorldMatrix = nullptr;
 	XMStoreFloat3(&desc.vPos, vPos);
-	XMStoreFloat3(&desc.vTeleportPos, pTransform->Get_State(CTransform::STATE_POSITION));
+
+	CTeleport_Container* pContainer = static_cast<CTeleport_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_TeleportContainer"), 0));
+	desc.pTeleport = static_cast<CTeleport*>(pContainer->Get_PartObject(6));
+
 	desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
+	desc.bActive = true;
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"), TEXT("Prototype_GameObject_Teleport"), &desc)))
 		return E_FAIL;
@@ -1131,14 +1114,46 @@ CPuzzleBase::LOCATION CPuzzleBase::Find_Location_ByPos(_fvector vPos)
 	return LOCATION_END;
 }
 
-_bool CPuzzleBase::Check_InFloor()
+_bool CPuzzleBase::Check_OutFloor()
 {
 	_int iPlayerIndex = m_pPlayerNavigationCom->Get_CurrentCellIndex();
-	if(m_iPuzzleCellIndex <= iPlayerIndex || (6089 != iPlayerIndex && 6090 != iPlayerIndex && 6091 != iPlayerIndex)
-		|| (6049 != iPlayerIndex && 6050 != iPlayerIndex) || (6082 != iPlayerIndex && 6083 != iPlayerIndex))
+	if(m_iPuzzleCellIndex <= iPlayerIndex && (6089 != iPlayerIndex && 6090 != iPlayerIndex && 6091 != iPlayerIndex
+		&& 6049 != iPlayerIndex && 6050 != iPlayerIndex && 6082 != iPlayerIndex && 6083 != iPlayerIndex))
 		return true;
 
 	return false;
+}
+
+void CPuzzleBase::Puzzle_Replace()
+{
+	_uint CellIndices[255] = {};
+	CPuzzlePart* pPart = static_cast<CPuzzlePart*>(m_Parts[PART_PIECE_11]);
+
+	CPuzzlePart::PUZZLEPART_DESC desc{};
+
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+	desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+
+	desc.strModelTag = TEXT("Prototype_Component_Model_Puzzle_ReplacementPiece");
+	desc.iCurrentLocation = pPart->Get_Location();
+	XMStoreFloat3(&desc.vPos, pPart->Get_CurrentPos());
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+	Make_Road(PART_PIECE_REPLACEMENT, CellIndices);
+	desc.pCellIndices = CellIndices;
+	Update_Cell((LOCATION)pPart->Get_Location(), CellIndices);
+
+	if (FAILED(__super::Add_PartObject(PART_PIECE_REPLACEMENT, TEXT("Prototype_GameObject_PuzzlePart"), &desc)))
+		MSG_BOX(TEXT("바꾸기 실패..."));
+
+	CPuzzlePart* pPartReplcae = static_cast<CPuzzlePart*>(m_Parts[PART_PIECE_REPLACEMENT]);
+	pPartReplcae->Exchange_Part(pPart);
+
+	Safe_Release(m_Parts[PART_PIECE_11]);
+
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

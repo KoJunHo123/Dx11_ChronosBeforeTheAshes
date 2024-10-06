@@ -41,11 +41,14 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_fSpeed = 4.f * 5.f;
     m_fStartSpeed = m_fSpeed;
 
-    m_iMaxHP = 100;
-    m_iHP = m_iMaxHP;
+    m_fMaxHP = 100;
+    m_fHP = m_fMaxHP;
 
-    m_iMaxStamina = 100;
-    m_iStamina = m_iMaxStamina;
+    m_fMaxStamina = 100;
+    m_fStamina = m_fMaxStamina;
+
+    m_fMaxSkillGage = 100;
+    m_fSkillGage = m_fMaxSkillGage;
 
     PLAYER_DESC* pDesc = static_cast<PLAYER_DESC*>(pArg);
 
@@ -95,7 +98,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
         {
             Set_Position(XMLoadFloat3(&m_vSavePos));
             m_pFSM->Set_State(STATE_MOVE);
-            m_iHP = m_iMaxHP;
+            m_fHP = m_fMaxHP;
 
             m_bDead = false;
             m_bRevive = true;
@@ -110,7 +113,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
                 {
                     m_fDeathDelay = 0.f;
                     m_bRevive = false;
-                    m_fSkillGage = 0.f;
+                    m_fSkillGage = 0;
                 }
             }
         }
@@ -118,10 +121,11 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
         if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_T) && m_fSkillDuration <= 0.f)
         {
             _uint iCurrentSkill = (_uint)m_eCurrentSkill;
-            if (true == m_HaveSkill[++iCurrentSkill])
+            ++iCurrentSkill;
+            if (true == m_HaveSkill[iCurrentSkill])
                 m_eCurrentSkill = iCurrentSkill;
 
-            if (SKILL_END == m_eCurrentSkill)
+            if (SKILL_END == iCurrentSkill)
                 m_eCurrentSkill = SKILL_RED;
         }
 
@@ -167,7 +171,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
         m_pFSM->Late_Update(fTimeDelta);
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
-        if (m_iHP <= 0)
+        if (m_fHP <= 0)
         {
             if(STATE_JUMP == m_pFSM->Get_State())
             {
@@ -201,6 +205,10 @@ void CPlayer::Late_Update(_float fTimeDelta)
             }
         }
 
+        m_fStamina += fTimeDelta * 5.f;
+        if (m_fStamina > m_fMaxStamina)
+            m_fStamina = m_fMaxStamina;
+
 #ifdef _DEBUG
         m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
@@ -222,9 +230,9 @@ void CPlayer::Intersect(const _wstring strColliderTag, CGameObject* pCollisionOb
 
 }
 
-_bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+_bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
-    if(false == m_bNonIntersect && 0 < m_iHP)
+    if(false == m_bNonIntersect && 0 < m_fHP)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
         _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
@@ -236,6 +244,7 @@ _bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
 
         if (STATE_BLOCK == m_pFSM->Get_State())
         {
+            m_fStamina -= fDamage;
             if (0.7 < fDot)
             {
                 if (PLAYER_BLOCK_IMPACT == m_ePlayerAnim)
@@ -247,7 +256,7 @@ _bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
             }
         }
 
-        m_iHP -= iDamage;
+        m_fHP -= fDamage;
 
         _float fRadian = acos(fDot);
 
@@ -265,6 +274,31 @@ _bool CPlayer::Be_Damaged(_uint iDamage, _fvector vAttackPos)
     }
 
     return false;
+}
+
+void CPlayer::Set_SavePos(_fvector vPos)
+{
+    _vector vLookDir = vPos - Get_Position();
+    vLookDir = XMVectorSet(XMVectorGetX(vLookDir), 0.f, XMVectorGetZ(vLookDir), 1.f);
+    vLookDir = XMVector3Normalize(vLookDir);
+    m_pTransformCom->LookDir(vLookDir);
+
+    m_pFSM->Set_State(STATE_ACTION);
+    CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION));
+    pAction->Set_State(CPlayer_Action::STATE_WAYPOINT);
+
+    XMStoreFloat3(&m_vSavePos, Get_Position());
+}
+
+void CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
+{
+    _vector vPlayerPos = XMVectorSetY(vPos, XMVectorGetY(Get_Position()));
+    _vector vAt = XMVectorSetY(vLookAt, XMVectorGetY(Get_Position()));
+
+    Set_Position(vPlayerPos);
+    m_pTransformCom->LookAt(vAt);
+    m_pFSM->Set_State(STATE_ACTION);
+    static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION))->Set_State(CPlayer_Action::STATE_RUNEKEY);
 }
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
@@ -327,10 +361,26 @@ HRESULT CPlayer::Ready_States()
     MoveDesc.pSpeed = &m_fSpeed;
     MoveDesc.pCameraLook = &m_vCameraLook;
     MoveDesc.pNonIntersect = &m_bNonIntersect;
+    MoveDesc.fMaxSkillGage = m_fMaxSkillGage;
+    MoveDesc.pInventory = m_pInventory;
+    MoveDesc.pSkillGage = &m_fSkillGage;
+    MoveDesc.pStamina = &m_fStamina;
 
     if(FAILED(m_pFSM->Add_State(CPlayer_Move::Create(&MoveDesc))))
         return E_FAIL;
-    if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&desc))))
+
+    CPlayer_Attack::PLAYER_ATTACK_DESC AttackDesc{};
+    AttackDesc.pFSM = m_pFSM;
+    AttackDesc.pNavigationCom = m_pNavigationCom;
+    AttackDesc.pTransformCom = m_pTransformCom;
+    AttackDesc.Parts = &m_Parts;
+    AttackDesc.pIsFinished = &m_isFinished;
+    AttackDesc.pPlayerAnim = &m_ePlayerAnim;
+    AttackDesc.pSpeed = &m_fSpeed;
+    AttackDesc.pCameraLook = &m_vCameraLook;
+    AttackDesc.pStamina = &m_fStamina;
+
+    if(FAILED(m_pFSM->Add_State(CPlayer_Attack::Create(&AttackDesc))))
         return E_FAIL;
 
 
@@ -343,7 +393,7 @@ HRESULT CPlayer::Ready_States()
     JumpDesc.pPlayerAnim = &m_ePlayerAnim;
     JumpDesc.pSpeed = &m_fSpeed;
     JumpDesc.pCameraLook = &m_vCameraLook;
-    JumpDesc.pHP = &m_iHP;
+    JumpDesc.pHP = &m_fHP;
     if(FAILED(m_pFSM->Add_State(CPlayer_Jump::Create(&JumpDesc))))
         return E_FAIL;
 
@@ -356,7 +406,7 @@ HRESULT CPlayer::Ready_States()
     BlockDesc.pPlayerAnim = &m_ePlayerAnim;
     BlockDesc.pSpeed = &m_fSpeed;
     BlockDesc.pCameraLook = &m_vCameraLook;
-    BlockDesc.pStamina = &m_iStamina;
+    BlockDesc.pStamina = &m_fStamina;
 
     if(FAILED(m_pFSM->Add_State(CPlayer_Block::Create(&BlockDesc))))
         return E_FAIL;
@@ -370,7 +420,7 @@ HRESULT CPlayer::Ready_States()
     ImpactDesc.pPlayerAnim = &m_ePlayerAnim;
     ImpactDesc.pSpeed = &m_fSpeed;
     ImpactDesc.pCameraLook = &m_vCameraLook;
-    ImpactDesc.pHP = &m_iHP;
+    ImpactDesc.pHP = &m_fHP;
 
     if (FAILED(m_pFSM->Add_State(CPlayer_Impact::Create(&ImpactDesc))))
         return E_FAIL;
@@ -482,8 +532,11 @@ HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     desc.pNoiseTextureCom = m_pNoiseTextureCom;
     desc.pRatio = &m_fRatio;
     desc.pDrain = &m_bDrain;
-    desc.iMaxHP = m_iMaxHP;
-    desc.pHP = &m_iHP;
+    desc.fMaxHP = m_fMaxHP;
+    desc.pHP = &m_fHP;
+    desc.pStamina = &m_fStamina;
+    desc.pSkillGage = &m_fSkillGage;
+    desc.fMaxSkillGage = m_fMaxSkillGage;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
         return E_FAIL;
@@ -538,7 +591,7 @@ void CPlayer::Anim_Frame_Control()
 {
     if (PLAYER_ACTION_DRAGONHEART == m_ePlayerAnim )
     {
-        if (30 <= m_iKeyFrameIndex && m_iKeyFrameIndex <67)
+        if (30 <= m_iKeyFrameIndex && m_iKeyFrameIndex < 40)
         {
             CPlayer_Item* pItem = static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM]);
             if(true == pItem->IsEmpty())
@@ -567,9 +620,33 @@ void CPlayer::Anim_Frame_Control()
                 m_bDrain = true;
                 break;
             }
-
+            m_fSkillGage = 0.f;
             m_fSkillDuration = 10.f;
         }
+    }
+    else if (PLAYER_ACTION_RUNEKEYHOLE == m_ePlayerAnim)
+    {
+        CPlayer_Item* pItem = static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM]);
+
+        if (28 <= m_iKeyFrameIndex && m_iKeyFrameIndex < 38)
+        {
+            if (true == pItem->IsEmpty())
+            {
+                pItem->Set_Item(TEXT("Item_RuneKey"));
+            }
+        }
+        else if (false == m_bItemUsed && 70 <= m_iKeyFrameIndex)
+        {
+            m_bItemUsed = true;
+        }
+        else if (180 <= m_iKeyFrameIndex)
+        {
+            if (false == pItem->IsEmpty())
+            {
+                static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Release_Item();
+            }
+        }
+
     }
 }
 

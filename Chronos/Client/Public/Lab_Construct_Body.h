@@ -22,7 +22,7 @@ public:
 
 		_uint* pState = { nullptr };
 		_bool* pIsFinished = { nullptr };
-		_int* pHP = { nullptr };
+		_float* pHP = { nullptr };
 		_float* pDistance = { nullptr };
 		_bool* pSwordAttackActive = { nullptr };
 		_bool* pShieldAttackActive = { nullptr };
@@ -76,7 +76,7 @@ private:
 private:
 	_uint* m_pState = { nullptr };
 	_bool* m_pIsFinished = { nullptr };
-	_int* m_pHP = { nullptr };
+	_float* m_pHP = { nullptr };
 	_float* m_pDistance = { nullptr };
 	_bool* m_pSwordAttackActive = { nullptr };
 	_bool* m_pShieldAttackActive = { nullptr };

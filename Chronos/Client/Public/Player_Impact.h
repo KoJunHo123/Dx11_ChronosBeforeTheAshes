@@ -8,7 +8,7 @@ class CPlayer_Impact final : public CPlayer_State
 public:
 	typedef struct : public CPlayer_State::PLAYER_STATE_DESC
 	{
-		_int* pHP = { nullptr };
+		_float* pHP = { nullptr };
 	}PLAYER_STATE_IMPACT_DESC;
 
 private:
@@ -31,7 +31,7 @@ public:
 
 
 private:
-	_int* m_pHP = { nullptr };
+	_float* m_pHP = { nullptr };
 	_bool* m_pDead = { nullptr };
 	_float m_fHittedAngle = { 0.f };
 	

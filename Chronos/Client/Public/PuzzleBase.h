@@ -57,6 +57,9 @@ private:
 	_bool m_bPartActive[PART_END] = {};
 
 	class CCamera_Container* m_pCameraContainer = { nullptr };
+	class CTeleport_Container* m_pTeleportContainer = { nullptr };
+
+	_bool m_bPuzzleReplace = { false };
 
 private:
 	HRESULT Ready_Components();
@@ -88,7 +91,8 @@ private:
 	HRESULT Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset);
 
 	LOCATION Find_Location_ByPos(_fvector vPos);
-	_bool Check_InFloor();
+	_bool Check_OutFloor();
+	void Puzzle_Replace();
 
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

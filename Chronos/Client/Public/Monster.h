@@ -28,6 +28,28 @@ protected:
 	virtual ~CMonster() = default;
 
 public:
+	_float Get_HP() {
+		return m_fHP;
+	}
+	_float Get_MaxHP() {
+		return m_fMaxHP;
+	}
+
+	_float Get_Offset() {
+		return m_fOffset;
+	}
+	_bool Get_Aggro() {
+		return m_bAggro;
+	}
+
+	_bool On_Damaged() {
+		if (0.f < m_fDamagedDelay)
+			return true;
+		return false;
+	}
+
+
+public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
 	virtual _uint Priority_Update(_float fTimeDelta) override;
@@ -39,7 +61,7 @@ public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 
 public:
-	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos);
+	virtual void Be_Damaged(_float fDamage, _fvector vAttackPos);
 
 
 protected:
@@ -51,14 +73,24 @@ protected:
 
 	_float m_fSpeed = { 0.f };
 
-	_int m_iHP = { 0 };
-	_int m_iMaxHP = { 0 };
+	_float m_fHP = { 0.f };
+	_float m_fMaxHP = { 0.f };
+
+	_float m_fOffset = { 0.f };
 
 	_float m_fRatio = { 0.f };
 
+	_bool m_bAggro = { false };
+
+	_float m_fDamagedDelay = { 0.f };
+
+	class CUIObject* m_pHPBar = { nullptr };
+
+protected:
+	HRESULT Add_MonsterHPBar();
+
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);
-
 
 public:
 	

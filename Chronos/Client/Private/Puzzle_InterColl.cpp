@@ -5,6 +5,9 @@
 #include "Camera_Container.h"
 #include "Camera_Interaction.h"
 
+#include "Inventory.h"
+#include "Item.h"
+
 CPuzzle_InterColl::CPuzzle_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
 {
@@ -22,6 +25,8 @@ HRESULT CPuzzle_InterColl::Initialize_Prototype()
 
 HRESULT CPuzzle_InterColl::Initialize(void* pArg)
 {
+	PART_INTERCOLL_DESC*  pDesc = static_cast<PART_INTERCOLL_DESC*>(pArg);
+
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
@@ -29,6 +34,9 @@ HRESULT CPuzzle_InterColl::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_pColliderCom->Set_OnCollision(true);
+
+	m_pInventory = static_cast<CInventory*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Inventory"), 0));
+	m_pPuzzleReplace = pDesc->pPuzzleReplace;
 	return S_OK;
 }
 
@@ -39,6 +47,16 @@ _uint CPuzzle_InterColl::Priority_Update(_float fTimeDelta)
 
 void CPuzzle_InterColl::Update(_float fTimeDelta)
 {
+	if (true == m_bPuzzleSolve)
+	{
+		if (m_pGameInstance->Get_DIKeyState_Down(DIK_TAB))
+		{
+			CItem* pItem = m_pInventory->Find_Item(TEXT("Item_ReplacePuzzle"));
+			if (nullptr != pItem && true == pItem->Use_Item())
+				*m_pPuzzleReplace = true;
+		}
+	}
+
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
 	m_pColliderCom->Update(&m_WorldMatrix);

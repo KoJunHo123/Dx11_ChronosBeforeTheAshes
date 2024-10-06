@@ -108,6 +108,8 @@ HRESULT CMesh::Ready_VertexBuffer_NonAnim(ifstream* pInfile, _fmatrix PreTransfo
 	{
 		pInfile->read(reinterpret_cast<char*>(&pVertices[i]), sizeof(VTXMESH));
 		XMStoreFloat3(&pVertices[i].vPosition, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vPosition), PreTransformMatrix));
+		XMStoreFloat3(&pVertices[i].vNormal, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vNormal), PreTransformMatrix));
+		XMStoreFloat3(&pVertices[i].vTangent, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vTangent), PreTransformMatrix));
 	}
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);

@@ -94,16 +94,37 @@ HRESULT CTeleport_Container::Ready_PartObject()
         desc.fSpeedPerSec = 1.f;
         desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
         desc.vPos = vPos;
-        desc.vTeleportPos = {};
+        desc.pTeleport = nullptr;
 
         if (iIndex < 2)
+        {
+            if (1 == iIndex)
+                desc.bActive = true;
+            else
+                desc.bActive = false;
             desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
+        }
         else if (iIndex < 4)
+        {
+            if (3 == iIndex)
+                desc.bActive = true;
+            else
+                desc.bActive = false;
             desc.vColor = _float4(1.f, 1.f, 0.4f, 1.f);
+        }
         else if (iIndex < 6)
+        {
+            if (5 == iIndex)
+                desc.bActive = true;
+            else
+                desc.bActive = false;
             desc.vColor = _float4(0.863f, 0.078f, 0.235f, 1.f);
+        }
         else
+        {
             desc.vColor = _float4(0.541f, 0.169f, 0.886f, 1.f);
+            desc.bActive = false;
+        }
 
         CGameObject* pPartObject = m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Teleport"), &desc);
 
@@ -114,8 +135,8 @@ HRESULT CTeleport_Container::Ready_PartObject()
 
         if (1 == iIndex % 2)
         {
-            static_cast<CTeleport*>(m_Parts[iIndex])->Set_TeleportPos(static_cast<CTeleport*>(m_Parts[iIndex - 1])->Get_Position());
-            static_cast<CTeleport*>(m_Parts[iIndex - 1])->Set_TeleportPos(static_cast<CTeleport*>(m_Parts[iIndex])->Get_Position());
+            static_cast<CTeleport*>(m_Parts[iIndex])->Set_Teleport(static_cast<CTeleport*>(m_Parts[iIndex - 1]));
+            static_cast<CTeleport*>(m_Parts[iIndex - 1])->Set_Teleport(static_cast<CTeleport*>(m_Parts[iIndex]));
         }
 
         ++iIndex;

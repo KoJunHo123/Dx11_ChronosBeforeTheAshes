@@ -24,6 +24,11 @@ private:
 	virtual ~CDragonHeart() = default;
 
 public:
+	_uint Get_MaxCount() {
+		return m_iMaxCount;
+	}
+
+public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg = nullptr);
 	virtual _uint Priority_Update(_float fTimeDelta);

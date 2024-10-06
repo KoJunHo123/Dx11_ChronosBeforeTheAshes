@@ -9,7 +9,6 @@ class CModel;
 class CCollider;
 END
 
-
 BEGIN(Client)
 class CWayPoint final : public CContainerObject
 {
@@ -39,6 +38,8 @@ private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
+
+	_bool m_bIntersect = { false };
 
 private:
 	HRESULT Ready_Components();

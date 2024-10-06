@@ -31,7 +31,7 @@ HRESULT CLab_Troll_Weapon::Initialize(void* pArg)
     if(FAILED(__super::Initialize(pArg)))
         return E_FAIL;
 
-    m_iDamage = pDesc->iDamage;
+    m_fDamage = pDesc->fDamage;
     m_pAttackActive = pDesc->pAttackActive;
     m_pSocketMatrix = pDesc->pSocketBoneMatrix;
 
@@ -107,6 +107,8 @@ HRESULT CLab_Troll_Weapon::Render()
     {
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+            return E_FAIL;
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
             return E_FAIL;
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
@@ -128,7 +130,7 @@ void CLab_Troll_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pC
     if (true == *m_pAttackActive && TEXT("Coll_Player") == strColliderTag)
     {
         CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
-        if (true == pPlayer->Be_Damaged(m_iDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
+        if (true == pPlayer->Be_Damaged(m_fDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
         {
             _vector vCenter = XMLoadFloat3(&m_vCenter);
             vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));

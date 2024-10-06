@@ -30,13 +30,12 @@ public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 
 public:
-	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos);
+	virtual void Be_Damaged(_float fDamage, _fvector vAttackPos);
 
 private:
 	class CCollider* m_pColliderCom = { nullptr };
 
 private:
-	_bool m_bAggro = { false };
 	_float m_fAttackDelay = { 0.f };
 	_float m_fAttackTime = { 0.f };
 

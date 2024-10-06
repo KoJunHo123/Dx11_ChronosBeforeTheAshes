@@ -5,12 +5,22 @@
 
 // 오브젝트
 
-// 로고
+// UI : 로고
 #include "BackGround.h"
 #include "UI_GlowStar.h"
 #include "UI_LogoTitle.h"
 #include "UI_LogoMaze.h"
 #include "UI_TextBox.h"
+
+// UI : 게임플레이
+#include "UI_PlayerBase.h"
+#include "UI_DragonHeart.h"
+#include "UI_DragonStone.h"
+#include "UI_GageBar.h"
+#include "UI_MonsterHPBar.h"
+#include "UI_BossHPBar.h"
+#include "UI_BossHPBarDeco.h"
+#include "UI_BossHPBarGlow.h"
 
 // 지형
 #include "Labyrinth.h"
@@ -77,6 +87,10 @@
 // 상호작용 : 웨이포인트
 #include "WayPoint.h"
 #include "WayPoint_InterColl.h"
+
+// 상호작용 : 도어락
+#include "DoorLock.h"
+#include "DoorLock_InterColl.h"
 
 // 파티클
 #include "Particle_AttackLight.h"
@@ -175,7 +189,6 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/MainMenu_BackGround.png"), 1))))
 		return E_FAIL;
 #pragma endregion
-
 #pragma region UI
 	/* For. Prototype_Component_Texture_UI_Glow_Star */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UI_Glow_Star"),
@@ -200,7 +213,6 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
-
 #pragma region UI
 	/* For. Prototype_GameObject_UI_GlowStar */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_GlowStar"),
@@ -295,20 +307,82 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d.png"), 2))))
 		return E_FAIL;
 
-	//* For. Prototype_Component_Texture_BloodCore_N */
+	/* For. Prototype_Component_Texture_BloodCore_N */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodCore_N"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodCore_%d_N.png"), 2))))
 		return E_FAIL;
 
-	//* For. Prototype_Component_Texture_BloodSpray */
+	/* For. Prototype_Component_Texture_BloodSpray */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d.png"), 6))))
 		return E_FAIL;
 
-	//* For. Prototype_Component_Texture_BloodSpray_N */
+	/* For. Prototype_Component_Texture_BloodSpray_N */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BloodSpray_N"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/BloodSpray_%d_N.png"), 6))))
 		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_DragonHeart_Core */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_DragonHeart_Core"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/heal_item_icon.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_DragonHeart_Border */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_DragonHeart_Border"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_HUD_Border_DragonHeart.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_DragonStone_Core_Red */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_DragonStone_Core_Red"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/fire_stone_icon.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_DragonStone_Core_Pupple */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_DragonStone_Core_Pupple"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/shadow_stone_icon.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_DragonStone_Border */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_DragonStone_Border"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_HUD_Border_Stone.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_GageBar_Border */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_GageBar_Border"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_HUD_Border_Bars.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Pack */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Pack"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Pack_01.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Monster_HPBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Monster_HPBar"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/Monster_HPBar.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Inventory */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Inventory"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Inventory.png"), 1))))
+		return E_FAIL;
+
+	// 여기서부터 보스 UI
+	/* For. Prototype_Component_Texture_UI_Boss_HPBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Boss_HPBar"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_2DHUD_BarBackground_Boss.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Boss_BarDeco */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Boss_BarDeco"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_2DHUD_BossBarDecor.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Glow_Up */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Glow_Up"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Glow_01.png"), 1))))
+		return E_FAIL;
+
 
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
@@ -476,6 +550,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Crystal/Crystal", PreTransformMatrix))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Model_DoorLock */
+	PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_DoorLock"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/DoorLock/DoorLock", PreTransformMatrix))))
+		return E_FAIL;
 #pragma endregion
 #pragma region PUZZLE
 	/* For. Prototype_Component_Model_Puzzle_Base */
@@ -602,12 +681,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		 return E_FAIL;
 
 	 /* For. Prototype_Component_Model_Item_RuneKey */
-	 PreTransformMatrix = XMMatrixRotationY(XMConvertToRadians(-90.0f));
+	 PreTransformMatrix = XMMatrixIdentity();
 	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Item_RuneKey"),
 		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Item/RuneKey/RuneKey", PreTransformMatrix))))
 		 return E_FAIL;
 #pragma endregion
-
 	lstrcpy(m_szLoadingText, TEXT("셰이더을(를) 로딩중입니다."));
 #pragma region SHADER
 	/* For. Prototype_Component_Shader_VtxNorTex*/
@@ -893,7 +971,17 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CWayPoint_InterColl::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
+#pragma region INTERACTION DOORLOCK
+	/* For. Prototype_GameObject_DoorLock */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_DoorLock"),
+		CDoorLock::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
+	/* For. Prototype_GameObject_DoorLock_InterColl */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_DoorLock_InterColl"),
+		CDoorLock_InterColl::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
 #pragma region PARTICLE
 	/* For. Prototype_GameObject_Particle_Spark */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Spark"),
@@ -973,7 +1061,47 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CRuneKey::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
+#pragma region UI
+	/* For. Prototype_GameObject_UI_PlayerBase */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_PlayerBase"),
+		CUI_PlayerBase::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
+	/* For. Prototype_GameObject_UI_DragonHeart */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_DragonHeart"),
+		CUI_DragonHeart::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_DragonStone */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_DragonStone"),
+		CUI_DragonStone::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_GageBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_GageBar"),
+		CUI_GageBar::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_MonsterHPBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_MonsterHPBar"),
+		CUI_MonsterHPBar::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_BossHPBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_BossHPBar"),
+		CUI_BossHPBar::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_BossHPBar */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_BossHPBar_Deco"),
+		CUI_BossHPBarDeco::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_BossHPBar_Glow */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_BossHPBar_Glow"),
+		CUI_BossHPBarGlow::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
 	m_isFinished = true;

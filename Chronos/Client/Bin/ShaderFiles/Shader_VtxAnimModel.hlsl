@@ -5,6 +5,7 @@
 matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 
 texture2D g_DiffuseTexture;
+texture2D g_NormalTexture;
 texture2D g_ComboTexture;
 texture2D g_EmissiveTexture;
 texture2D g_NoiseTexture;
@@ -30,10 +31,13 @@ struct VS_IN
 struct VS_OUT
 {
     float4 vPosition : SV_POSITION;
-    float4 vNormal : NORMAL;
+    float3 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
     float4 vProjPos : TEXCOORD2;
+    
+    float3 vTangent : TANGENT;
+    float3 vBinormal : BINORMAL;
 };
 
 VS_OUT VS_MAIN( /*정점*/VS_IN In)
@@ -56,11 +60,15 @@ VS_OUT VS_MAIN( /*정점*/VS_IN In)
     matWVP = mul(matWV, g_ProjMatrix);
 
     Out.vPosition = mul(vPosition, matWVP); // 월드 * 뷰 * 투영
-    Out.vNormal = normalize(mul(vNormal, g_WorldMatrix));
+    Out.vNormal = normalize(mul(vNormal, g_WorldMatrix)).xyz;
     Out.vTexcoord = In.vTexcoord;
+    
     Out.vWorldPos = mul(vPosition, g_WorldMatrix);  // 월드 좌표만 따로 전달.
     Out.vProjPos = Out.vPosition;
-    
+
+    Out.vTangent = normalize(mul(vector(In.vTangent, 0.f), g_WorldMatrix)).xyz;
+    Out.vBinormal = normalize(cross(Out.vNormal, Out.vTangent));
+
     return Out;
 }
 
@@ -68,10 +76,13 @@ VS_OUT VS_MAIN( /*정점*/VS_IN In)
 struct PS_IN
 {
     float4 vPosition : SV_POSITION;
-    float4 vNormal : NORMAL;
+    float3 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
     float4 vProjPos : TEXCOORD2;
+    
+    float3 vTangent : TANGENT;
+    float3 vBinormal : BINORMAL;
 };
 
 struct PS_OUT
@@ -91,17 +102,22 @@ PS_OUT PS_MAIN(PS_IN In)
     vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
     if (0.3f >= vMtrlDiffuse.a)
         discard;
-    
     vector vMtrlNoise = g_NoiseTexture.Sample(LinearSampler, In.vTexcoord);
     if (g_fRatio > vMtrlNoise.r)
         discard;
     
     vector vMtrlEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
-    
     vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vNormalDesc = g_NormalTexture.Sample(LinearSampler, In.vTexcoord);
+
+    float3 vNormal = vNormalDesc.xyz * 2.f - 1.f;
+    float3x3 WorldMatrix = float3x3(In.vTangent, In.vBinormal, In.vNormal);
+    vNormal = normalize(mul(vNormal, WorldMatrix));
+
+
     
     Out.vDiffuse = vMtrlDiffuse;
-    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
+    Out.vNormal = vector(vNormal * 0.5f + 0.5f, 0.f);
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     Out.vCombo = vMtrlComb;
     Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);

@@ -13,7 +13,6 @@ public:
 public:
 	typedef struct : CGameObject::GAMEOBJECT_DESC
 	{
-
 	}ITEM_DESC;
 	
 protected:
@@ -29,6 +28,7 @@ public:
 	_uint Get_ItemCount() {
 		return m_iItemCount;
 	}
+
 
 public:
 	virtual HRESULT Initialize_Prototype();

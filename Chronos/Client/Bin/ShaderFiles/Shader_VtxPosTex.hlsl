@@ -13,6 +13,7 @@
 
 matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D		g_Texture;
+texture2D       g_PackTexture;
 
 float2			g_TexDivide;
 int				g_iTexIndex;
@@ -202,11 +203,70 @@ PS_OUT PS_FLARE_MAIN(PS_IN In)
     return Out;
 }
 
+PS_OUT PS_GAGEBAR_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+
+    if (Out.vColor.a < 0.1f)
+        discard;
+    
+    //Out.vColor.rgb = g_vColor.rgb;
+    
+    float4 vPackColor = g_PackTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    float fRatio = g_fRatio * 0.98f + 0.01f;
+    
+    if(0.01f < In.vTexcoord.x && In.vTexcoord.x < fRatio
+        && 0.2f < In.vTexcoord.y && In.vTexcoord.y < 0.8f)
+        Out.vColor = vPackColor.r * g_vColor;
+    
+    return Out;
+}
+
+PS_OUT PS_HPBAR_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+    
+    if (Out.vColor.a < 0.1f)
+        discard;
+    
+    float fRatio = g_fRatio * 0.94f + 0.03f;
+    
+    if (0.03f < In.vTexcoord.x && In.vTexcoord.x < fRatio
+        && 0.2f < In.vTexcoord.y && In.vTexcoord.y < 0.8f)
+        Out.vColor.rgb = g_vColor.rgb;
+    
+    return Out;
+}
+
+PS_OUT PS_BOSS_HPBAR_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+    
+    if (Out.vColor.a < 0.1f)
+        discard;
+    
+    Out.vColor.rgb = 1.f - Out.vColor.rgb;
+    
+    if (In.vTexcoord.x < g_fRatio)
+        Out.vColor.rgb *= g_vColor.rgb;
+    else
+        Out.vColor.rgb = (float3) 0.f;
+        return Out;
+}
+
+
 technique11	DefaultTechnique
 {
 	/* 빛연산 + 림라이트 + ssao + 노멀맵핑 + pbr*/
-	pass UI
-	{
+    pass UI //0
+    {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_None, 0);
         SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
@@ -216,7 +276,7 @@ technique11	DefaultTechnique
 		PixelShader = compile ps_5_0 PS_MAIN();
 	}
 
-    pass SPRITE
+    pass SPRITE //1
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -227,7 +287,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_SPRITE_MAIN();
     }
 
-    pass FLASH
+    pass FLASH //2
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -238,7 +298,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_FLASH_MAIN();
     }
 
-    pass SPARK
+    pass SPARK //3
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -249,7 +309,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_SPARK_MAIN();
     }
 
-    pass FLARE
+    pass FLARE //4
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -260,7 +320,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_FLARE_MAIN();
     }
 
-    pass BLENDUI
+    pass BLENDUI //5
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -271,17 +331,47 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_BLENDUI_MAIN();
     }
 
-    pass COLORUI
+    pass COLORUI //6
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_COLOR_MAIN();
     }
 
+    pass GAGEBAR_UI //7
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_GAGEBAR_MAIN();
+    }
 
+    pass HPBAR_UI //8
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_HPBAR_MAIN();
+    }
+
+    pass BOSS_HPBAR_UI //9
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_BOSS_HPBAR_MAIN();
+    }
 }

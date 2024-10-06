@@ -45,11 +45,25 @@ void CPlayer_Action::Update(_float fTimeDelta)
 		*m_pPlayerAnim = PLAYER_ACTION_DRAGONHEART;
 	else if (STATE_DRAGONSTONE == m_eState)
 		*m_pPlayerAnim = PLAYER_ACTION_DRAGONSTONE;
-	
+	else if (STATE_WAYPOINT == m_eState)
+	{
+		if(PLAYER_ACTION_WAYPOINT_RELEASE != *m_pPlayerAnim)
+		{
+			*m_pPlayerAnim = PLAYER_ACTION_WAYPOINT_GRAB;
+		}
+	}
+	else if (STATE_RUNEKEY == m_eState)
+	{
+		*m_pPlayerAnim = PLAYER_ACTION_RUNEKEYHOLE;
+	}
 
 	if (true == *m_pIsFinished)
 	{
-		m_pFSM->Set_State(CPlayer::STATE_MOVE);
+		if (PLAYER_ACTION_WAYPOINT_GRAB == *m_pPlayerAnim)
+			*m_pPlayerAnim = PLAYER_ACTION_WAYPOINT_RELEASE;
+		else
+			m_pFSM->Set_State(CPlayer::STATE_MOVE);
+
 	}
 
 	__super::Update(fTimeDelta);

@@ -8,6 +8,9 @@
 
 #include "Player_Action.h"
 
+#include "Inventory.h"
+#include "Item.h"
+
 CPlayer_Move::CPlayer_Move()
 {
 }
@@ -20,6 +23,13 @@ HRESULT CPlayer_Move::Initialize(void* pArg)
 	PLAYER_STATE_MOVE_DESC* pDesc = static_cast<PLAYER_STATE_MOVE_DESC*>(pArg);
 
 	m_pNonIntersect = pDesc->pNonIntersect;
+	m_pInventory = pDesc->pInventory;
+	Safe_AddRef(m_pInventory);
+
+	m_pSkillGage = pDesc->pSkillGage;
+	m_fMaxSkillGage = pDesc->fMaxSkillGage;
+	m_pStamina = pDesc->pStamina;
+
 	return S_OK;
 }
 
@@ -199,24 +209,28 @@ void CPlayer_Move::Dodge()
 {
 	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
+		*m_pStamina -= 10.f;
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_L;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
+		*m_pStamina -= 10.f;
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_B;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
+		*m_pStamina -= 10.f;
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_R;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else
 	{
+		*m_pStamina -= 10.f;
 		*m_pPlayerAnim = PLAYER_MOVE_DODGE_F;
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
@@ -253,18 +267,18 @@ void CPlayer_Move::Dodge_Control()
 
 void CPlayer_Move::Change_State()
 {
-	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON))
+	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_LBUTTON) && 10.f <= *m_pStamina)
 		m_pFSM->Set_State(CPlayer::STATE_ATTACK);
 	else if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
 		m_pFSM->Set_State(CPlayer::STATE_BLOCK);
-	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_R))
+	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_R) && 0 < m_pInventory->Find_Item(TEXT("Item_DragonHeart"))->Get_ItemCount())
 	{
 		m_pFSM->Set_State(CPlayer::STATE_ACTION);
-			
+		
 		CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(CPlayer::STATE_ACTION));
 		pAction->Set_State(CPlayer_Action::STATE_DRAGONHEART);
 	}
-	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_G))
+	else if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_G) && m_fMaxSkillGage == *m_pSkillGage)
 	{
 		m_pFSM->Set_State(CPlayer::STATE_ACTION);
 
@@ -289,4 +303,5 @@ CPlayer_Move* CPlayer_Move::Create(void* pArg)
 void CPlayer_Move::Free()
 {
 	__super::Free();
+	Safe_Release(m_pInventory);
 }

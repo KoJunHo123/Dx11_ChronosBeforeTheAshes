@@ -15,6 +15,10 @@
 #include "Particle_LaunchStone.h"
 #include "Particle_LaunchWaterDrop.h"
 
+#include "UI_BossHPBar.h"
+#include "UI_BossHPBarDeco.h"
+#include "UI_BossHPBarGlow.h"
+
 CBoss_Lab::CBoss_Lab(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CMonster(pDevice, pContext)
 {
@@ -32,6 +36,12 @@ HRESULT CBoss_Lab::Initialize_Prototype()
 
 HRESULT CBoss_Lab::Initialize(void* pArg)
 {
+	m_iState = STATE_APPEAR;
+
+	m_fMaxHP = 500.f;
+	m_fHP = m_fMaxHP;
+	m_fSpeed = 5.f;
+
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
@@ -40,13 +50,6 @@ HRESULT CBoss_Lab::Initialize(void* pArg)
 
 	if (FAILED(Ready_PartObjects()))
 		return E_FAIL;
-
-	m_iState = STATE_APPEAR;
-
-
-	m_iMaxHP = 100;
-	m_iHP = m_iMaxHP;
-	m_fSpeed = 5.f;
 
 	return S_OK;
 }
@@ -75,7 +78,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 {
 	_float fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
-	if (m_iHP <= 0 && false == Contain_State(STATE_DEATH))
+	if (m_fHP <= 0.f && false == Contain_State(STATE_DEATH))
 	{
 		m_iState = STATE_DEATH;
 		m_bAnimStart = false;
@@ -109,9 +112,11 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	{
 		CBoss_Lab_Body* pBody = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY]);
 
-		if (fDistance < 30.f)
+		if (fDistance < 30.f && false == m_bAggro)
 		{
 			pBody->Set_Intro(true);
+			m_bAggro = true;
+			Add_BossHPBar();
 		}
 
 		if (false == m_bEncounter && 31 <= pBody->Get_FrameIndex() && BOSS_LAB_TELEPORT_LAUNCH_ROAR == pBody->Get_CurrentAnim())
@@ -137,7 +142,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		m_bAttackActive_RH = false;
 	}
 
-	if (m_iHP / (_float)m_iMaxHP <= 0.5 && false== m_bFirstStun)
+	if (m_fHP / m_fMaxHP <= 0.5 && false== m_bFirstStun)
 	{
 		m_iState = STATE_STUN;
 		m_bFirstStun = true;
@@ -279,9 +284,9 @@ void CBoss_Lab::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 
 }
 
-void CBoss_Lab::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+void CBoss_Lab::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
-	m_iHP -= iDamage;
+	m_fHP -= fDamage;
 
 	BOSS_ANIM eAnim = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_CurrentAnim();
 
@@ -341,7 +346,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	AttackDesc.vCenter = { 2.f, 2.f, 0.f };
 	AttackDesc.vExtents = { 4.f, 4.f, 4.f };
 	AttackDesc.pAttackActive = &m_bAttackActive_Body;
-	AttackDesc.iDamage = 20;
+	AttackDesc.fDamage = 20;
 	if (FAILED(__super::Add_PartObject(PART_ATTACK_BODY, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
 		return E_FAIL;
 
@@ -350,13 +355,13 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	AttackDesc.vCenter = { 3.f, 0.f, 0.f };
 	AttackDesc.vExtents = { 1.f, 4.f, 1.f };
 	AttackDesc.pAttackActive = &m_bAttackActive_LH;
-	AttackDesc.iDamage = 10;
+	AttackDesc.fDamage = 10;
 	if (FAILED(__super::Add_PartObject(PART_ATTACK_LH, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
 		return E_FAIL;
 
 	AttackDesc.pSocketMatrix = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Arm03_R");
 	AttackDesc.pAttackActive = &m_bAttackActive_RH;
-	AttackDesc.iDamage = 10;
+	AttackDesc.fDamage = 10;
 	if (FAILED(__super::Add_PartObject(PART_ATTACK_RH, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))
 		return E_FAIL;
 
@@ -495,6 +500,50 @@ HRESULT CBoss_Lab::Add_LaunchEffect(_fvector vPos)
 	WaterDropDesc.vPos = StoneDesc.vPos;
 
 	m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_LaunchWaterDrop"), &WaterDropDesc);
+
+	return S_OK;
+}
+
+HRESULT CBoss_Lab::Add_BossHPBar()
+{
+	CUI_BossHPBar::UI_HPBAR_DESC BarDesc = {};
+
+	BarDesc.fRotationPerSec = 0.f;
+	BarDesc.fSpeedPerSec = 1.f;
+	BarDesc.fSizeX = 930.f;
+	BarDesc.fSizeY = 14.25f;
+	BarDesc.fX = g_iWinSizeX * 0.5f;
+	BarDesc.fY = 650.f;
+	BarDesc.pMonster = this;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_BossHPBar"), &BarDesc)))
+		return E_FAIL;
+
+	CUI_BossHPBarDeco::UI_HPBARDECO_DESC DecoDesc = {};
+
+	DecoDesc.fRotationPerSec = 0.f;
+	DecoDesc.fSpeedPerSec = 1.f;
+	DecoDesc.fSizeX = 372.f;
+	DecoDesc.fSizeY = 44.f;
+	DecoDesc.fX = g_iWinSizeX * 0.5f;
+	DecoDesc.fY = 680.f;
+	DecoDesc.pMonster = this;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_BossHPBar_Deco"), &DecoDesc)))
+		return E_FAIL;
+
+	CUI_BossHPBarGlow::UI_HPBARGLOW_DESC GlowDesc = {};
+
+	GlowDesc.fRotationPerSec = 0.f;
+	GlowDesc.fSpeedPerSec = 1.f;
+	GlowDesc.fSizeX = 744.f;
+	GlowDesc.fSizeY = 88.f;
+	GlowDesc.fX = g_iWinSizeX * 0.5f;
+	GlowDesc.fY = 598.f;
+	GlowDesc.pMonster = this;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_BossHPBar_Glow"), &GlowDesc)))
+		return E_FAIL;
 
 	return S_OK;
 }

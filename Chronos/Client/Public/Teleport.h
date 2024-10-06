@@ -16,8 +16,9 @@ public:
 	typedef struct : CPartObject::PARTOBJ_DESC
 	{
 		_float3 vPos;
-		_float3 vTeleportPos;
 		_float4 vColor;
+		_bool bActive;
+		CTeleport* pTeleport;
 	}TELEPORT_DESC;
 private:
 	CTeleport(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -25,8 +26,12 @@ private:
 	virtual ~CTeleport() = default;
 
 public:
-	void Set_TeleportPos(_fvector vTeleportPos) {
-		XMStoreFloat3(&m_vTeleportPos, vTeleportPos);
+	void Set_Teleport(CTeleport* pTeleport) {
+		m_pTeleport = pTeleport;
+	}
+
+	void Set_Active() {
+		m_bActive = true;
 	}
 
 public:
@@ -46,8 +51,10 @@ private:
 	class CCollider* m_pColliderCom = { nullptr };
 
 private:
-	_float3 m_vTeleportPos = {};
+	CTeleport* m_pTeleport = { nullptr };
 	_float4 m_vColor = {};
+
+	_bool m_bActive = { false };
 
 private:
 	HRESULT Ready_Components();

@@ -2,6 +2,8 @@
 #include "WayPoint_InterColl.h"
 #include "GameInstance.h"
 
+#include "Player.h"
+
 CWayPoint_InterColl::CWayPoint_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
 {
@@ -22,17 +24,21 @@ HRESULT CWayPoint_InterColl::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
-	INTERCOLL_DESC* desc = static_cast<INTERCOLL_DESC*>(pArg);
+	INTERCOLL_DESC* pDesc = static_cast<INTERCOLL_DESC*>(pArg);
 	
-	if (FAILED(Ready_Components(desc->fOffset)))
+	if (FAILED(Ready_Components(pDesc->fOffset)))
 		return E_FAIL;
 
 	m_pColliderCom->Set_OnCollision(true);
+
+	m_pIntersect = pDesc->pIntersect;
 	return S_OK;
 }
 
 _uint CWayPoint_InterColl::Priority_Update(_float fTimeDelta)
 {
+	*m_pIntersect = true;
+
 	return OBJ_NOEVENT;
 }
 
@@ -59,6 +65,9 @@ void CWayPoint_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 {
 	if (TEXT("Coll_Player") == strColliderTag && m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_E))
 	{
+		_vector vPos = XMLoadFloat4x4(&m_WorldMatrix).r[3];
+		static_cast<CPlayer*>(pCollisionObject)->Set_SavePos(vPos);
+		*m_pIntersect = false;
 	}
 }
 

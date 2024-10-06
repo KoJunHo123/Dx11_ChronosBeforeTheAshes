@@ -42,7 +42,7 @@ public:
 
 public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
-	virtual void Be_Damaged(_uint iDamage, _fvector vAttackPos) override;
+	virtual void Be_Damaged(_float fDamage, _fvector vAttackPos) override;
 
 private:
 	class CCollider* m_pColliderCom = { nullptr };
@@ -72,8 +72,8 @@ private:
 private:
 	_bool Contain_State(_uint iState);
 	HRESULT Add_TeleportEffect();
-
 	HRESULT Add_LaunchEffect(_fvector vPos);
+	HRESULT Add_BossHPBar();
 
 public:
 	static CBoss_Lab* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

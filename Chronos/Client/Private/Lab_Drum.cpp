@@ -35,12 +35,14 @@ HRESULT CLab_Drum::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
-    m_iMaxHP = 100;
-    m_iHP = m_iMaxHP;
+    m_fMaxHP = 70.f;
+    m_fHP = m_fMaxHP;
 
     m_iState = STATE_SPAWN;
     m_fSummonDelay = 45.f;
     m_pColliderCom->Set_OnCollision(true);
+
+    m_fOffset = 6.f;
 
     return S_OK;
 }
@@ -65,9 +67,11 @@ void CLab_Drum::Update(_float fTimeDelta)
 {
     m_fDistance = m_pTransformCom->Get_Distance(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
 
-    if (m_fDistance < 30.f)
+    if (m_fDistance < 30.f && false == m_bAggro)
+    {
         m_bAggro = true;
-
+        Add_MonsterHPBar();
+    }
     if(STATE_ATTACK != m_iState)
     {
         m_bBellyAttackActive = false;
@@ -108,7 +112,7 @@ void CLab_Drum::Update(_float fTimeDelta)
         m_bSummon = false;
 
 
-    if (m_iHP <= 0 && STATE_DEATH != m_iState)
+    if (m_fHP <= 0.f && STATE_DEATH != m_iState)
     {
         m_iState = STATE_DEATH;
         m_isFinished = false;
@@ -169,11 +173,12 @@ void CLab_Drum::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 
 }
 
-void CLab_Drum::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+void CLab_Drum::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
-    m_iHP -= iDamage;
+    __super::Be_Damaged(fDamage, vAttackPos);
+    m_fHP -= fDamage;
 
-    if (iDamage > 15)
+    if (fDamage > 15.f)
     {
         _vector vDir = vAttackPos - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
         _vector vLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
@@ -231,7 +236,7 @@ HRESULT CLab_Drum::Ready_PartObjects()
 
     BodyDesc.pState = &m_iState;
     BodyDesc.pIsFinished = &m_isFinished;
-    BodyDesc.pHP = &m_iHP;
+    BodyDesc.pHP = &m_fHP;
     BodyDesc.pDistance = &m_fDistance;
     BodyDesc.pBellyAttackActive = &m_bBellyAttackActive;
     BodyDesc.pMaceAttackActive = &m_bMaceAttackActive;
@@ -250,7 +255,7 @@ HRESULT CLab_Drum::Ready_PartObjects()
     AttackDesc.vCenter = { 0.f, -1.f, 0.f };
     AttackDesc.vExtents = { 1.f, 1.f, 1.f };
     AttackDesc.pAttackActive = &m_bBellyAttackActive;
-    AttackDesc.iDamage = 10;
+    AttackDesc.fDamage = 10.f;
 
     if (FAILED(__super::Add_PartObject(PART_BELLY, TEXT("Prototype_GameObject_Lab_Drum_Attack"), &AttackDesc)))
         return E_FAIL;
@@ -260,7 +265,7 @@ HRESULT CLab_Drum::Ready_PartObjects()
     AttackDesc.vCenter = { 0.f, 0.f, 0.f };
     AttackDesc.vExtents = { .5f, .5f, .5f };
     AttackDesc.pAttackActive = &m_bMaceAttackActive;
-    AttackDesc.iDamage = 10;
+    AttackDesc.fDamage = 10.f;
 
     if (FAILED(__super::Add_PartObject(PART_MACE, TEXT("Prototype_GameObject_Lab_Drum_Attack"), &AttackDesc)))
         return E_FAIL;

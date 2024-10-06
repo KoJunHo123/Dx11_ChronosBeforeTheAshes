@@ -21,8 +21,12 @@ public:
 
 		_float* pRatio = { nullptr };
 		_bool* pDrain = { nullptr };
-		_int* pHP = { nullptr };
-		_int iMaxHP = { 0 };
+		_float* pHP = { nullptr };
+		_float fMaxHP = { 0 };
+		_float* pStamina = { nullptr };
+		_float* pSkillGage = { nullptr };
+		_float fMaxSkillGage = { 0.f };
+
 	}PLAYER_WEAPON_DESC;
 private:
 	CPlayer_Weapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -53,18 +57,24 @@ private:
 private:
 	_float3 m_vTailPos = {};
 	_float3 m_vPrePosition = {};
+	_bool m_bStaminaDown = { false };
 
 private:
-	_uint m_iDamage = { 0 };
+	_float m_fDamage = { 0.f };
 	_bool m_bAttackActive = { false };
 	_float* m_pRatio = { nullptr };
 	_bool* m_pDrain = { nullptr };
-	_int* m_pHP = { nullptr };
-	_int m_iMaxHP = { 0 };
+	_float* m_pHP = { nullptr };
+	_float m_fMaxHP = { 0 };
+	_float* m_pStamina = { nullptr };
+	_float* m_pSkillGage = { nullptr };
+	_float m_fMaxSkillGage = { 0.f };
 
 private:
 	HRESULT Ready_Components();
 	HRESULT Add_AttackParticle(_fvector vPos, _fvector vPivot);
+
+	_bool IsAttackAnim();
 
 public:
 	static CPlayer_Weapon* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

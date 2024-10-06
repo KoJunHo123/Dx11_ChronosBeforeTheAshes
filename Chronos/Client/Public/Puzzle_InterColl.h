@@ -14,7 +14,7 @@ class CPuzzle_InterColl final : public CPartObject
 public:
 	typedef struct : CPartObject::PARTOBJ_DESC
 	{
-
+		_bool* pPuzzleReplace = { nullptr };
 	}PART_INTERCOLL_DESC;
 private:
 	CPuzzle_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -37,6 +37,8 @@ private:
 
 	_bool m_bPuzzleSolve = { false };
 
+	class CInventory* m_pInventory = { nullptr };
+	_bool* m_pPuzzleReplace = { nullptr };
 private:
 	HRESULT Ready_Components();
 

@@ -29,8 +29,11 @@ HRESULT CTeleport::Initialize(void* pArg)
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&pDesc->vPos));
     m_pColliderCom->Set_OnCollision(true);
 
-    m_vTeleportPos = pDesc->vTeleportPos;
     m_vColor = pDesc->vColor;
+    m_bActive = pDesc->bActive;
+
+    m_pTeleport = pDesc->pTeleport;
+
 	return S_OK;
 }
 
@@ -71,6 +74,8 @@ HRESULT CTeleport::Render()
     {
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
+        if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+            return E_FAIL;
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
             return E_FAIL;
         if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
@@ -91,11 +96,14 @@ void CTeleport::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 {
     if (TEXT("Coll_Player") == strColliderTag && m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_E))
     {
-        
-        if (XMVector3Equal(XMLoadFloat3(&m_vTeleportPos), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
+        if (nullptr == m_pTeleport || false == m_bActive)
             return;
 
-        pCollisionObject->Set_Position(XMLoadFloat3(&m_vTeleportPos));
+        if (XMVector3Equal(m_pTeleport->Get_Position(), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
+            return;
+
+        pCollisionObject->Set_Position(m_pTeleport->Get_Position());
+        m_pTeleport->Set_Active();
     }
 }
 

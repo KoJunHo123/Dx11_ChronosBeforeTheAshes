@@ -9,6 +9,10 @@ public:
 	typedef struct : CPlayer_State::PLAYER_STATE_DESC
 	{
 		_bool* pNonIntersect = { nullptr };
+		class CInventory* pInventory = { nullptr };
+		_float* pSkillGage = { nullptr };
+		_float fMaxSkillGage = { 0.f };
+		_float* pStamina = { nullptr };
 	}PLAYER_STATE_MOVE_DESC;
 	enum PLAYER_MOVE_STATE { MOVE_IDLE, MOVE_WALK, MOVE_JOG, MOVE_DODGE, MOVE_END };
 private:
@@ -39,6 +43,10 @@ private:
 	PLAYER_MOVE_STATE m_eMoveState = { MOVE_END };
 
 	_bool* m_pNonIntersect = { nullptr };
+	class CInventory* m_pInventory = { nullptr };
+	_float* m_pSkillGage = { nullptr };
+	_float m_fMaxSkillGage = { 0.f };
+	_float* m_pStamina = { nullptr };
 
 public:
 	static CPlayer_Move* Create(void* pArg);

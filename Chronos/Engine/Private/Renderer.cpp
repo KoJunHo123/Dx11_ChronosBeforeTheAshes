@@ -146,6 +146,11 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_Deferred()))
 		return E_FAIL;
 
+#ifdef _DEBUG
+	if (FAILED(Render_Debug()))
+		return E_FAIL;
+#endif	
+
 	if (FAILED(Render_NonLights()))
 		return E_FAIL;
 	if (FAILED(Render_Blend()))
@@ -466,9 +471,9 @@ HRESULT CRenderer::Render_Debug()
 	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
 		return E_FAIL;
 
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_GameObjects"), m_pShader, m_pVIBuffer);
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Lights"), m_pShader, m_pVIBuffer);
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_ShadowObj"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_GameObjects"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Lights"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_ShadowObj"), m_pShader, m_pVIBuffer);
 
 	return S_OK;
 }

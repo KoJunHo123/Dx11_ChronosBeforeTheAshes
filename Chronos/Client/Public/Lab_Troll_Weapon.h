@@ -23,7 +23,7 @@ public:
 		_float3 vExtents;
 		_float3 vCenter;
 		_float3 vAngles;
-		_uint iDamage;
+		_float fDamage;
 		_bool* pAttackActive;
 		_float* pRatio;
 	}WEAPON_DESC;
@@ -54,7 +54,7 @@ private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
 
 private:
-	_uint m_iDamage = { 0 };
+	_float m_fDamage = { 0 };
 	_bool* m_pAttackActive = { nullptr };
 	_float* m_pRatio = { nullptr };
 	_float3 m_vCenter = {};

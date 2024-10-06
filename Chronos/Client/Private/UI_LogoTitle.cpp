@@ -20,7 +20,6 @@ HRESULT CUI_LogoTitle::Initialize_Prototype()
 
 HRESULT CUI_LogoTitle::Initialize(void* pArg)
 {
-	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 

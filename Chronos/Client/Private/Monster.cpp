@@ -2,6 +2,8 @@
 #include "..\Public\Monster.h"
 #include "GameInstance.h"
 
+#include "UI_MonsterHPBar.h"
+
 CMonster::CMonster(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject( pDevice, pContext )
 {
@@ -36,21 +38,21 @@ HRESULT CMonster::Initialize(void* pArg)
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
 	Safe_AddRef(m_pPlayerTransformCom);
 
-	//m_pNavigationCom->Set_SkipTypeIndex(1);
-	
-
 	return S_OK;
 }
 
 _uint CMonster::Priority_Update(_float fTimeDelta)
 {
-
 	return OBJ_NOEVENT;
 }
 
 void CMonster::Update(_float fTimeDelta)
 {
 	m_pTransformCom->SetUp_OnCell(m_pNavigationCom);
+	
+	if(0.f < m_fDamagedDelay)
+		m_fDamagedDelay -= fTimeDelta;
+	
 	//m_fHittedDelay += fTimeDelta;
 }
 
@@ -105,8 +107,9 @@ void CMonster::Intersect(const _wstring strColliderTag, CGameObject* pCollisionO
 
 }
 
-void CMonster::Be_Damaged(_uint iDamage, _fvector vAttackPos)
+void CMonster::Be_Damaged(_float fDamage, _fvector vAttackPos)
 {
+	m_fDamagedDelay = 30.f;
 }
 
 HRESULT CMonster::Ready_Components(_int iStartCellIndex)
@@ -122,6 +125,23 @@ HRESULT CMonster::Ready_Components(_int iStartCellIndex)
 	/* FOR.Com_Texture */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pNoiseTextureCom), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CMonster::Add_MonsterHPBar()
+{
+	CUI_MonsterHPBar::UI_HPBAR_DESC BarDesc = {};
+	BarDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	BarDesc.fSpeedPerSec = 1.f;
+	BarDesc.fSizeX = 101.f;
+	BarDesc.fSizeY = 8.f;
+	BarDesc.fX = 0.f;
+	BarDesc.fY = 0.f;
+	BarDesc.pMonster = this;
+	
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_MonsterHPBar"), &BarDesc)))
 		return E_FAIL;
 
 	return S_OK;

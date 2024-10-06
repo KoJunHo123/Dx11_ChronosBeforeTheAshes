@@ -38,6 +38,9 @@ private:
 	HRESULT Ready_Layer_Teleport();
 	HRESULT Ready_Layer_Pedestal();
 	HRESULT Ready_Layer_Waypoint();
+	HRESULT Ready_Layer_DoorLock();
+
+	HRESULT Ready_Layer_UI();
 
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex);

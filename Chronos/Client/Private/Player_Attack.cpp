@@ -12,8 +12,12 @@ CPlayer_Attack::CPlayer_Attack()
 
 HRESULT CPlayer_Attack::Initialize(void* pArg)
 {
+	PLAYER_ATTACK_DESC* pDesc = static_cast<PLAYER_ATTACK_DESC*>(pArg);
+
 	if(FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
+
+	m_pStamina = pDesc->pStamina;
 
 	return S_OK;
 }
@@ -28,6 +32,8 @@ HRESULT CPlayer_Attack::StartState(void** pArg)
 void CPlayer_Attack::Priority_Update(_float fTimeDelta)
 {
 	__super::Priority_Update(fTimeDelta);
+
+
 }
 
 void CPlayer_Attack::Update(_float fTimeDelta)
@@ -39,52 +45,55 @@ void CPlayer_Attack::Update(_float fTimeDelta)
 
 	if(false == m_bMotionLock)
 	{
-		if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
+		if (*m_pStamina >= 10.f)
 		{
-			m_eAttackState = ATTACK_RUN;
-			*m_pPlayerAnim = PLAYER_ATK_RUN;
-			m_bMotionLock = true;
-		}
-		else if(m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
-		{
-			m_fAttackDelay = 0.f;
-			if (m_fAttackDelay < 0.2f)
-				Light_Attack();
-			else
-				Power_Attack();
-		}
-		else if (m_pGameInstance->Get_DIMouseState(DIMK_LBUTTON) && m_pGameInstance->Get_DIKeyState(DIKEYBOARD_LSHIFT))
-		{
-			m_fAttackDelay += fTimeDelta;
-
-			if (0 == m_iAttackCount && m_fAttackDelay)
+			if (PLAYER_MOVE_DODGE_F == *m_pPlayerAnim && m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
 			{
-				m_eAttackState = ATTACK_POWER_CHARGE;
-				*m_pPlayerAnim = PLAYER_ATK_POWER_01_CHARGE;
+				m_eAttackState = ATTACK_RUN;
+				*m_pPlayerAnim = PLAYER_ATK_RUN;
+				m_bMotionLock = true;
 			}
-			else if (1 == m_iAttackCount && m_fAttackDelay)
+			else if (m_pGameInstance->Get_DIMouseState_Up(DIMK_LBUTTON))
 			{
-				m_eAttackState = ATTACK_POWER_CHARGE;
-				*m_pPlayerAnim = PLAYER_ATK_POWER_02_CHARGE;
+				m_fAttackDelay = 0.f;
+				if (m_fAttackDelay < 0.2f)
+					Light_Attack();
+				else
+					Power_Attack();
 			}
-
-			if (true == *m_pIsFinished)
+			else if (m_pGameInstance->Get_DIMouseState(DIMK_LBUTTON) && m_pGameInstance->Get_DIKeyState(DIKEYBOARD_LSHIFT))
 			{
-				Power_Attack();
-				*m_pIsFinished = false;
-			}
-		}
-		else if(20 < static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex())
-		{
-			if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W)
-				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A)
-				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S)
-				|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D)
-				|| m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_SPACE))
-				m_pFSM->Set_State(CPlayer::STATE_MOVE);
+				m_fAttackDelay += fTimeDelta;
 
-			if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
-				m_pFSM->Set_State(CPlayer::STATE_BLOCK);
+				if (0 == m_iAttackCount && m_fAttackDelay)
+				{
+					m_eAttackState = ATTACK_POWER_CHARGE;
+					*m_pPlayerAnim = PLAYER_ATK_POWER_01_CHARGE;
+				}
+				else if (1 == m_iAttackCount && m_fAttackDelay)
+				{
+					m_eAttackState = ATTACK_POWER_CHARGE;
+					*m_pPlayerAnim = PLAYER_ATK_POWER_02_CHARGE;
+				}
+
+				if (true == *m_pIsFinished)
+				{
+					Power_Attack();
+					*m_pIsFinished = false;
+				}
+			}
+			else if (20 < static_cast<CPlayer_Body*>(m_Parts[CPlayer::PART_BODY])->Get_FrameIndex())
+			{
+				if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_W)
+					|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A)
+					|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S)
+					|| m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D)
+					|| m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_SPACE))
+					m_pFSM->Set_State(CPlayer::STATE_MOVE);
+
+				if (m_pGameInstance->Get_DIMouseState(DIMK_RBUTTON))
+					m_pFSM->Set_State(CPlayer::STATE_BLOCK);
+			}
 		}
 	}
 

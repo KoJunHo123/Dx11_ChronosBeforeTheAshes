@@ -60,6 +60,8 @@ HRESULT CRuneKey::Render(const _float4x4& WorldMatrix)
 
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_ComboTexture", aiTextureType_COMBO, i)))
 			return E_FAIL;
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
@@ -71,8 +73,6 @@ HRESULT CRuneKey::Render(const _float4x4& WorldMatrix)
 		if (FAILED(m_pModelCom->Render(i)))
 			return E_FAIL;
 	}
-	return S_OK;
-
 	return S_OK;
 }
 

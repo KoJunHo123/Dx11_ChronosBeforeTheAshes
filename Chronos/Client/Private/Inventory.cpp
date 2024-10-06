@@ -26,7 +26,7 @@ HRESULT CInventory::Initialize(void* pArg)
 
     if (FAILED(Ready_Components()))
         return E_FAIL;
-
+    
     return S_OK;
 }
 
@@ -42,13 +42,11 @@ _uint CInventory::Priority_Update(_float fTimeDelta)
         else
             ++iter;
     }
-
     return OBJ_NOEVENT;
 }
 
 void CInventory::Update(_float fTimeDelta)
 {
-    cout << m_Items.size() << endl;
 }
 
 void CInventory::Late_Update(_float fTimeDelta)
@@ -85,8 +83,6 @@ CItem* CInventory::Find_Item(const _wstring strItemKey)
 
 HRESULT CInventory::Ready_Components()
 {
-
-
     return S_OK;
 }
 
@@ -122,4 +118,5 @@ void CInventory::Free()
 
     for (auto& Pair : m_Items)
         Safe_Release(Pair.second);
+
 }
