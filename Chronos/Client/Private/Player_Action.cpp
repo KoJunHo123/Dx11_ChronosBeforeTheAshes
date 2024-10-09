@@ -56,13 +56,48 @@ void CPlayer_Action::Update(_float fTimeDelta)
 	{
 		*m_pPlayerAnim = PLAYER_ACTION_RUNEKEYHOLE;
 	}
+	else if (STATE_TELEPORT == m_eState)
+	{
+		if(false == m_bTeleportStart)
+		{
+			*m_pPlayerAnim = PLAYER_ACTION_TELEPORT_LONG_ENTER;
+			m_bTeleportStart = true;
+		}
+
+		if (PLAYER_ACTION_TELEPORT_LONG_IDLE == *m_pPlayerAnim)
+		{
+			if (false == m_bFadeIn)
+			{
+				m_bFadeIn = m_pGameInstance->FadeIn(fTimeDelta);
+				if (true == m_bFadeIn)
+				{
+					m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_vTargetPosition));
+					m_pNavigationCom->Set_CurrentCellIndex_ByPos(XMLoadFloat3(&m_vTargetPosition));
+				}
+			}
+			else
+			{
+				m_bFadeOut = m_pGameInstance->FadeOut(fTimeDelta);
+				if (true == m_bFadeOut)
+					*m_pPlayerAnim = PLAYER_ACTION_TELEPORT_LONG_EXIT;
+			}
+		}
+	}
 
 	if (true == *m_pIsFinished)
 	{
 		if (PLAYER_ACTION_WAYPOINT_GRAB == *m_pPlayerAnim)
 			*m_pPlayerAnim = PLAYER_ACTION_WAYPOINT_RELEASE;
+		else if(PLAYER_ACTION_TELEPORT_LONG_ENTER == *m_pPlayerAnim)
+			*m_pPlayerAnim = PLAYER_ACTION_TELEPORT_LONG_IDLE;
 		else
 			m_pFSM->Set_State(CPlayer::STATE_MOVE);
+
+		if (PLAYER_ACTION_TELEPORT_LONG_EXIT == *m_pPlayerAnim)
+		{
+			m_bFadeIn = false;
+			m_bFadeOut = false;
+		}
 
 	}
 
@@ -86,6 +121,7 @@ HRESULT CPlayer_Action::ExitState(void** pArg)
 	__super::ExitState(pArg);
 
 	*m_pItemUsed = false;
+	m_bTeleportStart = false;
 	static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM])->Release_Item();
 
 	m_pPlayerColliderCom->Set_OnCollision(true);

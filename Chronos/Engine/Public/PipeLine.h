@@ -10,7 +10,7 @@ BEGIN(Engine)
 class CPipeLine final : public CBase
 {
 public:
-	enum D3DTRANSFORMSTATE { D3DTS_VIEW, D3DTS_PROJ, D3DTS_END };
+	enum D3DTRANSFORMSTATE { D3DTS_VIEW, D3DTS_PROJ, D3DTS_SHADOWVIEW, D3DTS_END };
 private:
 	CPipeLine();
 	virtual ~CPipeLine() = default;

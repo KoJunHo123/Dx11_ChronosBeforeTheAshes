@@ -108,6 +108,9 @@
 #include "Effect_BloodSpray.h"
 #include "Effect_Flare.h"
 
+// 트레일
+#include "Trail_Revolve.h"
+
 // 인벤토리
 #include "Inventory.h"
 
@@ -178,7 +181,9 @@ HRESULT CLoader::Loading()
 
 void CLoader::Draw_LoadingText()
 {
+#ifdef _DEBUG
 	SetWindowText(g_hWnd, m_szLoadingText);
+#endif
 }
 
 HRESULT CLoader::Ready_Resources_For_LogoLevel()
@@ -389,9 +394,15 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_EFF_Smoke_25_M.dds"), 1))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_Trail_Beam */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Trail_Beam"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Trail/T_Beam_Core_Default.png"), 1))))
+		return E_FAIL;
+
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
 #pragma region VIBUFFER
+#pragma region DEFAULT
 	/* For. Prototype_Component_VIBuffer_Cube */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Cube"),
 		CVIBuffer_Cube::Create(m_pDevice, m_pContext))))
@@ -406,7 +417,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Rect"),
 		CVIBuffer_Rect_Instance::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
+#pragma endregion
+#pragma region POINT_INSTANCE
 	if(FAILED(Load_Particle()))
 		return E_FAIL;
 
@@ -494,8 +506,23 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Launch_WaterDrop"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
+#pragma endregion
+#pragma region TRAIL_INSTANCE
+	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
+	ZeroMemory(&TrailInstance, sizeof TrailInstance);
 
+	TrailInstance.iNumInstance = 30;
+	TrailInstance.vLifeTime = _float2(0.4f, 0.8f);
 
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Trail_Test"),
+		CVIBuffer_Trail_Instance::Create(m_pDevice, m_pContext, TrailInstance))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Trail_TwoPoint_Test"),
+		CVIBuffer_Trail_TwoPoint_Instance::Create(m_pDevice, m_pContext, TrailInstance))))
+		return E_FAIL;
+
+#pragma endregion
 #pragma endregion
 #pragma region LABYRINTH
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
@@ -728,6 +755,15 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxPosTex.hlsl"), VTXPOSTEX::Elements, VTXPOSTEX::iNumElements))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Shader_VtxTrailInstance */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxTrailInstance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxTrailInstance.hlsl"), VTXTRAILINSTANCE::Elements, VTXTRAILINSTANCE::iNumElements))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Shader_VtxTrail_TwoPoint_Instance */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxTrail_TwoPoint_Instance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxTrail_TwoPoint_Instance.hlsl"), VTXTRAIL_TWOPOINT_INSTANCE::Elements, VTXTRAIL_TWOPOINT_INSTANCE::iNumElements))))
+		return E_FAIL;
 #pragma endregion
 
 	lstrcpy(m_szLoadingText, TEXT("콜라이더을(를) 로딩중입니다."));
@@ -1047,6 +1083,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Effect_Flare */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Flare"),
 		CEffect_Flare::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+#pragma endregion
+#pragma region TRAIL
+	/* For. Prototype_GameObject_Trail_Revolve */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Trail_Revolve"),
+		CTrail_Revolve::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region INVENTORY

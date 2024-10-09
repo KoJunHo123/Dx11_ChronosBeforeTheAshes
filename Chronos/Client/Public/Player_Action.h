@@ -45,6 +45,10 @@ private:
 	PLAYER_ACTION_STATE m_eState = { STATE_END };
 	_float3 m_vTargetPosition = {};
 	_bool* m_pItemUsed = { nullptr };
+	
+	_bool m_bTeleportStart = { false };
+	_bool m_bFadeIn = { false };
+	_bool m_bFadeOut = { false };
 
 public:
 	static CPlayer_Action* Create(void* pArg);

@@ -243,6 +243,7 @@
     <ClInclude Include="..\public\Teleport.h" />
     <ClInclude Include="..\public\Teleport_Container.h" />
     <ClInclude Include="..\Public\Terrain.h" />
+    <ClInclude Include="..\public\Trail_Revolve.h" />
     <ClInclude Include="..\public\UI_BossHPBarDeco.h" />
     <ClInclude Include="..\public\UI_BossHPBar.h" />
     <ClInclude Include="..\public\UI_BossHPBarGlow.h" />
@@ -336,6 +337,7 @@
     <ClCompile Include="..\private\Teleport.cpp" />
     <ClCompile Include="..\private\Teleport_Container.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
+    <ClCompile Include="..\private\Trail_Revolve.cpp" />
     <ClCompile Include="..\private\UI_BossHPBarDeco.cpp" />
     <ClCompile Include="..\private\UI_BossHPBar.cpp" />
     <ClCompile Include="..\private\UI_BossHPBarGlow.cpp" />
@@ -374,6 +376,8 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrail_TwoPoint_Instance.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

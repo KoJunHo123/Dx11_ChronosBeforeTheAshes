@@ -18,8 +18,9 @@
 #include "Camera_Shorder.h"
 
 #include "Inventory.h"
-
 #include "DragonHeart.h"
+
+#include "Trail_Revolve.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -85,6 +86,7 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_HaveSkill[SKILL_RED] = true;
     m_HaveSkill[SKILL_PUPPLE] = true;
 
+    m_pColliderCom->Set_OnCollision(true);
     return S_OK;
 }
 
@@ -129,7 +131,6 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
                 m_eCurrentSkill = SKILL_RED;
         }
 
-        m_pColliderCom->Set_OnCollision(true);
         m_pFSM->Priority_Update(fTimeDelta);
     }
 
@@ -153,15 +154,25 @@ void CPlayer::Update(_float fTimeDelta)
         m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 
         //cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
+        
         //_float3 vPos = {};
         //XMStoreFloat3(&vPos, Get_Position());
-
         //cout << vPos.x << endl;
         //cout << vPos.y << endl;
         //cout << vPos.z << endl << endl;
 
         Anim_Frame_Control();
     }
+
+    _float4x4		ViewMatrix;
+    _vector vPos = Get_Position();
+    XMStoreFloat4x4(&ViewMatrix, XMMatrixLookAtLH(XMVectorSet(XMVectorGetX(vPos), XMVectorGetY(vPos) + 100.f, XMVectorGetZ(vPos) -30.f, 1.f), 
+        vPos, XMVectorSet(0.f, 1.f, 0.f, 0.f)));
+
+    m_pGameInstance->Set_Transform(CPipeLine::D3DTS_SHADOWVIEW, XMLoadFloat4x4(&ViewMatrix));
+    
+    _vector vTop = XMVectorSetY(vPos, XMVectorGetY(vPos) + 3.f);
+
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
@@ -208,6 +219,8 @@ void CPlayer::Late_Update(_float fTimeDelta)
         m_fStamina += fTimeDelta * 5.f;
         if (m_fStamina > m_fMaxStamina)
             m_fStamina = m_fMaxStamina;
+        else if (m_fStamina < 0.f)
+            m_fStamina = 0.f;
 
 #ifdef _DEBUG
         m_pGameInstance->Add_DebugObject(m_pColliderCom);
@@ -222,6 +235,8 @@ HRESULT CPlayer::Render()
         if (FAILED(m_pFSM->Render()))
             return E_FAIL;
     }
+
+
     return S_OK;
 }
 
@@ -304,6 +319,14 @@ _bool CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
     static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION))->Set_State(CPlayer_Action::STATE_RUNEKEY);
 
     return true;
+}
+
+void CPlayer::Start_Teleport(_fvector vPos)
+{
+    m_pFSM->Set_State(STATE_ACTION);
+    CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION));
+    pAction->Set_State(CPlayer_Action::STATE_TELEPORT);
+    pAction->Set_TargetPosition(vPos);
 }
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
@@ -609,6 +632,7 @@ void CPlayer::Anim_Frame_Control()
             m_bItemUsed = true;
             static_cast<CDragonHeart*>(m_pInventory->Find_Item(TEXT("Item_DragonHeart")))->Use_Item(this);
             static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Release_Item();
+            Add_TrailRevolve();
         }
     }
     else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 <= m_iKeyFrameIndex)
@@ -653,6 +677,27 @@ void CPlayer::Anim_Frame_Control()
         }
 
     }
+}
+
+HRESULT CPlayer::Add_TrailRevolve()
+{
+    CTrail_Revolve::TRAIL_REVOLOVE_DESC desc = {};
+
+    desc.iTrailCount = 10;
+    desc.vColor = _float4(1.0f, 0.271f, 0.0f, 1.f);
+    XMStoreFloat3(&desc.vPos, Get_Position());
+    desc.vRange = _float3(4.f, 4.f, 4.f);
+    desc.fAccel = 5.f;
+    desc.fSpeed = 10.f;
+    desc.fScale = 0.3f;
+    desc.fRotaionPerSecond = XMConvertToRadians(360.f);
+    desc.eType = CTrail_Revolve::TYPE_CONVERGE;
+    desc.fTypeAccel = 0.06f;
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Trail"), TEXT("Prototype_GameObject_Trail_Revolve"), &desc)))
+        return E_FAIL;
+
+    return S_OK;
 }
 
 CPlayer* CPlayer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

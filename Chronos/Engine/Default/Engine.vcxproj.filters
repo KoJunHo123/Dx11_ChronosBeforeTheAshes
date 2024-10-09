@@ -193,6 +193,15 @@
     <Filter Include="01.Utility\02.GameObjects\02.UI\Blend_UI_Object">
       <UniqueIdentifier>{3833ff60-8576-4321-99b1-286716dd121a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Trail">
+      <UniqueIdentifier>{bfb1e761-e6ac-4715-a51f-33600a75b48d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Trail\OnePoint">
+      <UniqueIdentifier>{06f0fde3-0de3-4798-81bd-4cd878b5d15c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint">
+      <UniqueIdentifier>{feb1a126-cb61-4d4c-94b8-dd65a4190b47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -371,6 +380,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Blend_UI_Object.cpp">
       <Filter>01.Utility\02.GameObjects\02.UI\Blend_UI_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Trail_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\OnePoint</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Trail_TwoPoint_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -562,6 +577,12 @@
     </ClInclude>
     <ClInclude Include="..\public\Blend_UI_Object.h">
       <Filter>01.Utility\02.GameObjects\02.UI\Blend_UI_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Trail_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\OnePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Trail_TwoPoint_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,7 @@ class CNavigation;
 class CCollider;
 class CState;
 class CCamera;
+class CVIBuffer_Trail_TwoPoint_Instance;
 END
 
 BEGIN(Client)
@@ -89,12 +90,15 @@ public:
 	_bool Be_Damaged(_float fDamage, _fvector vAttackPos);
 	void Set_SavePos(_fvector vPos);
 	_bool Use_Runekey(_fvector vPos, _fvector vLookAt);
+	void Start_Teleport(_fvector vPos);
 
 public:
 	class CFSM* m_pFSM = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
 	class CTexture* m_pNoiseTextureCom = { nullptr };
+
+
 
 	// 상태와 파츠가 공유해야 하는 변수들
 	PLAYER_ANIM m_ePlayerAnim = { PLAYER_ANIM_END };
@@ -154,6 +158,7 @@ private:
 
 private:
 	void Anim_Frame_Control();
+	HRESULT Add_TrailRevolve();
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

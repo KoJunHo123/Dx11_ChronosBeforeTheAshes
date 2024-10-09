@@ -78,6 +78,8 @@
     <ClCompile Include="..\private\VIBuffer_Rect.cpp" />
     <ClCompile Include="..\private\VIBuffer_Rect_Instance.cpp" />
     <ClCompile Include="..\Private\VIBuffer_Terrain.cpp" />
+    <ClCompile Include="..\private\VIBuffer_Trail_Instance.cpp" />
+    <ClCompile Include="..\Private\VIBuffer_Trail_TwoPoint_Instance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Animation.h" />
@@ -143,6 +145,8 @@
     <ClInclude Include="..\public\VIBuffer_Rect.h" />
     <ClInclude Include="..\public\VIBuffer_Rect_Instance.h" />
     <ClInclude Include="..\Public\VIBuffer_Terrain.h" />
+    <ClInclude Include="..\public\VIBuffer_Trail_Instance.h" />
+    <ClInclude Include="..\Public\VIBuffer_Trail_TwoPoint_Instance.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl" />

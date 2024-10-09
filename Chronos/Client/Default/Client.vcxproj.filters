@@ -4,9 +4,6 @@
     <Filter Include="99.Defines">
       <UniqueIdentifier>{fb79177f-6af2-42b8-a50b-bbc3b63e3f72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="00.MainApp">
-      <UniqueIdentifier>{36ddfabb-8bb7-40c9-a17f-c7b97483a7fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Levels">
       <UniqueIdentifier>{f44a7a5e-dc7a-460e-9e7e-389f947c35ff}</UniqueIdentifier>
     </Filter>
@@ -316,6 +313,15 @@
     <Filter Include="02.GameObjects\07.Interaction\DoorLock\DoorLock_Effect">
       <UniqueIdentifier>{fb084090-375d-4f86-afa0-23bc5baba716}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\12.Trail">
+      <UniqueIdentifier>{561f9569-0ec8-4d3a-9071-276062f10660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.MainApp">
+      <UniqueIdentifier>{36ddfabb-8bb7-40c9-a17f-c7b97483a7fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\12.Trail\Trail_Revolve">
+      <UniqueIdentifier>{d4e6f273-4943-439c-b57a-b73462815a72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -597,6 +603,9 @@
     <ClInclude Include="..\public\DoorLock_Effect.h">
       <Filter>02.GameObjects\07.Interaction\DoorLock\DoorLock_Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Trail_Revolve.h">
+      <Filter>02.GameObjects\12.Trail\Trail_Revolve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -866,6 +875,9 @@
     <ClCompile Include="..\private\DoorLock_Effect.cpp">
       <Filter>02.GameObjects\07.Interaction\DoorLock\DoorLock_Effect</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Trail_Revolve.cpp">
+      <Filter>02.GameObjects\12.Trail\Trail_Revolve</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -905,6 +917,12 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrail_TwoPoint_Instance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

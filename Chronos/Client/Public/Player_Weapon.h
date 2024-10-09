@@ -7,6 +7,7 @@ class CShader;
 class CModel;
 class CTransform;
 class CCollider;
+class CVIBuffer_Trail_TwoPoint_Instance;
 END
 
 BEGIN(Client)
@@ -40,6 +41,7 @@ public:
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
 	virtual HRESULT Render();
+	virtual HRESULT Render_LightDepth() override;
 
 public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
@@ -49,6 +51,7 @@ private:
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
 	class CTexture* m_pNoiseTextureCom = { nullptr };
+
 
 private:
 	const _float4x4* m_pSocketMatrix = { nullptr };

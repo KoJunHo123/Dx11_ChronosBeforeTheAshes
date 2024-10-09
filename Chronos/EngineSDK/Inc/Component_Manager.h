@@ -6,6 +6,8 @@
 #include "VIBuffer_Cube.h"
 #include "VIBuffer_Rect_Instance.h"
 #include "VIBuffer_Point_Instance.h"
+#include "VIBuffer_Trail_Instance.h"
+#include "VIBuffer_Trail_TwoPoint_Instance.h"
 
 #include "Texture.h"
 #include "Shader.h"

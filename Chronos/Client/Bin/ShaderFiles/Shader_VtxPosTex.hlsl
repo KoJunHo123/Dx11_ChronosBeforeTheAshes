@@ -14,6 +14,7 @@
 matrix			g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D		g_Texture;
 texture2D       g_PackTexture;
+texture2D       g_NormTexture;
 
 float2			g_TexDivide;
 int				g_iTexIndex;
@@ -260,7 +261,6 @@ PS_OUT PS_BOSS_HPBAR_MAIN(PS_IN In)
         Out.vColor.rgb = (float3) 0.f;
         return Out;
 }
-
 
 technique11	DefaultTechnique
 {

@@ -92,7 +92,8 @@ void CPlayer_Move::Move_Control(_float fTimeDelta)
 
 	if (m_pGameInstance->Get_DIKeyState_Down(DIK_SPACE))
 	{
-		Dodge();
+		if(10.f <= *m_pStamina)
+			Dodge();
 	}
 
 }
@@ -209,29 +210,41 @@ void CPlayer_Move::Dodge()
 {
 	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
-		*m_pStamina -= 10.f;
-		*m_pPlayerAnim = PLAYER_MOVE_DODGE_L;
+		if(PLAYER_MOVE_DODGE_L != *m_pPlayerAnim)
+		{
+			*m_pStamina -= 10.f;
+			*m_pPlayerAnim = PLAYER_MOVE_DODGE_L;
+		}
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_S))
 	{
-		*m_pStamina -= 10.f;
-		*m_pPlayerAnim = PLAYER_MOVE_DODGE_B;
+		if (PLAYER_MOVE_DODGE_B != *m_pPlayerAnim)
+		{
+			*m_pStamina -= 10.f;
+			*m_pPlayerAnim = PLAYER_MOVE_DODGE_B;
+		}
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_D))
 	{
-		*m_pStamina -= 10.f;
-		*m_pPlayerAnim = PLAYER_MOVE_DODGE_R;
+		if (PLAYER_MOVE_DODGE_R != *m_pPlayerAnim)
+		{
+			*m_pStamina -= 10.f;
+			*m_pPlayerAnim = PLAYER_MOVE_DODGE_R;
+		}
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}
 	else
 	{
-		*m_pStamina -= 10.f;
-		*m_pPlayerAnim = PLAYER_MOVE_DODGE_F;
+		if (PLAYER_MOVE_DODGE_F != *m_pPlayerAnim)
+		{
+			*m_pStamina -= 10.f;
+			*m_pPlayerAnim = PLAYER_MOVE_DODGE_F;
+		}
 		m_bMotionLock = true;
 		*m_pNonIntersect = true;
 	}

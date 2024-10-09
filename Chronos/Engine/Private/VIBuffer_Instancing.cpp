@@ -21,7 +21,6 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype
 	, m_vLifeTime{ Prototype.m_vLifeTime }
 	, m_vMinColor { Prototype.m_vMinColor }
 	, m_vMaxColor { Prototype.m_vMaxColor }
-
 {
 }
 

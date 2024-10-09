@@ -2,6 +2,8 @@
 #include "Teleport.h"
 #include "GameInstance.h"
 
+#include "Player.h"
+
 CTeleport::CTeleport(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
 {
@@ -102,7 +104,9 @@ void CTeleport::Intersect(const _wstring strColliderTag, CGameObject* pCollision
         if (XMVector3Equal(m_pTeleport->Get_Position(), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
             return;
 
-        pCollisionObject->Set_Position(m_pTeleport->Get_Position());
+        pCollisionObject->Set_Position(Get_Position());
+        CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
+        pPlayer->Start_Teleport(m_pTeleport->Get_Position());
         m_pTeleport->Set_Active();
     }
 }

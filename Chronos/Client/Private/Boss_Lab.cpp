@@ -372,7 +372,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	DeathDesc.pSocketMatrix = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Spine1");;
 	DeathDesc.iNumInstance = 5000;
 	DeathDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
-	DeathDesc.vRange = _float3(4.f, 5.f, 4.f);
+	DeathDesc.vRange = _float3(10.f, 5.f, 10.f);
 	DeathDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
 	DeathDesc.vSize = _float2(0.15f, 0.3f);
 	DeathDesc.vSpeed = _float2(1.5f, 3.f);
