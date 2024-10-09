@@ -350,7 +350,7 @@ PS_OUT PS_STONE_MAIN(PS_IN In)
 technique11 DefaultTechnique
 {
 	/* 빛연산 + 림라이트 + ssao + 노멀맵핑 + pbr*/
-    pass UI
+    pass UI // 0
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -361,7 +361,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN();
     }
 
-    pass LIGHT
+    pass LIGHT // 1
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -372,29 +372,29 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_LIGHT_MAIN();
     }
 
-    pass LIGHTLONG
+    pass LIGHTLONG // 2
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = compile gs_5_0 GS_DIRECTION_MAIN();
         PixelShader = compile ps_5_0 PS_LIGHTLONG_MAIN();
     }
 
-    pass SPAWN
+    pass SPAWN // 3
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = compile gs_5_0 GS_DIRECTION_MAIN();
         PixelShader = compile ps_5_0 PS_SPAWN_MAIN();
     }
 
-    pass STONE
+    pass STONE // 4
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -405,7 +405,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_STONE_MAIN();
     }
 
-    pass WATERDROP
+    pass WATERDROP // 5
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);

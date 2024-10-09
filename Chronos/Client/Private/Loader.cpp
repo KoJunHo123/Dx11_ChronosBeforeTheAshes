@@ -100,6 +100,8 @@
 #include "Particle_Smoke.h"
 #include "Particle_LaunchStone.h"
 #include "Particle_LaunchWaterDrop.h"
+#include "Particle_DragonHeart.h"
+#include "Particle_Teleport.h"
 
 // 이펙트
 #include "Effect_Flash.h"
@@ -429,9 +431,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);	// 이게 첫 생성 범위
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.3f, 0.6f);		// 이게 크기
-	//ParticleDesc.vSize = _float2(1.f, 2.f);		// 이게 크기
-	ParticleDesc.vSpeed = _float2(10.f, 15.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(8.f, 12.f);
 	ParticleDesc.vLifeTime = _float2(0.2f, 0.4f);
 	ParticleDesc.vMinColor = _float4(1.f, 0.647f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 0.4f, 1.f);
@@ -506,6 +507,39 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Launch_WaterDrop"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_DragonHeart */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 100;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(0.1f, 0.1f, 0.1f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(5.f, 10.f);
+	ParticleDesc.vLifeTime = _float2(0.4f, 0.8f);
+	ParticleDesc.vMinColor = _float4(1.0f, 0.271f, 0.0f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 0.271f, 0.0f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_DragonHeart"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Teleport */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 500;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(2.f, 2.f, 2.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(1.f, 8.f);
+	ParticleDesc.vLifeTime = _float2(3.f, 5.f);
+	ParticleDesc.vMinColor = _float4(0.0f, 0.392f, 1.0f, 1.f);
+	ParticleDesc.vMaxColor = _float4(0.0f, 0.749f, 1.0f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Teleport"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region TRAIL_INSTANCE
 	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
@@ -1058,6 +1092,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_LaunchWaterDrop"),
 		CParticle_LaunchWaterDrop::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_DragonHeart */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_DragonHeart"),
+		CParticle_DragonHeart::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_Teleport */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Teleport"),
+		CParticle_Teleport::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 #pragma endregion
 #pragma region EFFECT
 	/* For. Prototype_GameObject_Effect_Flash */
@@ -1184,6 +1228,7 @@ HRESULT CLoader::Load_Particle()
 		//ParticleDesc.vMinColor = { 0.541f, 0.f, 0.827f, 1.f };
 		//ParticleDesc.vMaxColor = { 0.580f, 0.169f, 0.886f, 1.f };
 		// ParticleDesc.iNumInstance = 500;
+		ParticleDesc.vSize = { 0.1f, 0.2f };
 
 
 		if (true == infile_Converge.eof())
@@ -1218,6 +1263,7 @@ HRESULT CLoader::Load_Particle()
 		ParticleDesc.vSpeed.y *= 2.f;
 		ParticleDesc.vLifeTime.x *= 0.5f;
 		ParticleDesc.vLifeTime.y *= 0.5f;
+		ParticleDesc.vSize = { 0.1f, 0.2f };
 
 		if (true == infile_Spread.eof())
 			break;

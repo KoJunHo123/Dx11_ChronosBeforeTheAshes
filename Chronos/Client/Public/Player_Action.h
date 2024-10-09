@@ -50,6 +50,10 @@ private:
 	_bool m_bFadeIn = { false };
 	_bool m_bFadeOut = { false };
 
+private:
+	HRESULT Add_Particle_Teleport();
+	HRESULT Add_TrailRevolve();
+
 public:
 	static CPlayer_Action* Create(void* pArg);
 	virtual void Free();

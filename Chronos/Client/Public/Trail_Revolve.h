@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Client_Defines.h"
-#include "BlendObject.h"
+#include "GameObject.h"
 
 BEGIN(Engine)
 class CShader;
@@ -10,7 +10,7 @@ class CVIBuffer_Trail_Instance;
 END
 
 BEGIN(Client)
-class CTrail_Revolve final : public CBlendObject
+class CTrail_Revolve final : public CGameObject
 {
 public:
 	enum TYPE { TYPE_SPREAD, TYPE_CONSTANT, TYPE_CONVERGE, TYPE_END };
@@ -28,6 +28,8 @@ public:
 		_float fRotaionPerSecond = { 0.f };
 		_float fTypeAccel = { 0.f };
 		TYPE eType = { TYPE_CONSTANT };
+
+		_float fTime = { 0.f };
 	}TRAIL_REVOLOVE_DESC;
 
 private:

@@ -23,6 +23,10 @@ texture2D g_SpecularTexture;
 texture2D g_ComboTexture;
 texture2D g_EmissiveTexture;
 texture2D g_LightDepthTexture;
+texture2D g_BackTexture;
+texture2D g_FinalTexture;
+texture2D g_BlurXTexture;
+texture2D g_BlurYTexture;
 
 vector g_vCamPosition;
 
@@ -192,7 +196,7 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
     vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
     vector vSpecular = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
     vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
-    
+
     Out.vColor = vDiffuse * vShade + vSpecular;
 
     vector vDepthDesc = g_DepthTexture.Sample(PointSampler, In.vTexcoord);
@@ -231,7 +235,7 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
     if (fLightDepth - 0.1f > fOldLightDepth)
         Out.vColor = vector(Out.vColor.rgb * 0.6f, Out.vColor.a);
 
-    Out.vColor.rgb += vEmissive.rgb;
+    Out.vColor += vEmissive;
     
     return Out;
 }
@@ -247,9 +251,90 @@ PS_OUT PS_MAIN_FADE(PS_IN In)
     return Out;
 }
 
+struct PS_OUT_FINAL
+{
+    vector vFinal : SV_TARGET0;
+    vector vBack : SV_TARGET1;
+};
+
+PS_OUT_FINAL PS_MAIN_FINAL(PS_IN In)
+{
+    PS_OUT_FINAL Out = (PS_OUT_FINAL) 0;
+
+    Out.vFinal = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+    Out.vBack = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+        
+    float brightness = dot(Out.vFinal.rgb, float3(0.299, 0.587, 0.114)); // 밝기 계산
+    
+    if (brightness < 0.8f)
+        Out.vFinal.rgb = float3(0.f, 0.f, 0.f);
+    
+    Out.vFinal += vEmissive;
+    
+    return Out;
+}
+
+// 가우시안 블러에 기반한 가중치 배열. 가우시안 블러를 적용할 때 사용하는 커널값.
+float g_fWeights[13] =
+{
+    0.0561, 0.1353, 0.278, 0.4868, 0.7261, 0.9231, 1.f, 0.9231, 0.7261, 0.4868, 0.278, 0.1353, 0.0561
+};
+
+PS_OUT PS_MAIN_BLUR_X(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+
+    vector vFinalColor = g_FinalTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    float2 vBlurUV = (float2) 0.f;
+    for (int i = -6; i < 7; i++)
+    {
+        vBlurUV = In.vTexcoord + float2(1.f / 1280.f * i, 0.f);
+        Out.vColor += g_fWeights[i + 6] * g_FinalTexture.Sample(LinearSampler, vBlurUV);
+		
+    }
+    Out.vColor /= 6.21f;
+    
+    return Out;
+}
+
+PS_OUT PS_MAIN_BLUR_Y(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+
+    vector vBlurXColor = g_BlurXTexture.Sample(LinearSampler, In.vTexcoord);
+
+    float2 vBlurUV = (float2) 0.f;
+
+    for (int i = -6; i < 7; i++)
+    {
+        vBlurUV = In.vTexcoord + float2(0.f, 1.f / 720.f * i);
+        Out.vColor += g_fWeights[i + 6] * g_BlurXTexture.Sample(LinearSampler, vBlurUV);
+
+    }
+
+    Out.vColor /= 6.21f;
+
+    return Out;
+}
+
+PS_OUT PS_MAIN_BLUR_FINAL(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+
+    vector vBlur = g_BlurYTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vFinal = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+
+    Out.vColor = vBlur + vFinal;
+
+    return Out;
+}
+
+
 technique11 DefaultTechnique
 {
-    pass Debug
+    pass Debug // 0
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -260,7 +345,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_DEBUG();
     }
 
-    pass Light_Directional
+    pass Light_Directional // 1
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_None, 0);
@@ -271,7 +356,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_LIGHT_DIRECTIONAL();
     }
 
-    pass Light_Point
+    pass Light_Point // 2
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_None, 0);
@@ -282,7 +367,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_LIGHT_POINT();
     }
 
-    pass Deferred
+    pass Deferred // 3
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_None, 0);
@@ -293,7 +378,7 @@ technique11 DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_DEFERRED();
     }
 
-    pass FADE
+    pass FADE // 4
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_None, 0);
@@ -303,4 +388,49 @@ technique11 DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_FADE();
     }
+
+    pass Final // 5
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_FINAL();
+    }
+
+    pass Blur_X // 6
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLUR_X();
+    }
+
+    pass Blur_Y // 7
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLUR_Y();
+    }
+
+    pass BlurFinal // 8
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_None, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLUR_FINAL();
+    }
+
 }

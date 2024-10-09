@@ -159,6 +159,7 @@ private:
 private:
 	void Anim_Frame_Control();
 	HRESULT Add_TrailRevolve();
+	HRESULT Add_Particle_DragonHeart();
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

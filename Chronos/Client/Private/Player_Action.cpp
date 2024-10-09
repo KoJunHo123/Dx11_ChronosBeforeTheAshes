@@ -5,6 +5,9 @@
 #include "Player.h"
 #include "Player_Item.h"
 
+#include "Particle_Teleport.h"
+#include "Trail_Revolve.h"
+
 CPlayer_Action::CPlayer_Action()
 {
 }
@@ -61,6 +64,8 @@ void CPlayer_Action::Update(_float fTimeDelta)
 		if(false == m_bTeleportStart)
 		{
 			*m_pPlayerAnim = PLAYER_ACTION_TELEPORT_LONG_ENTER;
+			Add_Particle_Teleport();
+			Add_TrailRevolve();
 			m_bTeleportStart = true;
 		}
 
@@ -73,6 +78,8 @@ void CPlayer_Action::Update(_float fTimeDelta)
 				{
 					m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_vTargetPosition));
 					m_pNavigationCom->Set_CurrentCellIndex_ByPos(XMLoadFloat3(&m_vTargetPosition));
+					Add_Particle_Teleport();
+					Add_TrailRevolve();
 				}
 			}
 			else
@@ -125,6 +132,44 @@ HRESULT CPlayer_Action::ExitState(void** pArg)
 	static_cast<CPlayer_Item*>(m_Parts[CPlayer::PART_ITEM])->Release_Item();
 
 	m_pPlayerColliderCom->Set_OnCollision(true);
+
+	return S_OK;
+}
+
+HRESULT CPlayer_Action::Add_Particle_Teleport()
+{
+	CParticle_Teleport::PARTICLE_TELEPORT_DESC desc = {};
+
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+	XMStoreFloat3(&desc.vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Teleport"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CPlayer_Action::Add_TrailRevolve()
+{
+	CTrail_Revolve::TRAIL_REVOLOVE_DESC desc = {};
+
+	desc.iTrailCount = 20;
+	desc.vColor = _float4(0.0f, 0.749f, 1.0f, 1.f);
+	XMStoreFloat3(&desc.vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+	desc.vRange = _float3(4.f, 4.f, 4.f);
+	desc.fAccel = 5.f;
+	desc.fSpeed = 10.f;
+	desc.fScale = 0.3f;
+	desc.fRotaionPerSecond = XMConvertToRadians(360.f);
+	desc.eType = CTrail_Revolve::TYPE_CONSTANT;
+	desc.fTypeAccel = 0.03f;
+	desc.fTime = 1.5f;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Trail"), TEXT("Prototype_GameObject_Trail_Revolve"), &desc)))
+		return E_FAIL;
+
+
 
 	return S_OK;
 }

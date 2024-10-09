@@ -78,6 +78,8 @@ void CParticle_Spawn::Update(_float fTimeDelta)
 
 void CParticle_Spawn::Late_Update(_float fTimeDelta)
 {
+    Compute_ViewZ();
+
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 

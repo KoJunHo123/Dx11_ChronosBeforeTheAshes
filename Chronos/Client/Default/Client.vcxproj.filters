@@ -322,6 +322,12 @@
     <Filter Include="02.GameObjects\12.Trail\Trail_Revolve">
       <UniqueIdentifier>{d4e6f273-4943-439c-b57a-b73462815a72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_DragonHeart">
+      <UniqueIdentifier>{24791dec-1827-4d76-9516-fd3335ce5096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Teleport">
+      <UniqueIdentifier>{131accee-c5a9-42fa-a202-33f8eb74ab7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -606,6 +612,12 @@
     <ClInclude Include="..\public\Trail_Revolve.h">
       <Filter>02.GameObjects\12.Trail\Trail_Revolve</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Particle_DragonHeart.h">
+      <Filter>02.GameObjects\08.Particle\Particle_DragonHeart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Teleport.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Teleport</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -877,6 +889,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Trail_Revolve.cpp">
       <Filter>02.GameObjects\12.Trail\Trail_Revolve</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_DragonHeart.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_DragonHeart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Teleport.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Teleport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

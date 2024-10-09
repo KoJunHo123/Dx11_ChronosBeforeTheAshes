@@ -70,6 +70,10 @@ private:
 	HRESULT Render_Lights();
 	HRESULT Render_Deferred();
 	HRESULT Render_NonLights();
+
+	HRESULT Render_Final();
+	HRESULT Render_Blur();
+
 	HRESULT Render_Blend();
 	HRESULT Render_UI();
 	HRESULT Render_BlendUI();

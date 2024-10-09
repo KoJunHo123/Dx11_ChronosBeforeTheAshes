@@ -67,19 +67,21 @@ void GS_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> Container)
     float3 vRight = normalize(cross(float3(0.f, 1.f, 0.f), vLook));
     float3 vUp = normalize(cross(vLook, vRight));
 
-    Out[0].vPosition = float4(In[0].vPrePos + vUp * g_fScale, 1.f);
+    float fLifeTime = 1 - (In[0].vLifeTime.y / In[0].vLifeTime.x) + 0.05f;
+    
+    Out[0].vPosition = float4(In[0].vPrePos + vUp * g_fScale * fLifeTime, 1.f);
     Out[0].vTexcoord = float2(0.f, 0.f);
     Out[0].vLifeTime = In[0].vLifeTime;
 
-    Out[1].vPosition = float4(In[0].vCurPos + vUp * g_fScale, 1.f);
+    Out[1].vPosition = float4(In[0].vCurPos + vUp * g_fScale * fLifeTime, 1.f);
     Out[1].vTexcoord = float2(1.f, 0.f);
     Out[1].vLifeTime = In[0].vLifeTime;
 
-    Out[2].vPosition = float4(In[0].vCurPos - vUp * g_fScale, 1.f);
+    Out[2].vPosition = float4(In[0].vCurPos - vUp * g_fScale * fLifeTime, 1.f);
     Out[2].vTexcoord = float2(1.f, 1.f);
     Out[2].vLifeTime = In[0].vLifeTime;
     
-    Out[3].vPosition = float4(In[0].vPrePos - vUp * g_fScale, 1.f);
+    Out[3].vPosition = float4(In[0].vPrePos - vUp * g_fScale * fLifeTime, 1.f);
     Out[3].vTexcoord = float2(0.f, 1.f);
     Out[3].vLifeTime = In[0].vLifeTime;
 
@@ -121,15 +123,15 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
 
     Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
+    vector vColor = Out.vColor;
     
     if (Out.vColor.a < 0.1f)
         discard;
     
-    if(In.vLifeTime.y > In.vLifeTime.x)
+    if(In.vLifeTime.x < In.vLifeTime.y)
         discard;
     
-    Out.vColor.rgb = 1.f - (1 - g_vColor.rgb) * (1 - Out.vColor.a * 0.85f);
-    
+    Out.vColor.rgb = 1.f - (1 - g_vColor.rgb) * (1 - vColor.a * 0.85f);
     
     
     return Out;
@@ -144,7 +146,7 @@ technique11 DefaultTechnique
     {
         SetRasterizerState(RS_Cull_None);
         SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = compile gs_5_0 GS_MAIN();

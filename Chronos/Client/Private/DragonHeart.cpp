@@ -27,7 +27,7 @@ HRESULT CDragonHeart::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_iItemCount = 3;
+	m_iItemCount = 100;
 	m_iMaxCount = m_iItemCount;
 
 	return S_OK;

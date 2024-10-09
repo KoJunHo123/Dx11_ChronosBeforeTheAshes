@@ -54,10 +54,9 @@ void CParticle_AttackLight::Update(_float fTimeDelta)
 
 void CParticle_AttackLight::Late_Update(_float fTimeDelta)
 {	
-    if (FAILED(Compute_ViewZ()))
-        return;
+    __super::Compute_ViewZ();
 
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);
+    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 
 HRESULT CParticle_AttackLight::Render()
@@ -72,7 +71,7 @@ HRESULT CParticle_AttackLight::Render()
         return E_FAIL;
     if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
         return E_FAIL;
-    if (FAILED(m_pShaderCom->Begin(2)))
+    if (FAILED(m_pShaderCom->Begin(5)))
         return E_FAIL;
 
     if (FAILED(m_pVIBufferCom->Bind_Buffers()))
@@ -91,7 +90,7 @@ HRESULT CParticle_AttackLight::Ready_Components()
         return E_FAIL;
 
     /* FOR.Com_Texture */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_LightLong"),
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Spark"),
         TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
         return E_FAIL;
 

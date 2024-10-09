@@ -21,6 +21,7 @@
 #include "DragonHeart.h"
 
 #include "Trail_Revolve.h"
+#include "Particle_DragonHeart.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -633,6 +634,7 @@ void CPlayer::Anim_Frame_Control()
             static_cast<CDragonHeart*>(m_pInventory->Find_Item(TEXT("Item_DragonHeart")))->Use_Item(this);
             static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Release_Item();
             Add_TrailRevolve();
+            Add_Particle_DragonHeart();
         }
     }
     else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 <= m_iKeyFrameIndex)
@@ -692,9 +694,23 @@ HRESULT CPlayer::Add_TrailRevolve()
     desc.fScale = 0.3f;
     desc.fRotaionPerSecond = XMConvertToRadians(360.f);
     desc.eType = CTrail_Revolve::TYPE_CONVERGE;
-    desc.fTypeAccel = 0.06f;
+    desc.fTypeAccel = 0.03f;
 
     if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Trail"), TEXT("Prototype_GameObject_Trail_Revolve"), &desc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CPlayer::Add_Particle_DragonHeart()
+{
+    CParticle_DragonHeart::PARTICLE_DRAGONHEART_DESC desc = {};
+
+    desc.fRotationPerSec = XMConvertToRadians(90.f);
+    desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&desc.vPos, static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Get_Position());
+
+    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_DragonHeart"), &desc)))
         return E_FAIL;
 
     return S_OK;
