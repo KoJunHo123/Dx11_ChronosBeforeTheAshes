@@ -173,6 +173,8 @@
     <ClInclude Include="..\Public\DoorLock.h" />
     <ClInclude Include="..\public\DoorLock_Effect.h" />
     <ClInclude Include="..\Public\DoorLock_InterColl.h" />
+    <ClInclude Include="..\public\Particle_DragonHeart.h" />
+    <ClInclude Include="..\public\Particle_Teleport.h" />
     <ClInclude Include="..\public\RuneKey.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
     <ClInclude Include="..\public\Boss_Lab_Attack.h" />
@@ -269,6 +271,8 @@
     <ClCompile Include="..\Private\DoorLock.cpp" />
     <ClCompile Include="..\private\DoorLock_Effect.cpp" />
     <ClCompile Include="..\Private\DoorLock_InterColl.cpp" />
+    <ClCompile Include="..\private\Particle_DragonHeart.cpp" />
+    <ClCompile Include="..\private\Particle_Teleport.cpp" />
     <ClCompile Include="..\private\RuneKey.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />

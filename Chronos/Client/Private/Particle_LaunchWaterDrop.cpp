@@ -3,12 +3,12 @@
 #include "GameInstance.h"
 
 CParticle_LaunchWaterDrop::CParticle_LaunchWaterDrop(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CBlendObject(pDevice, pContext)
+    : CGameObject(pDevice, pContext)
 {
 }
 
 CParticle_LaunchWaterDrop::CParticle_LaunchWaterDrop(const CParticle_LaunchWaterDrop& Prototype)
-    : CBlendObject(Prototype)
+    : CGameObject(Prototype)
 {
 }
 
@@ -50,10 +50,7 @@ void CParticle_LaunchWaterDrop::Update(_float fTimeDelta)
 
 void CParticle_LaunchWaterDrop::Late_Update(_float fTimeDelta)
 {
-    if (FAILED(Compute_ViewZ()))
-        return;
-
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);
+    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 
 HRESULT CParticle_LaunchWaterDrop::Render()

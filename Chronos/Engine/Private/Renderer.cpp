@@ -55,6 +55,18 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_LightDepth"), g_iSizeX, g_iSizeY, DXGI_FORMAT_R32G32B32A32_FLOAT, _float4(1.f, 1.f, 1.f, 1.f))))
 		return E_FAIL;
 
+
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Final"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Back"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Blur_X"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Blur_Y"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+		return E_FAIL;
+
+
 	/* MRT_GameObjects */
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_GameObjects"), TEXT("Target_Diffuse"))))
 		return E_FAIL;
@@ -79,6 +91,21 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_ShadowObj"), TEXT("Target_LightDepth"))))
 		return E_FAIL;
 
+	/* MRT_Final */
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Final"), TEXT("Target_Final"))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Final"), TEXT("Target_Back"))))
+		return E_FAIL;
+
+	/* MRT_Blur_X */
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Blur_X"), TEXT("Target_Blur_X"))))
+		return E_FAIL;
+
+	/* MRT_Blur_Y */
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Blur_Y"), TEXT("Target_Blur_Y"))))
+		return E_FAIL;
+
+
 
 	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXPOSTEX::Elements, VTXPOSTEX::iNumElements);
 	if (nullptr == m_pShader)
@@ -97,21 +124,32 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 
 
 #ifdef _DEBUG
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Diffuse"), 100.f, 100.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Normal"), 100.f, 300.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Normal"), 50.f, 150.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Depth"), 100.f, 500.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Depth"), 50.f, 250.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Combo"), 300.f, 500.f, 200.f, 200.f)))
+
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Combo"), 150.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Shade"), 300.f, 100.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Shade"), 150.f, 150.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Specular"), 300.f, 300.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Specular"), 150.f, 250.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Emissive"), ViewportDesc.Width - 100.f, 100.f, 200.f, 200.f)))
+	
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Emissive"), ViewportDesc.Width - 50.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_LightDepth"), ViewportDesc.Width - 100.f, 300.f, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_LightDepth"), ViewportDesc.Width - 50.f, 150.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Back"), ViewportDesc.Width - 50.f, 250.f, 100.f, 100.f)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Final"), ViewportDesc.Width - 150.f, 50.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_X"), ViewportDesc.Width - 150.f, 150.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_Y"), ViewportDesc.Width - 150.f, 250.f, 100.f, 100.f)))
 		return E_FAIL;
 
 #endif
@@ -153,6 +191,13 @@ HRESULT CRenderer::Draw()
 
 	if (FAILED(Render_NonLights()))
 		return E_FAIL;
+
+	if(FAILED(Render_Final()))
+		return E_FAIL;
+	
+	if(FAILED(Render_Blur()))
+		return E_FAIL;
+
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 	if (FAILED(Render_UI()))
@@ -341,9 +386,9 @@ HRESULT CRenderer::Render_Deferred()
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Specular"), "g_SpecularTexture")))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Emissive"), "g_EmissiveTexture")))
-		return E_FAIL;
 	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_LightDepth"), "g_LightDepthTexture")))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Emissive"), "g_EmissiveTexture")))
 		return E_FAIL;
 
 	m_pShader->Begin(3);
@@ -365,6 +410,89 @@ HRESULT CRenderer::Render_NonLights()
 		Safe_Release(pGameObject);
 	}
 	m_RenderObjects[RG_NONLIGHT].clear();
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_Final()
+{
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Final"))))
+		return E_FAIL;
+
+	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
+		return E_FAIL;
+	
+	if (FAILED(m_pShader->Bind_SRV("g_BackTexture", m_pGameInstance->Get_BackBuffer_SRV())))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Emissive"), "g_EmissiveTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(5);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_Blur()
+{
+	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Blur_X"))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Final"), "g_FinalTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(6);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Blur_Y"))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Blur_X"), "g_BlurXTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(7);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Back"), "g_BackTexture")))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Blur_Y"), "g_BlurYTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(8);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
 
 	return S_OK;
 }
@@ -471,6 +599,9 @@ HRESULT CRenderer::Render_Debug()
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_GameObjects"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Lights"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_ShadowObj"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Final"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_X"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_Y"), m_pShader, m_pVIBuffer);
 
 	return S_OK;
 }

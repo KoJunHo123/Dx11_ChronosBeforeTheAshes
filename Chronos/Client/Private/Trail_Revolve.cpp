@@ -3,12 +3,12 @@
 #include "GameInstance.h"
 
 CTrail_Revolve::CTrail_Revolve(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-	: CBlendObject(pDevice, pContext)
+	: CGameObject(pDevice, pContext)
 {
 }
 
 CTrail_Revolve::CTrail_Revolve(const CTrail_Revolve& Prototype)
-	: CBlendObject(Prototype)
+	: CGameObject(Prototype)
 {
 }
 
@@ -29,6 +29,16 @@ HRESULT CTrail_Revolve::Initialize(void* pArg)
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+	
+	if (0.f < pDesc->fTime)
+	{
+		for (auto& VIBuffer : m_VIBuffers)
+		{
+			VIBuffer->Set_LifeTime(pDesc->fTime);
+		}
+	}
+	
+
 	Set_Position(XMLoadFloat3(&pDesc->vPos));
 	
 	for (auto& vPos : m_MovePoses)
@@ -92,10 +102,7 @@ void CTrail_Revolve::Update(_float fTimeDelta)
 
 void CTrail_Revolve::Late_Update(_float fTimeDelta)
 {
-	if(FAILED(__super::Compute_ViewZ()))
-		return;
-
-	if(FAILED(m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this)))
+	if(FAILED(m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this)))
 		return;
 }
 

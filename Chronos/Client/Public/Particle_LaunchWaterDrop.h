@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BlendObject.h"
+#include "GameObject.h"
 #include "Client_Defines.h"
 
 BEGIN(Engine)
@@ -11,7 +11,7 @@ END
 
 
 BEGIN(Client)
-class CParticle_LaunchWaterDrop final : public CBlendObject
+class CParticle_LaunchWaterDrop final : public CGameObject
 {
 public:
 	typedef struct : CGameObject::GAMEOBJECT_DESC

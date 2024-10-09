@@ -124,23 +124,25 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 	return S_OK;
 }
 
+#pragma region GRAPHIC_DEVICE
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
 	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
-
-
 }
 
 void CGameInstance::Render_End()
 {
 	/*m_pGraphic_Device->Render_End(hWnd);*/
-
 	m_pGraphic_Device->Present();
-
-
 }
+ID3D11ShaderResourceView* CGameInstance::Get_BackBuffer_SRV() const
+{
+	return m_pGraphic_Device->Get_BackBuffer_SRV();
+}
+#pragma endregion
+
 #pragma region INPUT_DEVICE
 _byte CGameInstance::Get_DIKeyState(_ubyte byKeyID)
 {

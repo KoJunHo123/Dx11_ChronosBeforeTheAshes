@@ -38,6 +38,10 @@ public:
 		m_pItem = nullptr;
 	}
 
+	_vector Get_Position() {
+		return XMLoadFloat4x4(&m_WorldMatrix).r[3];
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);

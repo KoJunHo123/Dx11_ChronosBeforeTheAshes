@@ -146,9 +146,7 @@ _bool CVIBuffer_Trail_Instance::Update_Buffer(_fvector vWorldPos, _float fTimeDe
 		m_TrailPoses.pop_front();
 	
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
-
 	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
-
 	VTXTRAILINSTANCE* pVertices = static_cast<VTXTRAILINSTANCE*>(SubResource.pData);
 
 	auto& iter = m_TrailPoses.begin();
@@ -175,6 +173,20 @@ _bool CVIBuffer_Trail_Instance::Update_Buffer(_fvector vWorldPos, _float fTimeDe
 
 	m_pContext->Unmap(m_pVBInstance, 0);
 	return m_bOver;
+}
+
+void CVIBuffer_Trail_Instance::Set_LifeTime(_float fTime)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+	VTXTRAILINSTANCE* pVertices = static_cast<VTXTRAILINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; ++i)
+	{
+		pVertices[i].vLifeTime.x = fTime;
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
 }
 
 CVIBuffer_Trail_Instance* CVIBuffer_Trail_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)
