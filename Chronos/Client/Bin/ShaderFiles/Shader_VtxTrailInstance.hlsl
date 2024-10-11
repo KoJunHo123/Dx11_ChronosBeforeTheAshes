@@ -128,11 +128,10 @@ PS_OUT PS_MAIN(PS_IN In)
     if (Out.vColor.a < 0.1f)
         discard;
     
-    if(In.vLifeTime.x < In.vLifeTime.y)
+    if (In.vLifeTime.x < In.vLifeTime.y)
         discard;
     
     Out.vColor.rgb = 1.f - (1 - g_vColor.rgb) * (1 - vColor.a * 0.85f);
-    
     
     return Out;
 }

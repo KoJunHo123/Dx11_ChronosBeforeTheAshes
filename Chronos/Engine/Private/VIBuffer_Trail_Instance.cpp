@@ -159,9 +159,8 @@ _bool CVIBuffer_Trail_Instance::Update_Buffer(_fvector vWorldPos, _float fTimeDe
 			pVertices[i].vPrePos = pVertices[i].vCurPos;
 		}
 		else
-		{
-			pVertices[i].vPrePos = *(--iter);
-			++iter;
+		{ 
+			pVertices[i].vPrePos = pVertices[i-1].vCurPos;
 		}
 		++iter;
 

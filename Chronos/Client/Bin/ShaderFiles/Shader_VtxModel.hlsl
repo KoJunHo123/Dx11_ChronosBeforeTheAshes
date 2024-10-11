@@ -8,8 +8,14 @@ texture2D       g_NormalTexture;
 texture2D       g_ComboTexture;
 texture2D       g_EmissiveTexture;
 texture2D		g_NoiseTexture;
+texture2D       g_LightTexture;
+
 float			g_fRatio;
 float4          g_vEmissiveColor;
+
+uint            g_iSkillIndex;
+float2          g_TexDivide;
+int             g_iTexIndex;
 
 struct VS_IN
 {
@@ -111,7 +117,6 @@ PS_OUT PS_MAIN(PS_IN In)
     float3x3 WorldMatrix = float3x3(In.vTangent, In.vBinormal, In.vNormal);
     vNormal = normalize(mul(vNormal, WorldMatrix));
 
-    
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(vNormal * 0.5f + 0.5f, 0.f);
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
@@ -142,8 +147,6 @@ PS_OUT PS_MAIN_NONNORMAL(PS_NONNORMAL_IN In)
     vector vMtrlComb = g_ComboTexture.Sample(LinearSampler, In.vTexcoord);
     vector vMtrlEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
     
-
-    
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal * 0.5f + 0.5f, 0.f);
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
@@ -154,6 +157,52 @@ PS_OUT PS_MAIN_NONNORMAL(PS_NONNORMAL_IN In)
     return Out;
 }
 
+PS_OUT PS_MAIN_SKILL(PS_NONNORMAL_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 start = (float2) 0;
+    float2 over = (float2) 0;
+	
+    start.x = (1 / g_TexDivide.x) * g_iTexIndex;
+    start.y = (1 / g_TexDivide.y) * (int) (g_iTexIndex / g_TexDivide.x);
+	
+    over.x = start.x + (1 / g_TexDivide.x);
+    over.y = start.y + (1 / g_TexDivide.y);
+	
+    float2 vTexcoord = start + (over - start) * In.vTexcoord;
+    
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, vTexcoord);
+    vector vLightTexture = g_LightTexture.Sample(LinearSampler, In.vTexcoord);
+
+    if(0 == g_iSkillIndex)
+    {
+        vMtrlDiffuse.a = vMtrlDiffuse.r;
+        vMtrlDiffuse.rgb *= 2.f;
+        vMtrlDiffuse += vLightTexture;
+
+    }
+    else if (1 == g_iSkillIndex)
+    {
+        vMtrlDiffuse.rgb = 0.f;
+        vMtrlDiffuse.a += vLightTexture.a;
+
+    }
+    
+    vMtrlDiffuse.a *= 3.f;
+    if (0.1f >= vMtrlDiffuse.a)
+        discard;
+    
+    
+    Out.vDiffuse = vMtrlDiffuse;
+    Out.vNormal = vector(In.vNormal * 0.5f + 0.5f, 0.f);
+    Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
+    Out.vCombo = vector(0.f, 0.f, 0.f, 0.f);
+    Out.vPickDepth = vector(In.vProjPos.z / In.vProjPos.w, 0.f, 0.f, 1.f);
+    Out.vEmissive = vector(0.f, 0.f, 0.f, 0.f);;
+    
+    return Out;
+}
 
 PS_OUT PS_MAIN_WEAPON(PS_IN In)
 {
@@ -204,7 +253,7 @@ PS_OUT_LIGHTDEPTH PS_MAIN_LIGHTDEPTH(PS_IN In)
 
 technique11	DefaultTechnique
 {
-	pass Model
+	pass Model  //0
 	{
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -215,7 +264,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN();
     }
 
-    pass Model_Weapon
+    pass Model_Weapon //1
     {
         SetRasterizerState(RS_Cull_None);
         SetDepthStencilState(DSS_Default, 0);
@@ -226,7 +275,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_WEAPON();
     }
 
-    pass LightDepth
+    pass LightDepth //2
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -237,7 +286,7 @@ technique11	DefaultTechnique
         PixelShader = compile ps_5_0 PS_MAIN_LIGHTDEPTH();
     }
 
-    pass Model_NonNormal
+    pass Model_NonNormal // 3
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
@@ -246,6 +295,16 @@ technique11	DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN_NONNORMAL();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_NONNORMAL();
+    }
 
+    pass Skill //4
+    {
+        SetRasterizerState(RS_Cull_None);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_SKILL();
     }
 }

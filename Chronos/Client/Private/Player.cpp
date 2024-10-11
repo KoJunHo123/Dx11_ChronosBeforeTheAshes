@@ -13,6 +13,8 @@
 #include "Player_Weapon.h"
 #include "Player_Shield.h"
 #include "Player_Item.h"
+#include "Player_Skill.h"
+#include "Player_Skill_Particle.h"
 
 #include "Camera_Container.h"
 #include "Camera_Shorder.h"
@@ -223,6 +225,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
         else if (m_fStamina < 0.f)
             m_fStamina = 0.f;
 
+        m_fStamina = 100.f;
 #ifdef _DEBUG
         m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
@@ -498,6 +501,9 @@ HRESULT CPlayer::Ready_Parts()
     if (FAILED(Ready_Item(desc)))
         return E_FAIL;
 
+    if (FAILED(Ready_Skill()))
+        return E_FAIL;
+
     return S_OK;
 }
 
@@ -566,6 +572,7 @@ HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     desc.pStamina = &m_fStamina;
     desc.pSkillGage = &m_fSkillGage;
     desc.fMaxSkillGage = m_fMaxSkillGage;
+    desc.pSkillDuration = &m_fSkillDuration;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
         return E_FAIL;
@@ -616,6 +623,36 @@ HRESULT CPlayer::Ready_Item(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     return S_OK;
 }
 
+HRESULT CPlayer::Ready_Skill()
+{
+    CPlayer_Skill::PLAYER_SKILL_DESC SkillDesc = {};
+
+    SkillDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    SkillDesc.fSpeedPerSec = 1.f;
+    SkillDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    SkillDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
+    SkillDesc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
+    SkillDesc.pCurrentSkill = &m_eCurrentSkill;
+    SkillDesc.pSkilDuration = &m_fSkillDuration;
+
+    if (FAILED(__super::Add_PartObject(PART_SKILL, TEXT("Prototype_GameObject_Player_Skill"), &SkillDesc)))
+        return E_FAIL;
+
+    CPlayer_Skill_Particle::PLAYER_SKILL_DESC ParticleDesc = {};
+    ParticleDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    ParticleDesc.fSpeedPerSec = 1.f;
+    ParticleDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    ParticleDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
+    ParticleDesc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
+    ParticleDesc.pCurrentSkill = &m_eCurrentSkill;
+    ParticleDesc.pSkilDuration = &m_fSkillDuration;
+
+    if (FAILED(__super::Add_PartObject(PART_SKILL_PARTICLE, TEXT("Prototype_GameObject_Player_Skill_Particle"), &ParticleDesc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
 void CPlayer::Anim_Frame_Control()
 {
     if (PLAYER_ACTION_DRAGONHEART == m_ePlayerAnim )
@@ -651,7 +688,7 @@ void CPlayer::Anim_Frame_Control()
                 m_bDrain = true;
                 break;
             }
-            m_fSkillGage = 0.f;
+            m_fSkillGage = 100.f;
             m_fSkillDuration = 10.f;
         }
     }

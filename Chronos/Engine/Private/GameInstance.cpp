@@ -7,7 +7,7 @@
 #include "Picking.h"
 #include "Collision_Manager.h"
 #include "Font_Manager.h"
-#include "Culling.h"
+#include "Frustum.h"
 #include "Target_Manager.h"
 #include "Light_Manager.h"
 
@@ -41,8 +41,8 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pPipeLine)
 		return E_FAIL;
 
-	m_pCulling = CCulling::Create(*ppDevice, *ppContext);
-	if (nullptr == m_pCulling)
+	m_pFrustum = CFrustum::Create();
+	if (nullptr == m_pFrustum)
 		return E_FAIL;
 
 	/* 사운드 카드를 초기화하낟. */
@@ -95,7 +95,7 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 
 	m_pPipeLine->Update();
 
-	m_pCulling->Culling_Update(fTimeDelta);
+	m_pFrustum->Update();
 
 	m_pObject_Manager->Update(fTimeDelta);
 
@@ -370,15 +370,10 @@ HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pTe
 }
 #pragma endregion
 
-#pragma region CULLING
-void CGameInstance::Culling_Update(_float fDeltaTime)
+#pragma region FRUSTUM
+_bool CGameInstance::isIn_Frustum_WorldSpace(_fvector vPosition, _float fRadius)
 {
-	return m_pCulling->Culling_Update(fDeltaTime);
-}
-
-HRESULT CGameInstance::is_Culling(CTransform* pTransform)
-{
-	return m_pCulling->is_Culling(pTransform);
+	return m_pFrustum->isIn_WorldSpace(vPosition, fRadius);
 }
 #pragma endregion
 
@@ -444,7 +439,7 @@ void CGameInstance::Release_Engine()
 {
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
-	Safe_Release(m_pCulling);
+	Safe_Release(m_pFrustum);
 	Safe_Release(m_pFont_Manager);
 	Safe_Release(m_pCollision_Manager);
 	Safe_Release(m_pPicking);

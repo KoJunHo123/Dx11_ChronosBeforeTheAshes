@@ -27,6 +27,7 @@ public:
 		_float* pStamina = { nullptr };
 		_float* pSkillGage = { nullptr };
 		_float fMaxSkillGage = { 0.f };
+		_float* pSkillDuration = { nullptr };
 
 	}PLAYER_WEAPON_DESC;
 private:
@@ -49,7 +50,10 @@ public:
 private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+
 	class CCollider* m_pColliderCom = { nullptr };
+	class CCollider* m_pSkillColliderCom = { nullptr };
+
 	class CTexture* m_pNoiseTextureCom = { nullptr };
 
 
@@ -72,6 +76,7 @@ private:
 	_float* m_pStamina = { nullptr };
 	_float* m_pSkillGage = { nullptr };
 	_float m_fMaxSkillGage = { 0.f };
+	_float* m_pSkillDuration = { nullptr };
 
 private:
 	HRESULT Ready_Components();

@@ -1,0 +1,43 @@
+#pragma once
+
+/* 컨테이너 오브젝트안에 추가될 수 있는 하나의 부품객체들의 부모가 클래스 */
+#include "BlendObject.h"
+
+BEGIN(Engine)
+
+class ENGINE_DLL CBlend_PartObject abstract : public CBlendObject
+{
+public:
+	typedef struct : public CGameObject::GAMEOBJECT_DESC
+	{
+		const _float4x4* pParentWorldMatrix = { nullptr };
+	}PARTOBJ_DESC;
+protected:
+	CBlend_PartObject(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CBlend_PartObject(const CBlend_PartObject& Prototype);
+	virtual ~CBlend_PartObject() = default;
+
+public:
+	virtual HRESULT Initialize_Prototype();
+	virtual HRESULT Initialize(void* pArg);
+	virtual _uint Priority_Update(_float fTimeDelta);
+	virtual void Update(_float fTimeDelta);
+	virtual void Late_Update(_float fTimeDelta);
+	virtual HRESULT Render();
+
+
+protected:
+	/* m_pTransformCom->m_WorldMatrix * 부모의 월드 */
+	const _float4x4* m_pParentMatrix = { nullptr };
+
+	_float4x4				m_WorldMatrix = {};	// 이게 자기 월드 행렬이 될 것.
+
+protected:
+	HRESULT Bind_WorldMatrix(class CShader* pShader, const _char* pContantName);
+
+public:
+	virtual CGameObject* Clone(void* pArg) = 0;
+	virtual void Free() override;
+};
+
+END

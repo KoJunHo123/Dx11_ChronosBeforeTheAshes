@@ -135,10 +135,8 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 HRESULT CVIBuffer_Point_Instance::Initialize(void* pArg)
 {
 #pragma region INSTANCE_BUFFER
-
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
-
 #pragma endregion
 
 	return S_OK;
@@ -261,9 +259,70 @@ void CVIBuffer_Point_Instance::Reset()
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
 		pVertices[i] = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i];
+		m_bFirst = false;
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+void CVIBuffer_Point_Instance::Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _float fTimeDelta)
+{
+
+	_bool bCout = { false };
+
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		if (false == m_bFirst)
+		{
+			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&pVertices[i].vTranslation), WorldMatrix));
+			XMStoreFloat3(&m_vPrePos, WorldMatrix.r[3]);
+		}
+
+		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i];
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
+
+		if (pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			_vector vPrePos = XMLoadFloat3(&m_vPrePos);
+			_vector vDiff = WorldMatrix.r[3] - vPrePos;
+
+			_vector vTranslation = {};
+			_float fX = m_pGameInstance->Get_Random(XMVectorGetX(vPrePos), XMVectorGetX(vPrePos + vDiff));
+			_float fY = m_pGameInstance->Get_Random(XMVectorGetY(vPrePos), XMVectorGetY(vPrePos + vDiff));
+			_float fZ = m_pGameInstance->Get_Random(XMVectorGetZ(vPrePos), XMVectorGetZ(vPrePos + vDiff));
+
+			vTranslation = XMVectorSet(fX, fY, fZ, 1.f);
+			_matrix ChangedMatrix = WorldMatrix;
+			ChangedMatrix.r[3] = vTranslation;
+
+			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation), ChangedMatrix));
+
+			pVertices[i].vLifeTime.y = 0.f;
+
+			//if (false == bCout)
+			//{
+			//	cout << "x : " << fX << "   y : " << fY << "   z : " << fZ << endl;
+			//	bCout = true;
+			//}
+
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+	XMStoreFloat3(&m_vPrePos, WorldMatrix.r[3]);
+
+	if (false == m_bFirst)
+		m_bFirst = true;
 }
 
 CVIBuffer_Point_Instance* CVIBuffer_Point_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)

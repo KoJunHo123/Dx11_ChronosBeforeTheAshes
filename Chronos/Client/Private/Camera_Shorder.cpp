@@ -60,7 +60,7 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 			for (size_t i = 0; i < iMonsterSize; ++i)
 			{
 				pTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), g_strTransformTag, i));
-				if (FAILED(m_pGameInstance->is_Culling(pTransformCom)))
+				if (false == m_pGameInstance->isIn_Frustum_WorldSpace(pTransformCom->Get_State(CTransform::STATE_POSITION)))
 				{
 					pTransformCom = nullptr;
 					continue;

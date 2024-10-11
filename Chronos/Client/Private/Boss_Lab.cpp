@@ -399,7 +399,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	SmokeDesc.fSpeed = 3.f;
 	SmokeDesc.fGravity = 2.f;
 	SmokeDesc.vPivot = { 0.f, -8.f, 0.f };
-	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	SmokeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };
 	SmokeDesc.isLoop = false;
 	if (FAILED(__super::Add_PartObject(PART_TELEPORT_SMOKE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Smoke"), &SmokeDesc)))
 		return E_FAIL;

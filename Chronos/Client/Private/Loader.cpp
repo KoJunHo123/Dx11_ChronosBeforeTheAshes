@@ -44,6 +44,8 @@
 #include "Player_Weapon.h"
 #include "Player_Shield.h"
 #include "Player_Item.h"
+#include "Player_Skill.h"
+#include "Player_Skill_Particle.h"
 
 // 몬스터
 #include "Particle_Monster_Death.h"
@@ -401,6 +403,32 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Trail/T_Beam_Core_Default.png"), 1))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_PlayerSkill_Fire */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_PlayerSkill_Fire"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Sword_Fire_Body_01.png"), 1))))
+		return E_FAIL;
+	
+	/* For. Prototype_Component_Texture_PlayerSkill_Shadow */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_PlayerSkill_Shadow"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Sword_Shadow_Body_01.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_PlayerSkill_SwordLight */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_PlayerSkill_SwordLight"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Sword_Light_01.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_ParticleSkill_Shadow */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleSkill_Shadow"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_Sword_Shadow_Puff_%d.png"), 2))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_ParticleSkill_Fire */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleSkill_Fire"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_Fire_Disperse_%d.png"), 6))))
+		return E_FAIL;
+
+
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
 #pragma region VIBUFFER
@@ -540,6 +568,22 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_VIBuffer_Particle_Skill */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 300;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 2.f);
+	ParticleDesc.vRange = _float3(0.3f, 0.3f, 4.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(0.5f, 1.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Skill"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region TRAIL_INSTANCE
 	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
@@ -562,10 +606,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
 #ifndef _DEBUG
-	PreTransformMatrix = XMMatrixIdentity();
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-		return E_FAIL;
+	//PreTransformMatrix = XMMatrixIdentity();
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+	//	return E_FAIL;
 #endif
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
@@ -701,6 +745,13 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Shield"),
 		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Player/Player_Shield/Player_Shield", PreTransformMatrix))))
 		 return E_FAIL;
+
+	 /* For. Prototype_Component_Model_Player_Skill */
+	 PreTransformMatrix = XMMatrixScaling(2.f, 2.f, 2.f);
+	 if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Skill"),
+		 CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Player/Player_Skill/Player_Skill", PreTransformMatrix))))
+		 return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER
 	 /* For. Prototype_Component_Model_Monster_Boss_Lab*/
@@ -907,6 +958,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CPlayer_Item::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Player_Skill */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Skill"),
+		CPlayer_Skill::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Player_Skill */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Skill_Particle"),
+		CPlayer_Skill_Particle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
 #pragma endregion
 #pragma region MONSTER
 	/* For. Prototype_GameObject_Particle_Monster_Death */

@@ -115,9 +115,8 @@ public:
 	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f, _bool bCenterAligned = false);
 #pragma endregion
 
-#pragma region CULLING
-	void Culling_Update(_float fDeltaTime);
-	HRESULT is_Culling(class CTransform* pTransform);
+#pragma region FRUSTUM
+	_bool isIn_Frustum_WorldSpace(_fvector vPosition, _float fRadius = 0.f);
 #pragma endregion
 
 #pragma region TARGET_MANAGER
@@ -154,7 +153,7 @@ private:
 	class CPicking*					m_pPicking = { nullptr };
 	class CCollision_Manager*		m_pCollision_Manager = { nullptr };
 	class CFont_Manager*			m_pFont_Manager = { nullptr };
-	class CCulling*					m_pCulling = { nullptr };
+	class CFrustum*					m_pFrustum = { nullptr };
 	class CTarget_Manager*			m_pTarget_Manager = { nullptr };
 	class CLight_Manager*			m_pLight_Manager = { nullptr };
 

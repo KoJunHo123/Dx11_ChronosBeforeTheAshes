@@ -46,6 +46,7 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 	m_pStamina = pDesc->pStamina;
 	m_pSkillGage = pDesc->pSkillGage;
 	m_fMaxSkillGage = pDesc->fMaxSkillGage;
+	m_pSkillDuration = pDesc->pSkillDuration;
 
 	m_fDamage = 10.f;
 
@@ -59,7 +60,10 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 		if(true == IsAttackAnim() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
 		{
 			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
-			m_pColliderCom->Set_OnCollision(true);
+			if(*m_pSkillDuration < 0.f)
+				m_pColliderCom->Set_OnCollision(true);
+			else
+				m_pSkillColliderCom->Set_OnCollision(true);
 			if (false == m_bStaminaDown)
 			{
 				*m_pStamina -= 10.f;
@@ -74,6 +78,7 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 			m_bStaminaDown = false;
 			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
 			m_pColliderCom->Set_OnCollision(false);
+			m_pSkillColliderCom->Set_OnCollision(false);
 		}
 	}
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
@@ -114,7 +119,9 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 
 	_matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
 	XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
+	
 	m_pColliderCom->Update(&m_WorldMatrix);
+	m_pSkillColliderCom->Update(&m_WorldMatrix);
 
 	// 만간에 지우자.
 	if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_P))
@@ -126,8 +133,6 @@ void CPlayer_Weapon::Update(_float fTimeDelta)
 		else
 			m_fDamage = 0.f;
 	}
-	
-
 }
 
 void CPlayer_Weapon::Late_Update(_float fTimeDelta)
@@ -136,7 +141,10 @@ void CPlayer_Weapon::Late_Update(_float fTimeDelta)
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
 
 #ifdef _DEBUG
-	m_pGameInstance->Add_DebugObject(m_pColliderCom);
+	if (*m_pSkillDuration < 0.f)
+		m_pGameInstance->Add_DebugObject(m_pColliderCom);
+	else
+		m_pGameInstance->Add_DebugObject(m_pSkillColliderCom);
 #endif
 }
 
@@ -276,6 +284,22 @@ HRESULT CPlayer_Weapon::Ready_Components()
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;
 
+	CBounding_OBB::BOUNDING_OBB_DESC			ColliderSkillOBBDesc{};
+	ColliderSkillOBBDesc.vAngles = _float3(0.f, 0.f, 0.f);
+	ColliderSkillOBBDesc.vExtents = _float3(.5f, .5f, 2.4f);
+	ColliderSkillOBBDesc.vCenter = _float3(0.f, 0.f, 1.6f);
+
+	CCollider::COLLIDER_DESC ColliderSkillDesc = {};
+	ColliderSkillDesc.pOwnerObject = this;
+	ColliderSkillDesc.pBoundingDesc = &ColliderSkillOBBDesc;
+	ColliderSkillDesc.bCollisionOnce = true;
+	ColliderSkillDesc.strColliderTag = TEXT("Coll_Player_Attack");
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
+		TEXT("Com_Collider_Skill"), reinterpret_cast<CComponent**>(&m_pSkillColliderCom), &ColliderSkillDesc)))
+		return E_FAIL;
+	
+
 	return S_OK;
 }
 
@@ -345,4 +369,5 @@ void CPlayer_Weapon::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pColliderCom);
 	Safe_Release(m_pNoiseTextureCom);
+	Safe_Release(m_pSkillColliderCom);
 }

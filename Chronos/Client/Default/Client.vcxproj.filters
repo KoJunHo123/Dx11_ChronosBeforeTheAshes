@@ -328,6 +328,12 @@
     <Filter Include="02.GameObjects\08.Particle\Particle_Teleport">
       <UniqueIdentifier>{131accee-c5a9-42fa-a202-33f8eb74ab7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill">
+      <UniqueIdentifier>{969603c6-0a1c-4820-94b9-214164123b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle">
+      <UniqueIdentifier>{e8712388-994e-4c6e-8dc6-9de176b0ce66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -618,6 +624,12 @@
     <ClInclude Include="..\public\Particle_Teleport.h">
       <Filter>02.GameObjects\08.Particle\Particle_Teleport</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Player_Skill.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Skill_Particle.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -895,6 +907,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Particle_Teleport.cpp">
       <Filter>02.GameObjects\08.Particle\Particle_Teleport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Skill.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Skill_Particle.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

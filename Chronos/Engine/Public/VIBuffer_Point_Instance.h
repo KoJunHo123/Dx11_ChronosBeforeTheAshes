@@ -3,7 +3,6 @@
 #include "VIBuffer_Instancing.h"
 
 BEGIN(Engine)
-
 class ENGINE_DLL CVIBuffer_Point_Instance final : public CVIBuffer_Instancing
 {
 private:
@@ -20,11 +19,16 @@ public:
 	virtual _bool Move_Dir(_fvector vDir, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeDelta) override;
 	virtual _bool Converge(_fvector vPivot, _float fSpeed, _bool isLoop, _float fTimeDelta) override;
 	virtual void Reset() override;
+
+	void Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _float fTimeDelta);
+
+private:
+	_bool m_bFirst = { false };
+	_float3 m_vPrePos = {};
+
 public:
 	static CVIBuffer_Point_Instance* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc);
 	virtual CComponent* Clone(void* pArg) override;
 	virtual void Free() override;
 };
-
-
 END

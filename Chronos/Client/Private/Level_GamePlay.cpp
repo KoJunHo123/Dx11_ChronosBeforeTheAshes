@@ -98,7 +98,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
-	LightDesc.vDirection = _float4(-1.f, -5.f, -1.f, 0.f);
+	LightDesc.vDirection = _float4(-1.f, -1.f, -1.f, 0.f);
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
 	LightDesc.vAmbient = _float4(0.4f, 0.4f, 0.4f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
@@ -123,8 +123,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 		return E_FAIL;
 
 #ifndef _DEBUG
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
-		return E_FAIL;
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
+	//	return E_FAIL;
 #endif
 	return S_OK;
 }

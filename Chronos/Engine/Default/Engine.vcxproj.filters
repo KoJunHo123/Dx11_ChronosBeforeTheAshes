@@ -163,9 +163,6 @@
     <Filter Include="01.Utility\03.Components\Navigation\Cell">
       <UniqueIdentifier>{d35d8a31-62db-4800-b3dd-25db34df8585}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Utility\08.Culling">
-      <UniqueIdentifier>{d5342110-6850-4e5e-b453-9ced9bf89db4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Utility\04.Renderer">
       <UniqueIdentifier>{718a3997-f34f-41c2-ba36-80a9e1481f1b}</UniqueIdentifier>
     </Filter>
@@ -201,6 +198,12 @@
     </Filter>
     <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint">
       <UniqueIdentifier>{feb1a126-cb61-4d4c-94b8-dd65a4190b47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\08.Frustum">
+      <UniqueIdentifier>{d5342110-6850-4e5e-b453-9ced9bf89db4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\02.GameObjects\04.ContainerObject\CPartObject\Blend_PartObject">
+      <UniqueIdentifier>{03c6a191-7eb2-446f-9c3c-3976de9a2053}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -354,9 +357,6 @@
     <ClCompile Include="..\private\Font_Manager.cpp">
       <Filter>01.Utility\07.Font\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Culling.cpp">
-      <Filter>01.Utility\08.Culling</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\VIBuffer_Instancing.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
     </ClCompile>
@@ -386,6 +386,12 @@
     </ClCompile>
     <ClCompile Include="..\Private\VIBuffer_Trail_TwoPoint_Instance.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Frustum.cpp">
+      <Filter>01.Utility\08.Frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Blend_PartObject.cpp">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject\CPartObject\Blend_PartObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -551,9 +557,6 @@
     <ClInclude Include="..\public\Font_Manager.h">
       <Filter>01.Utility\07.Font\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Culling.h">
-      <Filter>01.Utility\08.Culling</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\VIBuffer_Instancing.h">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
     </ClInclude>
@@ -583,6 +586,12 @@
     </ClInclude>
     <ClInclude Include="..\Public\VIBuffer_Trail_TwoPoint_Instance.h">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Trail\TwoPoint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Frustum.h">
+      <Filter>01.Utility\08.Frustum</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Blend_PartObject.h">
+      <Filter>01.Utility\02.GameObjects\04.ContainerObject\CPartObject\Blend_PartObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
