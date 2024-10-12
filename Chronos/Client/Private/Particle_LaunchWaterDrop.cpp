@@ -50,7 +50,8 @@ void CParticle_LaunchWaterDrop::Update(_float fTimeDelta)
 
 void CParticle_LaunchWaterDrop::Late_Update(_float fTimeDelta)
 {
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+    m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
+    //m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 
 HRESULT CParticle_LaunchWaterDrop::Render()

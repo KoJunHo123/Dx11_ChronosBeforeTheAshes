@@ -56,7 +56,7 @@ void CParticle_AttackLight::Late_Update(_float fTimeDelta)
 {	
     __super::Compute_ViewZ();
 
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+    m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_AttackLight::Render()

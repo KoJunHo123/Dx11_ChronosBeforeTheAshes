@@ -46,6 +46,7 @@
 #include "Player_Item.h"
 #include "Player_Skill.h"
 #include "Player_Skill_Particle.h"
+#include "Player_UseSkill_Particle.h"
 
 // 몬스터
 #include "Particle_Monster_Death.h"
@@ -459,8 +460,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);	// 이게 첫 생성 범위
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.2f, 0.4f);
-	ParticleDesc.vSpeed = _float2(8.f, 12.f);
+	ParticleDesc.vSize = _float2(0.25f, 0.5f);
+	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	ParticleDesc.vLifeTime = _float2(0.2f, 0.4f);
 	ParticleDesc.vMinColor = _float4(1.f, 0.647f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 0.4f, 1.f);
@@ -529,8 +530,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vSize = _float2(0.2f, 0.4f);
 	ParticleDesc.vSpeed = _float2(15.f, 20.f);
 	ParticleDesc.vLifeTime = _float2(2.f, 4.f);
-	ParticleDesc.vMinColor = _float4(0.416f, 0.353f, 0.804f, 0.f);
-	ParticleDesc.vMaxColor = _float4(0.482f, 0.408f, 9.933f, 1.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.098f, 0.439f, 0.f);
+	ParticleDesc.vMaxColor = _float4(0.098f, 0.392f, 1.0f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Launch_WaterDrop"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
@@ -561,8 +562,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vSize = _float2(0.2f, 0.4f);
 	ParticleDesc.vSpeed = _float2(1.f, 8.f);
 	ParticleDesc.vLifeTime = _float2(3.f, 5.f);
-	ParticleDesc.vMinColor = _float4(0.0f, 0.392f, 1.0f, 1.f);
-	ParticleDesc.vMaxColor = _float4(0.0f, 0.749f, 1.0f, 1.f);
+	//ParticleDesc.vMinColor = _float4(0.0f, 0.392f, 1.0f, 1.f);
+	//ParticleDesc.vMaxColor = _float4(0.0f, 0.749f, 1.0f, 1.f);
+	ParticleDesc.vMinColor = _float4(0.416f, 0.353f, 0.804f, 0.f);
+	ParticleDesc.vMaxColor = _float4(0.482f, 0.408f, 9.933f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Teleport"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
@@ -574,9 +577,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 2.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 4.f);
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(0.2f, 0.4f);
-	ParticleDesc.vSpeed = _float2(0.5f, 1.f);
-	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vSize = _float2(1.f, 2.f);
+	ParticleDesc.vSpeed = _float2(2.f, 4.f);
+	//ParticleDesc.vSpeed = _float2(5.f, 10.f);
+	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
 	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
 
@@ -584,6 +588,21 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 25;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(1.f, 2.f);
+	ParticleDesc.vSpeed = _float2(1.f, 2.f);
+	//ParticleDesc.vSpeed = _float2(5.f, 10.f);
+	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_UseSkill"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
 #pragma endregion
 #pragma region TRAIL_INSTANCE
 	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
@@ -606,10 +625,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	_matrix		PreTransformMatrix = XMMatrixIdentity();
 	/* For. Prototype_Component_Model_Labyrinth*/
 #ifndef _DEBUG
-	//PreTransformMatrix = XMMatrixIdentity();
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
-	//	return E_FAIL;
+	PreTransformMatrix = XMMatrixIdentity();
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+		return E_FAIL;
 #endif
 
 	/* For. Prototype_Component_Model_FloorChunk_A */
@@ -968,6 +987,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CPlayer_Skill_Particle::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
+	/* For. Prototype_GameObject_Player_Skill */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_UseSkill_Particle"),
+		CPlayer_UseSkill_Particle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 #pragma endregion
 #pragma region MONSTER
 	/* For. Prototype_GameObject_Particle_Monster_Death */

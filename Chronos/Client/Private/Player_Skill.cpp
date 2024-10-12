@@ -50,47 +50,41 @@ _uint CPlayer_Skill::Priority_Update(_float fTimeDelta)
 
 void CPlayer_Skill::Update(_float fTimeDelta)
 {
-	if (0.f < *m_pSkilDuration)
+	_matrix TailSocketMatrix = XMLoadFloat4x4(m_pTailSocketMatrix);
+	_matrix SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
+
+	_float3 vScale = _float3(XMVectorGetX(XMVector3Length(SocketMatrix.r[0])),
+		XMVectorGetX(XMVector3Length(SocketMatrix.r[1])),
+		XMVectorGetX(XMVector3Length(SocketMatrix.r[2])));
+
+	_vector vPosition = SocketMatrix.r[3];
+
+	_vector		vLook = TailSocketMatrix.r[3] - vPosition;
+	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
+	_vector		vUp = XMVector3Cross(vLook, vRight);
+
+	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[0][0], XMVector3Normalize(vRight) * vScale.x);
+	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[1][0], XMVector3Normalize(vUp) * vScale.y);
+	XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[2][0], XMVector3Normalize(vLook) * vScale.z);
+
+	SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
+
+	// ??
+	for (size_t i = 0; i < 3; i++)
 	{
-		_matrix TailSocketMatrix = XMLoadFloat4x4(m_pTailSocketMatrix);
-		_matrix SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
-
-		_float3 vScale = _float3(XMVectorGetX(XMVector3Length(SocketMatrix.r[0])),
-			XMVectorGetX(XMVector3Length(SocketMatrix.r[1])),
-			XMVectorGetX(XMVector3Length(SocketMatrix.r[2])));
-
-		_vector vPosition = SocketMatrix.r[3];
-
-		_vector		vLook = TailSocketMatrix.r[3] - vPosition;
-		_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
-		_vector		vUp = XMVector3Cross(vLook, vRight);
-
-		XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[0][0], XMVector3Normalize(vRight) * vScale.x);
-		XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[1][0], XMVector3Normalize(vUp) * vScale.y);
-		XMStoreFloat3((_float3*)&(*m_pSocketMatrix).m[2][0], XMVector3Normalize(vLook) * vScale.z);
-
-		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
-
-		// ??
-		for (size_t i = 0; i < 3; i++)
-		{
-			SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
-		}
-
-		// 내 위치 * 붙여야 할 뼈의 위치 * 플레이어 위치 -> 플레이어의 위치에서 붙여야 할 뼈의 위치.
-		// -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
-		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
-
-		_matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
-		XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
-
-		m_fTexIndex += fTimeDelta * 30.f;
-		if (m_fTexIndex > m_vDivide.x * m_vDivide.y - 1.f)
-			m_fTexIndex = 0.f;
+		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
 	}
-	else
-		m_fTexIndex = 0.f;
 
+	// 내 위치 * 붙여야 할 뼈의 위치 * 플레이어 위치 -> 플레이어의 위치에서 붙여야 할 뼈의 위치.
+	// -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
+	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+
+	_matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
+	XMStoreFloat3(&m_vTailPos, TailWorldMatrix.r[3]);
+
+	m_fTexIndex += fTimeDelta * 30.f;
+	if (m_fTexIndex > m_vDivide.x * m_vDivide.y - 1.f)
+		m_fTexIndex = 0.f;
 }
 
 void CPlayer_Skill::Late_Update(_float fTimeDelta)

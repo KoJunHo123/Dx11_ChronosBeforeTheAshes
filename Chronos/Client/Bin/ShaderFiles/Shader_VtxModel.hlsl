@@ -178,7 +178,7 @@ PS_OUT PS_MAIN_SKILL(PS_NONNORMAL_IN In)
     if(0 == g_iSkillIndex)
     {
         vMtrlDiffuse.a = vMtrlDiffuse.r;
-        vMtrlDiffuse.rgb *= 2.f;
+        vMtrlDiffuse.rgb *= 3.f;
         vMtrlDiffuse += vLightTexture;
 
     }

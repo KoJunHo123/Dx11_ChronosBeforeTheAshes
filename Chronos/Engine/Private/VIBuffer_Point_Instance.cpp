@@ -259,46 +259,53 @@ void CVIBuffer_Point_Instance::Reset()
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
 		pVertices[i] = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i];
-		m_bFirst = false;
 	}
-
+	m_bFirst = false;
 	m_pContext->Unmap(m_pVBInstance, 0);
 }
 
-void CVIBuffer_Point_Instance::Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _float fTimeDelta)
+_bool CVIBuffer_Point_Instance::Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _bool isLoop, _float fTimeDelta)
 {
+	if (false == m_bFirst)
+	{
+		XMStoreFloat4x4(&m_PreMatrix, WorldMatrix);
+	}
+	_matrix PreMatrix = XMLoadFloat4x4(&m_PreMatrix);
 
-	_bool bCout = { false };
+	_vector vCurrentCenter = XMVector3TransformCoord(XMLoadFloat3(&m_vCenterPos), WorldMatrix);
+	_vector vPreCenter = XMVector3TransformCoord(XMLoadFloat3(&m_vCenterPos), XMLoadFloat4x4(&m_PreMatrix));
+	_vector vDiff = vCurrentCenter - vPreCenter;
+
+	_float fSpeed = XMVectorGetX(XMVector3Length(vDiff)) * 5.f;
+	if (fSpeed < 1.f)
+		fSpeed = 1.f;
 
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
 
 	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
 
 	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+	_bool bOver = { true };
 
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
 		if (false == m_bFirst)
 		{
 			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&pVertices[i].vTranslation), WorldMatrix));
-			XMStoreFloat3(&m_vPrePos, WorldMatrix.r[3]);
 		}
 
 		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i];
-		pVertices[i].vLifeTime.y += fTimeDelta;
+		pVertices[i].vLifeTime.y += fTimeDelta * fSpeed;
 
 		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
 		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
 
-		if (pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		if (true == isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
 		{
-			_vector vPrePos = XMLoadFloat3(&m_vPrePos);
-			_vector vDiff = WorldMatrix.r[3] - vPrePos;
-
 			_vector vTranslation = {};
-			_float fX = m_pGameInstance->Get_Random(XMVectorGetX(vPrePos), XMVectorGetX(vPrePos + vDiff));
-			_float fY = m_pGameInstance->Get_Random(XMVectorGetY(vPrePos), XMVectorGetY(vPrePos + vDiff));
-			_float fZ = m_pGameInstance->Get_Random(XMVectorGetZ(vPrePos), XMVectorGetZ(vPrePos + vDiff));
+			_float fX = m_pGameInstance->Get_Random(XMVectorGetX(PreMatrix.r[3]), XMVectorGetX(PreMatrix.r[3] + vDiff));
+			_float fY = m_pGameInstance->Get_Random(XMVectorGetY(PreMatrix.r[3]), XMVectorGetY(PreMatrix.r[3] + vDiff));
+			_float fZ = m_pGameInstance->Get_Random(XMVectorGetZ(PreMatrix.r[3]), XMVectorGetZ(PreMatrix.r[3] + vDiff));
 
 			vTranslation = XMVectorSet(fX, fY, fZ, 1.f);
 			_matrix ChangedMatrix = WorldMatrix;
@@ -307,22 +314,91 @@ void CVIBuffer_Point_Instance::Trail_Points(_fmatrix WorldMatrix, _fvector vDir,
 			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation), ChangedMatrix));
 
 			pVertices[i].vLifeTime.y = 0.f;
-
-			//if (false == bCout)
-			//{
-			//	cout << "x : " << fX << "   y : " << fY << "   z : " << fZ << endl;
-			//	bCout = true;
-			//}
-
 		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			bOver = false;
+
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
 
-	XMStoreFloat3(&m_vPrePos, WorldMatrix.r[3]);
+	XMStoreFloat4x4(&m_PreMatrix, WorldMatrix);
 
 	if (false == m_bFirst)
 		m_bFirst = true;
+
+	return bOver;
+}
+
+_bool CVIBuffer_Point_Instance::Trail_Spread(_fmatrix WorldMatrix, _fvector vPivot, _float fGravity, _bool isLoop, _float fTimeDelta)
+{
+	if (false == m_bFirst)
+	{
+		XMStoreFloat4x4(&m_PreMatrix, WorldMatrix);
+	}
+
+	_matrix PreMatrix = XMLoadFloat4x4(&m_PreMatrix);
+	
+	_vector vCurrentCenter = XMVector3TransformCoord(XMLoadFloat3(&m_vCenterPos), WorldMatrix);
+	_vector vPreCenter = XMVector3TransformCoord(XMLoadFloat3(&m_vCenterPos), XMLoadFloat4x4(&m_PreMatrix));
+	_vector vDiff = vCurrentCenter - vPreCenter;
+
+	_float fSpeed = XMVectorGetX(XMVector3Length(vDiff)) * 5.f;
+	if (fSpeed < 1.f)
+		fSpeed = 1.f;
+
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	_bool bOver = { true };
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		if (false == m_bFirst)
+		{
+			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&pVertices[i].vTranslation), WorldMatrix));
+		}
+
+		_vector vWorldPivot = XMVector3TransformCoord(vPivot, WorldMatrix);
+		_vector vDir = XMLoadFloat4(&pVertices[i].vTranslation) - vWorldPivot;
+
+		_vector vMoveDir = XMVector3Normalize(vDir) * m_pSpeed[i];
+		vMoveDir = XMVectorSetY(vMoveDir, XMVectorGetY(vMoveDir) - fGravity * pVertices[i].vLifeTime.y);
+		pVertices[i].vLifeTime.y += fTimeDelta * fSpeed;
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vDir));
+
+		if (true == isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			_vector vTranslation = {};
+			_float fX = m_pGameInstance->Get_Random(XMVectorGetX(PreMatrix.r[3]), XMVectorGetX(PreMatrix.r[3] + vDiff));
+			_float fY = m_pGameInstance->Get_Random(XMVectorGetY(PreMatrix.r[3]), XMVectorGetY(PreMatrix.r[3] + vDiff));
+			_float fZ = m_pGameInstance->Get_Random(XMVectorGetZ(PreMatrix.r[3]), XMVectorGetZ(PreMatrix.r[3] + vDiff));
+
+			vTranslation = XMVectorSet(fX, fY, fZ, 1.f);
+			_matrix ChangedMatrix = WorldMatrix;
+			ChangedMatrix.r[3] = vTranslation;
+
+
+			XMStoreFloat4(&pVertices[i].vTranslation, XMVector3TransformCoord(XMLoadFloat4(&static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation), ChangedMatrix));
+
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			bOver = false;
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+	XMStoreFloat4x4(&m_PreMatrix, WorldMatrix);
+
+	if (false == m_bFirst)
+		m_bFirst = true;
+
+	return bOver;
 }
 
 CVIBuffer_Point_Instance* CVIBuffer_Point_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)

@@ -76,34 +76,57 @@ void CPlayer_Skill_Particle::Update(_float fTimeDelta)
         // -> 셰이더에서 해주던 뼈 * 월드를 여기서 하는 거.
         XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
-        _matrix TailWorldMatrix = XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * TailSocketMatrix * XMLoadFloat4x4(m_pParentMatrix);
-
-        _vector vPos = TailWorldMatrix.r[3] + (TailWorldMatrix.r[3] - XMLoadFloat4x4(&m_WorldMatrix).r[3]);
-
         if (CPlayer::SKILL_RED == *m_pCurrentSkill)
         {
             m_vDivide = _float2(5.f, 5.f);
-            m_pVIBufferCom->Trail_Points(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
+            m_pVIBufferCom->Trail_Spread(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 0.f, 0.f, 0.f), -1.f, true, fTimeDelta);
         }
         else
         {
             m_vDivide = _float2(7.f, 7.f);
-            m_pVIBufferCom->Trail_Points(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 0.f, 0.f, 0.f), fTimeDelta);
+            m_pVIBufferCom->Trail_Points(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 0.f, 0.f, 0.f), true, fTimeDelta);
         }
         m_bReset = false;
     }
-    else if (false == m_bReset)
+    else
     {
-        m_pVIBufferCom->Reset();
-        m_bReset = true;
+        if (false == m_bReset)
+        {
+            if (CPlayer::SKILL_RED == *m_pCurrentSkill)
+            {
+                m_vDivide = _float2(5.f, 5.f);
+                if (true == m_pVIBufferCom->Trail_Spread(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 0.f, 0.f, 0.f), -1.f, false, fTimeDelta))
+                {
+                    m_pVIBufferCom->Reset();
+                    m_bReset = true;
+                }
+            }
+            else
+            {
+                m_vDivide = _float2(7.f, 7.f);
+                if(true == m_pVIBufferCom->Trail_Points(XMLoadFloat4x4(&m_WorldMatrix), XMVectorSet(0.f, 0.f, 0.f, 0.f), false, fTimeDelta))
+                {
+                    m_pVIBufferCom->Reset();
+                    m_bReset = true;
+                }
+            }
+        }
     }
 }
 
 void CPlayer_Skill_Particle::Late_Update(_float fTimeDelta)
 {
-    if (0.f < *m_pSkilDuration)
+    if (false == m_bReset)
     {
-        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+        if (CPlayer::SKILL_RED == *m_pCurrentSkill)
+        {
+            m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
+        }
+        else
+        {
+            m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+        }
+
     }
 }
 

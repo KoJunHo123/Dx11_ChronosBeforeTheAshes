@@ -60,7 +60,7 @@ _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 		if(true == IsAttackAnim() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
 		{
 			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
-			if(*m_pSkillDuration < 0.f)
+			if(*m_pSkillDuration <= 0.f)
 				m_pColliderCom->Set_OnCollision(true);
 			else
 				m_pSkillColliderCom->Set_OnCollision(true);
@@ -141,7 +141,7 @@ void CPlayer_Weapon::Late_Update(_float fTimeDelta)
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
 
 #ifdef _DEBUG
-	if (*m_pSkillDuration < 0.f)
+	if (*m_pSkillDuration <= 0.f)
 		m_pGameInstance->Add_DebugObject(m_pColliderCom);
 	else
 		m_pGameInstance->Add_DebugObject(m_pSkillColliderCom);

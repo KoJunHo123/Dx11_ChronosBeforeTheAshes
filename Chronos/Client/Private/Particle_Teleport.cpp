@@ -47,7 +47,7 @@ void CParticle_Teleport::Update(_float fTimeDelta)
 
 void CParticle_Teleport::Late_Update(_float fTimeDelta)
 {
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_Teleport::Render()

@@ -15,6 +15,7 @@
 #include "Player_Item.h"
 #include "Player_Skill.h"
 #include "Player_Skill_Particle.h"
+#include "Player_UseSkill_Particle.h"
 
 #include "Camera_Container.h"
 #include "Camera_Shorder.h"
@@ -650,6 +651,17 @@ HRESULT CPlayer::Ready_Skill()
     if (FAILED(__super::Add_PartObject(PART_SKILL_PARTICLE, TEXT("Prototype_GameObject_Player_Skill_Particle"), &ParticleDesc)))
         return E_FAIL;
 
+    CPlayer_UseSkill_Particle::PLAYER_USESKILL_DESC UseSkillDesc = {};
+    UseSkillDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    UseSkillDesc.fSpeedPerSec = 1.f;
+    UseSkillDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    UseSkillDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Hand_L");
+    UseSkillDesc.pCurrentSkill = &m_eCurrentSkill;
+    UseSkillDesc.pSkilDuration = &m_fSkillDuration;
+
+    if (FAILED(__super::Add_PartObject(PART_USESKILL_PARTICLE, TEXT("Prototype_GameObject_Player_UseSkill_Particle"), &UseSkillDesc)))
+        return E_FAIL;
+
     return S_OK;
 }
 
@@ -681,16 +693,19 @@ void CPlayer::Anim_Frame_Control()
             switch (m_eCurrentSkill)
             {
             case SKILL_RED:
-                m_fSpeed *= 1.2f;
+                m_fSpeed *= 1.5f;
                 break;
 
             case SKILL_PUPPLE:
                 m_bDrain = true;
                 break;
             }
+            //m_fSkillGage = 0.f;
             m_fSkillGage = 100.f;
             m_fSkillDuration = 10.f;
+            static_cast<CPlayer_UseSkill_Particle*>(m_Parts[PART_USESKILL_PARTICLE])->Set_On(true);
         }
+
     }
     else if (PLAYER_ACTION_RUNEKEYHOLE == m_ePlayerAnim)
     {

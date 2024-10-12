@@ -36,8 +36,7 @@ HRESULT CLevel_Loading::Initialize(_uint iLevelIndex, LEVELID eNextLevelID)
 
 void CLevel_Loading::Update(_float fTimeDelta)
 {
-	if ((GetKeyState(VK_SPACE) & 0x8000) &&
-		true == m_pLoader->isFinished())
+	if (true == m_pLoader->isFinished())
 	{
 		m_bLevelOver = true;
 	}	
@@ -58,7 +57,6 @@ void CLevel_Loading::Update(_float fTimeDelta)
 			m_bLevelStart = false;
 		}
 	}
-
 }
 
 HRESULT CLevel_Loading::Render()

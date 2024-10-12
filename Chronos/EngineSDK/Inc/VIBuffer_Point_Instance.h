@@ -20,11 +20,12 @@ public:
 	virtual _bool Converge(_fvector vPivot, _float fSpeed, _bool isLoop, _float fTimeDelta) override;
 	virtual void Reset() override;
 
-	void Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _float fTimeDelta);
+	_bool Trail_Points(_fmatrix WorldMatrix, _fvector vDir, _bool isLoop, _float fTimeDelta);
+	_bool Trail_Spread(_fmatrix WorldMatrix, _fvector vPivot, _float fGravity, _bool isLoop, _float fTimeDelta);
 
 private:
 	_bool m_bFirst = { false };
-	_float3 m_vPrePos = {};
+	_float4x4 m_PreMatrix = {};
 
 public:
 	static CVIBuffer_Point_Instance* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc);
