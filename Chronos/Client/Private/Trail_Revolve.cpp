@@ -102,7 +102,7 @@ void CTrail_Revolve::Update(_float fTimeDelta)
 
 void CTrail_Revolve::Late_Update(_float fTimeDelta)
 {
-	if(FAILED(m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this)))
+	if(FAILED(m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this)))
 		return;
 }
 

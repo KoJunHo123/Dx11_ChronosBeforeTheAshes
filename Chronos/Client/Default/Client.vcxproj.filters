@@ -334,6 +334,9 @@
     <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle">
       <UniqueIdentifier>{e8712388-994e-4c6e-8dc6-9de176b0ce66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle">
+      <UniqueIdentifier>{b5855d9e-0de0-4e67-88e9-516ba8ad101a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -630,6 +633,9 @@
     <ClInclude Include="..\public\Player_Skill_Particle.h">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Player_UseSkill_Particle.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -913,6 +919,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Player_Skill_Particle.cpp">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_UseSkill_Particle.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

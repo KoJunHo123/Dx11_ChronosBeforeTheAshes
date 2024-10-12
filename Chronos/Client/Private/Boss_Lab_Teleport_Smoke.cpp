@@ -69,7 +69,9 @@ void CBoss_Lab_Teleport_Smoke::Update(_float fTimeDelta)
 void CBoss_Lab_Teleport_Smoke::Late_Update(_float fTimeDelta)
 {
     if(true == m_bOn)
+    {
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+    }
 }
 
 HRESULT CBoss_Lab_Teleport_Smoke::Render()

@@ -24,6 +24,7 @@ texture2D g_ComboTexture;
 texture2D g_EmissiveTexture;
 texture2D g_LightDepthTexture;
 texture2D g_BackTexture;
+texture2D g_BloomTexture;
 texture2D g_FinalTexture;
 texture2D g_BlurXTexture;
 texture2D g_BlurYTexture;
@@ -195,7 +196,7 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
 
     vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
     vector vSpecular = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
-    vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+    //vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
 
     Out.vColor = vDiffuse * vShade + vSpecular;
 
@@ -232,12 +233,11 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
 
     float fOldLightDepth = g_LightDepthTexture.Sample(LinearSampler, vTexcoord).r * 1000.f;
 
-    if (fLightDepth - 0.1f > fOldLightDepth)
+    if (fLightDepth - 0.1f > fOldLightDepth && vTexcoord.x <= 1 && vTexcoord.x >= 0 && vTexcoord.y <= 1 && vTexcoord.y >= 0)
         Out.vColor = vector(Out.vColor.rgb * 0.6f, Out.vColor.a);
-
-    Out.vColor += vEmissive;
+    //Out.vColor += vEmissive;
     
-    return Out;
+    return Out; 
 }
 
 PS_OUT PS_MAIN_FADE(PS_IN In)
@@ -261,16 +261,17 @@ PS_OUT_FINAL PS_MAIN_FINAL(PS_IN In)
 {
     PS_OUT_FINAL Out = (PS_OUT_FINAL) 0;
 
-    Out.vFinal = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+    Out.vFinal = g_BloomTexture.Sample(LinearSampler, In.vTexcoord);
     Out.vBack = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
     vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
         
-    float brightness = dot(Out.vFinal.rgb, float3(0.299, 0.587, 0.114)); // ¹à±â °è»ê
+    //float brightness = dot(Out.vFinal.rgb, float3(0.299, 0.587, 0.114)); // ¹à±â °è»ê
     
-    if (brightness < 0.8f)
-        Out.vFinal.rgb = float3(0.f, 0.f, 0.f);
+    //if (brightness < 0.8f)
+    //    Out.vFinal.rgb = float3(0.f, 0.f, 0.f);
     
     Out.vFinal += vEmissive;
+    Out.vBack += Out.vFinal;
     
     return Out;
 }
@@ -285,14 +286,11 @@ PS_OUT PS_MAIN_BLUR_X(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 
-    vector vFinalColor = g_FinalTexture.Sample(LinearSampler, In.vTexcoord);
-    
     float2 vBlurUV = (float2) 0.f;
     for (int i = -6; i < 7; i++)
     {
         vBlurUV = In.vTexcoord + float2(1.f / 1280.f * i, 0.f);
         Out.vColor += g_fWeights[i + 6] * g_FinalTexture.Sample(LinearSampler, vBlurUV);
-		
     }
     Out.vColor /= 6.21f;
     
@@ -303,17 +301,12 @@ PS_OUT PS_MAIN_BLUR_Y(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 
-    vector vBlurXColor = g_BlurXTexture.Sample(LinearSampler, In.vTexcoord);
-
     float2 vBlurUV = (float2) 0.f;
-
     for (int i = -6; i < 7; i++)
     {
         vBlurUV = In.vTexcoord + float2(0.f, 1.f / 720.f * i);
         Out.vColor += g_fWeights[i + 6] * g_BlurXTexture.Sample(LinearSampler, vBlurUV);
-
     }
-
     Out.vColor /= 6.21f;
 
     return Out;
@@ -324,10 +317,14 @@ PS_OUT PS_MAIN_BLUR_FINAL(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
 
     vector vBlur = g_BlurYTexture.Sample(LinearSampler, In.vTexcoord);
-    vector vFinal = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vBack = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
 
-    Out.vColor = vBlur + vFinal;
+    Out.vColor = vBlur + vBack;
 
+    // È­¸é Èæ¹é ÀüÈ¯
+    //float fGray = Out.vColor.r * 0.299f + Out.vColor.g * 0.587f + Out.vColor.b * 0.114f;
+    //Out.vColor.rgb = float3(fGray, fGray, fGray);
+    
     return Out;
 }
 

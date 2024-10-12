@@ -49,7 +49,7 @@ void CParticle_DragonHeart::Update(_float fTimeDelta)
 void CParticle_DragonHeart::Late_Update(_float fTimeDelta)
 {
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_DragonHeart::Render()

@@ -177,6 +177,7 @@
     <ClInclude Include="..\public\Particle_Teleport.h" />
     <ClInclude Include="..\public\Player_Skill.h" />
     <ClInclude Include="..\public\Player_Skill_Particle.h" />
+    <ClInclude Include="..\public\Player_UseSkill_Particle.h" />
     <ClInclude Include="..\public\RuneKey.h" />
     <ClInclude Include="..\public\Boss_Lab.h" />
     <ClInclude Include="..\public\Boss_Lab_Attack.h" />
@@ -277,6 +278,7 @@
     <ClCompile Include="..\private\Particle_Teleport.cpp" />
     <ClCompile Include="..\private\Player_Skill.cpp" />
     <ClCompile Include="..\private\Player_Skill_Particle.cpp" />
+    <ClCompile Include="..\private\Player_UseSkill_Particle.cpp" />
     <ClCompile Include="..\private\RuneKey.cpp" />
     <ClCompile Include="..\private\Boss_Lab.cpp" />
     <ClCompile Include="..\private\Boss_Lab_Attack.cpp" />

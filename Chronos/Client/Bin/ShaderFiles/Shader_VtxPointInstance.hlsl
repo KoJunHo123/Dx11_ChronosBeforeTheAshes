@@ -247,16 +247,18 @@ void GS_SWORDPARTICLE_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> Conta
 {
     GS_OUT Out[4];
 
-    float fTime = (In[0].vLifeTime.y / In[0].vLifeTime.x);
+    float fTime = 1 - (In[0].vLifeTime.y / In[0].vLifeTime.x);
 	// ºôº¸µå¿ë.
     float3 vLook = (g_vCamPosition - In[0].vPosition).xyz;
     
-    float3 vRight = normalize(cross(float3(0.f, 1.f, 0.f), vLook)) * In[0].vPSize.x 
-    * (fTime * 3.f + 1.f);
+    float3 vRight = normalize(cross(float3(0.f, 1.f, 0.f), vLook));
     
-    float3 vUp = normalize(cross(vLook, vRight)) * In[0].vPSize.y 
-    * (fTime * 3.f + 1.f);
-
+    
+    float3 vUp = normalize(cross(vLook, vRight));
+    
+    vRight *= In[0].vPSize.x * (fTime);
+    vUp *= In[0].vPSize.y * (fTime);
+    
     Out[0].vPosition = float4(In[0].vPosition.xyz + vRight + vUp, 1.f);
     Out[0].vTexcoord = float2(0.f, 0.f);
     Out[0].vLifeTime = In[0].vLifeTime;
@@ -446,16 +448,18 @@ PS_OUT PS_SWORDPARTICLE_MAIN(PS_IN In)
     if (0 == g_iSkillIndex)
     {
         Out.vColor.a = Out.vColor.r;
-        Out.vColor.rgb *= 1.5f;
-        Out.vColor.a *= 1.f - (In.vLifeTime.y / In.vLifeTime.x);
+        //Out.vColor.rgb *= 1.5f;
     }
     else if (1 == g_iSkillIndex)
     {
         Out.vColor.rgb = 0.f;
         Out.vColor.a *= 3.f;
     }
+    Out.vColor.a *= 1.f - (In.vLifeTime.y / In.vLifeTime.x);
+    //Out.vColor.rgb *= Out.vColor.a;
+    //Out.vColor.rgb = 0.1f;
     
-    if (Out.vColor.a <= 0.3f)
+    if (Out.vColor.a <= 0.1f)
         discard;
     
     
