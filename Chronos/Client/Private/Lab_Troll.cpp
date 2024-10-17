@@ -4,8 +4,9 @@
 
 #include "Lab_Troll_Body.h"
 #include "Lab_Troll_Weapon.h"
+
 #include "Particle_Monster_Death.h"
-#include "Particle_Spawn.h"
+#include "Particle_Monster_Appear.h"
 
 CLab_Troll::CLab_Troll(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -24,6 +25,8 @@ HRESULT CLab_Troll::Initialize_Prototype()
 
 HRESULT CLab_Troll::Initialize(void* pArg)
 {
+    m_eMonsterType = MONSTER_TROLL;
+
     if (FAILED(__super::Initialize(pArg)))
         return E_FAIL;
 
@@ -41,6 +44,9 @@ HRESULT CLab_Troll::Initialize(void* pArg)
 
     m_fOffset = 4.f;
 
+    m_fRatio = 1.f;
+    m_bStart = true;
+
     return S_OK;
 }
 
@@ -49,6 +55,15 @@ _uint CLab_Troll::Priority_Update(_float fTimeDelta)
     if (true == m_bDead)
         return OBJ_DEAD;
 
+    if (true == m_bStart)
+    {
+        m_fRatio -= fTimeDelta * 0.5f;
+        if (m_fRatio < 0.f)
+        {
+            m_fRatio = 0.f;
+            m_bStart = false;
+        }
+    }
 
     for (auto& Part : m_Parts)
     {
@@ -81,7 +96,11 @@ void CLab_Troll::Update(_float fTimeDelta)
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
-            bLook = m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
+        {
+            _vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+            vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
+            bLook = m_pTransformCom->LookAt(vPlayerPos, 0.1f);
+        }
 
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState || STATE_SPRINT == m_iState)
         {
@@ -266,6 +285,22 @@ HRESULT CLab_Troll::Ready_PartObjects()
     DeathDesc.vLifeTime = _float2(1.f, 2.f);;
 
     if (FAILED(__super::Add_PartObject(PART_EFFECT_DEATH, TEXT("Prototype_GameObject_Particle_Monster_Death"), &DeathDesc)))
+        return E_FAIL;
+
+    CParticle_Monster_Appear::PARTICLE_APPEAR_DESC AppearDesc = {};
+    AppearDesc.fRotationPerSec = 0.f;
+    AppearDesc.fSpeedPerSec = 0.f;
+    AppearDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AppearDesc.pSocketMatrix = static_cast<CLab_Troll_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LT_Spine1");
+    AppearDesc.iNumInstance = 300;
+    AppearDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
+    AppearDesc.vRange = _float3(6.f, 6.f, 6.f);
+    AppearDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+    AppearDesc.vSize = _float2(0.15f, 0.3f);
+    AppearDesc.vSpeed = _float2(2.f, 4.f);
+    AppearDesc.vLifeTime = _float2(1.f, 2.f);;
+
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_APPEAR, TEXT("Prototype_GameObject_Particle_Monster_Appear"), &AppearDesc)))
         return E_FAIL;
 
     return S_OK;

@@ -138,8 +138,25 @@ public:
 	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
 	const LIGHT_DESC* Get_LightDesc(_uint iIndex) const;
 	HRESULT Render_Lights(class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
+	void Set_LightPos(_uint iIndex, _fvector vPos);
+	void Set_LightDiffuse(_uint iIndex, _fvector vColor);
+	void Set_LightRange(_uint iIndex, _float fRange);
 #pragma endregion
 
+#pragma region SOUND_MANAGER
+	void SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos = {}, _float3 PlayerPos = {});
+	void PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume);
+	void StopSound(_uint iChannelID);
+	void StopAll();
+	void SetChannelVolume(_uint iChannelID, _float fVolume);
+	void LoadSoundFile();
+	void StopSoundSlowly(_uint iChannelID);
+	_uint Get_SoundPosition(_uint iChannelID);
+	void Set_SoundPosition(_uint iChannelID, _uint iPositionMS);
+	_bool IsSoundPlaying(_uint iChannelID);
+	void Set_SoundFrequency(_uint iChannelID, _float fFrequency);
+	void CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos = {}, _float3 PlayerPos = {});
+#pragma endregion
 
 private:
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
@@ -156,6 +173,7 @@ private:
 	class CFrustum*					m_pFrustum = { nullptr };
 	class CTarget_Manager*			m_pTarget_Manager = { nullptr };
 	class CLight_Manager*			m_pLight_Manager = { nullptr };
+	class CSound_Manager*			m_pSound_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

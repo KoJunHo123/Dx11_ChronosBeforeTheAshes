@@ -27,6 +27,7 @@ public:
 		_bool* pSwordAttackActive = { nullptr };
 		_bool* pShieldAttackActive = { nullptr };
 		_float* pRatio = { nullptr };
+		_uint* pCurrentAnim = { nullptr };
 	}BODY_DESC;
 
 private:
@@ -82,6 +83,7 @@ private:
 	_bool* m_pSwordAttackActive = { nullptr };
 	_bool* m_pShieldAttackActive = { nullptr };
 	_float* m_pRatio = { nullptr };
+	_uint* m_pCurrentAnim = { nullptr };
 
 private:
 	HRESULT Ready_Components();

@@ -13,6 +13,13 @@ CCamera_Shorder::CCamera_Shorder(const CCamera_Shorder & Prototype)
 {
 }
 
+void CCamera_Shorder::Set_InitialState()
+{
+	_vector vCameraPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCameraPos + XMVectorSet(0.f, 10.f, -10.f, 0.f));
+	m_pTransformCom->LookAt(vCameraPos);
+}
+
 HRESULT CCamera_Shorder::Initialize_Prototype()
 {
 	return S_OK;
@@ -128,16 +135,19 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 
 		vPlayerPos.m128_f32[1] += m_fOffset;
 
-		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
+		if(XMVectorGetY(vPlayerPos) > -5.f)
 		{
-			m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
-		}
-		if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
-		{
-			m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
-		}
+			if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_X))
+			{
+				m_pTransformCom->Orbit(XMVectorSet(0.f, 1.f, 0.f, 0.f), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
+			}
+			if (MouseMove = m_pGameInstance->Get_DIMouseMove(DIMM_Y))
+			{
+				m_pTransformCom->Orbit(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * MouseMove * m_fSensor);
+			}
 
-		 m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * m_fDistance);
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * m_fDistance);
+		}
 
 		 m_pTransformCom->LookAt(vPlayerPos);
 	}

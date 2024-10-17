@@ -29,6 +29,8 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 
 	m_vTargetPos = pDesc->vTargetPos;
 	m_iCellIndex = pDesc->iCellIndex;
+	m_eInSound = pDesc->eInSound;
+	m_eOutSound = pDesc->eOutSound;
 
 	_float3 vRandomPos = { m_pGameInstance->Get_Random(-4.f, 4.f), m_pGameInstance->Get_Random(-4.f, 0.f), m_pGameInstance->Get_Random(-4.f, 4.f) };
 
@@ -39,6 +41,11 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 	XMStoreFloat3(&m_vStartPos, vPos);
 
 	m_pTransformCom->Set_Scaled(0.1f, 0.1f, 0.1f);
+
+	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag));
+	Safe_AddRef(m_pPlayerTransformCom);
+
+	Play_Sound_FadeIn();
 
     return S_OK;
 }
@@ -56,40 +63,51 @@ void CFloorChunk::Update(_float fTimeDelta)
 {
 	if( false == m_bDisappear)
 	{
-		m_pTransformCom->MoveTo(XMLoadFloat3(&m_vTargetPos), fTimeDelta * 5.f);
+		if (false == m_IsFadeIn)
+		{
+			m_IsFadeIn = m_pTransformCom->MoveTo(XMLoadFloat3(&m_vTargetPos), fTimeDelta * 5.f);
+				
+			_vector vCurrentDir = XMLoadFloat3(&m_vTargetPos) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+			_vector vStartDir = XMLoadFloat3(&m_vTargetPos) - XMLoadFloat3(&m_vStartPos);
 
-		_vector vCurrentDir = XMLoadFloat3(&m_vTargetPos) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-		_vector vStartDir = XMLoadFloat3(&m_vTargetPos) - XMLoadFloat3(&m_vStartPos);
+			_float fCurrentLen = XMVectorGetX(XMVector3Length(vCurrentDir));
+			_float fStartLen = XMVectorGetX(XMVector3Length(vStartDir));
 
-		_float fCurrentLen = XMVectorGetX(XMVector3Length(vCurrentDir));
-		_float fStartLen = XMVectorGetX(XMVector3Length(vStartDir));
+			_float fRatio = { 0.f };
 
-		_float fRatio = { 0.f };
+			if (false == m_bDisappear)
+				fRatio = 1 - (fCurrentLen / fStartLen);
 
-		if (false == m_bDisappear)
-			fRatio = 1 - (fCurrentLen / fStartLen);
-
-		m_pTransformCom->Set_Scaled(fRatio, fRatio, fRatio);
+			m_pTransformCom->Set_Scaled(fRatio, fRatio, fRatio);
+		}
 	}
 	else
 	{
-		m_pTransformCom->MoveTo(XMLoadFloat3(&m_vStartPos), fTimeDelta * 5.f);
+		if(false == m_bFadeOutSound)
+		{
+			Play_Sound_FadeOut();
+			m_bFadeOutSound = true;
+		}
 
-		_vector vCurrentDir = XMLoadFloat3(&m_vStartPos) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-		_vector vStartDir = XMLoadFloat3(&m_vTargetPos) - XMLoadFloat3(&m_vStartPos);
 
-		_float fCurrentLen = XMVectorGetX(XMVector3Length(vCurrentDir));
-		_float fStartLen = XMVectorGetX(XMVector3Length(vStartDir));
+		if (false == m_IsFadeOut)
+		{
+			m_IsFadeOut = m_pTransformCom->MoveTo(XMLoadFloat3(&m_vStartPos), fTimeDelta * 5.f);
+			_vector vCurrentDir = XMLoadFloat3(&m_vStartPos) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+			_vector vStartDir = XMLoadFloat3(&m_vTargetPos) - XMLoadFloat3(&m_vStartPos);
 
-		_float fRatio = { 0.f };
+			_float fCurrentLen = XMVectorGetX(XMVector3Length(vCurrentDir));
+			_float fStartLen = XMVectorGetX(XMVector3Length(vStartDir));
 
-		fRatio = (fCurrentLen / fStartLen);
+			_float fRatio = { 0.f };
 
-		m_pTransformCom->Set_Scaled(fRatio, fRatio, fRatio);
+			fRatio = (fCurrentLen / fStartLen);
+
+			m_pTransformCom->Set_Scaled(fRatio, fRatio, fRatio);
+		}
+		else
+			m_bDead = true;
 	}
-
-	if (true == m_bDisappear && m_pTransformCom->Get_Scaled().x < 0.1f)
-		m_bDead = true;
 }
 
 void CFloorChunk::Late_Update(_float fTimeDelta)
@@ -150,6 +168,100 @@ HRESULT CFloorChunk::Ready_Components(const _wstring strModelTag)
 	return S_OK;
 }
 
+void CFloorChunk::Play_Sound_FadeIn()
+{
+	_float3 vMyPos{}, vPlayerPos{};
+
+	XMStoreFloat3(&vMyPos, Get_Position());
+	XMStoreFloat3(&vPlayerPos, m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
+
+	switch (m_eInSound)
+	{
+	case SOUND_FLOOR_FADEIN_1:
+		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
+			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_1.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEIN_2:
+		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
+			m_pGameInstance->Set_SoundPosition(m_eInSound, 537);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_2.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEIN_3:
+		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
+			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_3.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEIN_4:
+		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
+			m_pGameInstance->Set_SoundPosition(m_eInSound, 520);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_4.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEIN_5:
+		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
+			m_pGameInstance->Set_SoundPosition(m_eInSound, 523);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_5.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+	}
+
+}
+
+void CFloorChunk::Play_Sound_FadeOut()
+{
+	_float3 vMyPos{}, vPlayerPos{};
+
+	XMStoreFloat3(&vMyPos, Get_Position());
+	XMStoreFloat3(&vPlayerPos, m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
+
+	switch (m_eOutSound)
+	{
+	case SOUND_FLOOR_FADEOUT_1:
+		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
+			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_1.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEOUT_2:
+		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
+			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_2.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEOUT_3:
+		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
+			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_3.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEOUT_4:
+		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
+			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_4.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+		break;
+
+	case SOUND_FLOOR_FADEOUT_5:
+		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
+			m_pGameInstance->Set_SoundPosition(m_eOutSound, 134);
+		else
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_5.ogg"), m_eOutSound, 0.25f, vMyPos, vPlayerPos);
+		break;
+	}
+
+}
+
 CFloorChunk* CFloorChunk::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
 	CFloorChunk* pInstance = new CFloorChunk(pDevice, pContext);
@@ -183,4 +295,5 @@ void CFloorChunk::Free()
 
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
+	Safe_Release(m_pPlayerTransformCom);
 }

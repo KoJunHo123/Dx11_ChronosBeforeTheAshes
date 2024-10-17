@@ -55,6 +55,8 @@ void CPlayer_Body::Update(_float fTimeDelta)
 	Play_Animation(fTimeDelta * (*m_pSpeed / m_fStartSpeed));
 	*m_pFrameIndex = Get_FrameIndex();
 
+	StepSound();
+	m_ePreAnim = *m_pPlayerAnim;
 }
 
 void CPlayer_Body::Late_Update(_float fTimeDelta)
@@ -190,6 +192,106 @@ _vector CPlayer_Body::Get_Rotation(_matrix WorldMatrix, _vector vExist)
 	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(vRotationQuat);
 	// 회전 행렬을 벡터 v에 적용
 	return -1 * XMVector3TransformNormal(vExist, rotationMatrix);
+}
+
+void CPlayer_Body::StepSound()
+{
+	_uint iFrame[4] = {};
+
+	switch (*m_pPlayerAnim)
+	{
+	case PLAYER_MOVE_JOG_F:
+	case PLAYER_MOVE_JOG_B:
+	case PLAYER_MOVE_JOG_L:
+	case PLAYER_MOVE_JOG_R:
+		iFrame[0] = 10;
+		iFrame[1] = 22;
+		iFrame[2] = 34;
+		iFrame[3] = 46;
+		break;
+	case PLAYER_MOVE_WALK_F :
+	case PLAYER_MOVE_WALK_B :
+	case PLAYER_MOVE_WALK_L :
+	case PLAYER_MOVE_WALK_R :
+	case PLAYER_BLOCK_WALK_F :
+	case PLAYER_BLOCK_WALK_B :
+	case PLAYER_BLOCK_WALK_L :
+	case PLAYER_BLOCK_WALK_R :
+		iFrame[0] = 11;
+		iFrame[1] = 28;
+		iFrame[2] = 45;
+		iFrame[3] = 62;
+		break;
+	case PLAYER_MOVE_DODGE_F:
+		iFrame[0] = 1;
+		iFrame[1] = 13;
+		iFrame[2] = 24;
+		iFrame[3] = 30;
+		break;
+
+	case PLAYER_MOVE_DODGE_B:
+		iFrame[0] = 4;
+		iFrame[1] = 12;
+		iFrame[2] = 19;
+		iFrame[3] = 28;
+		break;
+
+	case PLAYER_MOVE_DODGE_L:
+		iFrame[0] = 2;
+		iFrame[1] = 10;
+		iFrame[2] = 21;
+		iFrame[3] = 27;
+		break;
+
+	case PLAYER_MOVE_DODGE_R:
+		iFrame[0] = 3;
+		iFrame[1] = 17;
+		iFrame[2] = 22;
+		iFrame[3] = 30;
+		break;
+	}
+
+	if (0 == iFrame[0] && 0 == iFrame[1] && 0 == iFrame[2] && 0 == iFrame[3])
+	{
+		m_bLeftStep = false;
+		m_bRightStep = false;
+		return;
+	}
+
+	if(m_ePreAnim !=*m_pPlayerAnim)
+	{
+		m_bLeftStep = false;
+		m_bRightStep = false;
+	}
+
+	if (false == m_bLeftStep && iFrame[0] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[1])
+	{
+		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_bLeftStep = true;
+		m_bRightStep = false;
+	}
+	else if (false == m_bRightStep && iFrame[1] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[2])
+	{
+		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_bLeftStep = false;
+		m_bRightStep = true;
+	}
+	else if (false == m_bLeftStep && iFrame[2] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[3])
+	{
+		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_bLeftStep = true;
+		m_bRightStep = false;
+	}
+	else if (false == m_bRightStep && iFrame[3] <= *m_pFrameIndex)
+	{
+		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_bLeftStep = false;
+		m_bRightStep = true;
+	}
 }
 
 _uint CPlayer_Body::Get_FrameIndex()

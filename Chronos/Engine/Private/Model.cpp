@@ -111,6 +111,9 @@ HRESULT CModel::Render(_uint iMeshIndex)
 
 _uint CModel::Get_KeyFrameIndex()
 {
+	if (true == m_isChange)
+		return 0;
+
 	return m_Animations[m_iCurrentAnimIndex]->Get_CurrentKeyFrameIndex();
 }
 

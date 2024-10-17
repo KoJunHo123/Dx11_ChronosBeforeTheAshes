@@ -136,7 +136,7 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_DIRECTIONAL(PS_IN In)
 
     vector vLook = vPosition - g_vCamPosition;
 
-    Out.vSpecular = (g_vLightSpecular * vCombo.g) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f);
+    Out.vSpecular = (g_vLightSpecular * vCombo.g) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 25.f);
     
     return Out;
 }

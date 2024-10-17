@@ -102,15 +102,62 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 		pInstanceVertices[i].vUp = _float4(0.f, 1.f, 0.f, 0.f);
 		pInstanceVertices[i].vLook = _float4(0.f, 0.f, 1.f, 0.f);
 
+		_float fX_Small{}, fX_Big{}, fY_Small{}, fY_Big{}, fZ_Small{}, fZ_Big{};
+
 		_float fX{}, fY{}, fZ{};
 
 		while (true)
 		{
-			fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
-			fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
-			fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
-			if (abs(fX) > (m_vCenterPos.x + m_vExceptRange.x) * 0.5f || abs(fY) > (m_vCenterPos.y + m_vExceptRange.y) * 0.5f || abs(fZ) > (m_vCenterPos.z + m_vExceptRange.z) * 0.5f)
-				break;
+			_float fRandomNum = m_pGameInstance->Get_Random_Normal();
+			if (fRandomNum < 0.333f)
+			{
+				if (m_vRange.x == m_vExceptRange.x)
+					continue;
+
+				fX_Small = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x - m_vExceptRange.x * 0.5f);
+				fX_Big = m_pGameInstance->Get_Random(m_vCenterPos.x + m_vExceptRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fX = fX_Small;
+				else
+					fX = fX_Big;
+				fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+				fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+			}
+			else if (0.333f <= fRandomNum && fRandomNum < 0.666f)
+			{
+				if (m_vRange.y == m_vExceptRange.y)
+					continue;
+
+				fY_Small = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y - m_vExceptRange.y * 0.5f);
+				fY_Big = m_pGameInstance->Get_Random(m_vCenterPos.y + m_vExceptRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fY = fY_Small;
+				else
+					fY = fY_Big;
+
+				fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+				fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+			}
+			else
+			{
+				if (m_vRange.z == m_vExceptRange.z)
+					continue;
+
+				fZ_Small = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z - m_vExceptRange.z * 0.5f);
+				fZ_Big = m_pGameInstance->Get_Random(m_vCenterPos.z + m_vExceptRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fZ = fZ_Small;
+				else
+					fZ = fZ_Big;
+
+				fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+				fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+			}
+
+			break;
 		}
 
 		pInstanceVertices[i].vTranslation = _float4(fX, fY, fZ, 1.f);
@@ -139,6 +186,11 @@ HRESULT CVIBuffer_Point_Instance::Initialize(void* pArg)
 		return E_FAIL;
 #pragma endregion
 
+	m_CurrentRandomDir.resize(m_iNumInstance);
+	m_NextRandomDir.resize(m_iNumInstance);
+	Set_NextRandomDir();
+
+
 	return S_OK;
 }
 
@@ -151,6 +203,7 @@ _bool CVIBuffer_Point_Instance::Spread(_fvector vPivot, _float fSpeed, _float fG
 	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
 
 	_bool isOver = { true };
+
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
 		_vector		vDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - vPivot, 0.f);
@@ -242,6 +295,89 @@ _bool CVIBuffer_Point_Instance::Converge(_fvector vPivot, _float fSpeed, _bool i
 		{
 			isOver = false;
 		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+
+	return isOver;
+}
+
+_bool CVIBuffer_Point_Instance::Revolve(_fvector vPivot, _float3 vRevolveRadian, _fvector vMoveDir, _float fSpeed, _bool isLoop, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	_bool isOver = { true };
+
+	for (size_t i = 0; i < m_iNumInstance; ++i)
+	{
+		_float fResultSpeed = m_pSpeed[i] * fSpeed * fTimeDelta;
+
+		_vector		vDir = vPivot - XMLoadFloat4(&pVertices[i].vTranslation);
+		_float		fLength = XMVectorGetX(XMVector3Length(vDir));
+		_vector		vRotation = XMQuaternionRotationRollPitchYaw(vRevolveRadian.x * fResultSpeed, vRevolveRadian.y * fResultSpeed, vRevolveRadian.z * fResultSpeed);
+		_matrix		RotationMatrix = XMMatrixRotationQuaternion(vRotation);
+		_vector		vRotate = XMVector3TransformNormal(vDir, RotationMatrix);
+		
+		_vector vAdditionalMove = vMoveDir * fResultSpeed;
+		_vector vResultDir = vDir - vRotate + vAdditionalMove;
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vResultDir);
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vResultDir));
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+		if (true == isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i] = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i];
+		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			isOver = false;
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+	
+	return isOver;
+}
+
+_bool CVIBuffer_Point_Instance::Spread_Random(_fvector vPivot, _float fSpeed, _float fGravity, _bool isLoop, _float fTimeInterval, _float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	_bool isOver = { true };
+
+	m_fTime += fTimeDelta;
+
+	if (m_fTime > fTimeInterval)
+	{
+		m_fTime = 0.f;
+		Set_NextRandomDir();
+	}
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector	vDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - vPivot, 0.f);
+		_vector vNormDir = XMVector3Normalize(XMVector3Normalize(vDir) + XMVectorLerp(XMLoadFloat3(&m_CurrentRandomDir[i]), XMLoadFloat3(&m_NextRandomDir[i]), m_fTime * (1.f / fTimeInterval)));
+		_vector vMoveDir = vNormDir * m_pSpeed[i] * fSpeed;
+		vMoveDir = XMVectorSetY(vMoveDir, XMVectorGetY(vMoveDir) - fGravity * pVertices[i].vLifeTime.y);
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		XMStoreFloat4(&pVertices[i].vTranslation, XMLoadFloat4(&pVertices[i].vTranslation) + vMoveDir * fTimeDelta);
+
+		XMStoreFloat4(&pVertices[i].vLook, XMVector3Normalize(vMoveDir));
+
+		if (true == isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i] = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i];
+		}
+		else if (pVertices[i].vLifeTime.y < pVertices[i].vLifeTime.x)
+			isOver = false;
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
@@ -399,6 +535,21 @@ _bool CVIBuffer_Point_Instance::Trail_Spread(_fmatrix WorldMatrix, _fvector vPiv
 		m_bFirst = true;
 
 	return bOver;
+}
+
+
+void CVIBuffer_Point_Instance::Set_NextRandomDir()
+{
+	for (size_t i = 0; i < m_iNumInstance; ++i)
+	{
+		m_CurrentRandomDir[i] = m_NextRandomDir[i];
+
+		m_NextRandomDir[i].x = m_pGameInstance->Get_Random(-1.f, 1.f);
+		m_NextRandomDir[i].y = m_pGameInstance->Get_Random(-1.f, 1.f);
+		m_NextRandomDir[i].z = m_pGameInstance->Get_Random(-1.f, 1.f);
+
+		XMStoreFloat3(&m_NextRandomDir[i], XMVector3Normalize(XMLoadFloat3(&m_NextRandomDir[i])));
+	}
 }
 
 CVIBuffer_Point_Instance* CVIBuffer_Point_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)

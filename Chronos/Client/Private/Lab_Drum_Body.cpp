@@ -145,8 +145,11 @@ void CLab_Drum_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
+    {
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+    }
 }
 
 HRESULT CLab_Drum_Body::Render()

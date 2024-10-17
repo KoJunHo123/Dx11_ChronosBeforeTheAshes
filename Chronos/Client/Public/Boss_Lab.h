@@ -65,6 +65,9 @@ private:
 	_bool m_bLaunchEffect = { false };
 	_bool m_bLaunchOver = { false };
 	_bool m_bEncounter = { false };
+
+	_float m_fNextAttack = { 0.f };
+
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();

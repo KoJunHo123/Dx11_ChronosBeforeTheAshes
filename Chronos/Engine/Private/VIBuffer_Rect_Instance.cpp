@@ -124,17 +124,63 @@ HRESULT CVIBuffer_Rect_Instance::Initialize(void* pArg)
 		pInstanceVertices[i].vRight = _float4(fScale, 0.f, 0.f, 0.f);
 		pInstanceVertices[i].vUp = _float4(0.f, fScale, 0.f, 0.f);
 		pInstanceVertices[i].vLook = _float4(0.f, 0.f, 1.f, 0.f);
+		_float fX_Small{}, fX_Big{}, fY_Small{}, fY_Big{}, fZ_Small{}, fZ_Big{};
+
 		_float fX{}, fY{}, fZ{};
 
-		while (true)
+		while(true)
 		{
-			fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
-			fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
-			fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
-			if (abs(fX) > (m_vCenterPos.x + m_vExceptRange.x) * 0.5f || abs(fY) > (m_vCenterPos.y + m_vExceptRange.y) * 0.5f || abs(fZ) > (m_vCenterPos.z + m_vExceptRange.z) * 0.5f)
-				break;
-		}
+			_float fRandomNum = m_pGameInstance->Get_Random_Normal();
+			if (fRandomNum < 0.333f)
+			{
+				if (m_vRange.x == m_vExceptRange.x)
+					continue;
 
+				fX_Small = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x - m_vExceptRange.x * 0.5f);
+				fX_Big = m_pGameInstance->Get_Random(m_vCenterPos.x + m_vExceptRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fX = fX_Small;
+				else
+					fX = fX_Big;
+				fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+				fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+			}
+			else if (0.333f <= fRandomNum && fRandomNum < 0.666f)
+			{
+				if (m_vRange.y == m_vExceptRange.y)
+					continue;
+
+				fY_Small = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y - m_vExceptRange.y * 0.5f);
+				fY_Big = m_pGameInstance->Get_Random(m_vCenterPos.y + m_vExceptRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fY = fY_Small;
+				else
+					fY = fY_Big;
+
+				fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+				fZ = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+			}
+			else
+			{
+				if (m_vRange.z == m_vExceptRange.z)
+					continue;
+
+				fZ_Small = m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z - m_vExceptRange.z * 0.5f);
+				fZ_Big = m_pGameInstance->Get_Random(m_vCenterPos.z + m_vExceptRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f);
+
+				if (0.5f < m_pGameInstance->Get_Random_Normal())
+					fZ = fZ_Small;
+				else
+					fZ = fZ_Big;
+
+				fX = m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f);
+				fY = m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f);
+			}
+
+			break;
+		}
 
 		pInstanceVertices[i].vTranslation = _float4(fX, fY, fZ, 1.f);
 		pInstanceVertices[i].vLifeTime = _float2(m_pGameInstance->Get_Random(m_vLifeTime.x, m_vLifeTime.y), 0.0f);

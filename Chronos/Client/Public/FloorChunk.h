@@ -17,6 +17,9 @@ public:
 		_wstring	strModelTag;
 		_float3		vTargetPos;
 		_int		iCellIndex;
+		SOUND		eInSound;
+		SOUND		eOutSound;
+
 	} FLOORCHUNK_DESC;
 
 private:
@@ -45,6 +48,7 @@ public:
 private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
+	class CTransform* m_pPlayerTransformCom = { nullptr };
 
 	_float3 m_vTargetPos = {};
 	_float3 m_vStartPos = {};
@@ -53,8 +57,24 @@ private:
 
 	_bool m_bDisappear = { false };
 
+	_bool m_bAppearMove = { false };
+	_bool m_bDisappearMove = { false };
+
+	_bool m_IsFadeIn = { false };
+	_bool m_IsFadeOut = { false };
+
+	_float m_fTime = { 0.f };
+	SOUND m_eInSound = { SOUND_END };
+	SOUND m_eOutSound = { SOUND_END };
+
+	_bool m_bFadeOutSound = { false };
+
 private:
 	HRESULT Ready_Components(const _wstring strModelTag);
+
+	void Play_Sound_FadeIn();
+	void Play_Sound_FadeOut();
+
 
 public:
 	static CFloorChunk* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

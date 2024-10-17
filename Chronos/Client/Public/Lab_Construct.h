@@ -10,7 +10,7 @@ BEGIN(Client)
 class CLab_Construct final : public CMonster
 {
 public:
-	enum PARTID { PART_BODY, PART_SWORD, PART_SHIELD, PART_EFFECT_DEATH, PART_END };
+	enum PARTID { PART_BODY, PART_SWORD, PART_SHIELD, PART_EFFECT_DEATH, PART_EFFECT_APPEAR, PART_EFFECT_BLACK, PART_EFFECT_PUPPLE, PART_END };
 	enum STATE { STATE_ATTACK, STATE_IDLE, STATE_IMPACT, STATE_JUMP, STATE_WALK, STATE_DEATH, STATE_END };
 
 private:
@@ -45,11 +45,11 @@ private:
 	_float m_fDistance = { 0.f };
 	_bool m_bSwordAttackActive = { false };
 	_bool m_bShieldAttackActive = { false };
+	_uint m_iCurrentAnim = { 0 };
 
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();
-	HRESULT Add_SpawnParticle(_fvector vPos, _float fOffset);
 
 public:
 	static CLab_Construct* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

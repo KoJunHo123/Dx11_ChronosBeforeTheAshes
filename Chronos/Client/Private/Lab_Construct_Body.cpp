@@ -48,7 +48,7 @@ HRESULT CLab_Construct_Body::Initialize(void* pArg)
     m_pSwordAttackActive = pDesc->pSwordAttackActive;
     m_pShieldAttackActive = pDesc->pShieldAttackActive;
     m_pRatio = pDesc->pRatio;
-
+    m_pCurrentAnim = pDesc->pCurrentAnim;
 
     m_fSpeed = 2.5f;
 
@@ -59,6 +59,8 @@ _uint CLab_Construct_Body::Priority_Update(_float fTimeDelta)
 {
     if (true == m_bDead)
         return OBJ_DEAD;
+
+    *m_pCurrentAnim = m_eConstructAnim;
 
     return OBJ_NOEVENT;
 }
@@ -149,8 +151,11 @@ void CLab_Construct_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
+    {
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+    }
 }
 
 HRESULT CLab_Construct_Body::Render()

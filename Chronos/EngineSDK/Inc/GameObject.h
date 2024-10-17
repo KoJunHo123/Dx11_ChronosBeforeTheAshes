@@ -25,9 +25,11 @@ public:
 		return m_bDead;
 	}
 
-	void Set_Dead() {
-		m_bDead = true;
+	void Set_Dead(_bool bDead = true) {
+		m_bDead = bDead;
 	}
+
+	_vector Get_State(_uint iState);
 
 public:
 	virtual HRESULT Initialize_Prototype();

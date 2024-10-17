@@ -208,6 +208,9 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 
 void CPlayer_Move::Dodge()
 {
+	m_pGameInstance->StopSound(SOUND_PLAYER_DODGE);
+	m_pGameInstance->SoundPlay(TEXT("Dodge_Thump_3.ogg"), SOUND_PLAYER_DODGE, 0.5f);
+
 	if (m_pGameInstance->Get_DIKeyState(DIKEYBOARD_A))
 	{
 		if(PLAYER_MOVE_DODGE_L != *m_pPlayerAnim)

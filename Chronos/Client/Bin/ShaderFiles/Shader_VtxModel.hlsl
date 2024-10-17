@@ -180,13 +180,15 @@ PS_OUT PS_MAIN_SKILL(PS_NONNORMAL_IN In)
         vMtrlDiffuse.a = vMtrlDiffuse.r;
         vMtrlDiffuse.rgb *= 3.f;
         vMtrlDiffuse += vLightTexture;
-
+        
+        Out.vDiffuse += vMtrlDiffuse;
     }
     else if (1 == g_iSkillIndex)
     {
         vMtrlDiffuse.rgb = 0.f;
         vMtrlDiffuse.a += vLightTexture.a;
-
+        
+        Out.vDiffuse = vMtrlDiffuse;
     }
     
     vMtrlDiffuse.a *= 3.f;
@@ -194,7 +196,6 @@ PS_OUT PS_MAIN_SKILL(PS_NONNORMAL_IN In)
         discard;
     
     
-    Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal * 0.5f + 0.5f, 0.f);
     Out.vDepth = vector(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     Out.vCombo = vector(0.f, 0.f, 0.f, 0.f);

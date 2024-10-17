@@ -34,10 +34,6 @@ public:
 	void Set_On() {
 		m_bOn = true;
 	}
-	
-	_bool Get_Dead() {
-		return m_bDead;
-	}
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -66,7 +62,6 @@ public:
 	static CParticle_Monster_Death* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
-
 };
 
 END

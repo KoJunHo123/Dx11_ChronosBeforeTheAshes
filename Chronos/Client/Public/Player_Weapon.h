@@ -28,6 +28,7 @@ public:
 		_float* pSkillGage = { nullptr };
 		_float fMaxSkillGage = { 0.f };
 		_float* pSkillDuration = { nullptr };
+		_float fStartSpeed = { 0.f };
 
 	}PLAYER_WEAPON_DESC;
 private:
@@ -65,6 +66,7 @@ private:
 	_float3 m_vTailPos = {};
 	_float3 m_vPrePosition = {};
 	_bool m_bStaminaDown = { false };
+	_bool m_bFirst = { false };
 
 private:
 	_float m_fDamage = { 0.f };
@@ -77,12 +79,14 @@ private:
 	_float* m_pSkillGage = { nullptr };
 	_float m_fMaxSkillGage = { 0.f };
 	_float* m_pSkillDuration = { nullptr };
+	_float m_fStartSpeed = { 0.f };
 
 private:
 	HRESULT Ready_Components();
 	HRESULT Add_AttackParticle(_fvector vPos, _fvector vPivot);
 
 	_bool IsAttackAnim();
+	void PlaySound();
 
 public:
 	static CPlayer_Weapon* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

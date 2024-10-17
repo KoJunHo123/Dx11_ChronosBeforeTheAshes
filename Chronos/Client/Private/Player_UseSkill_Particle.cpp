@@ -91,22 +91,6 @@ HRESULT CPlayer_UseSkill_Particle::Render()
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 
-	if (CPlayer::SKILL_RED == *m_pCurrentSkill)
-	{
-		if (FAILED(m_pFireTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 3)))
-			return E_FAIL;
-
-		if (FAILED(m_pFireTextureCom->Bind_ShadeResource(m_pShaderCom, "g_SubTexture", 5)))
-			return E_FAIL;
-	}
-	else
-	{
-		if (FAILED(m_pShadowTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
-			return E_FAIL;
-
-		if (FAILED(m_pShadowTextureCom->Bind_ShadeResource(m_pShaderCom, "g_SubTexture", 1)))
-			return E_FAIL;
-	}
 
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
 		return E_FAIL;
@@ -117,8 +101,29 @@ HRESULT CPlayer_UseSkill_Particle::Render()
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_iSkillIndex", m_pCurrentSkill, sizeof(_uint))))
 		return E_FAIL;
 
-	if (FAILED(m_pShaderCom->Begin(6)))
-		return E_FAIL;
+	if (CPlayer::SKILL_RED == *m_pCurrentSkill)
+	{
+		if (FAILED(m_pFireTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 3)))
+			return E_FAIL;
+
+		if (FAILED(m_pFireTextureCom->Bind_ShadeResource(m_pShaderCom, "g_SubTexture", 5)))
+			return E_FAIL;
+
+		if (FAILED(m_pShaderCom->Begin(6)))
+			return E_FAIL;
+	}
+	else
+	{
+		if (FAILED(m_pShadowTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
+			return E_FAIL;
+
+		if (FAILED(m_pShadowTextureCom->Bind_ShadeResource(m_pShaderCom, "g_SubTexture", 1)))
+			return E_FAIL;
+
+		if (FAILED(m_pShaderCom->Begin(11)))
+			return E_FAIL;
+	}
+
 
 	if (FAILED(m_pVIBufferCom->Bind_Buffers()))
 		return E_FAIL;

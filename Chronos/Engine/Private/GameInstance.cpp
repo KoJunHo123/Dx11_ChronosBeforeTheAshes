@@ -10,6 +10,7 @@
 #include "Frustum.h"
 #include "Target_Manager.h"
 #include "Light_Manager.h"
+#include "Sound_Manager.h"
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -46,6 +47,9 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 		return E_FAIL;
 
 	/* 사운드 카드를 초기화하낟. */
+	m_pSound_Manager = CSound_Manager::Create(EngineDesc.iMaxSoundChannel);
+	if (nullptr == m_pSound_Manager)
+		return E_FAIL;
 
 	/* 입력장치를 초기화하낟. */
 	m_pInput_Device = CInput_Device::Create(hInst, EngineDesc.hWnd);
@@ -88,6 +92,7 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 
 void CGameInstance::Update_Engine(_float fTimeDelta)
 {
+	m_pSound_Manager->Update(fTimeDelta);
 	/* 현재 키보드와 마우스의 상태를 받아올꺼야. */
 	m_pInput_Device->Update();
 
@@ -433,10 +438,76 @@ HRESULT CGameInstance::Render_Lights(CShader* pShader, CVIBuffer_Rect* pVIBuffer
 {
 	return m_pLight_Manager->Render(pShader, pVIBuffer);
 }
+void CGameInstance::Set_LightPos(_uint iIndex, _fvector vPos)
+{
+	return m_pLight_Manager->Set_Pos(iIndex, vPos);
+}
+void CGameInstance::Set_LightDiffuse(_uint iIndex, _fvector vColor)
+{
+	return m_pLight_Manager->Set_Diffuse(iIndex, vColor);
+}
+void CGameInstance::Set_LightRange(_uint iIndex, _float fRange)
+{
+	return m_pLight_Manager->Set_Range(iIndex, fRange);
+}
+#pragma endregion
+
+#pragma region SOUND_MANAGER
+void CGameInstance::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos, _float3 PlayerPos)
+{
+	m_pSound_Manager->SoundPlay(pSoundKey, iChannelID, fVolume, SoundPos, PlayerPos);
+}
+void CGameInstance::PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume)
+{
+	m_pSound_Manager->PlayBGM(pSoundKey, iBGMChannel, fVolume);
+}
+void CGameInstance::StopSound(_uint iChannelID)
+{
+	m_pSound_Manager->StopSound(iChannelID);
+}
+void CGameInstance::StopAll()
+{
+	m_pSound_Manager->StopAll();
+}
+void CGameInstance::SetChannelVolume(_uint iChannelID, _float fVolume)
+{
+	m_pSound_Manager->SetChannelVolume(iChannelID, fVolume);
+}
+void CGameInstance::LoadSoundFile()
+{
+	m_pSound_Manager->LoadSoundFile();
+}
+void CGameInstance::StopSoundSlowly(_uint iChannelID)
+{
+	m_pSound_Manager->StopSoundSlowly(iChannelID);
+}
+_uint CGameInstance::Get_SoundPosition(_uint iChannelID)
+{
+	return m_pSound_Manager->Get_Position(iChannelID);
+}
+void CGameInstance::Set_SoundPosition(_uint iChannelID, _uint iPositionMS)
+{
+	m_pSound_Manager->Set_Position(iChannelID, iPositionMS);
+}
+_bool CGameInstance::IsSoundPlaying(_uint iChannelID)
+{
+	return m_pSound_Manager->IsPlaying(iChannelID);
+}
+void CGameInstance::Set_SoundFrequency(_uint iChannelID, _float fFrequency)
+{
+	m_pSound_Manager->Set_Frequency(iChannelID, fFrequency);
+}
+
+void CGameInstance::CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos, _float3 PlayerPos)
+{
+	m_pSound_Manager->CrossFade(iSrcChannelID, iDstChannelID, fMixSpeed, pDstSoundKey, SoundPos, PlayerPos);
+}
+
 #pragma endregion
 
 void CGameInstance::Release_Engine()
 {
+	Safe_Release(m_pSound_Manager);
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pFrustum);

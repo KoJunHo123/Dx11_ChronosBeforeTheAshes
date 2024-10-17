@@ -37,6 +37,10 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 
 	_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 	m_fSpeed += fTimeDelta;
+
+	if (m_fSpeed > 3.f)
+		m_fSpeed = 3.f;
+
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetY(vPos, XMVectorGetY(vPos) - m_fSpeed));
 
 	for (auto& pPartObject : m_Parts)
@@ -50,7 +54,6 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 	if (XMVectorGetY(vPos) < -20.f)
 	{
 		*m_pHP = 0;
-		m_fSpeed = 0.f;
 	}
 }
 
@@ -69,7 +72,7 @@ HRESULT CPlayer_Jump::Render()
 HRESULT CPlayer_Jump::ExitState(void** pArg)
 {
 	__super::ExitState(pArg);
-
+	m_fSpeed = 0.f;
 	return S_OK;
 }
 

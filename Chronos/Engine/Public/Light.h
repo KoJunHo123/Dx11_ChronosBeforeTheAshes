@@ -15,6 +15,10 @@ public:
 		return &m_LightDesc;
 	}
 
+	void Set_Pos(_fvector vPos);
+	void Set_Range(_float fRange);
+	void Set_Diffuse(_fvector vColor);
+
 public:
 	HRESULT Initialize(const LIGHT_DESC& LightDesc);
 	HRESULT Render(class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);

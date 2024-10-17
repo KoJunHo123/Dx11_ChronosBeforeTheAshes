@@ -48,6 +48,10 @@ public:
 		return false;
 	}
 
+	MONSTER_TYPE Get_MonsterType() {
+		return m_eMonsterType;
+	}
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -85,6 +89,10 @@ protected:
 	_float m_fDamagedDelay = { 0.f };
 
 	class CUIObject* m_pHPBar = { nullptr };
+
+	_bool m_bStart = { false };
+
+	MONSTER_TYPE m_eMonsterType = { MONSTER_END };
 
 protected:
 	HRESULT Add_MonsterHPBar();

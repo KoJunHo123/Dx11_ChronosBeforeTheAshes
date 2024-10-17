@@ -9,6 +9,7 @@
 #include "Particle_Monster_Death.h"
 #include "Boss_Lab_Teleport_Smoke.h"
 #include "Boss_Lab_Teleport_Stone.h"
+#include "Boss_Lab_Charge_Smoke.h"
 
 #include "Effect_Flare.h"
 
@@ -36,6 +37,8 @@ HRESULT CBoss_Lab::Initialize_Prototype()
 
 HRESULT CBoss_Lab::Initialize(void* pArg)
 {
+	m_eMonsterType = MONSTER_BOSS;
+
 	m_iState = STATE_APPEAR;
 
 	m_fMaxHP = 500.f;
@@ -101,6 +104,11 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	else if (true == Contain_State(STATE_CHARGE))
 	{
 		m_pTransformCom->LookAt(vPlayerPos, 0.02f);
+		if (BOSS_LAB_ATK_CHARGE_OUT == dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_CurrentAnim())
+		{
+			static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(false);
+			static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(false);
+		}
 	}
 
 	if (true == Contain_State(STATE_WALK))
@@ -152,7 +160,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 
 	if (true == Contain_State(STATE_IDLE | STATE_WALK) && false == Contain_State(STATE_APPEAR | STATE_STUN))
 	{
-		if (m_fAttackDelay > 2.f)
+		if (m_fAttackDelay > m_fNextAttack)
 		{
 			m_iState &= ~STATE_IDLE;
 			m_iState &= ~STATE_WALK;
@@ -169,13 +177,17 @@ void CBoss_Lab::Update(_float fTimeDelta)
 				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
 
 				//if (0 == iRandomNum)
-				//	m_iState |= STATE_CHARGE;
+				{
+					m_iState |= STATE_CHARGE;
+					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
+					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
+				}
 				//else
 				//{
-					m_iState |= STATE_TELEPORT;
-					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
-					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
-					Add_TeleportEffect();
+				//	m_iState |= STATE_TELEPORT;
+				//	static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
+				//	static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
+				//	Add_TeleportEffect();
 				//}
 			}
 		}
@@ -191,6 +203,7 @@ void CBoss_Lab::Update(_float fTimeDelta)
 	{
 		m_iState = STATE_IDLE;
 		m_fAttackDelay = 0.f;
+		m_fNextAttack = m_pGameInstance->Get_Random(0.5f, 1.5f);
 	}
 
 	m_fAttackDelay += fTimeDelta;
@@ -455,6 +468,37 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	StoneDesc.fSpeed = 1.f;
 	StoneDesc.fGravity = 3.f;
 	if (FAILED(__super::Add_PartObject(PART_TELEPORT_STONE, TEXT("Prototype_GameObject_Boss_Lab_Teleport_Stone"), &StoneDesc)))
+		return E_FAIL;
+
+	CBoss_Lab_Charge_Smoke::BOSSCHARGE_SMOKE_DESC ChargeDesc = {};
+	ChargeDesc.fRotationPerSec = 0.f;
+	ChargeDesc.fSpeedPerSec = 1.f;
+
+	ChargeDesc.iNumInstance = 200;
+	ChargeDesc.vCenter = { 0.f, 0.f, 0.f };
+	ChargeDesc.vRange = { 1.f, 1.f, 1.f };
+	ChargeDesc.vExceptRange = { 0.f, 0.f, 0.f };
+	ChargeDesc.vSize = { 1.f, 2.f };
+	ChargeDesc.vSpeed = { 10.f, 20.f };
+	ChargeDesc.vLifeTime = { 0.5f, 2.f };
+	ChargeDesc.vMinColor = { 0.f, 0.f, 0.f, 1.f };
+	ChargeDesc.vMaxColor = { 1.f, 1.f, 1.f, 1.f };
+
+	ChargeDesc.vScale = { 10.f, 10.f, 10.f };
+	ChargeDesc.fSpeed = 1.f;
+	ChargeDesc.fGravity = -2.f;
+	ChargeDesc.vColor = { 0.541f, 0.169f, 0.886f, 1.f };;
+	ChargeDesc.vPivot = { 1.f, 0.f, 2.f };
+	ChargeDesc.vPos = { 0.f, 0.f, 8.f };
+
+	ChargeDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+	if (FAILED(__super::Add_PartObject(PART_CHARGE_SMOKE_LEFT, TEXT("Prototype_GameObject_Boss_Lab_Charge_Smoke"), &ChargeDesc)))
+		return E_FAIL;
+
+	ChargeDesc.vPivot = { -1.f, 0.f, 2.f };
+
+	if (FAILED(__super::Add_PartObject(PART_CHARGE_SMOKE_RIGHT, TEXT("Prototype_GameObject_Boss_Lab_Charge_Smoke"), &ChargeDesc)))
 		return E_FAIL;
 
 	return S_OK;

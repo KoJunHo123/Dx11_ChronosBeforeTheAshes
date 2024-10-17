@@ -21,6 +21,10 @@
 #include "UI_BossHPBar.h"
 #include "UI_BossHPBarDeco.h"
 #include "UI_BossHPBarGlow.h"
+#include "UI_YouDied.h"
+#include "UI_Interaction.h"
+#include "UI_Puzzle.h"
+#include "UI_PuzzleExit.h"
 
 // 지형
 #include "Labyrinth.h"
@@ -45,11 +49,13 @@
 #include "Player_Shield.h"
 #include "Player_Item.h"
 #include "Player_Skill.h"
-#include "Player_Skill_Particle.h"
+#include "Player_Skill_Particle_Fire.h"
+#include "Player_Skill_Particle_Smoke.h"
 #include "Player_UseSkill_Particle.h"
 
 // 몬스터
 #include "Particle_Monster_Death.h"
+#include "Particle_Monster_Appear.h"
 
 // 보스몬스터
 #include "Boss_Lab.h"
@@ -57,11 +63,14 @@
 #include "Boss_Lab_Attack.h"
 #include "Boss_Lab_Teleport_Smoke.h"
 #include "Boss_Lab_Teleport_Stone.h"
+#include "Boss_Lab_Charge_Smoke.h"
 
 // 몬스터 : 석상
 #include "Lab_Construct.h"
 #include "Lab_Construct_Body.h"
 #include "Lab_Construct_Attack.h"
+#include "Lab_Construct_Effect_Black.h"
+#include "Lab_Construct_Effect_Pupple.h"
 
 // 몬스터 : 드럼
 #include "Lab_Drum.h"
@@ -90,6 +99,7 @@
 // 상호작용 : 웨이포인트
 #include "WayPoint.h"
 #include "WayPoint_InterColl.h"
+#include "WayPoint_Effect.h"
 
 // 상호작용 : 도어락
 #include "DoorLock.h"
@@ -105,6 +115,7 @@
 #include "Particle_LaunchWaterDrop.h"
 #include "Particle_DragonHeart.h"
 #include "Particle_Teleport.h"
+#include "Particle_Save.h"
 
 // 이펙트
 #include "Effect_Flash.h"
@@ -221,7 +232,7 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 
 
 	lstrcpy(m_szLoadingText, TEXT("사운드을(를) 로딩중입니다."));
-
+	m_pGameInstance->LoadSoundFile();
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
 #pragma region UI
@@ -429,6 +440,25 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_Fire_Disperse_%d.png"), 6))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_UI_YouDied */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_YouDied"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/YouDied.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_Keyboard */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_Keyboard"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Key_Background.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_UI_WideKeyboard */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UI_WideKeyboard"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/UI/T_UI_Key_Background_Wide_Blank.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Dust_RGB */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Dust_RGB"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Dust_RGB_05.png"), 1))))
+		return E_FAIL;
 
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
@@ -577,32 +607,112 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 2.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 4.f);
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(1.f, 2.f);
+	ParticleDesc.vSize = _float2(1.5f, 3.f);
 	ParticleDesc.vSpeed = _float2(2.f, 4.f);
-	//ParticleDesc.vSpeed = _float2(5.f, 10.f);
-	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
 	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
 
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Skill"),
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Skill_Red"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Skill */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 150;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 2.f);
+	ParticleDesc.vRange = _float3(0.3f, 0.3f, 4.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(1.5f, 3.f);
+	ParticleDesc.vSpeed = _float2(2.f, 4.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Skill_Pupple"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
-	ParticleDesc.iNumInstance = 25;
+	ParticleDesc.iNumInstance = 50;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(0.3f, 0.3f, 0.3f);
 	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSize = _float2(1.f, 2.f);
+	ParticleDesc.vSize = _float2(1.5f, 3.f);
 	ParticleDesc.vSpeed = _float2(1.f, 2.f);
 	//ParticleDesc.vSpeed = _float2(5.f, 10.f);
-	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
 	ParticleDesc.vMinColor = _float4(0.0f, 0.f, 0.f, 1.f);
 	ParticleDesc.vMaxColor = _float4(1.0f, 1.f, 1.f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_UseSkill"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
+
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 500;
+	ParticleDesc.vCenter = _float3(0.f, 4.f, 0.f);
+	ParticleDesc.vRange = _float3(4.f, 8.f, 4.f);
+	ParticleDesc.vExceptRange = _float3(3.9f, 8.f, 3.9f);
+	ParticleDesc.vSize = _float2(0.2f, 0.4f);
+	ParticleDesc.vSpeed = _float2(1.f, 2.f);
+	ParticleDesc.vLifeTime = _float2(3.f, 6.f);
+	ParticleDesc.vMinColor = _float4(1.0f, 0.f, 0.0f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 0.271f, 0.0f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_WayPoint"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 300;
+	ParticleDesc.vCenter = _float3(0.f, 4.f, 0.f);
+	ParticleDesc.vRange = _float3(1.f, 1.f, 1.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.4f, 0.8f);
+	ParticleDesc.vSpeed = _float2(5.f, 10.f);
+	ParticleDesc.vLifeTime = _float2(2.f, 4.f);
+	ParticleDesc.vMinColor = _float4(1.0f, 0.f, 0.0f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.0f, 0.271f, 0.0f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Save"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Construct_Black */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 100;
+	ParticleDesc.vCenter = _float3(0.f, -4.f, 0.f);
+	ParticleDesc.vRange = _float3(1.f, 6.5f, 1.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(1.5f, 3.f);
+	ParticleDesc.vSpeed = _float2(1.f, 2.f);
+	//ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Construct_Black"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_VIBuffer_Particle_Construct_Pupple */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 200;
+	ParticleDesc.vCenter = _float3(0.f, -4.f, 0.f);
+	ParticleDesc.vRange = _float3(1.f, 6.5f, 1.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(1.25f, 2.5f);
+	ParticleDesc.vSpeed = _float2(1.f, 2.f);
+	//ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Construct_Pupple"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region TRAIL_INSTANCE
 	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
@@ -610,6 +720,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	TrailInstance.iNumInstance = 30;
 	TrailInstance.vLifeTime = _float2(0.4f, 0.8f);
+	TrailInstance.vRange = _float3(1.f, 1.f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Trail_Test"),
 		CVIBuffer_Trail_Instance::Create(m_pDevice, m_pContext, TrailInstance))))
@@ -982,11 +1093,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CPlayer_Skill::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	/* For. Prototype_GameObject_Player_Skill */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Skill_Particle"),
-		CPlayer_Skill_Particle::Create(m_pDevice, m_pContext))))
+	/* For. Prototype_GameObject_Player_Skill_Particle_Fire */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Skill_Particle_Fire"),
+		CPlayer_Skill_Particle_Fire::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-	
+
+	/* For. Prototype_GameObject_Player_Skill_Particle_Smoke */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Skill_Particle_Smoke"),
+		CPlayer_Skill_Particle_Smoke::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	/* For. Prototype_GameObject_Player_Skill */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_UseSkill_Particle"),
 		CPlayer_UseSkill_Particle::Create(m_pDevice, m_pContext))))
@@ -997,6 +1113,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Monster_Death"),
 		CParticle_Monster_Death::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_Monster_Appear */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Monster_Appear"),
+		CParticle_Monster_Appear::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region BOSS
 	/* For. Prototype_GameObject_Boss_Lab */
@@ -1024,6 +1146,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CBoss_Lab_Teleport_Stone::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For. Prototype_GameObject_Boss_Lab_Charge_Smoke */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Boss_Lab_Charge_Smoke"),
+		CBoss_Lab_Charge_Smoke::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER_CONSTRUCT
 	/* For. Prototype_GameObject_Lab_Construct */
@@ -1039,6 +1166,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Lab_Construct_Body */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Construct_Attack"),
 		CLab_Construct_Attack::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Lab_Construct_Effect_Black */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Construct_Effect_Black"),
+		CLab_Construct_Effect_Black::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Lab_Construct_Effect_Pupple */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Lab_Construct_Effect_Pupple"),
+		CLab_Construct_Effect_Pupple::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 #pragma endregion
@@ -1129,6 +1266,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint_InterColl"),
 		CWayPoint_InterColl::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_WayPoint_Effect */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_WayPoint_Effect"),
+		CWayPoint_Effect::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 #pragma endregion
 #pragma region INTERACTION DOORLOCK
 	/* For. Prototype_GameObject_DoorLock */
@@ -1186,6 +1328,13 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Teleport"),
 		CParticle_Teleport::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_Save */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Save"),
+		CParticle_Save::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
+
 #pragma endregion
 #pragma region EFFECT
 	/* For. Prototype_GameObject_Effect_Flash */
@@ -1280,6 +1429,26 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_UI_BossHPBar_Glow */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_BossHPBar_Glow"),
 		CUI_BossHPBarGlow::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_YouDied */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_YouDied"),
+		CUI_YouDied::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_Interaction */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_Interaction"),
+		CUI_Interaction::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_Puzzle */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_Puzzle"),
+		CUI_Puzzle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_UI_PuzzleExit */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_UI_PuzzleExit"),
+		CUI_PuzzleExit::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));

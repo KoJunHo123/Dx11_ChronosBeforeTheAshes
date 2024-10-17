@@ -283,9 +283,6 @@
     <Filter Include="02.GameObjects\10.UI\GamePlay\Player\DragonHeart">
       <UniqueIdentifier>{24fff5da-770b-46e7-920f-a396ebd5045a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\DragonStone">
-      <UniqueIdentifier>{77ddb63e-fffe-4449-8e15-f2660a6c7103}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\10.UI\GamePlay\Player\GageBar">
       <UniqueIdentifier>{3be5c7b2-a1ef-4e14-a488-c95b0404e7ca}</UniqueIdentifier>
     </Filter>
@@ -336,6 +333,48 @@
     </Filter>
     <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle">
       <UniqueIdentifier>{b5855d9e-0de0-4e67-88e9-516ba8ad101a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\YouDied">
+      <UniqueIdentifier>{a3ec71ee-6610-48a0-aeb0-5c9fb9f5cd41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\DragonStone">
+      <UniqueIdentifier>{77ddb63e-fffe-4449-8e15-f2660a6c7103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\Interaction">
+      <UniqueIdentifier>{13a24cef-715c-45e2-b218-0ae4bb0a6ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\Puzzle">
+      <UniqueIdentifier>{19c737db-22bf-4b4a-9cb9-756c157c3ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\10.UI\GamePlay\Player\PuzzleExit">
+      <UniqueIdentifier>{7505d764-b2f7-4025-8c34-ed97beaad8dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Particle\Appear">
+      <UniqueIdentifier>{276247dd-b84b-4a03-9437-ebb1c31ad721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\07.Interaction\WayPoint\WayPoint_Effect">
+      <UniqueIdentifier>{960f8a7a-27b9-4307-9d1d-cf6fe9b36632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\08.Particle\Particle_Save">
+      <UniqueIdentifier>{8925bdd8-e1e1-4393-998f-34af1be1cccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect">
+      <UniqueIdentifier>{63c96500-4567-4d1b-bc2c-7fd150e06158}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Black">
+      <UniqueIdentifier>{81612242-cbfe-4720-a13f-97f0565f7bc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Pupple">
+      <UniqueIdentifier>{896a8caf-a4d7-4fbc-977c-98fa800addea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Fire">
+      <UniqueIdentifier>{3c0373c8-b7d9-4464-9895-d7718d60a70b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Smoke">
+      <UniqueIdentifier>{5923072c-9395-47d3-b777-5374d80a3323}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke">
+      <UniqueIdentifier>{56032045-5c37-4a5d-a6c3-bc3d925a3e4b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -630,11 +669,44 @@
     <ClInclude Include="..\public\Player_Skill.h">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Player_Skill_Particle.h">
-      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Player_UseSkill_Particle.h">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\UI_YouDied.h">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\YouDied</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_Interaction.h">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_Puzzle.h">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\Puzzle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UI_PuzzleExit.h">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\PuzzleExit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Monster_Appear.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Particle\Appear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\WayPoint_Effect.h">
+      <Filter>02.GameObjects\07.Interaction\WayPoint\WayPoint_Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Save.h">
+      <Filter>02.GameObjects\08.Particle\Particle_Save</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Lab_Construct_Effect_Black.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Black</Filter>
+    </ClInclude>
+    <ClInclude Include="Lab_Construct_Effect_Pupple.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Pupple</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Skill_Particle_Fire.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Fire</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Skill_Particle_Smoke.h">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Smoke</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Lab_Charge_Smoke.h">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -917,11 +989,44 @@
     <ClCompile Include="..\private\Player_Skill.cpp">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Player_Skill_Particle.cpp">
-      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Player_UseSkill_Particle.cpp">
       <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_UseSkill_Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\UI_YouDied.cpp">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\YouDied</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_Interaction.cpp">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_Puzzle.cpp">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\Puzzle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_PuzzleExit.cpp">
+      <Filter>02.GameObjects\10.UI\GamePlay\Player\PuzzleExit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Monster_Appear.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Particle\Appear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WayPoint_Effect.cpp">
+      <Filter>02.GameObjects\07.Interaction\WayPoint\WayPoint_Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Save.cpp">
+      <Filter>02.GameObjects\08.Particle\Particle_Save</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Lab_Construct_Effect_Black.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Black</Filter>
+    </ClCompile>
+    <ClCompile Include="Lab_Construct_Effect_Pupple.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Lab_Construct\Lab_Construct_Effect\Pupple</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Skill_Particle_Fire.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Fire</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Skill_Particle_Smoke.cpp">
+      <Filter>02.GameObjects\03.Player\Player_Part\Player_Part_Skill\Player_Skill_Particle\Player_Skill_Particle_Smoke</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Lab_Charge_Smoke.cpp">
+      <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

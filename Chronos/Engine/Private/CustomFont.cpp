@@ -25,6 +25,8 @@ HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _fvector vC
 		vPos -= vSize * 0.5f * fScale;
 	}
 
+	// m_pContext->GSGetShader(nullptr, nullptr, 0);
+
 	m_pBatch->Begin();
 
 	m_pFont->DrawString(m_pBatch, pText, vPos, vColor, fRadian, vPivot, fScale);

@@ -41,9 +41,6 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 	if (FAILED(Ready_Layer_Player()))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_Monster()))
-		return E_FAIL;
-
 	if (FAILED(Ready_Layer_Camera()))
 		return E_FAIL;
 	
@@ -52,8 +49,6 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 
 	if (FAILED(Ready_Layer_UI()))
 		return E_FAIL;
-	//if (FAILED(Ready_Layer_Paticle()))
-	//	return E_FAIL;
 
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster"), TEXT("Coll_Monster"));
@@ -64,11 +59,18 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 
 	m_bLevelStart = true;
 
+	if(FAILED(Ready_Layer_Monster()))
+		return E_FAIL;
+
+	 m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+
 	return S_OK;
 }
 
 void CLevel_GamePlay::Update(_float fTimeDelta)
 {
+	m_fTime += fTimeDelta;
+
 	if (true == m_bLevelStart)
 	{
 		if (true == m_pGameInstance->FadeOut(fTimeDelta))
@@ -80,10 +82,36 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 	if (true == m_pPlayer->Get_Dead())
 	{
 		m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+		m_pGameInstance->StopAll();
 
-		if (FAILED(Ready_Layer_Monster()))
-			return;
+		m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+
+		m_bYellow = false;
+		m_bPupple = false;
+		m_bRed = false;
 	}
+
+	_uint iCellIndex = m_pPlayer->Get_CellIndex();
+
+	// ³ë¶û
+	if (false == m_bYellow && (6049 == iCellIndex || 6050 == iCellIndex))
+	{
+		//Ready_Layer_Monster_Yellow();
+		m_bYellow = true;
+	}
+	// º¸¶ó
+	else if (false == m_bPupple && (6084 <= iCellIndex && iCellIndex <= 6087))
+	{
+		//Ready_Layer_Monster_Pupple();
+		m_bPupple = true;
+	}
+	// »¡°­
+	else if (false == m_bRed && (6082 == iCellIndex || 6083 == iCellIndex))
+	{
+		Ready_Layer_Monster_Red();
+		m_bRed = true;
+	}
+
 }
 
 HRESULT CLevel_GamePlay::Render()
@@ -105,6 +133,20 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
 		return E_FAIL;
+
+	ZeroMemory(&LightDesc, sizeof LightDesc);
+	LightDesc.eType = LIGHT_DESC::TYPE_POINT;
+	LightDesc.vPosition = _float4(0.f, 0.f, 0.f, 1.f);
+	LightDesc.fRange = 0.f;
+	LightDesc.vDiffuse = _float4(1.0f, 0.271f, 0.0f, 1.f);
+	LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
+	LightDesc.vSpecular = LightDesc.vDiffuse;
+
+	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
+		return E_FAIL;
+
+	return S_OK;
+
 
 	return S_OK;
 }
@@ -174,38 +216,19 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player()
 
 HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 {
-	// ¸ÊÅø¿¡¼­ ÂïÀº ¸ó½ºÅÍ °¡Á®¿Ã °Í.
-	// ½ÃÀÛ ¼¿ ÀÎµ¦½º¸¸ ¹Þ¾Æ¿À¸é µÊ.
-
 	CMonster::MONSTER_DESC desc = {};
 	desc.fRotationPerSec = XMConvertToRadians(90.f);
 	desc.fSpeedPerSec = 1.f;
-	
+
 	desc.vRotation = {};
 	desc.vScale = { 1.f, 1.f, 1.f };
-
-	desc.iStartCellIndex = 150;
+	desc.iStartCellIndex = 50;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 10;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 20;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 30;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
-		return E_FAIL;
-
-	desc.iStartCellIndex = 40;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
 		return E_FAIL;
 
 	return S_OK;
 }
+
 
 HRESULT CLevel_GamePlay::Ready_Layer_Paticle()
 {
@@ -364,6 +387,110 @@ HRESULT CLevel_GamePlay::Ready_Layer_UI()
 	desc.fSpeedPerSec = 0.f;
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"), TEXT("Prototype_GameObject_UI_PlayerBase"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Monster_Yellow()
+{
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+	desc.iStartCellIndex = 5148;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5180;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5303;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5471;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Monster_Pupple()
+{
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+	desc.iStartCellIndex = 6150;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 6114;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 4807;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 4883;
+	desc.vRotation = _float3(0.f, XMConvertToRadians(-90.f), 0.f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 4902;
+	desc.vRotation = _float3(0.f, XMConvertToRadians(-90.f), 0.f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 4840;
+	desc.vRotation = _float3(0.f, XMConvertToRadians(-90.f), 0.f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5941;
+	desc.vRotation = {};
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5875;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5973;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5954;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	desc.iStartCellIndex = 5962;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_Monster_Red()
+{
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+	desc.iStartCellIndex = 4347;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
 		return E_FAIL;
 
 	return S_OK;

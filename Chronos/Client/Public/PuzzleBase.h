@@ -40,6 +40,9 @@ public:
 public:
 	virtual void Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval) override;
 
+public:
+	void Set_ActivesFalse();
+
 private:
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CShader* m_pShaderCom = { nullptr };
@@ -83,12 +86,11 @@ private:
 	HRESULT Add_FloorChunk(_int iCellIndex);
 
 	HRESULT Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iPartIndex);
+	HRESULT Set_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iConstruct, _uint iDrum, _uint iMage, _uint iTroll);
 	
 	_uint Get_DiffIndex(vector<_uint>& AddIndices, _uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ);
 
 	HRESULT Add_Teleport(_fvector vPos);
-
-	HRESULT Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset);
 
 	LOCATION Find_Location_ByPos(_fvector vPos);
 	_bool Check_OutFloor();

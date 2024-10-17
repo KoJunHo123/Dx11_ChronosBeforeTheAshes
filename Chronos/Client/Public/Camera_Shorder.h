@@ -21,6 +21,7 @@ public:
 	_vector Get_CameraLook() {
 		return m_pTransformCom->Get_State(CTransform::STATE_LOOK);
 	}
+	void Set_InitialState();
 
 public:
 	virtual HRESULT Initialize_Prototype() override;

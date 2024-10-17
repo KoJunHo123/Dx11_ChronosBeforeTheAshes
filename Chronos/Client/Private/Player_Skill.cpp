@@ -42,7 +42,6 @@ HRESULT CPlayer_Skill::Initialize(void* pArg)
 
 _uint CPlayer_Skill::Priority_Update(_float fTimeDelta)
 {
-
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
 	return OBJ_NOEVENT;
@@ -85,6 +84,13 @@ void CPlayer_Skill::Update(_float fTimeDelta)
 	m_fTexIndex += fTimeDelta * 30.f;
 	if (m_fTexIndex > m_vDivide.x * m_vDivide.y - 1.f)
 		m_fTexIndex = 0.f;
+
+	m_pGameInstance->Set_LightPos(LIGHT_SKILL, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
+
+	if (0.f < *m_pSkilDuration && CPlayer::SKILL_RED == *m_pCurrentSkill)
+		m_pGameInstance->Set_LightRange(LIGHT_SKILL, 7.f);
+	else
+		m_pGameInstance->Set_LightRange(LIGHT_SKILL, 0.f);
 }
 
 void CPlayer_Skill::Late_Update(_float fTimeDelta)
@@ -92,7 +98,12 @@ void CPlayer_Skill::Late_Update(_float fTimeDelta)
 	Compute_ViewZ();
 
 	if (0.f < *m_pSkilDuration)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);
+	{
+		if(0 == *m_pCurrentSkill)
+			m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
+		else
+			m_pGameInstance->Add_RenderObject(CRenderer::RG_BLEND, this);
+	}
 }
 
 HRESULT CPlayer_Skill::Render()
@@ -168,6 +179,7 @@ HRESULT CPlayer_Skill::Ready_Components()
 	
 	return S_OK;
 }
+
 
 
 

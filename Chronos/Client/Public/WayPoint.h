@@ -18,7 +18,7 @@ public:
 		_float3 vPos;
 	}WAYPOINT_DESC;
 
-	enum PART { PART_INTERCOLL, PART_END};
+	enum PART { PART_INTERCOLL, PART_EFFECT, PART_END};
 
 private:
 	CWayPoint(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

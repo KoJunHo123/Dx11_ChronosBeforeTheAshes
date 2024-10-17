@@ -24,6 +24,14 @@ private:
 	_bool m_bLevelStart = { false };
 	class CPlayer* m_pPlayer = { nullptr };
 
+	_bool m_bYellow = { false };
+	_bool m_bPupple = { false };
+	_bool m_bRed = { false };
+
+	_float m_fTime = { 0.f };
+	_bool m_bChangeBGM = { false };
+	_float m_fVolume = { 0.f };
+
 private:
 	HRESULT Ready_Lights();
 	HRESULT Ready_Layer_Camera();
@@ -41,6 +49,10 @@ private:
 	HRESULT Ready_Layer_DoorLock();
 
 	HRESULT Ready_Layer_UI();
+
+	HRESULT Ready_Layer_Monster_Yellow();
+	HRESULT Ready_Layer_Monster_Pupple();
+	HRESULT Ready_Layer_Monster_Red();
 
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex);

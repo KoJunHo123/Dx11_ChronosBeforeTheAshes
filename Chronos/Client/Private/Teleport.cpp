@@ -41,6 +41,11 @@ HRESULT CTeleport::Initialize(void* pArg)
 
 _uint CTeleport::Priority_Update(_float fTimeDelta)
 {
+    if (nullptr == m_pTeleport || false == m_bActive || true == XMVector3Equal(m_pTeleport->Get_Position(), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
+        m_pColliderCom->Set_OnCollision(false);
+    else
+        m_pColliderCom->Set_OnCollision(true);
+
 	return OBJ_NOEVENT;
 }
 
@@ -98,11 +103,7 @@ void CTeleport::Intersect(const _wstring strColliderTag, CGameObject* pCollision
 {
     if (TEXT("Coll_Player") == strColliderTag && m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_E))
     {
-        if (nullptr == m_pTeleport || false == m_bActive)
-            return;
 
-        if (XMVector3Equal(m_pTeleport->Get_Position(), XMVectorSet(0.f, 0.f, 0.f, 0.f)))
-            return;
 
         pCollisionObject->Set_Position(Get_Position());
         CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);

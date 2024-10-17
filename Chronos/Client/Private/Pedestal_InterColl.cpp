@@ -39,7 +39,11 @@ HRESULT CPedestal_InterColl::Initialize(void* pArg)
 
 _uint CPedestal_InterColl::Priority_Update(_float fTimeDelta)
 {
-	
+	if (nullptr == *m_ppItem)
+		m_pColliderCom->Set_OnCollision(false);
+	else
+		m_pColliderCom->Set_OnCollision(true);
+
 	return OBJ_NOEVENT;
 }
 

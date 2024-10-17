@@ -33,7 +33,7 @@ HRESULT CPuzzle_Item::Initialize(void* pArg)
 _uint CPuzzle_Item::Priority_Update(_float fTimeDelta)
 {
 	if (true == m_bDead)
-		return OBJ_NOEVENT;
+		return OBJ_DEAD;
 
 	return OBJ_NOEVENT;
 }
@@ -45,7 +45,6 @@ void CPuzzle_Item::Update(_float fTimeDelta)
 
 void CPuzzle_Item::Late_Update(_float fTimeDelta)
 {
-
 }
 
 HRESULT CPuzzle_Item::Render(const _float4x4& WorldMatrix)
@@ -97,9 +96,10 @@ _bool CPuzzle_Item::Use_Item(class CPlayer* pPlayer)
 {
 	if (false == __super::Use_Item())
 	{
-		m_bDead = true;
 		return false;
 	}
+	if (0 == m_iItemCount)
+		m_bDead = true;
 
 	return true;
 }

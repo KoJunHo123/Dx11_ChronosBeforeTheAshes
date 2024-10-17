@@ -15,6 +15,37 @@ const LIGHT_DESC* CLight_Manager::Get_LightDesc(_uint iIndex) const
     return (*iter)->Get_LightDesc();
 }
 
+void CLight_Manager::Set_Pos(_uint iIndex, _fvector vPos)
+{
+    auto	iter = m_Lights.begin();
+
+    for (size_t i = 0; i < iIndex; i++)
+        ++iter;
+
+    (*iter)->Set_Pos(vPos);
+}
+
+void CLight_Manager::Set_Diffuse(_uint iIndex, _fvector vColor)
+{
+    auto	iter = m_Lights.begin();
+
+    for (size_t i = 0; i < iIndex; i++)
+        ++iter;
+
+    (*iter)->Set_Diffuse(vColor);
+}
+
+void CLight_Manager::Set_Range(_uint iIndex, _float fRange)
+{
+    auto	iter = m_Lights.begin();
+
+    for (size_t i = 0; i < iIndex; i++)
+        ++iter;
+
+    (*iter)->Set_Range(fRange);
+
+}
+
 HRESULT CLight_Manager::Initialize()
 {
     return S_OK;

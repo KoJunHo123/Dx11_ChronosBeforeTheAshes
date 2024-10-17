@@ -27,7 +27,7 @@ public:
 	}PLAYER_DESC;
 
 	enum PLAYER_STATE{ STATE_MOVE, STATE_ATTACK, STATE_JUMP, STATE_BLOCK, STATE_IMPACT, STATE_ACTION, STATE_END};
-	enum PLAYER_PART{ PART_BODY, PART_WEAPON, PART_SHIELD, PART_ITEM, PART_EFFECT, PART_SKILL, PART_SKILL_PARTICLE, PART_USESKILL_PARTICLE, PART_END };
+	enum PLAYER_PART{ PART_BODY, PART_WEAPON, PART_SHIELD, PART_ITEM, PART_EFFECT, PART_SKILL, PART_SKILL_PARTICLE_FIRE, PART_SKILL_PARTICLE_SMOKE, PART_USESKILL_PARTICLE, PART_END };
 	enum PLAYER_SKILL { SKILL_RED, SKILL_PUPPLE, SKILL_END };
 
 private:
@@ -75,6 +75,15 @@ public:
 	_float Get_MaxSkillGage() {
 		return m_fMaxSkillGage;
 	}
+
+	void Set_Revive(_bool bRevive) {
+		m_bRevive = bRevive;
+	}
+	
+	_bool Get_Interaction() {
+		return m_bInteraction;
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
@@ -91,14 +100,13 @@ public:
 	void Set_SavePos(_fvector vPos);
 	_bool Use_Runekey(_fvector vPos, _fvector vLookAt);
 	void Start_Teleport(_fvector vPos);
+	_uint Get_CellIndex();
 
 public:
 	class CFSM* m_pFSM = { nullptr };
 	class CNavigation* m_pNavigationCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
 	class CTexture* m_pNoiseTextureCom = { nullptr };
-
-
 
 	// 상태와 파츠가 공유해야 하는 변수들
 	PLAYER_ANIM m_ePlayerAnim = { PLAYER_ANIM_END };
@@ -143,6 +151,9 @@ public:
 	_bool m_HaveSkill[SKILL_END] = {};
 	_uint m_eCurrentSkill = { SKILL_RED };
 	_bool m_bDrain = { false };
+
+	// 상호작용
+	_bool m_bInteraction = { false };
 
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);

@@ -20,7 +20,51 @@ HRESULT CSound_Manager::Initialize(_uint iMaxChannel)
 	return S_OK;
 }
 
-void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume)
+void CSound_Manager::Update(_float fTimeDelta)
+{
+	for (auto& iter = m_StopSoundIndex.begin(); iter != m_StopSoundIndex.end(); )
+	{
+		_float fVolume = { 0.f };
+		m_vecChannel[*iter]->getVolume(&fVolume);
+
+		fVolume -= fTimeDelta;
+		m_vecChannel[*iter]->setVolume(fVolume);
+
+		if (fVolume < 0.f)
+		{
+			m_vecChannel[*iter]->stop();
+			iter = m_StopSoundIndex.erase(iter);
+		}
+		else
+			++iter;
+	}
+
+	for (auto& iter = m_CrossIndices.begin(); iter != m_CrossIndices.end(); )
+	{
+		_float fSrcVolume = { 0.f };
+		_float fDstVolume = { 0.f };
+		
+		m_vecChannel[iter->iSrcIndex]->getVolume(&fSrcVolume);
+		m_vecChannel[iter->iDstIndex]->getVolume(&fDstVolume);
+
+		fSrcVolume -= fTimeDelta * iter->fMixSpeed;
+		fDstVolume += fTimeDelta * iter->fMixSpeed;
+
+		if (fSrcVolume < 0.f)
+		{
+			m_vecChannel[iter->iSrcIndex]->stop();
+			iter = m_CrossIndices.erase(iter);
+		}
+		else
+		{
+			m_vecChannel[iter->iSrcIndex]->setVolume(fSrcVolume);
+			m_vecChannel[iter->iDstIndex]->setVolume(fDstVolume);
+			++iter;
+		}
+	}
+}
+
+void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos, _float3 PlayerPos)
 {
 	auto iter = m_mapSound.find(pSoundKey);
 	iter = find_if(m_mapSound.begin(), m_mapSound.end(), [&](auto& iter)->bool
@@ -28,16 +72,24 @@ void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolum
 			return !lstrcmp(pSoundKey, iter.first);
 		});
 
+	FMOD_VECTOR SoundPosition = { SoundPos.x, SoundPos.y,SoundPos.z };
+	m_vPlayerPosition = { PlayerPos.x, PlayerPos.y,PlayerPos.z };
+	FMOD_VECTOR velocity = { 0.f, 0.f, 0.f };
+
 	_bool isPlaying = false;
 
 	if (m_vecChannel[iChannelID]->isPlaying(&isPlaying))
 	{
-		m_vecChannel[iChannelID]->stop();
+		m_vecChannel[iChannelID]->setMode(FMOD_3D);
 		m_pSystem->playSound(iter->second, 0, false, &m_vecChannel[iChannelID]);
-	}
 
+		m_pSystem->set3DListenerAttributes(0, &m_vPlayerPosition, 0, 0, 0);
+		m_vecChannel[iChannelID]->set3DAttributes(&SoundPosition, &velocity);
+		m_vecChannel[iChannelID]->set3DMinMaxDistance(4.0f, .0f);
+	}
 	m_vecChannel[iChannelID]->setVolume(fVolume);
 	m_pSystem->update();
+	FMOD_RESULT;
 }
 
 void CSound_Manager::PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume)
@@ -60,6 +112,11 @@ void CSound_Manager::StopSound(_uint iChannelID)
 	m_vecChannel[iChannelID]->stop();
 }
 
+void CSound_Manager::StopSoundSlowly(_uint iChannelID)
+{
+	m_StopSoundIndex.emplace_back(iChannelID);
+}
+
 void CSound_Manager::StopAll()
 {
 	for (auto iter : m_vecChannel)
@@ -75,51 +132,110 @@ void CSound_Manager::LoadSoundFile()
 {
 	// _finddata_t : <io.h>에서 제공하며 파일 정보를 저장하는 구조체
 	_finddatai64_t fd;
-
-	// _findfirst : <io.h>에서 제공하며 사용자가 설정한 경로 내에서 가장 첫 번째 파일을 찾는 함수
-	intptr_t handle = _findfirsti64("../../Client/Resources/Sound/*.wav", &fd);
-
-	if (handle == -1)
-		return;
-
-	int iResult = 0;
-
-	// D:\유준환\145기\DefaultWindow\Sound	: 절대 경로
-
-	char szCurPath[128] = "../../Client/Resources/Sound/";	 // 상대 경로
-	char szFullPath[128] = "";
-
-	while (iResult != -1)
+	
+	path strFilePath = "../../Client/Bin/Resources/SFX/";
+	for (auto& entry : recursive_directory_iterator(strFilePath))
 	{
-		strcpy_s(szFullPath, szCurPath);
+		if (is_directory(entry.path())) {
+			bool has_subdirectories = false;
 
-		// "../Sound/" + "Success.wav"
-		strcat_s(szFullPath, fd.name);
-		// "../Sound/Success.wav"
+			// 하위 항목 순회 (하위 폴더가 있는지 확인)
+			for (const auto& sub_entry : directory_iterator(entry.path())) {
+				if (is_directory(sub_entry.path())) {
+					has_subdirectories = true; // 하위 폴더가 있으면 true
+					break; // 하위 폴더를 하나라도 찾으면 더 이상 확인할 필요 없음
+				}
+			}
 
-		Sound* pSound = nullptr;
+			// 하위 폴더가 없으면 리프 폴더로 간주하고 출력
+			if (!has_subdirectories) {
+				std::cout << entry.path() << std::endl;
+				string strFilePath = entry.path().string();
+				strFilePath += "/*.ogg";
 
-		FMOD_RESULT eRes = m_pSystem->createSound(szFullPath, FMOD_LOOP_OFF, 0, &pSound);
+				// _findfirst : <io.h>에서 제공하며 사용자가 설정한 경로 내에서 가장 첫 번째 파일을 찾는 함수
+				intptr_t handle = _findfirsti64(strFilePath.c_str(), &fd);
 
-		if (eRes == FMOD_OK)
-		{
-			int iLength = (int)strlen(fd.name) + 1;
+				if (handle == -1)
+					continue;
 
-			TCHAR* pSoundKey = new TCHAR[iLength];
-			ZeroMemory(pSoundKey, sizeof(TCHAR) * iLength);
+				int iResult = 0;
 
-			// 아스키 코드 문자열을 유니코드 문자열로 변환시켜주는 함수
-			MultiByteToWideChar(CP_ACP, 0, fd.name, iLength, pSoundKey, iLength);
+				// D:\유준환\145기\DefaultWindow\SFX	: 절대 경로
 
-			m_mapSound.emplace(pSoundKey, pSound);
+				string strPath = entry.path().string();
+				strPath += "/";
+				char szCurPath[128] = "";	 // 상대 경로
+				strcpy_s(szCurPath, strPath.c_str());
+				char szFullPath[128] = "";
+
+				while (iResult != -1)
+				{
+					strcpy_s(szFullPath, szCurPath);
+
+					// "../Sound/" + "Success.wav"
+					strcat_s(szFullPath, fd.name);
+					// "../Sound/Success.wav"
+
+					Sound* pSound = nullptr;
+
+					FMOD_RESULT eRes = m_pSystem->createSound(szFullPath, FMOD_LOOP_OFF, 0, &pSound);
+
+					if (eRes == FMOD_OK)
+					{
+						int iLength = (int)strlen(fd.name) + 1;
+
+						TCHAR* pSoundKey = new TCHAR[iLength];
+						ZeroMemory(pSoundKey, sizeof(TCHAR) * iLength);
+
+						// 아스키 코드 문자열을 유니코드 문자열로 변환시켜주는 함수
+						MultiByteToWideChar(CP_ACP, 0, fd.name, iLength, pSoundKey, iLength);
+
+						m_mapSound.emplace(pSoundKey, pSound);
+					}
+					//_findnext : <io.h>에서 제공하며 다음 위치의 파일을 찾는 함수, 더이상 없다면 -1을 리턴
+					iResult = _findnexti64(handle, &fd);
+				}
+
+				m_pSystem->update();
+
+				_findclose(handle);
+			}
 		}
-		//_findnext : <io.h>에서 제공하며 다음 위치의 파일을 찾는 함수, 더이상 없다면 -1을 리턴
-		iResult = _findnexti64(handle, &fd);
 	}
+}
 
-	m_pSystem->update();
+_uint CSound_Manager::Get_Position(_uint iChannelID)
+{
+	_uint iPosition = { 0 };
+	m_vecChannel[iChannelID]->getPosition(&iPosition, FMOD_TIMEUNIT_MS);
+	return iPosition;
+}
 
-	_findclose(handle);
+void CSound_Manager::Set_Position(_uint iChannelID, _uint iPositionMS)
+{
+	m_vecChannel[iChannelID]->setPosition(iPositionMS, FMOD_TIMEUNIT_MS);
+}
+
+_bool CSound_Manager::IsPlaying(_uint iChannelID)
+{
+	_bool isPlaying = { false };
+	m_vecChannel[iChannelID]->isPlaying(&isPlaying);
+	return isPlaying;
+}
+
+void CSound_Manager::Set_Frequency(_uint iChannelID, _float fFrequency)
+{
+	_float fCurrentFrequency = { 0.f };
+	m_vecChannel[iChannelID]->getFrequency(&fCurrentFrequency);
+	m_vecChannel[iChannelID]->setFrequency(fCurrentFrequency * fFrequency);
+}
+
+void CSound_Manager::CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos, _float3 PlayerPos)
+{
+	CROSS_INDEX CrossIndex = { iSrcChannelID, iDstChannelID, fMixSpeed };
+	m_CrossIndices.emplace_back(CrossIndex);
+	SoundPlay(pDstSoundKey, iDstChannelID, 0.f, SoundPos, PlayerPos);
 }
 
 CSound_Manager* CSound_Manager::Create(_uint iMaxChannel)

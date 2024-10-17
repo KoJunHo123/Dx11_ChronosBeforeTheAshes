@@ -47,6 +47,7 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 	m_pSkillGage = pDesc->pSkillGage;
 	m_fMaxSkillGage = pDesc->fMaxSkillGage;
 	m_pSkillDuration = pDesc->pSkillDuration;
+	m_fStartSpeed = pDesc->fStartSpeed;
 
 	m_fDamage = 10.f;
 
@@ -55,32 +56,54 @@ HRESULT CPlayer_Weapon::Initialize(void* pArg)
 
 _uint CPlayer_Weapon::Priority_Update(_float fTimeDelta)
 {
+
 	if(CPlayer::STATE_ATTACK == m_pFSM->Get_State())
 	{
-		if(true == IsAttackAnim() && 5 < *m_pFrameIndex && 15 > *m_pFrameIndex)
+		if(true == IsAttackAnim())
 		{
-			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
-			if(*m_pSkillDuration <= 0.f)
-				m_pColliderCom->Set_OnCollision(true);
-			else
-				m_pSkillColliderCom->Set_OnCollision(true);
-			if (false == m_bStaminaDown)
+			if (false == m_bFirst && 5 < *m_pFrameIndex)
 			{
-				*m_pStamina -= 10.f;
-				if (*m_pStamina < 0.f)
-					*m_pStamina = 0.f;
+				*m_pFrameIndex = 0.f;
+				m_bFirst = true;
+			}
 
-				m_bStaminaDown = true;
+			if(5 < *m_pFrameIndex && *m_pFrameIndex < 15)
+			{
+				m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 90.f);
+
+				if (false == m_bStaminaDown)
+				{
+					PlaySound();
+					if (*m_pSkillDuration <= 0.f)
+					{
+						m_pColliderCom->Set_OnCollision(true);
+					}
+					else
+					{
+						m_pSkillColliderCom->Set_OnCollision(true);
+					}
+
+					*m_pStamina -= 10.f;
+					if (*m_pStamina < 0.f)
+						*m_pStamina = 0.f;
+
+					m_bStaminaDown = true;
+				}
+			}
+			else
+			{
+				m_bStaminaDown = false;
+				m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
+				m_pColliderCom->Set_OnCollision(false);
+				m_pSkillColliderCom->Set_OnCollision(false);
 			}
 		}
 		else
 		{
-			m_bStaminaDown = false;
-			m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), 0.f);
-			m_pColliderCom->Set_OnCollision(false);
-			m_pSkillColliderCom->Set_OnCollision(false);
+			m_bFirst = false;
 		}
 	}
+
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
 	return OBJ_NOEVENT;
@@ -229,6 +252,17 @@ void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pColl
 
 	if (TEXT("Coll_Monster") == strColliderTag)
 	{
+		m_pGameInstance->StopSound(SOUND_PLAYER_HIT);
+		MONSTER_TYPE eMonsterType = static_cast<CMonster*>(pCollisionObject)->Get_MonsterType();
+		if (MONSTER_CONSTRUCT == eMonsterType || MONSTER_DRUM == eMonsterType)
+		{
+			m_pGameInstance->SoundPlay(TEXT("s_impact_metal_soft_3.ogg"), SOUND_PLAYER_HIT, 1.f);
+		}
+		else
+		{
+			m_pGameInstance->SoundPlay(TEXT("s_flesh_4.ogg"), SOUND_PLAYER_HIT, 1.f);
+		}
+
 		*m_pSkillGage += fDamage;
 
 		if (m_fMaxSkillGage < *m_pSkillGage)
@@ -298,7 +332,6 @@ HRESULT CPlayer_Weapon::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
 		TEXT("Com_Collider_Skill"), reinterpret_cast<CComponent**>(&m_pSkillColliderCom), &ColliderSkillDesc)))
 		return E_FAIL;
-	
 
 	return S_OK;
 }
@@ -333,6 +366,66 @@ _bool CPlayer_Weapon::IsAttackAnim()
 	}
 
 	return false;
+}
+
+void CPlayer_Weapon::PlaySound()
+{
+	_float fFrequency = { 0.f };
+	fFrequency = *m_pSpeed / m_fStartSpeed;
+	
+	m_pGameInstance->StopSound(SOUND_PLAYER_ATTACK);
+	m_pGameInstance->StopSound(SOUND_PLAYER_VO);
+
+	if (PLAYER_ATK_LIGHT_01 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_02 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_03 == *m_pPlayerAnim ||
+		PLAYER_ATK_LIGHT_04 == *m_pPlayerAnim)
+	{
+		m_pGameInstance->SoundPlay(TEXT("SwordSlash_1.ogg"), SOUND_PLAYER_ATTACK, 1.f);
+
+		_uint iNum = (_uint)m_pGameInstance->Get_Random(0.f, 4.f);
+		_wstring strVoiceTag = L"";
+		switch (iNum)
+		{
+		case 0:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackShort_02.ogg");
+			break;
+		case 1:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackShort_03.ogg");
+			break;
+		case 2:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackShort_04.ogg");
+			break;
+		case 3:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackShort_05.ogg");
+			break;
+		}
+
+		m_pGameInstance->SoundPlay(const_cast<TCHAR*>(strVoiceTag.c_str()), SOUND_PLAYER_VO, 1.f);
+	}
+	if (PLAYER_ATK_POWER_01 == *m_pPlayerAnim ||
+		PLAYER_ATK_POWER_02 == *m_pPlayerAnim ||
+		PLAYER_ATK_RUN == *m_pPlayerAnim)
+	{
+		m_pGameInstance->SoundPlay(TEXT("Power_Attack_1.ogg"), SOUND_PLAYER_ATTACK, 1.f);
+
+		_uint iNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
+		_wstring strVoiceTag = L"";
+		switch (iNum)
+		{
+		case 0:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackLong_03.ogg");
+			break;
+		case 1:
+			strVoiceTag = TEXT("Voc_Player_Male_A_AttackLong_04.ogg");
+			break;
+		}
+
+		m_pGameInstance->SoundPlay(const_cast<TCHAR*>(strVoiceTag.c_str()), SOUND_PLAYER_VO, 1.f);
+	}
+
+	m_pGameInstance->Set_SoundFrequency(SOUND_PLAYER_ATTACK, fFrequency);
+
 }
 
 CPlayer_Weapon* CPlayer_Weapon::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

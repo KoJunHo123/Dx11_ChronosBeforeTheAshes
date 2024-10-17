@@ -49,14 +49,18 @@ private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
 	class CTexture* m_pNoiseTextureCom = { nullptr };
-
 	_float* m_pRatio = { nullptr };
-
 	_float m_fStartSpeed = { 0.f };
+
+	_bool m_bLeftStep = { false };
+	_bool m_bRightStep = { false };
+
+	PLAYER_ANIM m_ePreAnim = { PLAYER_ANIM_END };
 
 private:
 	void Play_Animation(_float fTimeDelta);	
 	_vector Get_Rotation(_matrix WorldMatrix, _vector vExist);
+	void StepSound();
 
 private:
 	HRESULT Ready_Components();

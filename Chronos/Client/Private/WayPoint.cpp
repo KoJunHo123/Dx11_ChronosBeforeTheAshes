@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "WayPoint_InterColl.h"
+#include "WayPoint_Effect.h"
 
 CWayPoint::CWayPoint(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CContainerObject(pDevice, pContext)
@@ -55,6 +56,13 @@ _uint CWayPoint::Priority_Update(_float fTimeDelta)
 
 void CWayPoint::Update(_float fTimeDelta)
 {
+	//if (true == m_pGameInstance->isIn_Frustum_WorldSpace(Get_Position(), 3.f))
+	//{
+	//	static_cast<CWayPoint_Effect*>(m_Parts[PART_EFFECT])->Set_On(true);
+	//}
+	//else
+	//	static_cast<CWayPoint_Effect*>(m_Parts[PART_EFFECT])->Set_On(false);
+
 	for (auto& Part : m_Parts)
 	{
 		if (nullptr == Part)
@@ -75,10 +83,13 @@ void CWayPoint::Late_Update(_float fTimeDelta)
 		Part->Late_Update(fTimeDelta);
 	}
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	if (true == m_pGameInstance->isIn_Frustum_WorldSpace(Get_Position(), 3.f))
+	{
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 #ifdef _DEBUG
-	m_pGameInstance->Add_DebugObject(m_pColliderCom);
+		m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
+	}
 }
 
 HRESULT CWayPoint::Render()
@@ -198,6 +209,14 @@ HRESULT CWayPoint::Ready_PartObject()
 
 	if(FAILED(__super::Add_PartObject(PART_INTERCOLL, TEXT("Prototype_GameObject_WayPoint_InterColl"), &desc)))
 		return E_FAIL;
+
+	//CWayPoint_Effect::EFFECT_DESC EffectDesc = {};
+	//EffectDesc.fRotationPerSec = 0.f;
+	//EffectDesc.fSpeedPerSec = 1.f;
+	//EffectDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+	//if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_WayPoint_Effect"), &EffectDesc)))
+	//	return E_FAIL;
 
 	return S_OK;
 }

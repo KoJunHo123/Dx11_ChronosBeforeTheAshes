@@ -28,6 +28,9 @@ HRESULT CLevel_Logo::Initialize(_uint iLevelIndex)
 		return E_FAIL;
 
 	m_bLevelStart = true;
+
+	m_pGameInstance->PlayBGM(TEXT("Mus_Chronos_Theme_All.ogg"), SOUND_BGM, 1.f);
+
 	return S_OK;
 }
 
@@ -133,4 +136,5 @@ void CLevel_Logo::Free()
 {
 	__super::Free();
 
+	m_pGameInstance->StopSoundSlowly(SOUND_BGM);
 }

@@ -50,7 +50,7 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 	m_pAttackActive_Body = pDesc->pAttackActive_Body;
 	m_pRatio = pDesc->pRatio;
 
-	m_fChargeSpeed = 25.f;
+	m_fChargeSpeed = 50.f;
 
 	m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
 
@@ -59,7 +59,6 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
-
 
 	return S_OK;
 }
@@ -124,7 +123,7 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 			}
 
 			if (BOSS_LAB_ATK_CHARGE == m_eBossAnim)
-				m_pBossTransformCom->Go_Straight(fTimeDelta * m_fChargeSpeed);
+				m_pBossTransformCom->Go_Straight(fTimeDelta * m_fChargeSpeed, m_pNavigationCom);
 
 			if (true == m_isFinished)
 			{
@@ -246,7 +245,6 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 						_vector vPlayerPos = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0))->Get_State(CTransform::STATE_POSITION);
 						m_pBossTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos);
-						// 튀어나오는 파티클 on
 
 						*m_pAttackActive_Body = true;
 					}
@@ -305,7 +303,7 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 	
 	m_pModelCom->SetUp_Animation(m_eBossAnim, bLoop, bNonInterpolate);
 
-	Play_Animation(fTimeDelta);
+	Play_Animation(fTimeDelta * 1.2f);
 
 }
 
@@ -313,8 +311,11 @@ void CBoss_Lab_Body::Late_Update(_float fTimeDelta)
 {
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+	if(true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 10.f))
+	{
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_SHADOWOBJ, this);
+	}
 }
 
 HRESULT CBoss_Lab_Body::Render()

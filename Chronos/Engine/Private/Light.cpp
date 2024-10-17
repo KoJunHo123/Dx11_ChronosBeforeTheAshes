@@ -6,6 +6,23 @@ CLight::CLight()
 {
 }
 
+void CLight::Set_Pos(_fvector vPos)
+{
+	XMStoreFloat4(&m_LightDesc.vPosition, vPos);
+}
+
+void CLight::Set_Range(_float fRange)
+{
+	m_LightDesc.fRange = fRange;
+}
+
+void CLight::Set_Diffuse(_fvector vColor)
+{
+	XMStoreFloat4(&m_LightDesc.vDiffuse, vColor);
+	XMStoreFloat4(&m_LightDesc.vAmbient, vColor * 0.4f);
+	m_LightDesc.vSpecular = m_LightDesc.vDiffuse;
+}
+
 HRESULT CLight::Initialize(const LIGHT_DESC& LightDesc)
 {
 	m_LightDesc = LightDesc;

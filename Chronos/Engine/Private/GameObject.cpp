@@ -22,6 +22,14 @@ CGameObject::CGameObject(const CGameObject & Prototype)
 	m_isCloned = true;
 }
 
+_vector CGameObject::Get_State(_uint iState)
+{
+	if (iState >= CTransform::STATE_END)
+		return XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
+	return m_pTransformCom->Get_State(CTransform::STATE(iState));
+}
+
 HRESULT CGameObject::Initialize_Prototype()
 {
 	return S_OK;

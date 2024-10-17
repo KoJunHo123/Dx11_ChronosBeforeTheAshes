@@ -111,7 +111,7 @@ HRESULT CDoorLock_Effect::Ready_Components(const EFFECT_DESC& Desc)
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Rect"),
-		TEXT("Com_Black_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom), &ParticleDesc)))
+		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom), &ParticleDesc)))
 		return E_FAIL;
 
 	return S_OK;

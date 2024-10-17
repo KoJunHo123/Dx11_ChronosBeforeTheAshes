@@ -49,6 +49,7 @@ using namespace DirectX;
 #include <filesystem>
 
 using namespace std;
+using namespace filesystem;
 
 #include "Engine_Macro.h"
 #include "Engine_Function.h"

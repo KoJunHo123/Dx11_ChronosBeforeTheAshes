@@ -9,8 +9,11 @@
 #include "DragonHeart.h"
 
 #include "UI_DragonStone.h"
-
 #include "UI_GageBar.h"
+#include "UI_YouDied.h"
+#include "UI_Interaction.h"
+#include "UI_Puzzle.h"
+#include "UI_PuzzleExit.h"
 
 CUI_PlayerBase::CUI_PlayerBase(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CGameObject(pDevice, pContext)
@@ -31,6 +34,7 @@ HRESULT CUI_PlayerBase::Initialize(void* pArg)
 {
 	m_pPlayer = static_cast<CPlayer*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Player"), 0));
 	Safe_AddRef(m_pPlayer);
+
 
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
@@ -136,6 +140,53 @@ HRESULT CUI_PlayerBase::Ready_UI()
 
 	m_UIObjects[UI_SKILL] = static_cast<CUIObject*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_UI_GageBar"), &BarDesc));
 
+	CUI_YouDied::UI_YOUDIED_DESC DiedDesc = {};
+	DiedDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	DiedDesc.fSpeedPerSec = 1.f;
+	DiedDesc.fSizeX = g_iWinSizeX;
+	DiedDesc.fSizeY = g_iWinSizeY;
+	DiedDesc.fX = g_iWinSizeX * 0.5f;
+	DiedDesc.fY = g_iWinSizeY * 0.5f;
+	DiedDesc.pPlayer = m_pPlayer;
+
+	m_UIObjects[UI_YOUDIED] = static_cast<CUIObject*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_UI_YouDied"), &DiedDesc));
+
+	CUI_Interaction::UI_INTERACTION_DESC InteractionDesc = {};
+
+	InteractionDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	InteractionDesc.fSpeedPerSec = 1.f;
+	InteractionDesc.fSizeX = 50.f;
+	InteractionDesc.fSizeY = 50.f;
+	InteractionDesc.fX = 0.f;
+	InteractionDesc.fY = 0.f;
+	InteractionDesc.pPlayer = m_pPlayer;
+
+	m_UIObjects[UI_INTERACTION] = static_cast<CUIObject*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_UI_Interaction"), &InteractionDesc));
+
+	CUI_Puzzle::UI_PUZZLE_DESC PuzzleDesc = {};
+
+	PuzzleDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	PuzzleDesc.fSpeedPerSec = 1.f;
+	PuzzleDesc.fSizeX = 80.f;
+	PuzzleDesc.fSizeY = 50.f;
+	PuzzleDesc.fX = 1030.f;
+	PuzzleDesc.fY = 590.f;
+	PuzzleDesc.pPlayer = m_pPlayer;
+	PuzzleDesc.pInventory = pInventory;
+
+	m_UIObjects[UI_PUZZLE] = static_cast<CUIObject*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_UI_Puzzle"), &PuzzleDesc));
+	
+	CUI_PuzzleExit::UI_PUZZLEEXIT_DESC PuzzleExitDesc = {};
+
+	PuzzleExitDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	PuzzleExitDesc.fSpeedPerSec = 1.f;
+	PuzzleExitDesc.fSizeX = 50.f;
+	PuzzleExitDesc.fSizeY = 50.f;
+	PuzzleExitDesc.fX = 1030.f;
+	PuzzleExitDesc.fY = 520.f;
+	PuzzleExitDesc.pPlayer = m_pPlayer;
+
+	m_UIObjects[UI_PUZZLEEXIT] = static_cast<CUIObject*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_UI_PuzzleExit"), &PuzzleExitDesc));
 
 	return S_OK;
 }

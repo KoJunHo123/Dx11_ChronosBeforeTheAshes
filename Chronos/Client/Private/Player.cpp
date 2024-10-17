@@ -14,7 +14,8 @@
 #include "Player_Shield.h"
 #include "Player_Item.h"
 #include "Player_Skill.h"
-#include "Player_Skill_Particle.h"
+#include "Player_Skill_Particle_Fire.h"
+#include "Player_Skill_Particle_Smoke.h"
 #include "Player_UseSkill_Particle.h"
 
 #include "Camera_Container.h"
@@ -22,9 +23,10 @@
 
 #include "Inventory.h"
 #include "DragonHeart.h"
-
 #include "Trail_Revolve.h"
 #include "Particle_DragonHeart.h"
+
+#include "PuzzleBase.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -43,7 +45,7 @@ HRESULT CPlayer::Initialize_Prototype()
 
 HRESULT CPlayer::Initialize(void* pArg)
 {
-    m_fSpeed = 4.f * 5.f;
+    m_fSpeed = 4.f;
     m_fStartSpeed = m_fSpeed;
 
     m_fMaxHP = 100;
@@ -79,8 +81,6 @@ HRESULT CPlayer::Initialize(void* pArg)
 
     m_pFSM->Set_State(STATE_MOVE);
 
-
-
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->Get_CellCenterPos(pDesc->iStartCellIndex));
 
     // 임시. 수정 위치로 나중에 변경.
@@ -105,11 +105,13 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
             Set_Position(XMLoadFloat3(&m_vSavePos));
             m_pFSM->Set_State(STATE_MOVE);
             m_fHP = m_fMaxHP;
+            m_fStamina = m_fMaxStamina;
+            m_fSkillGage = 0;
 
-            m_bDead = false;
-            m_bRevive = true;
+            static_cast<CCamera_Shorder*>(m_pCurrentCamera)->Set_InitialState();
+            static_cast<CPuzzleBase*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), 0))->Set_ActivesFalse();
+
         }
-
         if (true == m_bRevive)
         {
             m_fDeathDelay += fTimeDelta;
@@ -119,7 +121,6 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
                 {
                     m_fDeathDelay = 0.f;
                     m_bRevive = false;
-                    m_fSkillGage = 0;
                 }
             }
         }
@@ -149,21 +150,12 @@ void CPlayer::Update(_float fTimeDelta)
 
         m_vCameraLook.y = 0.f;
 
-        
         //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
         //    m_pFSM->Set_State(STATE_JUMP);
 
         m_pFSM->Update(fTimeDelta);
 
         m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
-
-        //cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
-        
-        //_float3 vPos = {};
-        //XMStoreFloat3(&vPos, Get_Position());
-        //cout << vPos.x << endl;
-        //cout << vPos.y << endl;
-        //cout << vPos.z << endl << endl;
 
         Anim_Frame_Control();
     }
@@ -174,9 +166,8 @@ void CPlayer::Update(_float fTimeDelta)
         vPos, XMVectorSet(0.f, 1.f, 0.f, 0.f)));
 
     m_pGameInstance->Set_Transform(CPipeLine::D3DTS_SHADOWVIEW, XMLoadFloat4x4(&ViewMatrix));
-    
-    _vector vTop = XMVectorSetY(vPos, XMVectorGetY(vPos) + 3.f);
 
+    m_bInteraction = false;
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
@@ -188,6 +179,8 @@ void CPlayer::Late_Update(_float fTimeDelta)
 
         if (m_fHP <= 0)
         {
+            m_pGameInstance->StopSound(SOUND_PLAYER_VO);
+            m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_Death_03.ogg"), SOUND_PLAYER_VO, 1.f);
             if(STATE_JUMP == m_pFSM->Get_State())
             {
                 if(true == m_pGameInstance->FadeIn(fTimeDelta))
@@ -205,9 +198,13 @@ void CPlayer::Late_Update(_float fTimeDelta)
 
         // 스킬 진행중
         if (0.f < m_fSkillDuration)
+        {
             m_fSkillDuration -= fTimeDelta;
+        }
         else
         {
+            m_pGameInstance->StopSoundSlowly(SOUND_PLAYER_DRAGONHEART);
+
             switch (m_eCurrentSkill)
             {
             case SKILL_RED:
@@ -241,13 +238,16 @@ HRESULT CPlayer::Render()
             return E_FAIL;
     }
 
-
     return S_OK;
 }
 
 void CPlayer::Intersect(const _wstring strColliderTag, CGameObject* pCollisionObject, _float3 vSourInterval, _float3 vDestInterval)
 {
-
+    if (TEXT("Coll_Interaction") == strColliderTag)
+    {
+        if(CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+            m_bInteraction = true;
+    }
 }
 
 _bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
@@ -272,11 +272,17 @@ _bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
                 else
                     static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
 
+                m_pGameInstance->StopSound(SOUND_PLAYER_BLOCK);
+                m_pGameInstance->SoundPlay(TEXT("ShieldBreak_4.ogg"), SOUND_PLAYER_BLOCK, 0.5f);
+
                 return false;
             }
         }
 
         m_fHP -= fDamage;
+
+        m_pGameInstance->StopSound(SOUND_PLAYER_VO);
+        m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_PainShort_06.ogg"), SOUND_PLAYER_VO, 1.f);
 
         _float fRadian = acos(fDot);
 
@@ -332,6 +338,11 @@ void CPlayer::Start_Teleport(_fvector vPos)
     CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION));
     pAction->Set_State(CPlayer_Action::STATE_TELEPORT);
     pAction->Set_TargetPosition(vPos);
+}
+
+_uint CPlayer::Get_CellIndex()
+{
+    return m_pNavigationCom->Get_CurrentCellIndex();
 }
 
 HRESULT CPlayer::Ready_Components(_int iStartCellIndex)
@@ -574,6 +585,7 @@ HRESULT CPlayer::Ready_Weapon(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc)
     desc.pSkillGage = &m_fSkillGage;
     desc.fMaxSkillGage = m_fMaxSkillGage;
     desc.pSkillDuration = &m_fSkillDuration;
+    desc.fStartSpeed = m_fStartSpeed;
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Player_Weapon"), &desc)))
         return E_FAIL;
@@ -639,16 +651,28 @@ HRESULT CPlayer::Ready_Skill()
     if (FAILED(__super::Add_PartObject(PART_SKILL, TEXT("Prototype_GameObject_Player_Skill"), &SkillDesc)))
         return E_FAIL;
 
-    CPlayer_Skill_Particle::PLAYER_SKILL_DESC ParticleDesc = {};
-    ParticleDesc.fRotationPerSec = XMConvertToRadians(90.f);
-    ParticleDesc.fSpeedPerSec = 1.f;
-    ParticleDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    ParticleDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
-    ParticleDesc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
-    ParticleDesc.pCurrentSkill = &m_eCurrentSkill;
-    ParticleDesc.pSkilDuration = &m_fSkillDuration;
+    CPlayer_Skill_Particle_Fire::PLAYER_SKILL_DESC ParticleFireDesc = {};
+    ParticleFireDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    ParticleFireDesc.fSpeedPerSec = 1.f;
+    ParticleFireDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    ParticleFireDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
+    ParticleFireDesc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
+    ParticleFireDesc.pCurrentSkill = &m_eCurrentSkill;
+    ParticleFireDesc.pSkilDuration = &m_fSkillDuration;
 
-    if (FAILED(__super::Add_PartObject(PART_SKILL_PARTICLE, TEXT("Prototype_GameObject_Player_Skill_Particle"), &ParticleDesc)))
+    if (FAILED(__super::Add_PartObject(PART_SKILL_PARTICLE_FIRE, TEXT("Prototype_GameObject_Player_Skill_Particle_Fire"), &ParticleFireDesc)))
+        return E_FAIL;
+
+    CPlayer_Skill_Particle_Smoke::PLAYER_SKILL_DESC ParticleSmokeDesc = {};
+    ParticleSmokeDesc.fRotationPerSec = XMConvertToRadians(90.f);
+    ParticleSmokeDesc.fSpeedPerSec = 1.f;
+    ParticleSmokeDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    ParticleSmokeDesc.pSocketBoneMatrix = dynamic_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Weapon_Sword");
+    ParticleSmokeDesc.pTailSocketMatrix = static_cast<CPlayer_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_M_Tail_Weapon_6");
+    ParticleSmokeDesc.pCurrentSkill = &m_eCurrentSkill;
+    ParticleSmokeDesc.pSkilDuration = &m_fSkillDuration;
+
+    if (FAILED(__super::Add_PartObject(PART_SKILL_PARTICLE_SMOKE, TEXT("Prototype_GameObject_Player_Skill_Particle_Smoke"), &ParticleSmokeDesc)))
         return E_FAIL;
 
     CPlayer_UseSkill_Particle::PLAYER_USESKILL_DESC UseSkillDesc = {};
@@ -694,16 +718,21 @@ void CPlayer::Anim_Frame_Control()
             {
             case SKILL_RED:
                 m_fSpeed *= 1.5f;
+                m_pGameInstance->SoundPlay(TEXT("swordfire_start.ogg"), SOUND_PLAYER_USE_DRAGONHEART, 1.f);
+                m_pGameInstance->SoundPlay(TEXT("ds_fire_2.ogg"), SOUND_PLAYER_DRAGONHEART, 1.f);
                 break;
 
             case SKILL_PUPPLE:
                 m_bDrain = true;
+                m_pGameInstance->SoundPlay(TEXT("swordfire_start2.ogg"), SOUND_PLAYER_USE_DRAGONHEART, 1.f);
+                m_pGameInstance->SoundPlay(TEXT("swordfire_glow3.ogg"), SOUND_PLAYER_DRAGONHEART, 1.f);
                 break;
             }
             //m_fSkillGage = 0.f;
             m_fSkillGage = 100.f;
             m_fSkillDuration = 10.f;
             static_cast<CPlayer_UseSkill_Particle*>(m_Parts[PART_USESKILL_PARTICLE])->Set_On(true);
+            
         }
 
     }

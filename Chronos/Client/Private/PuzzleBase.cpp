@@ -226,6 +226,14 @@ void CPuzzleBase::Intersect(const _wstring strColliderTag, CGameObject* pCollisi
 
 }
 
+void CPuzzleBase::Set_ActivesFalse()
+{
+	for (size_t i = 0; i < PART_END; ++i)
+	{
+		m_bPartActive[i] = false;
+	}
+}
+
 HRESULT CPuzzleBase::Ready_Components()
 {
 	/* FOR.Com_Model */
@@ -742,7 +750,7 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 			}
 		}
 		// 여기서 몬스터 배치.
-		// Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
+		//Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
 	}
 	else
 	{
@@ -922,25 +930,34 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 	desc.vTargetPos = m_pNavigationCom->Get_CellZXCenter(iCellIndex);
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_A");
+	desc.eInSound = SOUND_FLOOR_FADEIN_1;
+	desc.eOutSound = SOUND_FLOOR_FADEOUT_1;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_B");
+	desc.eInSound = SOUND_FLOOR_FADEIN_2;
+	desc.eOutSound = SOUND_FLOOR_FADEOUT_2;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_C");
+	desc.eInSound = SOUND_FLOOR_FADEIN_3;
+	desc.eOutSound = SOUND_FLOOR_FADEOUT_3;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_D");
+	desc.eInSound = SOUND_FLOOR_FADEIN_4;
+	desc.eOutSound = SOUND_FLOOR_FADEOUT_4;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_E");
+	desc.eInSound = SOUND_FLOOR_FADEIN_5;
+	desc.eOutSound = SOUND_FLOOR_FADEOUT_5;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
-	
 
 	return S_OK;
 }
@@ -948,83 +965,86 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 HRESULT CPuzzleBase::Add_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iPartIndex)
 {
 	// 요 범위 내에서 현재 파트 인덱스에 따라서 몬스터 할당.
-	vector<_uint> AddIndices;
-
-	_int iStartCellIndex = { 0 };
-
 
 	if (PART_PIECE_00 == iPartIndex && false == m_bPartActive[PART_PIECE_00])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 1, 1, 1, 2);
 		m_bPartActive[PART_PIECE_00] = true;
 	}
 	else if (PART_PIECE_01 == iPartIndex && false == m_bPartActive[PART_PIECE_01])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 2, 2, 0, 0);
 		m_bPartActive[PART_PIECE_01] = true;
 	}
 	else if (PART_PIECE_02 == iPartIndex && false == m_bPartActive[PART_PIECE_02])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_MAGE, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 0, 0, 2, 4);
 		m_bPartActive[PART_PIECE_02] = true;
 	}
 	else if (PART_PIECE_10 == iPartIndex && false == m_bPartActive[PART_PIECE_10])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_CONSTRUCT, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 0, 1, 3, 0);
 		m_bPartActive[PART_PIECE_10] = true;
 	}
 	else if (PART_PIECE_12 == iPartIndex && false == m_bPartActive[PART_PIECE_12])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 3, 0, 0, 0);
 		m_bPartActive[PART_PIECE_12] = true;
 	}
 	else if (PART_PIECE_21 == iPartIndex && false == m_bPartActive[PART_PIECE_21])
 	{
-		for(size_t i = 0; i < 8; ++i)
-		{
-			//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-			//if(FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-			//	return E_FAIL;
-			//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
-			//	return E_FAIL;
-		}
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 0, 0, 0, 8);
 		m_bPartActive[PART_PIECE_21] = true;
 	}
 	else if (PART_PIECE_22 == iPartIndex && false == m_bPartActive[PART_PIECE_22])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_TROLL, 1.5f)))
-		//	return E_FAIL;
-
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 0, 3, 0, 0);
 		m_bPartActive[PART_PIECE_22] = true;
 	}
-
 	else if (PART_PIECE_REPLACEMENT == iPartIndex && false == m_bPartActive[PART_PIECE_REPLACEMENT])
 	{
-		//iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
-		//if (FAILED(Add_SpawnParticle(iStartCellIndex, CParticle_Spawn::TYPE_DRUM, 1.5f)))
-		//	return E_FAIL;
-
+		Set_Monster(iStartX, iEndX, iStartZ, iEndZ, 0, 2, 0, 2);
 		m_bPartActive[PART_PIECE_REPLACEMENT] = true;
-		}
+	}
 
+	return S_OK;
+}
+
+HRESULT CPuzzleBase::Set_Monster(_uint iStartX, _uint iEndX, _uint iStartZ, _uint iEndZ, _uint iConstruct, _uint iDrum, _uint iMage, _uint iTroll)
+{
+	vector<_uint> AddIndices;
+
+	CMonster::MONSTER_DESC desc = {};
+	desc.fRotationPerSec = XMConvertToRadians(90.f);
+	desc.fSpeedPerSec = 1.f;
+
+	desc.vRotation = {};
+	desc.vScale = { 1.f, 1.f, 1.f };
+
+	for (size_t i = 0; i < iConstruct; ++i)
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Construct"), &desc)))
+			return E_FAIL;
+	}
+	for (size_t i = 0; i < iDrum; ++i)
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Drum"), &desc)))
+			return E_FAIL;
+	}
+	for (size_t i = 0; i < iMage; ++i)
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
+			return E_FAIL;
+	}
+	for (size_t i = 0; i < iTroll; ++i)
+	{
+		desc.iStartCellIndex = Get_DiffIndex(AddIndices, iStartX, iEndX, iStartZ, iEndZ);
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Troll"), &desc)))
+			return E_FAIL;
+	}
 	return S_OK;
 }
 
@@ -1073,26 +1093,6 @@ HRESULT CPuzzleBase::Add_Teleport(_fvector vPos)
 	return S_OK;
 }
 
-HRESULT CPuzzleBase::Add_SpawnParticle(_int iSpawnCellIndex, _uint iType, _float fOffset)
-{
-	CParticle_Spawn::PARTICLE_SPAWN_DESC desc = {};
-
-	desc.fRotationPerSec = 0.f;
-	desc.fSpeedPerSec = 1.f;
-	desc.iSpawnCellIndex = iSpawnCellIndex;
-	XMStoreFloat3(&desc.vPos, m_pNavigationCom->Get_CellCenterPos(desc.iSpawnCellIndex));
-	desc.vPos.y += fOffset;
-
-	if (-1 == desc.iSpawnCellIndex)
-		return E_FAIL;
-
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spawn"), &desc)))
-		return E_FAIL;
-
-	return S_OK;
-
-	return S_OK;
-}
 
 CPuzzleBase::LOCATION CPuzzleBase::Find_Location_ByPos(_fvector vPos)
 {

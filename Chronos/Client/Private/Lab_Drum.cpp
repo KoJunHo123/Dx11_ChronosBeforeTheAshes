@@ -6,6 +6,8 @@
 #include "Lab_Drum_Attack.h"
 
 #include "Particle_Monster_Death.h"
+#include "Particle_Monster_Appear.h"
+
 #include "Particle_Spawn.h"
 #include "Effect_Spark.h"
 
@@ -26,6 +28,8 @@ HRESULT CLab_Drum::Initialize_Prototype()
 
 HRESULT CLab_Drum::Initialize(void* pArg)
 {
+    m_eMonsterType = MONSTER_DRUM;
+
     if (FAILED(__super::Initialize(pArg)))
         return E_FAIL;
 
@@ -43,6 +47,9 @@ HRESULT CLab_Drum::Initialize(void* pArg)
     m_pColliderCom->Set_OnCollision(true);
 
     m_fOffset = 6.f;
+    m_fRatio = 1.f;
+    m_bStart = true;
+
 
     return S_OK;
 }
@@ -51,6 +58,16 @@ _uint CLab_Drum::Priority_Update(_float fTimeDelta)
 {
     if (true == m_bDead)
         return OBJ_DEAD;
+    
+    if (true == m_bStart)
+    {
+        m_fRatio -= fTimeDelta * 0.5f;
+        if (m_fRatio < 0.f)
+        {
+            m_fRatio = 0.f;
+            m_bStart = false;
+        }
+    }
 
 
     for (auto& Part : m_Parts)
@@ -81,7 +98,11 @@ void CLab_Drum::Update(_float fTimeDelta)
     if (true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
-            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
+        {
+            _vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+            vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
+            m_pTransformCom->LookAt(vPlayerPos, 0.1f);
+        }
 
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
         {
@@ -275,7 +296,7 @@ HRESULT CLab_Drum::Ready_PartObjects()
     DeathDesc.fSpeedPerSec = 0.f;
     DeathDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
     DeathDesc.pSocketMatrix = static_cast<CLab_Drum_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LD_Spine1");;
-    DeathDesc.iNumInstance = 1500;
+    DeathDesc.iNumInstance = 400;
     DeathDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
     DeathDesc.vRange = _float3(2.f, 2.f, 2.f);
     DeathDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
@@ -286,6 +307,22 @@ HRESULT CLab_Drum::Ready_PartObjects()
     if (FAILED(__super::Add_PartObject(PART_EFFECT_DEATH, TEXT("Prototype_GameObject_Particle_Monster_Death"), &DeathDesc)))
         return E_FAIL;
 
+    CParticle_Monster_Appear::PARTICLE_APPEAR_DESC AppearDesc = {};
+    AppearDesc.fRotationPerSec = 0.f;
+    AppearDesc.fSpeedPerSec = 0.f;
+    AppearDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AppearDesc.pSocketMatrix = static_cast<CLab_Drum_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LD_Spine1");
+    AppearDesc.iNumInstance = 600;
+    AppearDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
+    AppearDesc.vRange = _float3(8.f, 8.f, 8.f);
+    AppearDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+    AppearDesc.vSize = _float2(0.15f, 0.3f);
+    AppearDesc.vSpeed = _float2(2.f, 4.f);
+    AppearDesc.vLifeTime = _float2(1.f, 2.f);;
+
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_APPEAR, TEXT("Prototype_GameObject_Particle_Monster_Appear"), &AppearDesc)))
+        return E_FAIL;
+    
     return S_OK;
 }
 

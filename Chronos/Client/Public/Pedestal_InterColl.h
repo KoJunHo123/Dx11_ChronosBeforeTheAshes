@@ -39,7 +39,7 @@ private:
 	class CItem** m_ppItem = { nullptr };
 
 	_wstring m_strItemTag = L"";
-
+	_bool* m_pNonItem = { false };
 private:
 	HRESULT Ready_Components();
 

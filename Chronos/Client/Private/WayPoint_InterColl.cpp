@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 
 #include "Player.h"
+#include "Particle_Save.h"
 
 CWayPoint_InterColl::CWayPoint_InterColl(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
@@ -68,6 +69,13 @@ void CWayPoint_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 		_vector vPos = XMLoadFloat4x4(&m_WorldMatrix).r[3];
 		static_cast<CPlayer*>(pCollisionObject)->Set_SavePos(vPos);
 		*m_pIntersect = false;
+
+
+		CParticle_Save::PARTICLE_SAVE_DESC desc = {};
+		XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
+
+		m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Save"), &desc);
+		
 	}
 }
 

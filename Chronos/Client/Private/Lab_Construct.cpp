@@ -4,9 +4,11 @@
 
 #include "Lab_Construct_Body.h"
 #include "Lab_Construct_Attack.h"
+#include "Lab_Construct_Effect_Black.h"
+#include "Lab_Construct_Effect_Pupple.h"
 
 #include "Particle_Monster_Death.h"
-#include "Particle_Spawn.h"
+#include "Particle_Monster_Appear.h"
 
 CLab_Construct::CLab_Construct(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CMonster(pDevice, pContext)
@@ -25,6 +27,8 @@ HRESULT CLab_Construct::Initialize_Prototype()
 
 HRESULT CLab_Construct::Initialize(void* pArg)
 {
+    m_eMonsterType = MONSTER_CONSTRUCT;
+
     if (FAILED(__super::Initialize(pArg)))
         return E_FAIL;
 
@@ -40,6 +44,8 @@ HRESULT CLab_Construct::Initialize(void* pArg)
     m_iState = STATE_IDLE;
     m_pColliderCom->Set_OnCollision(true);
     m_fOffset = 9.f;
+    m_fRatio = 1.f;
+    m_bStart = true;
 
     return S_OK;
 }
@@ -49,6 +55,15 @@ _uint CLab_Construct::Priority_Update(_float fTimeDelta)
     if (true == m_bDead)
         return OBJ_DEAD;
 
+    if (true == m_bStart)
+    {
+        m_fRatio -= fTimeDelta * 0.5f;
+        if (m_fRatio < 0.f)
+        {
+            m_fRatio = 0.f;
+            m_bStart = false;
+        }
+    }
 
     for (auto& Part : m_Parts)
     {
@@ -79,7 +94,11 @@ void CLab_Construct::Update(_float fTimeDelta)
     if(true == m_bAggro)
     {
         if (STATE_IDLE == m_iState || STATE_WALK == m_iState)
-            m_pTransformCom->LookAt(m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION), 0.1f);
+        {
+            _vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+            vPlayerPos.m128_f32[1] = m_pTransformCom->Get_State(CTransform::STATE_POSITION).m128_f32[1];
+            m_pTransformCom->LookAt(vPlayerPos, 0.1f);
+        }
 
         if(STATE_IDLE == m_iState || STATE_WALK == m_iState)
         {
@@ -118,6 +137,23 @@ void CLab_Construct::Update(_float fTimeDelta)
             continue;
         Part->Update(fTimeDelta);
     }
+
+    if (LAB_CONSTRUCT_ATK_3HIT_COMBO == m_iCurrentAnim)
+    {
+        _uint iCurrentFrame = static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_FrameIndex();
+        if (30 < iCurrentFrame)
+        {
+            static_cast<CLab_Construct_Effect_Black*>(m_Parts[PART_EFFECT_BLACK])->Set_On(true);
+            static_cast<CLab_Construct_Effect_Pupple*>(m_Parts[PART_EFFECT_PUPPLE])->Set_On(true);
+        }
+    }
+    else
+    {
+        static_cast<CLab_Construct_Effect_Black*>(m_Parts[PART_EFFECT_BLACK])->Set_On(false);
+        static_cast<CLab_Construct_Effect_Pupple*>(m_Parts[PART_EFFECT_PUPPLE])->Set_On(false);
+    }
+    
+
     __super::Update(fTimeDelta);
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 
@@ -222,6 +258,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     BodyDesc.pShieldAttackActive = &m_bShieldAttackActive;
     BodyDesc.pNoiseTextureCom = m_pNoiseTextureCom;
     BodyDesc.pRatio = &m_fRatio;
+    BodyDesc.pCurrentAnim = &m_iCurrentAnim;
 
     if (FAILED(__super::Add_PartObject(PART_BODY, TEXT("Prototype_GameObject_Lab_Construct_Body"), &BodyDesc)))
         return E_FAIL;
@@ -254,7 +291,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     DeathDesc.fSpeedPerSec = 0.f;
     DeathDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
     DeathDesc.pSocketMatrix = static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Spine1");;
-    DeathDesc.iNumInstance = 1500;
+    DeathDesc.iNumInstance = 800;
     DeathDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
     DeathDesc.vRange = _float3(3.f, 3.f, 3.f);
     DeathDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
@@ -265,23 +302,43 @@ HRESULT CLab_Construct::Ready_PartObjects()
     if (FAILED(__super::Add_PartObject(PART_EFFECT_DEATH, TEXT("Prototype_GameObject_Particle_Monster_Death"), &DeathDesc)))
         return E_FAIL;
 
-    return S_OK;
-}
+    CParticle_Monster_Appear::PARTICLE_APPEAR_DESC AppearDesc = {};
+    AppearDesc.fRotationPerSec = 0.f;
+    AppearDesc.fSpeedPerSec = 0.f;
+    AppearDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AppearDesc.pSocketMatrix = static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Spine1");
+    AppearDesc.iNumInstance = 1200;
+    AppearDesc.vCenter = _float3(0.0f, 0.0f, 0.0f);
+    AppearDesc.vRange = _float3(10.f, 10.f, 10.f);
+    AppearDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+    AppearDesc.vSize = _float2(0.15f, 0.3f);
+    AppearDesc.vSpeed = _float2(2.f, 4.f);
+    AppearDesc.vLifeTime = _float2(1.f, 2.f);;
 
-HRESULT CLab_Construct::Add_SpawnParticle(_fvector vPos, _float fOffset)
-{
-    CParticle_Spawn::PARTICLE_SPAWN_DESC desc = {};
-
-    desc.fRotationPerSec = 0.f;
-    desc.fSpeedPerSec = 1.f;
-    XMStoreFloat3(&desc.vPos, vPos);
-    desc.vPos.y += fOffset;
-
-    if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Spawn"), &desc)))
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_APPEAR, TEXT("Prototype_GameObject_Particle_Monster_Appear"), &AppearDesc)))
         return E_FAIL;
 
+    CLab_Construct_Effect_Black::EFFECT_DESC BlackDesc = {};
+    BlackDesc.fRotationPerSec = 0.f;
+    BlackDesc.fSpeedPerSec = 0.f;
+    BlackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BlackDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Weapon_Sword");
+   
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_BLACK, TEXT("Prototype_GameObject_Lab_Construct_Effect_Black"), &BlackDesc)))
+        return E_FAIL;
+
+    CLab_Construct_Effect_Pupple::EFFECT_DESC PuppleDesc = {};
+    PuppleDesc.fRotationPerSec = 0.f;
+    PuppleDesc.fSpeedPerSec = 0.f;
+    PuppleDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    PuppleDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Weapon_Sword");
+
+    if (FAILED(__super::Add_PartObject(PART_EFFECT_PUPPLE, TEXT("Prototype_GameObject_Lab_Construct_Effect_Pupple"), &PuppleDesc)))
+        return E_FAIL;
+    
     return S_OK;
 }
+
 
 CLab_Construct* CLab_Construct::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

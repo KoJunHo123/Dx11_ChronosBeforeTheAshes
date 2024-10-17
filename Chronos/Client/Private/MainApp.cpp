@@ -18,10 +18,25 @@ CMainApp::CMainApp()
 
 HRESULT CMainApp::Initialize()
 {	
+#ifdef _DEBUG
+
+	if (::AllocConsole() == TRUE)
+	{
+		FILE* nfp[3];
+		freopen_s(nfp + 0, "CONOUT$", "rb", stdin);
+		freopen_s(nfp + 1, "CONOUT$", "wb", stdout);
+		freopen_s(nfp + 2, "CONOUT$", "wb", stderr);
+		std::ios::sync_with_stdio();
+	}
+
+#endif // _DEBUG
+
+
 	ENGINE_DESC			EngineDesc{};
 	EngineDesc.hWnd = g_hWnd;
 	EngineDesc.iWinSizeX = g_iWinSizeX;
 	EngineDesc.iWinSizeY = g_iWinSizeY;
+	EngineDesc.iMaxSoundChannel = (_uint)SOUND_END;
 	EngineDesc.isWindowsed = true;
 
 	/* 엔진을 사용하기위한 여러 초기화 과정을 수행한다. */
@@ -45,18 +60,6 @@ HRESULT CMainApp::Initialize()
 	if (FAILED(Open_Level(LEVEL_LOGO)))
 		return E_FAIL;
 
-#ifdef _DEBUG
-
-	if (::AllocConsole() == TRUE)
-	{
-		FILE* nfp[3];
-		freopen_s(nfp + 0, "CONOUT$", "rb", stdin);
-		freopen_s(nfp + 1, "CONOUT$", "wb", stdout);
-		freopen_s(nfp + 2, "CONOUT$", "wb", stderr);
-		std::ios::sync_with_stdio();
-	}
-
-#endif // _DEBUG
 
 	//if (FAILED(m_pGameInstance->Add_Font(TEXT("Font_145"), TEXT("../Bin/Resources/Fonts/143ex.spritefont"))))
 	//	return E_FAIL;

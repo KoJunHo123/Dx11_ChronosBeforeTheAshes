@@ -106,7 +106,7 @@ void CLayer::Clear()
 {
 	for (auto& pGameObject : m_GameObjects)
 	{
-		pGameObject->Set_Dead();
+		pGameObject->Set_Dead(true);
 		Safe_Release(pGameObject);
 	}
 	m_GameObjects.clear();
