@@ -42,6 +42,35 @@ _uint CLab_Construct_Attack::Priority_Update(_float fTimeDelta)
 {
 	m_pColliderCom->Set_OnCollision(*m_pAttackActive);
 
+	if (true == *m_pAttackActive)
+	{
+		if (false == m_bAttackSound)
+		{
+			SOUND_DESC  desc = {};
+			desc.fMaxDistance = DEFAULT_DISTANCE;
+			desc.fVolume = 1.f;
+			XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+
+			if(LAB_CONSTRUCT_ATK_3HIT_COMBO == m_eConstructAnim)
+			{
+				m_pGameInstance->SoundPlay_Additional(TEXT("Goblin_Caster_Fire_Whoosh_04.ogg"), desc);
+			}
+			else if(LAB_CONSTRUCT_ATK_DOWNSWIPE == m_eConstructAnim || LAB_CONSTRUCT_ATK_VERTICALSLAM == m_eConstructAnim)
+			{
+				m_pGameInstance->SoundPlay_Additional(TEXT("Foley_Construct_Heavy_Long_05.ogg"), desc);
+			}
+			else
+			{
+				m_pGameInstance->SoundPlay_Additional(TEXT("Foley_Construct_Heavy_Short_05.ogg"), desc);
+			}
+
+			m_bAttackSound = true;
+		}
+	}
+	else
+		m_bAttackSound = false;
+
+
 	return OBJ_NOEVENT;
 }
 
@@ -92,6 +121,13 @@ void CLab_Construct_Attack::Intersect(const _wstring strColliderTag, CGameObject
 			_vector vPos = vCenter + vDir * 0.5f;
 			_vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
 			Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir));
+
+			SOUND_DESC SoundDesc = {};
+			SoundDesc.fMaxDistance = DEFAULT_DISTANCE;
+			SoundDesc.fVolume = 1.f;
+			XMStoreFloat3(&SoundDesc.vPos, pCollisionObject->Get_Position());
+
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Impacts_Root_Axe_Flesh_02.ogg"), SoundDesc);
 		}
 
 

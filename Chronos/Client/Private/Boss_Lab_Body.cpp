@@ -60,11 +60,15 @@ HRESULT CBoss_Lab_Body::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	m_SoundDesc.fMaxDistance = DEFAULT_DISTANCE * 3.f;
+	m_SoundDesc.fVolume = 1.f;
+
 	return S_OK;
 }
 
 _uint CBoss_Lab_Body::Priority_Update(_float fTimeDelta)
 {
+	XMStoreFloat3(&m_SoundDesc.vPos, m_pBossTransformCom->Get_State(CTransform::STATE_POSITION));
 	return OBJ_NOEVENT;
 }
 
@@ -103,10 +107,29 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 				*m_pAnimOver = false;
 			}
 
-			if (60 == m_pModelCom->Get_KeyFrameIndex())
-				*m_pAttackActive_LH = true;
-			else if (70 < m_pModelCom->Get_KeyFrameIndex())
+			if (30 <= m_pModelCom->Get_KeyFrameIndex() && m_pModelCom->Get_KeyFrameIndex() < 45)
+			{
+				if (false == *m_pAttackActive_Body)
+				{
+					*m_pAttackActive_Body = true;
+					Play_Sound_Short();
+				}
+			}
+			else if (45 <= m_pModelCom->Get_KeyFrameIndex() && m_pModelCom->Get_KeyFrameIndex() < 60)
+			{
+				*m_pAttackActive_Body = false;
+			}
+			else if (60 <= m_pModelCom->Get_KeyFrameIndex() && m_pModelCom->Get_KeyFrameIndex() < 70)
+			{
+				if(false == *m_pAttackActive_LH)
+				{
+					*m_pAttackActive_LH = true;
+					Play_Sound_Short();
+				}
+			}
+			else if (70 <= m_pModelCom->Get_KeyFrameIndex())
 				*m_pAttackActive_LH = false;
+
 			if (true == m_isFinished)
 			{
 				*m_pAnimOver = true;
@@ -118,12 +141,22 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 			if (false == *m_pAnimStart)
 			{
 				m_eBossAnim = BOSS_LAB_ATK_CHARGE_INTO;
+
+				m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Roll_Start.ogg"), m_SoundDesc);
+
 				*m_pAnimStart = true;
 				*m_pAnimOver = false;
 			}
 
+			if(BOSS_LAB_ATK_CHARGE_INTO == m_eBossAnim && 55 < m_pModelCom->Get_KeyFrameIndex())
+			{
+				m_pGameInstance->SoundPlay(TEXT("SFX_Lab_Boss_Attack_Roll_Loop_Mono.ogg"), SOUND_BOSS_CHARGE, m_SoundDesc);
+			}
+
 			if (BOSS_LAB_ATK_CHARGE == m_eBossAnim)
+			{
 				m_pBossTransformCom->Go_Straight(fTimeDelta * m_fChargeSpeed, m_pNavigationCom);
+			}
 
 			if (true == m_isFinished)
 			{
@@ -134,6 +167,9 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 				}
 				else if (BOSS_LAB_ATK_CHARGE == m_eBossAnim && 2.f < m_fChargingTime)
 				{
+					m_pGameInstance->StopSound(SOUND_BOSS_CHARGE);
+					m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Roll_End_01.ogg"), m_SoundDesc);
+
 					m_eBossAnim = BOSS_LAB_ATK_CHARGE_OUT;
 					*m_pAttackActive_Body = false;
 				}
@@ -166,23 +202,47 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 			if (BOSS_LAB_ATK_SWIPE_L == m_eBossAnim)
 			{
 				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
-					*m_pAttackActive_LH = true;
+				{
+					if (false == *m_pAttackActive_LH)
+					{
+						Play_Sound_Short();
+						*m_pAttackActive_LH = true;
+					}
+				}
 				else
 					*m_pAttackActive_LH = false;
 			}
 			else if (BOSS_LAB_ATK_SWIPE_R == m_eBossAnim)
 			{
-				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
-					*m_pAttackActive_RH = true;
+				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())	
+				{
+					if(false == m_pAttackActive_RH)
+					{
+						Play_Sound_Short();
+						*m_pAttackActive_RH = true;
+					}
+				}
 				else
 					*m_pAttackActive_RH = false;
 			}
 			else if (BOSS_LAB_ATK_DOUBLE_SWIPE == m_eBossAnim)
 			{
 				if (30 <= m_pModelCom->Get_KeyFrameIndex() && 37 > m_pModelCom->Get_KeyFrameIndex())
-					*m_pAttackActive_RH = true;
+				{
+					if(false == *m_pAttackActive_RH)
+					{
+						Play_Sound_Short();
+						*m_pAttackActive_RH = true;
+					}
+				}
 				else if (78 <= m_pModelCom->Get_KeyFrameIndex() && 83 > m_pModelCom->Get_KeyFrameIndex())
-					*m_pAttackActive_LH = true;
+				{
+					if (false == *m_pAttackActive_LH)
+					{
+						Play_Sound_Short();
+						*m_pAttackActive_LH = true;
+					}
+				}
 				else
 				{
 					*m_pAttackActive_RH = false;
@@ -199,6 +259,7 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 		{
 			if (false == *m_pAnimStart)
 			{
+				m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Pain_02d.ogg"), m_SoundDesc);
 				m_eBossAnim = BOSS_LAB_STUN;
 				*m_pAnimStart = true;
 				*m_pAnimOver = false;
@@ -233,7 +294,6 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 				*m_pAnimStart = true;
 				*m_pAnimOver = false;
 			}
-
 			if (BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND == m_eBossAnim)
 			{
 				if (2.f < m_fTeleportTime)
@@ -263,6 +323,7 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 					m_eBossAnim = BOSS_LAB_TELEPORT_LAUNCH_UNDERGROUND;
 					*m_pAttackActive_Body = false;
+					m_bDig = false;
 				}
 				else if (BOSS_LAB_TELEPORT_APPEAR == m_eBossAnim)
 				{
@@ -271,11 +332,52 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 					*m_pAnimOver = true;
 					*m_pAnimStart = false;
+					m_bLaunch = false;
 					m_fTeleportTime = 0.f;
 					m_iTeleportCount = 0;
 				}
 			}
 			m_fTeleportTime += fTimeDelta;
+
+			_uint iFrame = m_pModelCom->Get_KeyFrameIndex();
+			if (BOSS_LAB_TELEPORT_START == m_eBossAnim && false == m_bDig && 10 < iFrame)
+			{
+				m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Teleport_Dig_01.ogg"), m_SoundDesc);
+				m_bDig = true;
+			}
+
+			if (BOSS_LAB_TELEPORT_LAUNCH == m_eBossAnim)
+			{
+				if(false == m_bLaunch && 30 <= iFrame && iFrame < 40)
+				{
+					SOUND_DESC desc = m_SoundDesc;
+					desc.fVolume = 0.5f;
+
+					m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Jump_Whoosh_01.ogg"), m_SoundDesc);
+					m_pGameInstance->SoundPlay_Additional(TEXT("Root_Dragon_Fire_End_03.ogg"), desc);
+					m_bLaunch = true;
+				}
+				else if (true == m_bLaunch && 62 <= iFrame && iFrame < 72)
+				{
+					SOUND_DESC desc = m_SoundDesc;
+					desc.fVolume = 0.5f;
+
+					// m_pGameInstance->SoundPlay_Additional(TEXT("Root_Dragon_Fire_End_03.ogg"), m_SoundDesc);
+					m_bLaunch = false;
+				}
+			}
+
+			if (BOSS_LAB_TELEPORT_APPEAR == m_eBossAnim)
+			{
+				if (false == m_bLaunch && 0 <= iFrame && iFrame < 7)
+				{
+					SOUND_DESC desc = m_SoundDesc;
+					desc.fVolume = 0.5f;
+
+					m_pGameInstance->SoundPlay_Additional(TEXT("Root_Dragon_Fire_End_03.ogg"), desc);
+					m_bLaunch = true;
+				}
+			}
 		}
 		else if (CBoss_Lab::STATE_APPEAR == (CBoss_Lab::STATE_APPEAR & *m_pState))
 		{
@@ -289,6 +391,26 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 			{
 				*m_pAnimOver = true;
 				*m_pAnimStart = false;
+				m_bLaunch = false;
+			}
+
+			_uint iFrame = m_pModelCom->Get_KeyFrameIndex();
+			if (BOSS_LAB_TELEPORT_LAUNCH_ROAR == m_eBossAnim)
+			{
+				if(false == m_bLaunch && 31 < iFrame && iFrame < 36)
+				{
+					SOUND_DESC desc = m_SoundDesc;
+					desc.fVolume = 0.5f;
+
+					m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Jump_Whoosh_01.ogg"), m_SoundDesc);
+					m_pGameInstance->SoundPlay_Additional(TEXT("Root_Dragon_Fire_End_03.ogg"), desc);
+					m_bLaunch = true;
+				}
+				else if (true == m_bLaunch && 93 < iFrame && iFrame < 98)
+				{
+					m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Alert_01a.ogg"), m_SoundDesc);
+					m_bLaunch = false;
+				}
 			}
 		}
 	}
@@ -443,6 +565,29 @@ void CBoss_Lab_Body::Play_Animation(_float fTimeDelta)
 
 		if (true == m_pNavigationCom->isMove(vMovePosition, &vLine))
 			m_pBossTransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
+	}
+}
+
+void CBoss_Lab_Body::Play_Sound_Short()
+{
+	_float fRandom = { 0.f };
+	fRandom = m_pGameInstance->Get_Random_Normal();
+
+	if (fRandom < 0.3f)
+	{
+		m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Whoosh_Distored_01.ogg"), m_SoundDesc);
+		m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Attack_02.ogg"), m_SoundDesc);
+
+	}
+	else if (fRandom < 0.6f)
+	{
+		m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Whoosh_Distored_02.ogg"), m_SoundDesc);
+		m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Attack_03.ogg"), m_SoundDesc);
+	}
+	else
+	{
+		m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Boss_Attack_Whoosh_Distored_03.ogg"), m_SoundDesc);
+		m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Attack_04.ogg"), m_SoundDesc);
 	}
 }
 

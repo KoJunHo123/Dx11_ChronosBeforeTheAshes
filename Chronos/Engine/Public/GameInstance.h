@@ -144,18 +144,19 @@ public:
 #pragma endregion
 
 #pragma region SOUND_MANAGER
-	void SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos = {}, _float3 PlayerPos = {});
+	void Set_SoundCenter(_float3 vCenter);
+	void SoundPlay(TCHAR* pSoundKey, _uint iChannelID, SOUND_DESC desc = {});
+	void SoundPlay_Additional(TCHAR* pSoundKey, SOUND_DESC desc = {});
 	void PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume);
 	void StopSound(_uint iChannelID);
 	void StopAll();
-	void SetChannelVolume(_uint iChannelID, _float fVolume);
+	void Set_ChannelVolume(_uint iChannelID, _float fVolume);
 	void LoadSoundFile();
 	void StopSoundSlowly(_uint iChannelID);
 	_uint Get_SoundPosition(_uint iChannelID);
 	void Set_SoundPosition(_uint iChannelID, _uint iPositionMS);
 	_bool IsSoundPlaying(_uint iChannelID);
 	void Set_SoundFrequency(_uint iChannelID, _float fFrequency);
-	void CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos = {}, _float3 PlayerPos = {});
 #pragma endregion
 
 private:

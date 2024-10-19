@@ -122,6 +122,9 @@ void CBoss_Lab::Update(_float fTimeDelta)
 
 		if (fDistance < 30.f && false == m_bAggro)
 		{
+			m_pGameInstance->StopSound(SOUND_BGM);
+			m_pGameInstance->PlayBGM(TEXT("Mus_Boss_Labyrinth_Loop.ogg"), SOUND_BGM, 1.f);
+
 			pBody->Set_Intro(true);
 			m_bAggro = true;
 			Add_BossHPBar();
@@ -142,9 +145,9 @@ void CBoss_Lab::Update(_float fTimeDelta)
 		}
 	}
 
-	if(false == Contain_State(STATE_CHARGE | STATE_TELEPORT))
+	if(false == Contain_State(STATE_CHARGE | STATE_TELEPORT | STATE_RUSH))
 		m_bAttackActive_Body = false;
-	if (false == Contain_State(STATE_NEAR))
+	if (false == Contain_State(STATE_NEAR | STATE_RUSH))
 	{
 		m_bAttackActive_LH = false;
 		m_bAttackActive_RH = false;
@@ -177,18 +180,18 @@ void CBoss_Lab::Update(_float fTimeDelta)
 				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
 
 				//if (0 == iRandomNum)
-				{
-					m_iState |= STATE_CHARGE;
-					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
-					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
-				}
-				//else
 				//{
-				//	m_iState |= STATE_TELEPORT;
-				//	static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
-				//	static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
-				//	Add_TeleportEffect();
+				//	m_iState |= STATE_CHARGE;
+				//	static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
+				//	static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
 				//}
+				//else
+				{
+					m_iState |= STATE_TELEPORT;
+					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
+					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
+					Add_TeleportEffect();
+				}
 			}
 		}
 		else
@@ -304,7 +307,16 @@ void CBoss_Lab::Be_Damaged(_float fDamage, _fvector vAttackPos)
 	BOSS_ANIM eAnim = static_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_CurrentAnim();
 
 	if (true == Contain_State(STATE_STUN) && (BOSS_LAB_STUN_IDLE == eAnim || BOSS_LAB_STUN_IMPACT == eAnim))
+	{
+		SOUND_DESC desc = {};
+		desc.fMaxDistance = DEFAULT_DISTANCE;
+		desc.fVolume = 1.f;
+		XMStoreFloat3(&desc.vPos, Get_Position());
+
+		m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Pain_Short_01d.ogg"), desc);
+
 		m_iState |= STATE_IMPACT;
+	}
 }
 
 HRESULT CBoss_Lab::Ready_Components()
@@ -366,7 +378,7 @@ HRESULT CBoss_Lab::Ready_PartObjects()
 	AttackDesc.pSocketMatrix = dynamic_cast<CBoss_Lab_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LB_Arm03_L");
 	AttackDesc.vAngles = { 0.f, 0.f, XMConvertToRadians(-90.f) };
 	AttackDesc.vCenter = { 3.f, 0.f, 0.f };
-	AttackDesc.vExtents = { 1.f, 4.f, 1.f };
+	AttackDesc.vExtents = { 2.f, 4.f, 2.f };
 	AttackDesc.pAttackActive = &m_bAttackActive_LH;
 	AttackDesc.fDamage = 10;
 	if (FAILED(__super::Add_PartObject(PART_ATTACK_LH, TEXT("Prototype_GameObject_Boss_Lab_Attack"), &AttackDesc)))

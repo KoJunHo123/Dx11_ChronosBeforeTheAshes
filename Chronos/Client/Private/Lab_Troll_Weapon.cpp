@@ -163,6 +163,11 @@ void CLab_Troll_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pC
         CPlayer* pPlayer = static_cast<CPlayer*>(pCollisionObject);
         if (true == pPlayer->Be_Damaged(m_fDamage, XMLoadFloat4x4(m_pParentMatrix).r[3]))
         {
+            SOUND_DESC desc = {};
+            desc.fVolume = 1.f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("gmin_impact_flesh_4a.ogg"), desc);
+
             _vector vCenter = XMLoadFloat3(&m_vCenter);
             vCenter = XMVector3TransformCoord(vCenter, XMLoadFloat4x4(&m_WorldMatrix));
             _vector vTargetPos = pCollisionObject->Get_Position();
@@ -214,7 +219,7 @@ HRESULT CLab_Troll_Weapon::Add_AttackParticle(_fvector vPos, _fvector vDir)
     desc.fSpeedPerSec = 1.f;
     XMStoreFloat3(&desc.vPos, vPos);
     XMStoreFloat3(&desc.vDir, vDir);
-    desc.vScale = _float3(5.f, 5.f, 5.f);
+    desc.vScale = _float3(3.f, 3.f, 3.f);
 
     if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_BloodCore"), &desc)))
         return E_FAIL;

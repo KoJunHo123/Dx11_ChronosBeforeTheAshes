@@ -52,7 +52,7 @@ _uint CPuzzlePart::Priority_Update(_float fTimeDelta)
 
 void CPuzzlePart::Update(_float fTimeDelta)
 {
-	m_pTransformCom->MoveTo(XMLoadFloat3(&m_vTargetPos), fTimeDelta);
+	m_pTransformCom->MoveTo(XMLoadFloat3(&m_vTargetPos), fTimeDelta * 1.25f);
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
 }

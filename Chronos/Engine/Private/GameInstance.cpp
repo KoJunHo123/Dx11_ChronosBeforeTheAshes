@@ -453,9 +453,17 @@ void CGameInstance::Set_LightRange(_uint iIndex, _float fRange)
 #pragma endregion
 
 #pragma region SOUND_MANAGER
-void CGameInstance::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos, _float3 PlayerPos)
+void CGameInstance::Set_SoundCenter(_float3 vCenter)
 {
-	m_pSound_Manager->SoundPlay(pSoundKey, iChannelID, fVolume, SoundPos, PlayerPos);
+	m_pSound_Manager->Set_Center(vCenter);
+}
+void CGameInstance::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, SOUND_DESC desc)
+{
+	m_pSound_Manager->SoundPlay(pSoundKey, iChannelID, desc);
+}
+void CGameInstance::SoundPlay_Additional(TCHAR* pSoundKey, SOUND_DESC desc)
+{
+	m_pSound_Manager->SoundPlay_Additional(pSoundKey, desc);
 }
 void CGameInstance::PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume)
 {
@@ -469,9 +477,9 @@ void CGameInstance::StopAll()
 {
 	m_pSound_Manager->StopAll();
 }
-void CGameInstance::SetChannelVolume(_uint iChannelID, _float fVolume)
+void CGameInstance::Set_ChannelVolume(_uint iChannelID, _float fVolume)
 {
-	m_pSound_Manager->SetChannelVolume(iChannelID, fVolume);
+	m_pSound_Manager->Set_ChannelVolume(iChannelID, fVolume);
 }
 void CGameInstance::LoadSoundFile()
 {
@@ -496,11 +504,6 @@ _bool CGameInstance::IsSoundPlaying(_uint iChannelID)
 void CGameInstance::Set_SoundFrequency(_uint iChannelID, _float fFrequency)
 {
 	m_pSound_Manager->Set_Frequency(iChannelID, fFrequency);
-}
-
-void CGameInstance::CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos, _float3 PlayerPos)
-{
-	m_pSound_Manager->CrossFade(iSrcChannelID, iDstChannelID, fMixSpeed, pDstSoundKey, SoundPos, PlayerPos);
 }
 
 #pragma endregion

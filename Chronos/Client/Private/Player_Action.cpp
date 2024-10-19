@@ -80,6 +80,13 @@ void CPlayer_Action::Update(_float fTimeDelta)
 					m_pNavigationCom->Set_CurrentCellIndex_ByPos(XMLoadFloat3(&m_vTargetPosition));
 					Add_Particle_Teleport();
 					Add_TrailRevolve();
+
+					SOUND_DESC desc = {};
+					desc.fVolume = 1.f;
+
+					m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Teleporter_PrePort_02.ogg"), desc);
+					m_pGameInstance->SoundPlay_Additional(TEXT("lab_teleporter_flutter_1.ogg"), desc);
+					m_pGameInstance->SoundPlay_Additional(TEXT("lab_teleporter_whoosh_high_5.ogg"), desc);
 				}
 			}
 			else

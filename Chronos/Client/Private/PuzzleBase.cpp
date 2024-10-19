@@ -429,6 +429,11 @@ void CPuzzleBase::Instead_Picking()
 		if (nullptr == pPart)
 			return;
 
+		SOUND_DESC desc = {};
+		desc.fVolume = 0.5f;
+
+		m_pGameInstance->SoundPlay_Additional(TEXT("lab_pf_massive_move_1.ogg"), desc);
+
 		_uint iRow = eLocation / 3;
 		_uint iColumn = eLocation % 3;
 		//eLocation = (LOCATION)pPart->Get_Location();
@@ -750,7 +755,7 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 			}
 		}
 		// 여기서 몬스터 배치.
-		//Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
+		Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
 	}
 	else
 	{

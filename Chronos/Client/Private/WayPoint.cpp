@@ -35,13 +35,28 @@ HRESULT CWayPoint::Initialize(void* pArg)
 
 	Set_Position(XMLoadFloat3(&pDesc->vPos));
 
+	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag));
+	
+	if (nullptr == m_pPlayerTransformCom)
+		return E_FAIL;
+	Safe_AddRef(m_pPlayerTransformCom);
 
+	m_fVolume = 0.f;
+
+	SOUND_DESC desc = {};
+	desc.fMaxDistance = DEFAULT_DISTANCE;
+	desc.fVolume = m_fVolume;
+	XMStoreFloat3(&desc.vPos, Get_Position());
+
+	
 	return S_OK;
 }
 
 _uint CWayPoint::Priority_Update(_float fTimeDelta)
 {
 	m_pColliderCom->Set_OnCollision(m_bIntersect);
+
+	m_pGameInstance->Set_ChannelVolume(SOUND_WAYPOINT_LOOP, m_fVolume);
 
 	for (auto& Part : m_Parts)
 	{
@@ -56,13 +71,6 @@ _uint CWayPoint::Priority_Update(_float fTimeDelta)
 
 void CWayPoint::Update(_float fTimeDelta)
 {
-	//if (true == m_pGameInstance->isIn_Frustum_WorldSpace(Get_Position(), 3.f))
-	//{
-	//	static_cast<CWayPoint_Effect*>(m_Parts[PART_EFFECT])->Set_On(true);
-	//}
-	//else
-	//	static_cast<CWayPoint_Effect*>(m_Parts[PART_EFFECT])->Set_On(false);
-
 	for (auto& Part : m_Parts)
 	{
 		if (nullptr == Part)
@@ -71,6 +79,11 @@ void CWayPoint::Update(_float fTimeDelta)
 		Part->Update(fTimeDelta);
 	}
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+
+	SOUND_DESC desc = {};
+	desc.fMaxDistance = DEFAULT_DISTANCE;
+	XMStoreFloat3(&desc.vPos, Get_Position());
+	desc.fVolume = 1.f;
 }
 
 void CWayPoint::Late_Update(_float fTimeDelta)
@@ -254,4 +267,5 @@ void CWayPoint::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pColliderCom);
+	Safe_Release(m_pPlayerTransformCom);
 }

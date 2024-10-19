@@ -43,6 +43,33 @@ _uint CLab_Drum_Attack::Priority_Update(_float fTimeDelta)
 	m_pColliderCom->Set_OnCollision(*m_pAttackActive);
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
+	if (true == *m_pAttackActive)
+	{
+		if (false == m_bAttackSound)
+		{
+			SOUND_DESC  desc = {};
+			desc.fMaxDistance = DEFAULT_DISTANCE;
+			desc.fVolume = 1.f;
+			XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Drummer_Whip_Whoosh_Low_03.ogg"), desc);
+
+			_float fRandom = m_pGameInstance->Get_Random_Normal();
+
+			if(fRandom < 0.1666f)
+				m_pGameInstance->SoundPlay_Additional(TEXT("Drummer_VO_Attack_01.ogg"), desc);
+			else if(fRandom <  0.3333f)
+				m_pGameInstance->SoundPlay_Additional(TEXT("Drummer_VO_Attack_03.ogg"), desc);
+			else if(fRandom < 0.5f)
+				m_pGameInstance->SoundPlay_Additional(TEXT("Drummer_VO_Attack_05.ogg"), desc);
+
+
+			m_bAttackSound = true;
+		}
+	}
+	else
+		m_bAttackSound = false;
+
 	return OBJ_NOEVENT;
 }
 
@@ -91,6 +118,14 @@ void CLab_Drum_Attack::Intersect(const _wstring strColliderTag, CGameObject* pCo
 			_vector vPos = vCenter + vDir * 0.5f;
 			_vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
 			Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir));
+
+			SOUND_DESC desc = {};
+			desc.fMaxDistance = DEFAULT_DISTANCE;
+			desc.fVolume = 1.f;
+			XMStoreFloat3(&desc.vPos, pCollisionObject->Get_Position());
+
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Drummer_Drum_Impact_02.ogg"), desc);
+
 		}
 	}
 }
@@ -124,13 +159,14 @@ HRESULT CLab_Drum_Attack::Add_AttackParticle(_fvector vPos, _fvector vDir)
 	desc.fSpeedPerSec = 1.f;
 	XMStoreFloat3(&desc.vPos, vPos);
 	XMStoreFloat3(&desc.vDir, vDir);
-	desc.vScale = _float3(5.f, 5.f, 5.f);
+	desc.vScale = _float3(3.f, 3.f, 3.f);
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_BloodCore"), &desc)))
 		return E_FAIL;
 
 	return S_OK;
 }
+
 
 CLab_Drum_Attack* CLab_Drum_Attack::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

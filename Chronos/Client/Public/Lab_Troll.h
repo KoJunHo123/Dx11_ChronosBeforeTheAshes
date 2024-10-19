@@ -46,7 +46,6 @@ private:
 	_bool m_bLeftAttackActive = { false };
 	_bool m_bRightAttackActive = { false };
 
-
 private:
 	virtual HRESULT Ready_Components();
 	HRESULT Ready_PartObjects();

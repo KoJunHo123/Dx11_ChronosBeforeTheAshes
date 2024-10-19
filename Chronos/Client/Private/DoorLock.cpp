@@ -74,9 +74,18 @@ void CDoorLock::Update(_float fTimeDelta)
 		m_fDelay += fTimeDelta;
 		if(8.f < m_fDelay)
 		{
-			m_bLoop = false;
+			if(true == m_bLoop)
+			{
+				SOUND_DESC desc = {};
+				desc.fVolume = 1.f;
+				desc.fMaxDistance = DEFAULT_DISTANCE;
+				XMStoreFloat3(&desc.vPos, Get_Position());
+
+				m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Door_Face_Close_01.ogg"), desc);
+				m_bLoop = false;
+			}
 			_vector vPos = Get_Position();
-			if (true == m_pTransformCom->MoveTo(XMVectorSet(XMVectorGetX(vPos), 0.f, XMVectorGetZ(vPos), 1.f), fTimeDelta))
+			if (true == m_pTransformCom->MoveTo(XMVectorSet(XMVectorGetX(vPos), 0.f, XMVectorGetZ(vPos), 1.f), fTimeDelta * 2.f))
 				m_bDead = true;
 		}
 	}

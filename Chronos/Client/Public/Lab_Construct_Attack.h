@@ -28,6 +28,11 @@ private:
 	virtual ~CLab_Construct_Attack() = default;
 
 public:
+	void Set_Anim(CONSTRUCT_ANIM eAnim) {
+		m_eConstructAnim = eAnim;
+	}
+
+public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 	virtual _uint Priority_Update(_float fTimeDelta);
@@ -49,6 +54,8 @@ private:
 	_float3 m_vCenter = {};
 
 	_float3 m_vPrePosition = {};
+	_bool m_bAttackSound = { false };
+	CONSTRUCT_ANIM m_eConstructAnim = { CONSTRUCT_ANIM_END };
 
 private:
 	HRESULT Ready_Components(_float3 vExtents, _float3 vCenter, _float3 vAngles);

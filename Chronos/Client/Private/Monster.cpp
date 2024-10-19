@@ -38,6 +38,8 @@ HRESULT CMonster::Initialize(void* pArg)
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag, 0));
 	Safe_AddRef(m_pPlayerTransformCom);
 
+	m_pNavigationCom->Set_SkipTypeIndex(1);
+
 	return S_OK;
 }
 

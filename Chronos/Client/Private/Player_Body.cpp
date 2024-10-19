@@ -57,6 +57,24 @@ void CPlayer_Body::Update(_float fTimeDelta)
 
 	StepSound();
 	m_ePreAnim = *m_pPlayerAnim;
+
+	if (PLAYER_ACTION_RUNEKEYHOLE == *m_pPlayerAnim)
+	{
+		if (false == m_bRuneKey && 63 <= *m_pFrameIndex && *m_pFrameIndex < 68)
+		{
+			SOUND_DESC desc = {};
+			desc.fVolume = 1.f;
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Interactive_Labyrinth_Runekey_Insert_Slot_01.ogg"), desc);
+			m_bRuneKey = true;
+		}
+		else if (true == m_bRuneKey && 150 <= *m_pFrameIndex && *m_pFrameIndex < 160)
+		{
+			SOUND_DESC desc = {};
+			desc.fVolume = 1.f;				
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Interactive_Labyrinth_Runekey_Insert_Sweetener.ogg"), desc);
+			m_bRuneKey = false;
+		}
+	}
 }
 
 void CPlayer_Body::Late_Update(_float fTimeDelta)
@@ -264,31 +282,36 @@ void CPlayer_Body::StepSound()
 		m_bRightStep = false;
 	}
 
+	SOUND_DESC desc = {};
+	desc.fMaxDistance = 0.f;
+	desc.fVolume = 0.25f;
+
 	if (false == m_bLeftStep && iFrame[0] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[1])
 	{
+
 		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
-		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, desc);
 		m_bLeftStep = true;
 		m_bRightStep = false;
 	}
 	else if (false == m_bRightStep && iFrame[1] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[2])
 	{
 		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
-		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, desc);
 		m_bLeftStep = false;
 		m_bRightStep = true;
 	}
 	else if (false == m_bLeftStep && iFrame[2] <= *m_pFrameIndex && *m_pFrameIndex < iFrame[3])
 	{
 		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
-		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_01.ogg"), SOUND_PLAYER_STEP, desc);
 		m_bLeftStep = true;
 		m_bRightStep = false;
 	}
 	else if (false == m_bRightStep && iFrame[3] <= *m_pFrameIndex)
 	{
 		m_pGameInstance->StopSound(SOUND_PLAYER_STEP);
-		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, 0.25f);
+		m_pGameInstance->SoundPlay(TEXT("Imp_Footfall_Boot_Medium_Stone_02.ogg"), SOUND_PLAYER_STEP, desc);
 		m_bLeftStep = false;
 		m_bRightStep = true;
 	}

@@ -35,6 +35,41 @@ HRESULT CParticle_Monster_Appear::Initialize(void* pArg)
 
 _uint CParticle_Monster_Appear::Priority_Update(_float fTimeDelta)
 {
+    if (true == m_bOn)
+    {
+        SOUND_DESC desc = {};
+        desc.fMaxDistance = DEFAULT_DISTANCE * 2.f;
+        XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+        desc.fVolume = 1.f;
+
+        if (false == m_pGameInstance->IsSoundPlaying(SOUND_MONSTER_DISSOLVE_1))
+        {
+
+            m_pGameInstance->StopSound(SOUND_MONSTER_DISSOLVE_1);
+            m_pGameInstance->SoundPlay(TEXT("Death_Dissolves_Short_06.ogg"), SOUND_MONSTER_DISSOLVE_1, desc);
+        }
+        else if (false == m_pGameInstance->IsSoundPlaying(SOUND_MONSTER_DISSOLVE_2))
+        {
+            m_pGameInstance->StopSound(SOUND_MONSTER_DISSOLVE_2);
+            m_pGameInstance->SoundPlay(TEXT("Death_Dissolves_Short_07.ogg"), SOUND_MONSTER_DISSOLVE_2, desc);
+        }
+        else if (false == m_pGameInstance->IsSoundPlaying(SOUND_MONSTER_DISSOLVE_3))
+        {
+            m_pGameInstance->StopSound(SOUND_MONSTER_DISSOLVE_3);
+            m_pGameInstance->SoundPlay(TEXT("Death_Dissolves_Short_08.ogg"), SOUND_MONSTER_DISSOLVE_3, desc);
+        }
+        else if (false == m_pGameInstance->IsSoundPlaying(SOUND_MONSTER_DISSOLVE_4))
+        {
+            m_pGameInstance->StopSound(SOUND_MONSTER_DISSOLVE_4);
+            m_pGameInstance->SoundPlay(TEXT("Death_Dissolves_Short_09.ogg"), SOUND_MONSTER_DISSOLVE_4, desc);
+        }
+        else if (false == m_pGameInstance->IsSoundPlaying(SOUND_MONSTER_DISSOLVE_5))
+        {
+            m_pGameInstance->StopSound(SOUND_MONSTER_DISSOLVE_5);
+            m_pGameInstance->SoundPlay(TEXT("Death_Dissolves_Short_10.ogg"), SOUND_MONSTER_DISSOLVE_5, desc);
+        }
+    }
+
     return OBJ_NOEVENT;
 }
 

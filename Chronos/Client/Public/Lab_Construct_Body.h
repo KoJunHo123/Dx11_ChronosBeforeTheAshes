@@ -39,6 +39,9 @@ public:
 	void Set_HittedAngle(_float fHittedAngle) {
 		m_fHittedAngle = fHittedAngle;
 	}
+	CONSTRUCT_ANIM Get_Anim() {
+		return m_eConstructAnim;
+	}
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -58,6 +61,7 @@ public:
 private:
 	_bool Animation_Loop();
 	_bool Animation_NonInterpolate();
+	void StepSound();
 
 private:
 	class CTransform* m_pConstruct_TransformCom = { nullptr };
@@ -74,6 +78,9 @@ private:
 
 	_float m_fWalkDirChange = { 0.f };
 	_float m_fSpeed = { 0.f };
+	
+	_bool m_bLeftStep = { false };
+	_bool m_bRightStep = { false };
 
 private:
 	_uint* m_pState = { nullptr };

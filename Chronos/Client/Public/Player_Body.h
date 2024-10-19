@@ -55,6 +55,8 @@ private:
 	_bool m_bLeftStep = { false };
 	_bool m_bRightStep = { false };
 
+	_bool m_bRuneKey = { false };
+
 	PLAYER_ANIM m_ePreAnim = { PLAYER_ANIM_END };
 
 private:

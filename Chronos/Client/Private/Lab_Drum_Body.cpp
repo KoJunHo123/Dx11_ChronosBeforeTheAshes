@@ -137,6 +137,7 @@ void CLab_Drum_Body::Update(_float fTimeDelta)
     m_pModelCom->SetUp_Animation(m_eDrumAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta);
 
+
     if (true == *m_pIsFinished)
         m_bAnimStart = false;
 }
@@ -144,6 +145,8 @@ void CLab_Drum_Body::Update(_float fTimeDelta)
 void CLab_Drum_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
+    
+    StepSound();
 
     if (true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
     {
@@ -263,6 +266,44 @@ _bool CLab_Drum_Body::Animation_NonInterpolate()
         return true;
 
     return false;
+}
+
+void CLab_Drum_Body::StepSound()
+{
+    if (CLab_Drum::STATE_WALK == *m_pState)
+    {
+        _uint iFrameIndex = Get_FrameIndex();
+
+        if (false == m_bLeftStep && 14 <= iFrameIndex && iFrameIndex < 42)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(&desc.vPos, m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Construct_FS_Stone_Low_01.ogg"), desc);
+            m_bLeftStep = true;
+            m_bRightStep = false;
+        }
+        else if (false == m_bRightStep && 42 <= iFrameIndex)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(&desc.vPos, m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Construct_FS_Stone_Low_02.ogg"), desc);
+            m_bLeftStep = false;
+            m_bRightStep = true;
+        }
+    }
+    else
+    {
+        m_bLeftStep = false;
+        m_bRightStep = false;
+    }
 }
 
 HRESULT CLab_Drum_Body::Ready_Components()

@@ -170,10 +170,10 @@ HRESULT CFloorChunk::Ready_Components(const _wstring strModelTag)
 
 void CFloorChunk::Play_Sound_FadeIn()
 {
-	_float3 vMyPos{}, vPlayerPos{};
-
-	XMStoreFloat3(&vMyPos, Get_Position());
-	XMStoreFloat3(&vPlayerPos, m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
+	SOUND_DESC desc = {};
+	/*desc.fMaxDistance = DEFAULT_DISTANCE;
+	XMStoreFloat3(&desc.vPos, Get_Position());*/
+	desc.fVolume = 0.125f;
 
 	switch (m_eInSound)
 	{
@@ -181,35 +181,35 @@ void CFloorChunk::Play_Sound_FadeIn()
 		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
 			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_1.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_1.ogg"), m_eInSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEIN_2:
 		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
 			m_pGameInstance->Set_SoundPosition(m_eInSound, 537);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_2.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_2.ogg"), m_eInSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEIN_3:
 		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
 			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_3.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_3.ogg"), m_eInSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEIN_4:
 		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
 			m_pGameInstance->Set_SoundPosition(m_eInSound, 520);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_4.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_4.ogg"), m_eInSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEIN_5:
 		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
 			m_pGameInstance->Set_SoundPosition(m_eInSound, 523);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_5.ogg"), m_eInSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_5.ogg"), m_eInSound, desc);
 		break;
 	}
 
@@ -217,10 +217,10 @@ void CFloorChunk::Play_Sound_FadeIn()
 
 void CFloorChunk::Play_Sound_FadeOut()
 {
-	_float3 vMyPos{}, vPlayerPos{};
-
-	XMStoreFloat3(&vMyPos, Get_Position());
-	XMStoreFloat3(&vPlayerPos, m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION));
+	SOUND_DESC desc = {};
+	//desc.fMaxDistance = DEFAULT_DISTANCE;
+	//XMStoreFloat3(&desc.vPos, Get_Position());
+	desc.fVolume = 0.125f;
 
 	switch (m_eOutSound)
 	{
@@ -228,35 +228,35 @@ void CFloorChunk::Play_Sound_FadeOut()
 		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
 			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_1.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_1.ogg"), m_eOutSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEOUT_2:
 		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
 			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_2.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_2.ogg"), m_eOutSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEOUT_3:
 		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
 			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_3.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_3.ogg"), m_eOutSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEOUT_4:
 		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
 			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_4.ogg"), m_eOutSound, 0.125f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_4.ogg"), m_eOutSound, desc);
 		break;
 
 	case SOUND_FLOOR_FADEOUT_5:
 		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
 			m_pGameInstance->Set_SoundPosition(m_eOutSound, 134);
 		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_5.ogg"), m_eOutSound, 0.25f, vMyPos, vPlayerPos);
+			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_5.ogg"), m_eOutSound, desc);
 		break;
 	}
 

@@ -50,9 +50,12 @@ private:
 
 	_float3 m_vPrePosition = {};
 
+	_bool m_bAttackSound = { false };
+
 private:
 	HRESULT Ready_Components(_float3 vExtents, _float3 vCenter, _float3 vAngles);
 	HRESULT Add_AttackParticle(_fvector vPos, _fvector vDir);
+
 
 public:
 	static CLab_Drum_Attack* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

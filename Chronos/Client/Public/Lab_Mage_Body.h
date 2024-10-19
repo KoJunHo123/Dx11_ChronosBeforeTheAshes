@@ -63,6 +63,7 @@ private:
 
 	_vector Find_TeleportPos();
 	HRESULT Add_FlashParticle(_fvector vPos, _float fOffset);
+	void StepSound();
 
 private:
 	class CTransform* m_pMage_TransformCom = { nullptr };
@@ -79,6 +80,9 @@ private:
 	_int m_iImpactedDamage = { 0 };
 
 	_float m_fSpeed = { 0.f };
+	_bool m_bLeftStep = { false };
+	_bool m_bRightStep = { false };
+
 
 private:
 	_uint* m_pState = { nullptr };

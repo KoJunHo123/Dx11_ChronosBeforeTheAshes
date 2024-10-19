@@ -84,7 +84,16 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
             else if (*m_pDistance < 12.f)
                 m_eConstructAnim = LAB_CONSTRUCT_ATK_VERTICALSLAM;
             else if (*m_pDistance < 15.f)
+            {
                 m_eConstructAnim = LAB_CONSTRUCT_ATK_3HIT_COMBO;
+
+                SOUND_DESC desc = {};
+                desc.fMaxDistance = DEFAULT_DISTANCE;
+                desc.fVolume = 1.f;
+                XMStoreFloat3(&desc.vPos, m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+                m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Construct_Powerup_02.ogg"), desc);
+            }
 
             m_bAnimStart = true;
         }
@@ -143,6 +152,7 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
     m_pModelCom->SetUp_Animation(m_eConstructAnim, Animation_Loop(), Animation_NonInterpolate());
     Play_Animation(fTimeDelta );
 
+
     if (true == *m_pIsFinished)
         m_bAnimStart = false;
 }
@@ -150,6 +160,8 @@ void CLab_Construct_Body::Update(_float fTimeDelta)
 void CLab_Construct_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
+
+    StepSound();
 
     if (true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
     {
@@ -268,6 +280,45 @@ _bool CLab_Construct_Body::Animation_NonInterpolate()
         return true;
 
     return false;
+}
+
+void CLab_Construct_Body::StepSound()
+{
+    if(CLab_Construct::STATE_WALK == *m_pState)
+    {
+        _uint iFrameIndex = Get_FrameIndex();
+
+        if (false == m_bLeftStep && 27 <= iFrameIndex && iFrameIndex < 66)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(& desc.vPos, m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Construct_FS_Stone_Low_01.ogg"), desc);
+            m_bLeftStep = true;
+            m_bRightStep = false;
+        }
+        else if (false == m_bRightStep && 66 <= iFrameIndex)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(&desc.vPos, m_pConstruct_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Construct_FS_Stone_Low_02.ogg"), desc);
+            m_bLeftStep = false;
+            m_bRightStep = true;
+        }
+    }
+    else
+    {
+        m_bLeftStep = false;
+        m_bRightStep = false;
+    }
+
 }
 
 HRESULT CLab_Construct_Body::Ready_Components()

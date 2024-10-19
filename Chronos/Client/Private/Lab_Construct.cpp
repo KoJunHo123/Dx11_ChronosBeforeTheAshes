@@ -55,6 +55,15 @@ _uint CLab_Construct::Priority_Update(_float fTimeDelta)
     if (true == m_bDead)
         return OBJ_DEAD;
 
+    if (true == m_bSwordAttackActive)
+    {
+        static_cast<CLab_Construct_Attack*>(m_Parts[PART_SWORD])->Set_Anim(static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_Anim());
+    }
+    else if (true == m_bShieldAttackActive)
+    {
+        static_cast<CLab_Construct_Attack*>(m_Parts[PART_SHIELD])->Set_Anim(static_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_Anim());
+    }
+
     if (true == m_bStart)
     {
         m_fRatio -= fTimeDelta * 0.5f;
@@ -271,7 +280,7 @@ HRESULT CLab_Construct::Ready_PartObjects()
     AttackDesc.pSocketMatrix = dynamic_cast<CLab_Construct_Body*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Bone_LC_Weapon_Sword");
     AttackDesc.vAngles = { 0.f, 0.f, 0.f };
     AttackDesc.vCenter = { 0.f, -3.f, 0.f };
-    AttackDesc.vExtents = { 1.f, 3.5f, 1.f };
+    AttackDesc.vExtents = { 1.f, 3.5f, 2.f };
     AttackDesc.pAttackActive = &m_bSwordAttackActive;
     AttackDesc.fDamage = 10.f;
     if (FAILED(__super::Add_PartObject(PART_SWORD, TEXT("Prototype_GameObject_Lab_Construct_Attack"), &AttackDesc)))

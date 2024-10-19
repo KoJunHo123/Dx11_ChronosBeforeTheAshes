@@ -16,6 +16,9 @@ HRESULT CSound_Manager::Initialize(_uint iMaxChannel)
 		return E_FAIL;
 
 	m_vecChannel.resize(iMaxChannel, nullptr);
+	m_SoundDescs.resize(iMaxChannel);
+
+	m_iMaxChannel = iMaxChannel;
 
 	return S_OK;
 }
@@ -39,32 +42,67 @@ void CSound_Manager::Update(_float fTimeDelta)
 			++iter;
 	}
 
-	for (auto& iter = m_CrossIndices.begin(); iter != m_CrossIndices.end(); )
+	auto& SoundIter = m_SoundDescs.begin();
+	_uint iIndex = { 0 };
+
+	for (auto& iter = m_vecChannel.begin(); iter != m_vecChannel.end();)
 	{
-		_float fSrcVolume = { 0.f };
-		_float fDstVolume = { 0.f };
-		
-		m_vecChannel[iter->iSrcIndex]->getVolume(&fSrcVolume);
-		m_vecChannel[iter->iDstIndex]->getVolume(&fDstVolume);
-
-		fSrcVolume -= fTimeDelta * iter->fMixSpeed;
-		fDstVolume += fTimeDelta * iter->fMixSpeed;
-
-		if (fSrcVolume < 0.f)
+		if (nullptr == *iter || m_iBGMIndex == iIndex)
 		{
-			m_vecChannel[iter->iSrcIndex]->stop();
-			iter = m_CrossIndices.erase(iter);
+			++iter;
+			++SoundIter;
+			++iIndex;
+			continue;
+		}
+
+		_vector vCenterPos = XMLoadFloat3(&m_vCenter);
+		_vector vSoundPos = XMLoadFloat3(&SoundIter->vPos);
+
+		_float fMaxDistance = SoundIter->fMaxDistance;
+		_float fLength = XMVectorGetX(XMVector3Length(vCenterPos - vSoundPos));
+
+		_float fRatio = 1.f - (fLength / fMaxDistance);
+
+		if (0.f == fMaxDistance)
+			fRatio = 1.f;
+		else if (fRatio < 0.f)
+			fRatio = 0.f;
+
+		(*iter)->setVolume(SoundIter->fVolume * fRatio);
+
+		if (iIndex < m_iMaxChannel)
+		{
+			++iIndex;
+			++iter;
+			++SoundIter;
+			continue;
+		}
+
+		_bool isPlaying = { false };
+		(*iter)->isPlaying(&isPlaying);
+		if (false == isPlaying)
+		{
+			iter = m_vecChannel.erase(iter);	
+			SoundIter = m_SoundDescs.erase(SoundIter);
 		}
 		else
 		{
-			m_vecChannel[iter->iSrcIndex]->setVolume(fSrcVolume);
-			m_vecChannel[iter->iDstIndex]->setVolume(fDstVolume);
 			++iter;
+			++SoundIter;
 		}
+
+		++iIndex;
 	}
+	
+	
 }
 
-void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolume, _float3 SoundPos, _float3 PlayerPos)
+void CSound_Manager::Set_Center(_float3 vCenter)
+{
+	m_vCenter = vCenter;
+}
+
+void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, const SOUND_DESC& desc)
 {
 	auto iter = m_mapSound.find(pSoundKey);
 	iter = find_if(m_mapSound.begin(), m_mapSound.end(), [&](auto& iter)->bool
@@ -72,24 +110,39 @@ void CSound_Manager::SoundPlay(TCHAR* pSoundKey, _uint iChannelID, _float fVolum
 			return !lstrcmp(pSoundKey, iter.first);
 		});
 
-	FMOD_VECTOR SoundPosition = { SoundPos.x, SoundPos.y,SoundPos.z };
-	m_vPlayerPosition = { PlayerPos.x, PlayerPos.y,PlayerPos.z };
-	FMOD_VECTOR velocity = { 0.f, 0.f, 0.f };
-
-	_bool isPlaying = false;
-
-	if (m_vecChannel[iChannelID]->isPlaying(&isPlaying))
+	if(nullptr != m_vecChannel[iChannelID])
 	{
-		m_vecChannel[iChannelID]->setMode(FMOD_3D);
-		m_pSystem->playSound(iter->second, 0, false, &m_vecChannel[iChannelID]);
-
-		m_pSystem->set3DListenerAttributes(0, &m_vPlayerPosition, 0, 0, 0);
-		m_vecChannel[iChannelID]->set3DAttributes(&SoundPosition, &velocity);
-		m_vecChannel[iChannelID]->set3DMinMaxDistance(4.0f, .0f);
+		_bool isPlaying = false;
+		m_vecChannel[iChannelID]->isPlaying(&isPlaying);
+		if (true == isPlaying)
+		{
+			m_vecChannel[iChannelID]->stop();
+		}
 	}
-	m_vecChannel[iChannelID]->setVolume(fVolume);
+
+	m_pSystem->playSound(iter->second, 0, false, &m_vecChannel[iChannelID]);
+
+	m_vecChannel[iChannelID]->setVolume(desc.fVolume);
 	m_pSystem->update();
-	FMOD_RESULT;
+
+	m_SoundDescs[iChannelID] = desc;
+}
+
+void CSound_Manager::SoundPlay_Additional(TCHAR* pSoundKey, const SOUND_DESC& desc)
+{
+	auto iter = m_mapSound.find(pSoundKey);
+	iter = find_if(m_mapSound.begin(), m_mapSound.end(), [&](auto& iter)->bool
+		{
+			return !lstrcmp(pSoundKey, iter.first);
+		});
+
+	Channel* pChannel = { nullptr };
+	m_pSystem->playSound(iter->second, 0, false, &pChannel);
+	pChannel->setVolume(desc.fVolume);
+	m_vecChannel.emplace_back(pChannel);
+	m_pSystem->update();
+
+	m_SoundDescs.emplace_back(desc);
 }
 
 void CSound_Manager::PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume)
@@ -105,6 +158,8 @@ void CSound_Manager::PlayBGM(TCHAR* pSoundKey, _uint iBGMChannel, _float fVolume
 	m_vecChannel[iBGMChannel]->setMode(FMOD_LOOP_NORMAL);
 	m_vecChannel[iBGMChannel]->setVolume(fVolume);
 	m_pSystem->update();
+
+	m_iBGMIndex = iBGMChannel;
 }
 
 void CSound_Manager::StopSound(_uint iChannelID)
@@ -123,7 +178,7 @@ void CSound_Manager::StopAll()
 		iter->stop();
 }
 
-void CSound_Manager::SetChannelVolume(_uint iChannelID, _float fVolume)
+void CSound_Manager::Set_ChannelVolume(_uint iChannelID, _float fVolume)
 {
 	m_vecChannel[iChannelID]->setVolume(fVolume);
 }
@@ -219,6 +274,9 @@ void CSound_Manager::Set_Position(_uint iChannelID, _uint iPositionMS)
 
 _bool CSound_Manager::IsPlaying(_uint iChannelID)
 {
+	if (nullptr == m_vecChannel[iChannelID])
+		return false;
+
 	_bool isPlaying = { false };
 	m_vecChannel[iChannelID]->isPlaying(&isPlaying);
 	return isPlaying;
@@ -231,12 +289,6 @@ void CSound_Manager::Set_Frequency(_uint iChannelID, _float fFrequency)
 	m_vecChannel[iChannelID]->setFrequency(fCurrentFrequency * fFrequency);
 }
 
-void CSound_Manager::CrossFade(_uint iSrcChannelID, _uint iDstChannelID, _float fMixSpeed, TCHAR* pDstSoundKey, _float3 SoundPos, _float3 PlayerPos)
-{
-	CROSS_INDEX CrossIndex = { iSrcChannelID, iDstChannelID, fMixSpeed };
-	m_CrossIndices.emplace_back(CrossIndex);
-	SoundPlay(pDstSoundKey, iDstChannelID, 0.f, SoundPos, PlayerPos);
-}
 
 CSound_Manager* CSound_Manager::Create(_uint iMaxChannel)
 {

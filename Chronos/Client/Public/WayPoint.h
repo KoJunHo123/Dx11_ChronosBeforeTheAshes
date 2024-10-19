@@ -39,7 +39,11 @@ private:
 	class CModel* m_pModelCom = { nullptr };
 	class CCollider* m_pColliderCom = { nullptr };
 
+	class CTransform* m_pPlayerTransformCom = { nullptr };
+
 	_bool m_bIntersect = { false };
+
+	_float m_fVolume = { 0.f };
 
 private:
 	HRESULT Ready_Components();

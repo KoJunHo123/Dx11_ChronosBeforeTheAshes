@@ -16,3 +16,6 @@ extern HWND g_hWnd;
 
 using namespace Client;
 using namespace std;
+
+
+#define DEFAULT_DISTANCE 30.f

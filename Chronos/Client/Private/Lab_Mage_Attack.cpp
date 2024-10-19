@@ -43,6 +43,24 @@ _uint CLab_Mage_Attack::Priority_Update(_float fTimeDelta)
 	m_pColliderCom->Set_OnCollision(*m_pAttackActive);
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
+	// 
+
+	if (true == *m_pAttackActive)
+	{
+		if(false == m_bAttackSound)
+		{
+			SOUND_DESC  desc = {};
+			desc.fMaxDistance = DEFAULT_DISTANCE;
+			desc.fVolume = 1.f;
+			XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(m_pParentMatrix).r[3]);
+
+			m_pGameInstance->SoundPlay_Additional(TEXT("Axe_Whoosh_02.ogg"), desc);
+			m_bAttackSound = true;
+		}
+	}
+	else
+		m_bAttackSound = false;
+
 	return OBJ_NOEVENT;
 }
 
@@ -91,6 +109,14 @@ void CLab_Mage_Attack::Intersect(const _wstring strColliderTag, CGameObject* pCo
 			_vector vPos = vCenter + vDir * 0.5f;
 			_vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
 			Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir));
+
+			SOUND_DESC desc = {};
+			desc.fMaxDistance = DEFAULT_DISTANCE;
+			desc.fVolume = 1.f;
+			XMStoreFloat3(&desc.vPos, pCollisionObject->Get_Position());
+
+			m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Player_Weapon_Impact_Scythe_Flesh_03.ogg"), desc);
+			
 		}
 	}
 }
@@ -124,7 +150,7 @@ HRESULT CLab_Mage_Attack::Add_AttackParticle(_fvector vPos, _fvector vDir)
 	desc.fSpeedPerSec = 1.f;
 	XMStoreFloat3(&desc.vPos, vPos);
 	XMStoreFloat3(&desc.vDir, vDir);
-	desc.vScale = _float3(5.f, 5.f, 5.f);
+	desc.vScale = _float3(3.f, 3.f, 3.f);
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_BloodCore"), &desc)))
 		return E_FAIL;

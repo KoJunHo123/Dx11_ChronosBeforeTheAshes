@@ -10,9 +10,6 @@
     <Filter Include="01.Levels\Logo">
       <UniqueIdentifier>{bfceb82a-607f-4756-925e-dbf78b769e31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Levels\GamePlay">
-      <UniqueIdentifier>{496bfdc0-36c4-4ae4-a032-6e701acb2b32}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Levels\Loading">
       <UniqueIdentifier>{5826f108-d734-4b34-a4f6-11a528a309a5}</UniqueIdentifier>
     </Filter>
@@ -375,6 +372,9 @@
     </Filter>
     <Filter Include="02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke">
       <UniqueIdentifier>{56032045-5c37-4a5d-a6c3-bc3d925a3e4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\GamePlay">
+      <UniqueIdentifier>{496bfdc0-36c4-4ae4-a032-6e701acb2b32}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

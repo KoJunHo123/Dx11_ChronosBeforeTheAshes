@@ -53,7 +53,13 @@ void CPuzzle_InterColl::Update(_float fTimeDelta)
 		{
 			CItem* pItem = m_pInventory->Find_Item(TEXT("Item_ReplacePuzzle"));
 			if (nullptr != pItem && true == pItem->Use_Item())
+			{
 				*m_pPuzzleReplace = true;
+
+				SOUND_DESC desc = {};
+				desc.fVolume = 1.f;
+				m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Puzzle_Toy_Platform_Raise_Lock_03.ogg"), desc);
+			}
 		}
 	}
 

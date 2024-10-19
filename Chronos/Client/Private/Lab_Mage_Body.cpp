@@ -293,6 +293,8 @@ void CLab_Mage_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
+    StepSound();
+
     if (true == m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
     {
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
@@ -464,9 +466,52 @@ HRESULT CLab_Mage_Body::Add_FlashParticle(_fvector vPos, _float fOffset)
     if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Smoke"), &SmokeDesc)))
         return E_FAIL;
 
-
+    SOUND_DESC SoundDesc = {};
+    SoundDesc.fMaxDistance = DEFAULT_DISTANCE;
+    SoundDesc.fVolume = 0.5f;
+    XMStoreFloat3(&SoundDesc.vPos, m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
+    m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Mage_Teleport_01.ogg"), SoundDesc);
 
     return S_OK;
+}
+
+void CLab_Mage_Body::StepSound()
+{
+    if (CLab_Mage::STATE_WALK == *m_pState)
+    {
+        _uint iFrameIndex = Get_FrameIndex();
+
+        if (false == m_bLeftStep && 24 <= iFrameIndex && iFrameIndex < 46)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(&desc.vPos, m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_07.ogg"), desc);
+            m_bLeftStep = true;
+            m_bRightStep = false;
+        }
+        else if (false == m_bRightStep && 46 <= iFrameIndex)
+        {
+            SOUND_DESC desc = {};
+
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            XMStoreFloat3(&desc.vPos, m_pMage_TransformCom->Get_State(CTransform::STATE_POSITION));
+            desc.fVolume = 0.25f;
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_08.ogg"), desc);
+            m_bLeftStep = false;
+            m_bRightStep = true;
+        }
+    }
+    else
+    {
+        m_bLeftStep = false;
+        m_bRightStep = false;
+    }
+
 }
 
 HRESULT CLab_Mage_Body::Ready_Components()

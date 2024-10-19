@@ -138,6 +138,16 @@ void CLab_Drum::Update(_float fTimeDelta)
         m_iState = STATE_DEATH;
         m_isFinished = false;
         m_pColliderCom->Set_OnCollision(false);
+        if (false == m_bScream)
+        {
+            SOUND_DESC SoundDesc = {};
+            SoundDesc.fMaxDistance = DEFAULT_DISTANCE;
+            SoundDesc.fVolume = 1.f;
+            XMStoreFloat3(&SoundDesc.vPos, Get_Position());
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Drummer_VO_Death_02.ogg"), SoundDesc);
+            m_bScream = true;
+        }
     }
 
     if (m_iState == STATE_DEATH && true == m_isFinished)
@@ -221,6 +231,14 @@ void CLab_Drum::Be_Damaged(_float fDamage, _fvector vAttackPos)
             pBody->Reset_Animation();
         else
             m_iState = STATE_IMPACT;
+
+        SOUND_DESC SoundDesc = {};
+        SoundDesc.fMaxDistance = DEFAULT_DISTANCE;
+        SoundDesc.fVolume = 1.f;
+        XMStoreFloat3(&SoundDesc.vPos, Get_Position());
+
+        m_pGameInstance->SoundPlay_Additional(TEXT("Drummer_VO_Pain_09.ogg"), SoundDesc);
+
     }
 }
 
@@ -353,6 +371,13 @@ HRESULT CLab_Drum::Add_SpawnParticle(_float fOffset)
 
     if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Spark"), &SparkDesc)))
         return E_FAIL;
+
+    SOUND_DESC SoundDesc = {};
+    SoundDesc.fMaxDistance = DEFAULT_DISTANCE * 2.f;
+    SoundDesc.fVolume = 1.f;
+    XMStoreFloat3(&SoundDesc.vPos, Get_Position());
+
+    m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Drummer_Attack_HitDrum_Sweetener_Stereo_01.ogg"), SoundDesc);
 
     return S_OK;
 }

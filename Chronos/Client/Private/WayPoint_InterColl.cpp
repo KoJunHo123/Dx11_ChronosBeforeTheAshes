@@ -75,7 +75,12 @@ void CWayPoint_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 		XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
 		m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_Save"), &desc);
-		
+
+		SOUND_DESC SoundDecs = {};
+		SoundDecs.fVolume = 1.f;
+
+		m_pGameInstance->StopSound(SOUND_WAYPOINT_INTERACT);
+		m_pGameInstance->SoundPlay(TEXT("Waypoint_Stone_Start_HandsOn.ogg"), SOUND_WAYPOINT_INTERACT, SoundDecs);
 	}
 }
 

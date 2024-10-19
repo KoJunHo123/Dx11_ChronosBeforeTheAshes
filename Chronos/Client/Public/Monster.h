@@ -93,6 +93,8 @@ protected:
 	_bool m_bStart = { false };
 
 	MONSTER_TYPE m_eMonsterType = { MONSTER_END };
+	
+	_bool m_bScream = { false };
 
 protected:
 	HRESULT Add_MonsterHPBar();

@@ -59,10 +59,16 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 
 	m_bLevelStart = true;
 
-	if(FAILED(Ready_Layer_Monster()))
-		return E_FAIL;
+	//if(FAILED(Ready_Layer_Monster()))
+	//	return E_FAIL;
 
-	 m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+	m_pGameInstance->StopSound(SOUND_BGM);
+	m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+
+	 SOUND_DESC desc = {};
+	 desc.fVolume = 1.f;
+
+	 m_pGameInstance->SoundPlay_Additional(TEXT("Mus_Zone_Theme_Labyrinth.ogg"), desc);
 
 	return S_OK;
 }
@@ -84,7 +90,10 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 		m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
 		m_pGameInstance->StopAll();
 
-		m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+		SOUND_DESC desc = {};
+		desc.fVolume = 1.f;
+		m_pGameInstance->SoundPlay_Additional(TEXT("Mus_Zone_Theme_Labyrinth.ogg"), desc);
+
 
 		m_bYellow = false;
 		m_bPupple = false;
@@ -94,19 +103,19 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 	_uint iCellIndex = m_pPlayer->Get_CellIndex();
 
 	// ³ë¶û
-	if (false == m_bYellow && (6049 == iCellIndex || 6050 == iCellIndex))
+	if (false == m_bYellow && (6049 == iCellIndex || 6050 == iCellIndex || 5427 == iCellIndex))
 	{
-		//Ready_Layer_Monster_Yellow();
+		Ready_Layer_Monster_Yellow();
 		m_bYellow = true;
 	}
 	// º¸¶ó
-	else if (false == m_bPupple && (6084 <= iCellIndex && iCellIndex <= 6087))
+	else if (false == m_bPupple && ((6084 <= iCellIndex && iCellIndex <= 6087) || 6129 == iCellIndex))
 	{
-		//Ready_Layer_Monster_Pupple();
+		Ready_Layer_Monster_Pupple();
 		m_bPupple = true;
 	}
 	// »¡°­
-	else if (false == m_bRed && (6082 == iCellIndex || 6083 == iCellIndex))
+	else if (false == m_bRed && (6082 == iCellIndex || 6083 == iCellIndex || 4689 == iCellIndex))
 	{
 		Ready_Layer_Monster_Red();
 		m_bRed = true;
@@ -144,9 +153,6 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
 		return E_FAIL;
-
-	return S_OK;
-
 
 	return S_OK;
 }

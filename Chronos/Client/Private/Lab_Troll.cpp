@@ -127,6 +127,19 @@ void CLab_Troll::Update(_float fTimeDelta)
         static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Set_On();
         m_fRatio += fTimeDelta * 0.5f;
         m_pColliderCom->Set_OnCollision(false);
+
+        if(false == m_bScream)
+        {
+            SOUND_DESC desc = {};
+            desc.fMaxDistance = DEFAULT_DISTANCE;
+            desc.fVolume = 1.f;
+            XMStoreFloat3(&desc.vPos, Get_Position());
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Troll_VO_Death_03.ogg"), desc);
+
+            m_bScream = true;
+        }
+
     }
 
     if (true == m_isFinished)
@@ -203,6 +216,14 @@ void CLab_Troll::Be_Damaged(_float fDamage, _fvector vAttackPos)
         pBody->Reset_Animation();
     else
         m_iState = STATE_IMPACT;
+
+    SOUND_DESC desc = {};
+    desc.fMaxDistance = DEFAULT_DISTANCE;
+    desc.fVolume = 1.f;
+    XMStoreFloat3(&desc.vPos, Get_Position());
+
+    m_pGameInstance->SoundPlay_Additional(TEXT("Troll_VO_Pain_Short_03.ogg"), desc);
+    cout << "왜 안나와" << endl;
 }
 
 HRESULT CLab_Troll::Ready_Components()

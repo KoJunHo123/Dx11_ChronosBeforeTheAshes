@@ -58,6 +58,7 @@ public:
 private:
 	_bool Animation_Loop();
 	_bool Animation_NonInterpolate();
+	void StepSound();
 
 private:
 	class CTransform* m_pTroll_TransformCom = { nullptr };
@@ -74,6 +75,15 @@ private:
 	_float m_fSpeed = { 0.f };
 	_float m_fMoveDirDelay = { 0.f };
 
+	_bool m_bLeftStep = { false };
+	_bool m_bRightStep = { false };
+
+	_bool m_bLeftSprint = { false };
+	_bool m_bRightSprint = { false };
+
+
+	SOUND_DESC m_SoundDesc = {};
+
 private:
 	_uint* m_pState = { nullptr };
 	_bool* m_pIsFinished = { nullptr };
@@ -88,6 +98,7 @@ private:
 
 private:
 	void Play_Animation(_float fTimeDelta);
+	void Play_AttackSound();
 
 public:
 	static CLab_Troll_Body* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

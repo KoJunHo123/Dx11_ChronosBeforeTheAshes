@@ -327,7 +327,7 @@ _bool CVIBuffer_Rect_Instance::Converge(_fvector vPivot, _fvector vLocalLook, _f
 
 		_float fLength = XMVectorGetX(XMVector3Length(vDir));
 		_float fMoveLength = XMVectorGetX(XMVector3Length(XMVector3Normalize(vDir) * m_pSpeed[i] * fSpeed * fTimeDelta));
-		if (fLength < fMoveLength)
+		if (fLength <= fMoveLength)
 		{
 			XMStoreFloat4(&pVertices[i].vTranslation, vPivot);
 			if (true == isLoop)

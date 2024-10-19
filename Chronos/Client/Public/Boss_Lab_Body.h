@@ -66,6 +66,9 @@ private:
 	_bool				m_isFinished = { false };
 	_bool				m_bIntro = { false };
 
+	_bool				m_bDig = { false };
+	_bool				m_bLaunch = { false };
+
 
 private:
 	_float				m_fChargingTime = { 0.f };
@@ -75,6 +78,8 @@ private:
 
 	_float				m_fTeleportTime = { 0.f };
 	_uint				m_iTeleportCount = { 0 };
+
+	SOUND_DESC			m_SoundDesc = {};
 
 private:
 	_uint* m_pState = { nullptr };
@@ -91,7 +96,8 @@ private:
 
 private:
 	void Play_Animation(_float fTimeDelta);
-
+	void Play_Sound_Short();
+	
 
 public:
 	static CBoss_Lab_Body* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

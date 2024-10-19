@@ -57,6 +57,7 @@ public:
 private:
 	_bool Animation_Loop();
 	_bool Animation_NonInterpolate();
+	void StepSound();
 
 private:
 	class CTransform* m_pConstruct_TransformCom = { nullptr };
@@ -72,6 +73,9 @@ private:
 	_bool m_bAnimStart = { false };
 
 	_float m_fSpeed = { 0.f };
+
+	_bool m_bLeftStep = { false };
+	_bool m_bRightStep = { false };
 
 private:
 	_uint* m_pState = { nullptr };

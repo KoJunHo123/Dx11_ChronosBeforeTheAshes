@@ -45,7 +45,7 @@ HRESULT CPlayer::Initialize_Prototype()
 
 HRESULT CPlayer::Initialize(void* pArg)
 {
-    m_fSpeed = 4.f;
+    m_fSpeed = 4.f * 5.f;
     m_fStartSpeed = m_fSpeed;
 
     m_fMaxHP = 100;
@@ -96,6 +96,10 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 _uint CPlayer::Priority_Update(_float fTimeDelta)
 {
+    _float3 vCenter = {};
+    XMStoreFloat3(&vCenter, Get_Position());
+    m_pGameInstance->Set_SoundCenter(vCenter);
+
     m_pCurrentCamera = dynamic_cast<CCamera*>(static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0))->Get_PartObject());
 
     if(CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
@@ -115,6 +119,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
         if (true == m_bRevive)
         {
             m_fDeathDelay += fTimeDelta;
+            
             if(1.f < m_fDeathDelay)
             {
                 if(true==m_pGameInstance->FadeOut(fTimeDelta))
@@ -123,6 +128,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
                     m_bRevive = false;
                 }
             }
+            m_bDeadScream = false;
         }
 
         if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_T) && m_fSkillDuration <= 0.f)
@@ -153,6 +159,8 @@ void CPlayer::Update(_float fTimeDelta)
         //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
         //    m_pFSM->Set_State(STATE_JUMP);
 
+        // cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
+
         m_pFSM->Update(fTimeDelta);
 
         m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
@@ -179,8 +187,15 @@ void CPlayer::Late_Update(_float fTimeDelta)
 
         if (m_fHP <= 0)
         {
-            m_pGameInstance->StopSound(SOUND_PLAYER_VO);
-            m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_Death_03.ogg"), SOUND_PLAYER_VO, 1.f);
+            if(false == m_bDeadScream)
+            {
+                SOUND_DESC desc = {};
+                desc.fVolume = 1.f;
+                m_pGameInstance->StopSound(SOUND_PLAYER_VO);
+                m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_Death_03.ogg"), SOUND_PLAYER_VO, desc);
+                m_bDeadScream = true;
+            }
+
             if(STATE_JUMP == m_pFSM->Get_State())
             {
                 if(true == m_pGameInstance->FadeIn(fTimeDelta))
@@ -203,7 +218,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
         }
         else
         {
-            m_pGameInstance->StopSoundSlowly(SOUND_PLAYER_DRAGONHEART);
+            m_pGameInstance->StopSoundSlowly(SOUND_PLAYER_DRAGONSTONE);
 
             switch (m_eCurrentSkill)
             {
@@ -272,8 +287,11 @@ _bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
                 else
                     static_cast<CPlayer_Block*>(m_pFSM->Get_State(STATE_BLOCK))->Be_Impacted();
 
+                SOUND_DESC desc = {};
+                desc.fVolume = 0.5f;
+
                 m_pGameInstance->StopSound(SOUND_PLAYER_BLOCK);
-                m_pGameInstance->SoundPlay(TEXT("ShieldBreak_4.ogg"), SOUND_PLAYER_BLOCK, 0.5f);
+                m_pGameInstance->SoundPlay(TEXT("ShieldBreak_4.ogg"), SOUND_PLAYER_BLOCK, desc);
 
                 return false;
             }
@@ -281,8 +299,11 @@ _bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
 
         m_fHP -= fDamage;
 
+        SOUND_DESC desc = {};
+        desc.fVolume = 0.5f;
+
         m_pGameInstance->StopSound(SOUND_PLAYER_VO);
-        m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_PainShort_06.ogg"), SOUND_PLAYER_VO, 1.f);
+        m_pGameInstance->SoundPlay(TEXT("Voc_Player_Male_A_PainShort_06.ogg"), SOUND_PLAYER_VO, desc);
 
         _float fRadian = acos(fDot);
 
@@ -338,6 +359,13 @@ void CPlayer::Start_Teleport(_fvector vPos)
     CPlayer_Action* pAction = static_cast<CPlayer_Action*>(m_pFSM->Get_State(STATE_ACTION));
     pAction->Set_State(CPlayer_Action::STATE_TELEPORT);
     pAction->Set_TargetPosition(vPos);
+
+    SOUND_DESC desc = {};
+    desc.fVolume = 1.f;
+
+    m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Lab_Teleporter_PrePort_03.ogg"), desc);
+    m_pGameInstance->SoundPlay_Additional(TEXT("lab_teleporter_flutter_1.ogg"), desc);
+    m_pGameInstance->SoundPlay_Additional(TEXT("lab_teleporter_whoosh_high_5.ogg"), desc);
 }
 
 _uint CPlayer::Get_CellIndex()
@@ -708,24 +736,38 @@ void CPlayer::Anim_Frame_Control()
             static_cast<CPlayer_Item*>(m_Parts[PART_ITEM])->Release_Item();
             Add_TrailRevolve();
             Add_Particle_DragonHeart();
+
+            SOUND_DESC desc = {};
+            desc.fVolume = 0.5f;
+
+            m_pGameInstance->StopSound(SOUND_PLAYER_DRAGONHEART);
+            m_pGameInstance->SoundPlay(TEXT("Large_Crystal_Pulse_High_01.ogg"), SOUND_PLAYER_DRAGONHEART, desc);
+
         }
     }
     else if (PLAYER_ACTION_DRAGONSTONE == m_ePlayerAnim && 26 <= m_iKeyFrameIndex)
     {
         if (m_fSkillDuration <= 0.f)
         {
+            SOUND_DESC desc = {};
+            desc.fVolume = 1.f;
+            
             switch (m_eCurrentSkill)
             {
             case SKILL_RED:
                 m_fSpeed *= 1.5f;
-                m_pGameInstance->SoundPlay(TEXT("swordfire_start.ogg"), SOUND_PLAYER_USE_DRAGONHEART, 1.f);
-                m_pGameInstance->SoundPlay(TEXT("ds_fire_2.ogg"), SOUND_PLAYER_DRAGONHEART, 1.f);
+                m_pGameInstance->StopSound(SOUND_PLAYER_USE_DRAGONSTONE);
+                m_pGameInstance->StopSound(SOUND_PLAYER_DRAGONSTONE);
+                m_pGameInstance->SoundPlay(TEXT("swordfire_start.ogg"), SOUND_PLAYER_USE_DRAGONSTONE, desc);
+                m_pGameInstance->SoundPlay(TEXT("ds_fire_2.ogg"), SOUND_PLAYER_DRAGONSTONE, desc);
                 break;
 
             case SKILL_PUPPLE:
                 m_bDrain = true;
-                m_pGameInstance->SoundPlay(TEXT("swordfire_start2.ogg"), SOUND_PLAYER_USE_DRAGONHEART, 1.f);
-                m_pGameInstance->SoundPlay(TEXT("swordfire_glow3.ogg"), SOUND_PLAYER_DRAGONHEART, 1.f);
+                m_pGameInstance->StopSound(SOUND_PLAYER_USE_DRAGONSTONE);
+                m_pGameInstance->StopSound(SOUND_PLAYER_DRAGONSTONE);
+                m_pGameInstance->SoundPlay(TEXT("swordfire_start2.ogg"), SOUND_PLAYER_USE_DRAGONSTONE, desc);
+                m_pGameInstance->SoundPlay(TEXT("swordfire_glow3.ogg"), SOUND_PLAYER_DRAGONSTONE, desc);
                 break;
             }
             //m_fSkillGage = 0.f;

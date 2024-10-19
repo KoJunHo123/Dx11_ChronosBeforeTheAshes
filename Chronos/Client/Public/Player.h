@@ -154,6 +154,7 @@ public:
 
 	// 상호작용
 	_bool m_bInteraction = { false };
+	_bool m_bDeadScream = { false };
 
 private:
 	HRESULT Ready_Components(_int iStartCellIndex);

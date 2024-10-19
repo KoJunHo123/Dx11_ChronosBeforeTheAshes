@@ -38,6 +38,13 @@ namespace Engine
 		_double	TrackPosition;
 	} KEYFRAME;
 
+	typedef struct
+	{
+		_float3 vPos;
+		_float fMaxDistance;
+		_float fVolume;
+	}SOUND_DESC;
+
 	typedef struct ENGINE_DLL
 	{
 		XMFLOAT3		vPosition;

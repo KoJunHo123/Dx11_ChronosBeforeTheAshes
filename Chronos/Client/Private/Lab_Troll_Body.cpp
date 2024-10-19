@@ -50,6 +50,8 @@ HRESULT CLab_Troll_Body::Initialize(void* pArg)
     m_pRatio = pDesc->pRatio;
     m_fSpeed = 5.f;
 
+    m_SoundDesc.fMaxDistance = DEFAULT_DISTANCE;
+    m_SoundDesc.fVolume = 1.f;
 
     return S_OK;
 }
@@ -113,16 +115,46 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
         _uint iFrameIndex = m_pModelCom->Get_KeyFrameIndex();
 
         if (LAB_TROLL_ATK_CHARGE_L == m_eTrollAnim && 23 <= iFrameIndex && iFrameIndex <= 28)
-            *m_pLeftAttackActive = true;
+        {
+            if(false == *m_pLeftAttackActive)
+            {
+                *m_pLeftAttackActive = true;
+                Play_AttackSound();
+            }
+        }
         else if(LAB_TROLL_ATK_CHARGE_R == m_eTrollAnim && 23 <= iFrameIndex && iFrameIndex <= 28)
-            *m_pRightAttackActive = true;
+        {
+            if(false == *m_pRightAttackActive)
+            {
+                *m_pRightAttackActive = true;
+                Play_AttackSound();
+            }
+
+        }
         else if(LAB_TROLL_ATK_SWIPE_L == m_eTrollAnim && 20 <= iFrameIndex && iFrameIndex <=25)
-            *m_pLeftAttackActive = true;
+        {
+            if(false == *m_pLeftAttackActive)
+            {
+                *m_pLeftAttackActive = true;
+                Play_AttackSound();
+            }
+        }
         else if (LAB_TROLL_ATK_SWIPE_R == m_eTrollAnim && 20 <= iFrameIndex && iFrameIndex <= 25)
-            *m_pRightAttackActive = true;
+        {
+            if(false == *m_pRightAttackActive)
+            {
+                *m_pRightAttackActive = true;
+                Play_AttackSound();
+            }
+        }
         else if (LAB_TROLL_ATK_UPPERCUT == m_eTrollAnim && 24 <= iFrameIndex && iFrameIndex <= 30)
         {
-            *m_pLeftAttackActive = true;
+            if(false == *m_pLeftAttackActive && false == *m_pRightAttackActive)
+            {
+                *m_pLeftAttackActive = true;
+                *m_pRightAttackActive = true;
+                Play_AttackSound();
+            }
         }
         else 
         {
@@ -192,6 +224,8 @@ void CLab_Troll_Body::Update(_float fTimeDelta)
 void CLab_Troll_Body::Late_Update(_float fTimeDelta)
 {
     XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
+
+    StepSound();
 
     if (m_pGameInstance->isIn_Frustum_WorldSpace(XMLoadFloat4x4(&m_WorldMatrix).r[3], 5.f))
     {
@@ -320,6 +354,69 @@ _bool CLab_Troll_Body::Animation_NonInterpolate()
     return false;
 }
 
+void CLab_Troll_Body::StepSound()
+{
+    if (LAB_TROLL_WALK_B == m_eTrollAnim || 
+        LAB_TROLL_WALK_F == m_eTrollAnim || 
+        LAB_TROLL_WALK_L == m_eTrollAnim || 
+        LAB_TROLL_WALK_R == m_eTrollAnim)
+    {
+        _uint iFrameIndex = Get_FrameIndex();
+
+        if (false == m_bLeftStep && 8 <= iFrameIndex && iFrameIndex < 22)
+        {
+            XMStoreFloat3(&m_SoundDesc.vPos, m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_05.ogg"), m_SoundDesc);
+            m_bLeftStep = true;
+            m_bRightStep = false;
+        }
+        else if (false == m_bRightStep && 22 <= iFrameIndex)
+        {
+            XMStoreFloat3(&m_SoundDesc.vPos, m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_06.ogg"), m_SoundDesc);
+            m_bLeftStep = false;
+            m_bRightStep = true;
+        }
+
+        m_bLeftSprint = false;
+        m_bRightSprint = false;
+    }
+    else if (LAB_TROLL_SPRINT_F == m_eTrollAnim)
+    {
+        _uint iFrameIndex = Get_FrameIndex();
+
+        if (false == m_bLeftSprint && 9 <= iFrameIndex && iFrameIndex < 16)
+        {
+            XMStoreFloat3(&m_SoundDesc.vPos, m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_07.ogg"), m_SoundDesc);
+            m_bLeftSprint = true;
+            m_bRightSprint = false;
+        }
+        else if (false == m_bRightSprint && 16 <= iFrameIndex)
+        {
+            XMStoreFloat3(&m_SoundDesc.vPos, m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+            m_pGameInstance->SoundPlay_Additional(TEXT("Burner_Footstep_Impact_Slow_08.ogg"), m_SoundDesc);
+            m_bLeftSprint = false;
+            m_bRightSprint = true;
+        }
+
+        m_bLeftStep = { false };
+        m_bRightStep = { false };
+    }
+    else
+    {
+        m_bLeftStep = false;
+        m_bRightStep = false;
+        m_bLeftSprint = false;
+        m_bRightSprint = false;
+    }
+
+}
+
 HRESULT CLab_Troll_Body::Ready_Components()
 {
     /* FOR.Com_Shader */
@@ -373,6 +470,23 @@ void CLab_Troll_Body::Play_Animation(_float fTimeDelta)
         if (true == m_pNavigationCom->isMove(vMovePosition, &vLine))
             m_pTroll_TransformCom->Set_State(CTransform::STATE_POSITION, vMovePosition);
     }
+
+}
+
+void CLab_Troll_Body::Play_AttackSound()
+{
+    XMStoreFloat3(&m_SoundDesc.vPos, m_pTroll_TransformCom->Get_State(CTransform::STATE_POSITION));
+
+    m_pGameInstance->SoundPlay_Additional(TEXT("Weapon_Dagger_Stone_Whoosh_Short_02.ogg"), m_SoundDesc);
+
+    _float fRandom = m_pGameInstance->Get_Random_Normal();
+
+    if (fRandom < 0.1666f)
+        m_pGameInstance->SoundPlay_Additional(TEXT("Troll_VO_Attack_Short_01.ogg"), m_SoundDesc);
+    else if (fRandom < 0.3333f)
+        m_pGameInstance->SoundPlay_Additional(TEXT("Troll_VO_Attack_Short_03.ogg"), m_SoundDesc);
+    else if (fRandom < 0.5f)
+        m_pGameInstance->SoundPlay_Additional(TEXT("Troll_VO_Attack_Short_05.ogg"), m_SoundDesc);
 
 }
 

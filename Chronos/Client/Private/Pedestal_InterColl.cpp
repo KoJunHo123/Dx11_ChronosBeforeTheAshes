@@ -76,6 +76,10 @@ void CPedestal_InterColl::Intersect(const _wstring strColliderTag, CGameObject* 
 
 			pInventory->Add_Item(m_strItemTag, *m_ppItem);
 
+			SOUND_DESC desc = {};
+			desc.fVolume = 1.f;
+			m_pGameInstance->SoundPlay_Additional(TEXT("Item_Pickup_Key_02.ogg"), desc);
+
 			*m_ppItem = nullptr;
 		}
 	}
