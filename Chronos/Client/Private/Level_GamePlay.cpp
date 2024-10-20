@@ -19,6 +19,9 @@
 #include "UI_PlayerBase.h"
 
 
+#include "Effect_Distortion.h"
+
+
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
 {
@@ -229,7 +232,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster()
 	desc.vRotation = {};
 	desc.vScale = { 1.f, 1.f, 1.f };
 	desc.iStartCellIndex = 50;
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Lab_Mage"), &desc)))
 		return E_FAIL;
 
 	return S_OK;

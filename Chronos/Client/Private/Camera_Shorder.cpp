@@ -57,22 +57,18 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 {
 	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_WHEEL))
 	{
-		if (nullptr == m_pTargetTransformCom)
+		if (nullptr == m_pTargetMonster)
 		{
-			size_t iMonsterSize = m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
-
 			_float fShortestLength = { 0.f };
-
-			CTransform* pTransformCom = { nullptr };
-			for (size_t i = 0; i < iMonsterSize; ++i)
+			list<CGameObject*> GameObjects = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, TEXT("Layer_Monster"));
+			for (auto& GameObject : GameObjects)
 			{
-				pTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), g_strTransformTag, i));
-				if (false == m_pGameInstance->isIn_Frustum_WorldSpace(pTransformCom->Get_State(CTransform::STATE_POSITION)))
+				if (false == m_pGameInstance->isIn_Frustum_WorldSpace(GameObject->Get_Position()))
 				{
-					pTransformCom = nullptr;
 					continue;
 				}
-				_vector vDir = pTransformCom->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+				_vector vDir = GameObject->Get_Position() - m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 				_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
 				_float fDot = XMVectorGetX(XMVector3Dot(vDir, vLook));
 				vLook *= fDot;
@@ -87,45 +83,46 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 					if (0.f == fShortestLength || fNormalLength < fShortestLength)
 					{
 						fShortestLength = fNormalLength;
-						m_pTargetTransformCom = pTransformCom;
+						m_pTargetMonster = GameObject;
 					}
 				}
 			}
-			if (nullptr != m_pTargetTransformCom)
-				Safe_AddRef(m_pTargetTransformCom);
 		}
 		else
 		{
-			Safe_Release(m_pTargetTransformCom);
-			m_pTargetTransformCom = nullptr;
+			m_pTargetMonster = nullptr;
 		}
 	}
 
-	if(nullptr != m_pTargetTransformCom)
+	if(nullptr != m_pTargetMonster)
 	{
-		// 타겟 방향으로 공전시키기.
-		// 플레이어 룩과 방향벡터의 내적이 0.99보다 작은 동안.
-		_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
-		vPlayerPos.m128_f32[1] += m_fOffset;
-		
-		_vector vTargetPos = m_pTargetTransformCom->Get_State(CTransform::STATE_POSITION);
-		vTargetPos.m128_f32[1] += m_fOffset * 0.5f;
-
-		_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
-		_vector vDir = XMVector3Normalize(vTargetPos - vPlayerPos);
-
-		_vector vCross = XMVector3Cross(vLook, vDir);
-
-		if(0.997f > XMVectorGetX(XMVector3Dot(vLook, vDir)))
-		{
-			m_pTransformCom->Orbit(vCross, vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * m_fSpeed);
-		}
+		if(true == m_pTargetMonster->Get_Dead())
+			m_pTargetMonster = nullptr;
 		else
 		{
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vDir * m_fDistance));
+			_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);
+			vPlayerPos.m128_f32[1] += m_fOffset;
+
+			_vector vTargetPos = m_pTargetMonster->Get_Position();
+			vTargetPos.m128_f32[1] += m_fOffset * 0.5f;
+
+			_vector vLook = XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK));
+
+			_vector vDir = vTargetPos - vPlayerPos;
+			vDir = XMVector3Normalize(vDir);
+
+			_vector vCross = XMVector3Cross(vLook, vDir);
+			if (0.997f > XMVectorGetX(XMVector3Dot(vLook, vDir)))
+			{
+				m_pTransformCom->Orbit(vCross, vPlayerPos, m_fLimit, m_fDistance, fTimeDelta * m_fSpeed);
+			}
+			else
+			{
+				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPos - (vDir * m_fDistance));
+			}
+
+			m_pTransformCom->LookAt(vPlayerPos);
 		}
-		
-		m_pTransformCom->LookAt(vPlayerPos);
 	}
 	else
 	{
@@ -150,6 +147,14 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 		}
 
 		 m_pTransformCom->LookAt(vPlayerPos);
+	}
+
+	if (0.f < m_fShakingTime)
+	{
+		_vector vRandom = XMVectorSet(m_pGameInstance->Get_Random_Normal(), m_pGameInstance->Get_Random_Normal(), m_pGameInstance->Get_Random_Normal(), 0.f);
+
+		Set_Position(Get_Position() + XMVector3Normalize(vRandom) * 0.25f);
+		m_fShakingTime -= fTimeDelta;
 	}
 
 	if (m_pGameInstance->Get_DIKeyState_Down(DIKEYBOARD_0))
@@ -210,5 +215,4 @@ void CCamera_Shorder::Free()
 {
 	__super::Free();
 	Safe_Release(m_pPlayerTransformCom);
-	Safe_Release(m_pTargetTransformCom);
 }

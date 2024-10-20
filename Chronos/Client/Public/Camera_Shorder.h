@@ -23,6 +23,10 @@ public:
 	}
 	void Set_InitialState();
 
+	void Set_Shaking(_float fShakingTime) {
+		m_fShakingTime = fShakingTime;
+	}
+
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
@@ -34,7 +38,8 @@ public:
 private:
 	_float				m_fSensor = { 0.f };	// °¨µµ
 	class CTransform*	m_pPlayerTransformCom = { nullptr };
-	class CTransform*	m_pTargetTransformCom = { nullptr };
+
+	class CGameObject* m_pTargetMonster = { nullptr };
 
 	_float m_fOffset = { 0.f };
 	_float m_fDistance = { 0.f };
@@ -46,6 +51,8 @@ private:
 	_float m_fDistanceLimit = { 0.f };
 
 	_bool m_bOnUI = { false };
+
+	_float m_fShakingTime = { 0.f };
 
 public:
 	static CCamera_Shorder* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

@@ -70,8 +70,17 @@ HRESULT CMainApp::Initialize()
 
 void CMainApp::Update(_float fTimeDelta)
 {
-	m_pGameInstance->Update_Engine(fTimeDelta);
+	_float fTime = fTimeDelta;
 
+	if (0.f < g_fRack)
+		fTime *= 0.125f;
+	else
+		g_fRack = 0.f;
+
+	m_pGameInstance->Update_Engine(fTime);
+
+	g_fRack -= fTimeDelta;
+	
 	if (FAILED(FrameOut(fTimeDelta)))
 		return;
 }

@@ -50,6 +50,9 @@ private:
 	_bool m_bFadeIn = { false };
 	_bool m_bFadeOut = { false };
 
+	_bool m_bLeftGrab = { false };
+	_bool m_bRightGrab = { false };
+
 private:
 	HRESULT Add_Particle_Teleport();
 	HRESULT Add_TrailRevolve();

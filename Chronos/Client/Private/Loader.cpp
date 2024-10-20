@@ -123,6 +123,7 @@
 #include "Effect_BloodCore.h"
 #include "Effect_BloodSpray.h"
 #include "Effect_Flare.h"
+#include "Effect_Distortion.h"
 
 // Æ®·¹ÀÏ
 #include "Trail_Revolve.h"
@@ -1360,6 +1361,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	/* For. Prototype_GameObject_Effect_Flare */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Flare"),
 		CEffect_Flare::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Effect_Distortion */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect_Distortion"),
+		CEffect_Distortion::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 #pragma endregion
 #pragma region TRAIL

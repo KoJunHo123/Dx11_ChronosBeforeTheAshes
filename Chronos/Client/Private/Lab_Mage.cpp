@@ -132,12 +132,15 @@ void CLab_Mage::Update(_float fTimeDelta)
         static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Set_On();
     }
 
-    if (true == m_bAnimOver && STATE_DEATH != m_iState)
+    if (true == m_bAnimOver && STATE_DEATH != m_iState )
     {
         m_iState = STATE_IDLE;
-        m_fAttackTime = m_pGameInstance->Get_Random(1.f, 3.f);
-        m_fAttackDelay = 0.f;
         m_bAnimOver = false;
+        if(STATE_IMPACT != m_iState)
+        {
+            m_fAttackTime = m_pGameInstance->Get_Random(1.f, 3.f);
+            m_fAttackDelay = 0.f;
+        }
     }
 
     for (auto& Part : m_Parts)

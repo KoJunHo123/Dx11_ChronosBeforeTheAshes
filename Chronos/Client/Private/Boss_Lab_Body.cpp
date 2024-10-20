@@ -4,6 +4,9 @@
 
 #include "Boss_Lab.h"
 
+#include "Camera_Container.h"
+#include "Camera_Shorder.h"
+
 
 CBoss_Lab_Body::CBoss_Lab_Body(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject(pDevice, pContext)
@@ -408,6 +411,10 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 				}
 				else if (true == m_bLaunch && 93 < iFrame && iFrame < 98)
 				{
+					CCamera_Shorder* m_pCamera = dynamic_cast<CCamera_Shorder*>(static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0))->Get_PartObject(CCamera_Container::CAMERA_SHORDER));
+
+					m_pCamera->Set_Shaking(3.f);
+
 					m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Alert_01a.ogg"), m_SoundDesc);
 					m_bLaunch = false;
 				}

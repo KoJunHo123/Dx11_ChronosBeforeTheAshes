@@ -219,9 +219,9 @@ void CLab_Mage_Body::Update(_float fTimeDelta)
         }
 
         _uint iFrameIndex = m_pModelCom->Get_KeyFrameIndex();
-        if (LAB_MAGE_ATK_SLASH_01_STRIKE == m_eMageAnim && 4 <= iFrameIndex && iFrameIndex <= 8)
+        if (LAB_MAGE_ATK_SLASH_01_STRIKE == m_eMageAnim && 3 <= iFrameIndex && iFrameIndex <= 8)
             *m_pAttackActive = true;
-        else if (LAB_MAGE_ATK_SLASH_02_STRIKE == m_eMageAnim && 4 <= iFrameIndex && iFrameIndex <= 10)
+        else if (LAB_MAGE_ATK_SLASH_02_STRIKE == m_eMageAnim && 4 <= iFrameIndex && iFrameIndex <= 13)
             *m_pAttackActive = true;
         else
             *m_pAttackActive = false;

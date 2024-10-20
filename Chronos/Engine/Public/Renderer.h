@@ -11,7 +11,7 @@ BEGIN(Engine)
 class CRenderer final : public CBase
 {
 public:
-	enum RENDERGROUP { RG_PRIORITY, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLOOM, RG_BLEND, RG_UI, RG_BLENDUI, RG_FADE, RG_END };
+	enum RENDERGROUP { RG_PRIORITY, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLOOM, RG_DISTORTION, RG_BLEND, RG_UI, RG_BLENDUI, RG_FADE, RG_END };
 private:
 	CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual ~CRenderer() = default;
@@ -72,6 +72,7 @@ private:
 	HRESULT Render_NonLights();
 	HRESULT Render_Bloom();
 
+	HRESULT Render_Distortion();
 	HRESULT Render_Final();
 	HRESULT Render_Blur();
 
@@ -86,7 +87,6 @@ private:
 #ifdef _DEBUG
 private:
 	HRESULT Render_Debug();
-
 #endif
 
 

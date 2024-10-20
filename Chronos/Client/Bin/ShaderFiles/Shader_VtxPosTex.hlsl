@@ -262,6 +262,37 @@ PS_OUT PS_BOSS_HPBAR_MAIN(PS_IN In)
         return Out;
 }
 
+//struct PS_DISTORTION_OUT
+//{
+//    vector vDistortion : SV_TARGET0;
+//    vector vDepth : SV_TARGET1;
+//};
+
+PS_OUT PS_DISTORTION_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 vTexcoord = (float2) 0;
+    float2 vCenter = float2(0.5f, 0.5f);
+    
+    float2 vDir = In.vTexcoord - vCenter;
+    float fDistance = length(vDir);
+    
+    float2 vRadial = vDir * (sin(fDistance * 50.f - g_fRatio * 10.f) * 0.5f + 1.f);
+    vRadial += vCenter;
+    
+    Out.vColor = g_Texture.Sample(LinearClampSampler, vRadial); /*vector(1.f, In.vTexcoord.y, 0.f, 1.f);*/
+    vector vGlowTexture = g_NormTexture.Sample(LinearClampSampler, vRadial);
+    
+    if(vGlowTexture.r < 0.1f)
+        discard;
+    // Out.vColor *= vGlowTexture * 2.f;
+    
+    Out.vColor.a = Out.vColor.r;
+    
+    return Out;
+}
+
 technique11	DefaultTechnique
 {
 	/* 빛연산 + 림라이트 + ssao + 노멀맵핑 + pbr*/
@@ -373,5 +404,16 @@ technique11	DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_BOSS_HPBAR_MAIN();
+    }
+
+    pass DISTORTION //10
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_DISTORTION_MAIN();
     }
 }

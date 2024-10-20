@@ -24,6 +24,13 @@ sampler LinearClampSampler = sampler_state
     AddressV = clamp;
 };
 
+sampler LinearMirrorSampler = sampler_state
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Mirror; // 좌표를 벗어나는 경우 가장 가가운 범위 내의 값으로 제한.(0 보다 밑에 있으면 0으로, 1보다 위에 있으면 1로.)
+    AddressV = Mirror;
+};
+
 // 레스터라이저 : 3D 그래픽을 그리기 위해 벡터 정보를 픽셀 이미지로 변환. == 3차원 삼각형으로부터 픽셀 색상들을 계산. -> 이걸 하고나서 픽셀 셰이더.
 RasterizerState RS_Default  
 {

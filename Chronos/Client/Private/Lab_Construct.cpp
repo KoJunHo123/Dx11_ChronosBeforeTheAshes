@@ -136,8 +136,11 @@ void CLab_Construct::Update(_float fTimeDelta)
     if (true == m_isFinished && STATE_DEATH != m_iState)
     {
         m_iState = STATE_IDLE;
-        m_fAttackTime = m_pGameInstance->Get_Random(1.f, 3.f);
-        m_fAttackDelay = 0.f;
+        if(STATE_IMPACT != m_iState)
+        {
+            m_fAttackTime = m_pGameInstance->Get_Random(1.f, 3.f);
+            m_fAttackDelay = 0.f;
+        }
     }
 
     for (auto& Part : m_Parts)

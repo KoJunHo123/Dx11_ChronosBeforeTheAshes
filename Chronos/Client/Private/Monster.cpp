@@ -45,6 +45,7 @@ HRESULT CMonster::Initialize(void* pArg)
 
 _uint CMonster::Priority_Update(_float fTimeDelta)
 {
+
 	return OBJ_NOEVENT;
 }
 

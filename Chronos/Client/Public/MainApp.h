@@ -30,6 +30,7 @@ private:
 	_int         m_iFPS;
 	_float      m_fFrameTime = 0.f;
 
+
 private:	
 	HRESULT Ready_Prototype_Component_Static();
 	HRESULT Ready_Prototype_GameObject_Static();

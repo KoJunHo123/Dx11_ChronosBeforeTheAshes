@@ -4,6 +4,7 @@
 
 #include "Player.h"
 #include "Player_Item.h"
+#include "Player_Body.h"
 
 #include "Particle_Teleport.h"
 #include "Trail_Revolve.h"

@@ -376,6 +376,9 @@
     <Filter Include="01.Levels\GamePlay">
       <UniqueIdentifier>{496bfdc0-36c4-4ae4-a032-6e701acb2b32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\09.Effect\Effect_Distortion">
+      <UniqueIdentifier>{1dad40e2-2199-44b4-86fb-8d4193993e50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -708,6 +711,9 @@
     <ClInclude Include="..\public\Boss_Lab_Charge_Smoke.h">
       <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Effect_Distortion.h">
+      <Filter>02.GameObjects\09.Effect\Effect_Distortion</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -1027,6 +1033,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Boss_Lab_Charge_Smoke.cpp">
       <Filter>02.GameObjects\04.Monster\Monster_Object\Boss_Lab\Boss_Lab_Charge_Smoke</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Effect_Distortion.cpp">
+      <Filter>02.GameObjects\09.Effect\Effect_Distortion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

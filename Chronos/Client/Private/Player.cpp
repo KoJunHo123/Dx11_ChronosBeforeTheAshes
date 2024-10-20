@@ -27,6 +27,8 @@
 #include "Particle_DragonHeart.h"
 
 #include "PuzzleBase.h"
+#include "Effect_Distortion.h"
+
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject{ pDevice, pContext }
@@ -215,6 +217,10 @@ void CPlayer::Late_Update(_float fTimeDelta)
         if (0.f < m_fSkillDuration)
         {
             m_fSkillDuration -= fTimeDelta;
+
+            if (SKILL_RED == m_eCurrentSkill)
+                m_fStamina = 100.f;
+
         }
         else
         {
@@ -238,7 +244,6 @@ void CPlayer::Late_Update(_float fTimeDelta)
         else if (m_fStamina < 0.f)
             m_fStamina = 0.f;
 
-        m_fStamina = 100.f;
 #ifdef _DEBUG
         m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
@@ -317,6 +322,11 @@ _bool CPlayer::Be_Damaged(_float fDamage, _fvector vAttackPos)
         else
             m_pFSM->Set_State(STATE_IMPACT);
 
+        if (CCamera_Container::CAMERA_SHORDER == m_pCurrentCamera->Get_CameraIndex())
+        {
+            static_cast<CCamera_Shorder*>(m_pCurrentCamera)->Set_Shaking(0.25f);
+        }
+
         return true;
     }
 
@@ -335,6 +345,15 @@ void CPlayer::Set_SavePos(_fvector vPos)
     pAction->Set_State(CPlayer_Action::STATE_WAYPOINT);
 
     XMStoreFloat3(&m_vSavePos, Get_Position());
+
+    CEffect_Distortion::DISTORTION_DESC desc = {};
+    desc.fRotationPerSec = XMConvertToRadians(90.f);
+    desc.fSpeedPerSec = 1.f;
+    XMStoreFloat3(&desc.vPos, Get_Position() + XMVector3Normalize(Get_State(CTransform::STATE_LOOK)) * 2.f);
+    desc.vPos.y += 3.f;
+
+    m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Effect"), TEXT("Prototype_GameObject_Effect_Distortion"), &desc);
+
 }
 
 _bool CPlayer::Use_Runekey(_fvector vPos, _fvector vLookAt)
@@ -771,7 +790,6 @@ void CPlayer::Anim_Frame_Control()
                 break;
             }
             //m_fSkillGage = 0.f;
-            m_fSkillGage = 100.f;
             m_fSkillDuration = 10.f;
             static_cast<CPlayer_UseSkill_Particle*>(m_Parts[PART_USESKILL_PARTICLE])->Set_On(true);
             

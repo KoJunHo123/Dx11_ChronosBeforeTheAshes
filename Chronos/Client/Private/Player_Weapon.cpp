@@ -289,6 +289,9 @@ void CPlayer_Weapon::Intersect(const _wstring strColliderTag, CGameObject* pColl
 		_vector vMoveDir = XMLoadFloat4x4(&m_WorldMatrix).r[3] - XMLoadFloat3(&m_vPrePosition);
 
 		Add_AttackParticle(vPos, XMVector3Normalize(vMoveDir) * 0.1f);
+
+		if(fDamage > m_fDamage)
+			g_fRack = 0.25f;
 	}
 }
 

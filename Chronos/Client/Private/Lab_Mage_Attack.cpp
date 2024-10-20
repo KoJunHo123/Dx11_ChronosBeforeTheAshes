@@ -43,8 +43,6 @@ _uint CLab_Mage_Attack::Priority_Update(_float fTimeDelta)
 	m_pColliderCom->Set_OnCollision(*m_pAttackActive);
 	XMStoreFloat3(&m_vPrePosition, XMLoadFloat4x4(&m_WorldMatrix).r[3]);
 
-	// 
-
 	if (true == *m_pAttackActive)
 	{
 		if(false == m_bAttackSound)
@@ -54,7 +52,7 @@ _uint CLab_Mage_Attack::Priority_Update(_float fTimeDelta)
 			desc.fVolume = 1.f;
 			XMStoreFloat3(&desc.vPos, XMLoadFloat4x4(m_pParentMatrix).r[3]);
 
-			m_pGameInstance->SoundPlay_Additional(TEXT("Axe_Whoosh_02.ogg"), desc);
+			m_pGameInstance->SoundPlay_Additional(TEXT("Weapon_Sword_Metal_A_Whoosh_06.ogg"), desc);
 			m_bAttackSound = true;
 		}
 	}

@@ -68,6 +68,8 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Blur_Y"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 1.f))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Distortion"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
 
 	/* MRT_GameObjects */
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_GameObjects"), TEXT("Target_Diffuse"))))
@@ -111,7 +113,9 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Blur_Y"), TEXT("Target_Blur_Y"))))
 		return E_FAIL;
 
-
+	/* MRT_Distortion */
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Distortion"), TEXT("Target_Distortion"))))
+		return E_FAIL;
 
 	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXPOSTEX::Elements, VTXPOSTEX::iNumElements);
 	if (nullptr == m_pShader)
@@ -151,13 +155,16 @@ HRESULT CRenderer::Initialize(_uint iWinSizeX, _uint iWinSizeY)
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Back"), ViewportDesc.Width - 50.f, 250.f, 100.f, 100.f)))
 		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Bloom"), ViewportDesc.Width - 250.f, 50.f, 100.f, 100.f)))
-		return E_FAIL;
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Final"), ViewportDesc.Width - 150.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_X"), ViewportDesc.Width - 150.f, 150.f, 100.f, 100.f)))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_Y"), ViewportDesc.Width - 150.f, 250.f, 100.f, 100.f)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Bloom"), ViewportDesc.Width - 250.f, 50.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Distortion"), ViewportDesc.Width - 250.f, 150.f, 100.f, 100.f)))
 		return E_FAIL;
 	
 #endif
@@ -200,6 +207,8 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_NonLights()))
 		return E_FAIL;
 	if (FAILED(Render_Bloom()))
+		return E_FAIL;
+	if (FAILED(Render_Distortion()))
 		return E_FAIL;
 	if(FAILED(Render_Final()))
 		return E_FAIL;
@@ -397,6 +406,7 @@ HRESULT CRenderer::Render_Deferred()
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_LightDepth"), "g_LightDepthTexture")))
 		return E_FAIL;
+
 	//if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Emissive"), "g_EmissiveTexture")))
 	//	return E_FAIL;
 
@@ -436,6 +446,26 @@ HRESULT CRenderer::Render_Bloom()
 		Safe_Release(pGameObject);
 	}
 	m_RenderObjects[RG_BLOOM].clear();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_Distortion()
+{
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Distortion"))))
+		return E_FAIL;
+
+	for (auto& pGameObject : m_RenderObjects[RG_DISTORTION])
+	{
+		if (nullptr != pGameObject)
+			pGameObject->Render();
+
+		Safe_Release(pGameObject);
+	}
+	m_RenderObjects[RG_DISTORTION].clear();
 
 	if (FAILED(m_pGameInstance->End_MRT()))
 		return E_FAIL;
@@ -517,6 +547,9 @@ HRESULT CRenderer::Render_Blur()
 		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Blur_Y"), "g_BlurYTexture")))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Distortion"), "g_DistortionTexture")))
 		return E_FAIL;
 
 	m_pShader->Begin(8);
@@ -644,6 +677,7 @@ HRESULT CRenderer::Render_Debug()
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_X"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_Y"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Bloom"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Distortion"), m_pShader, m_pVIBuffer);
 
 	return S_OK;
 }

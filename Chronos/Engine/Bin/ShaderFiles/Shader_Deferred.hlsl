@@ -28,6 +28,7 @@ texture2D g_BloomTexture;
 texture2D g_FinalTexture;
 texture2D g_BlurXTexture;
 texture2D g_BlurYTexture;
+texture2D g_DistortionTexture;
 
 vector g_vCamPosition;
 
@@ -261,10 +262,12 @@ PS_OUT_FINAL PS_MAIN_FINAL(PS_IN In)
 {
     PS_OUT_FINAL Out = (PS_OUT_FINAL) 0;
 
-    Out.vFinal = g_BloomTexture.Sample(LinearSampler, In.vTexcoord);
+    
     Out.vBack = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
+    Out.vFinal = g_BloomTexture.Sample(LinearSampler, In.vTexcoord);
+    
     vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
-        
+    
     //float brightness = dot(Out.vFinal.rgb, float3(0.299, 0.587, 0.114)); // ¹à±â °è»ê
     
     //if (brightness < 0.8f)
@@ -316,17 +319,26 @@ PS_OUT PS_MAIN_BLUR_FINAL(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
 
-    vector vBlur = g_BlurYTexture.Sample(LinearSampler, In.vTexcoord);
-    vector vBack = g_BackTexture.Sample(LinearSampler, In.vTexcoord);
-
+    vector vDistortion = g_DistortionTexture.Sample(LinearSampler, In.vTexcoord);
+    float fWeight = 0.05f;
+    
+    float2 vTexcoord = In.vTexcoord;
+    if(0 < vDistortion.a)
+    {
+        vTexcoord += (vDistortion.rg - 0.5f) * fWeight;
+    }
+    
+    vector vBlur = g_BlurYTexture.Sample(LinearClampSampler, vTexcoord);
+    vector vBack = g_BackTexture.Sample(LinearClampSampler, vTexcoord);
+    
     Out.vColor = vBlur + vBack;
 
     // È­¸é Èæ¹é ÀüÈ¯
     //float fGray = Out.vColor.r * 0.299f + Out.vColor.g * 0.587f + Out.vColor.b * 0.114f;
     //Out.vColor.rgb = float3(fGray, fGray, fGray);
     
-    return Out;
-}
+        return Out;
+    }
 
 
 technique11 DefaultTechnique
