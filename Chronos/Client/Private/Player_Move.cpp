@@ -161,7 +161,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		m_eMoveState = MOVE_JOG;
 		
 		Look_CameraDir();
-		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+		m_pTransformCom->Go_Straight(fTimeDelta * (*m_pSpeed * 2.f) * 1.25f, m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -171,7 +171,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		m_eMoveState = MOVE_JOG;
 
 		Look_CameraDir();
-		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+		m_pTransformCom->Go_Backward(fTimeDelta * (*m_pSpeed * 2.f) * 1.25f, m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -181,7 +181,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		m_eMoveState = MOVE_JOG;
 
 		Look_CameraDir();
-		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+		m_pTransformCom->Go_Left(fTimeDelta * (*m_pSpeed * 2.f) * 1.25f, m_pNavigationCom);
 
 		bKeyPress = true;
 	}
@@ -191,7 +191,7 @@ void CPlayer_Move::Jog(_float fTimeDelta)
 		m_eMoveState = MOVE_JOG;
 
 		Look_CameraDir();
-		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.f, m_pNavigationCom);
+		m_pTransformCom->Go_Right(fTimeDelta * (*m_pSpeed * 2.f) * 1.25f, m_pNavigationCom);
 
 		bKeyPress = true;
 	}

@@ -32,6 +32,12 @@ public:
 		if (CAMERA_END <= iCameraIndex)
 			return;
 		m_eCurrentCamera = (CAMERA)iCameraIndex;
+
+		if (CAMERA_SHORDER == m_eCurrentCamera)
+			ShowCursor(FALSE);
+		else
+			ShowCursor(TRUE);
+
 	}
 	void Set_InteractionTarget(_fvector vTargetPos, _float3 vCamDir);
 

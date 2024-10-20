@@ -27,6 +27,7 @@ HRESULT CCamera_Interaction::Initialize(void* pArg)
 
 _uint CCamera_Interaction::Priority_Update(_float fTimeDelta)
 {
+
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat3(&m_vTargetPos) + XMLoadFloat3(&m_vCamDir));
     m_pTransformCom->LookAt(XMLoadFloat3(&m_vTargetPos));
  

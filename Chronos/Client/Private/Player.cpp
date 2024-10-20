@@ -47,7 +47,7 @@ HRESULT CPlayer::Initialize_Prototype()
 
 HRESULT CPlayer::Initialize(void* pArg)
 {
-    m_fSpeed = 4.f * 5.f;
+    m_fSpeed = 4.f;
     m_fStartSpeed = m_fSpeed;
 
     m_fMaxHP = 100;
@@ -158,8 +158,8 @@ void CPlayer::Update(_float fTimeDelta)
 
         m_vCameraLook.y = 0.f;
 
-        //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
-        //    m_pFSM->Set_State(STATE_JUMP);
+        if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
+            m_pFSM->Set_State(STATE_JUMP);
 
         m_pFSM->Update(fTimeDelta);
 
@@ -787,7 +787,7 @@ void CPlayer::Anim_Frame_Control()
                 m_pGameInstance->SoundPlay(TEXT("swordfire_glow3.ogg"), SOUND_PLAYER_DRAGONSTONE, desc);
                 break;
             }
-            //m_fSkillGage = 0.f;
+            m_fSkillGage = 0.f;
             m_fSkillDuration = 10.f;
             static_cast<CPlayer_UseSkill_Particle*>(m_Parts[PART_USESKILL_PARTICLE])->Set_On(true);
             

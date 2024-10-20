@@ -56,6 +56,7 @@ HRESULT CCamera_Shorder::Initialize(void * pArg)
 
 _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 {
+
 	if (m_pGameInstance->Get_DIMouseState_Down(DIMK_WHEEL))
 	{
 		if (nullptr == m_pTargetMonster)

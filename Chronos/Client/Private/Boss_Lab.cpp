@@ -185,13 +185,13 @@ void CBoss_Lab::Update(_float fTimeDelta)
 					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
 					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
 				}
-				//else
-				//{
-				//	m_iState |= STATE_TELEPORT;
-				//	static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
-				//	static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
-				//	Add_TeleportEffect();
-				//}
+				else
+				{
+					m_iState |= STATE_TELEPORT;
+					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
+					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
+					Add_TeleportEffect();
+				}
 			}
 		}
 		else

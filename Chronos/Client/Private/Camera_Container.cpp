@@ -29,12 +29,15 @@ HRESULT CCamera_Container::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_eCurrentCamera = CAMERA_SHORDER;
+	ShowCursor(FALSE);
 
     return S_OK;
 }
 
 _uint CCamera_Container::Priority_Update(_float fTimeDelta)
 {
+
+
 	m_Parts[m_eCurrentCamera]->Priority_Update(fTimeDelta);
 
     return OBJ_NOEVENT;
@@ -68,8 +71,6 @@ void CCamera_Container::Set_InteractionTarget(_fvector vTargetPos, _float3 vCamD
 {
 	static_cast<CCamera_Interaction*>(m_Parts[CAMERA_INTERACTION])->Set_Target(vTargetPos, vCamDir);
 }
-
-
 
 HRESULT CCamera_Container::Ready_Cameras()
 {

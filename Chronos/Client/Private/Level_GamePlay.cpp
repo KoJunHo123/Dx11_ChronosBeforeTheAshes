@@ -60,19 +60,16 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Interaction"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Obstacle"));
 
-	m_bLevelStart = true;
-
-	//if(FAILED(Ready_Layer_Monster()))
-	//	return E_FAIL;
-
 	m_pGameInstance->StopSound(SOUND_BGM);
-	//m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
+	m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.5f);
 	m_pGameInstance->PlayBGM(TEXT("Amb_Labyrinth_Dark_Exterior_Loop.ogg"), SOUND_BGM, 0.f);
 
 	 SOUND_DESC desc = {};
 	 desc.fVolume = 1.f;
 
-	 // m_pGameInstance->SoundPlay_Additional(TEXT("Mus_Zone_Theme_Labyrinth.ogg"), desc);
+	 m_pGameInstance->SoundPlay_Additional(TEXT("Mus_Zone_Theme_Labyrinth.ogg"), desc);
+
+	 m_bLevelStart = true;
 
 	return S_OK;
 }
@@ -109,13 +106,13 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 	// ³ë¶û
 	if (false == m_bYellow && (6049 == iCellIndex || 6050 == iCellIndex || 5427 == iCellIndex))
 	{
-		//Ready_Layer_Monster_Yellow();
+		Ready_Layer_Monster_Yellow();
 		m_bYellow = true;
 	}
 	// º¸¶ó
 	else if (false == m_bPupple && ((6084 <= iCellIndex && iCellIndex <= 6087) || 6129 == iCellIndex))
 	{
-		//Ready_Layer_Monster_Pupple();
+		Ready_Layer_Monster_Pupple();
 		m_bPupple = true;
 	}
 	// »¡°­
