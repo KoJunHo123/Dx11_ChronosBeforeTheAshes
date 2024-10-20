@@ -29,8 +29,6 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 
 	m_vTargetPos = pDesc->vTargetPos;
 	m_iCellIndex = pDesc->iCellIndex;
-	m_eInSound = pDesc->eInSound;
-	m_eOutSound = pDesc->eOutSound;
 
 	_float3 vRandomPos = { m_pGameInstance->Get_Random(-4.f, 4.f), m_pGameInstance->Get_Random(-4.f, 0.f), m_pGameInstance->Get_Random(-4.f, 4.f) };
 
@@ -45,7 +43,6 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag));
 	Safe_AddRef(m_pPlayerTransformCom);
 
-	Play_Sound_FadeIn();
 
     return S_OK;
 }
@@ -83,13 +80,6 @@ void CFloorChunk::Update(_float fTimeDelta)
 	}
 	else
 	{
-		if(false == m_bFadeOutSound)
-		{
-			Play_Sound_FadeOut();
-			m_bFadeOutSound = true;
-		}
-
-
 		if (false == m_IsFadeOut)
 		{
 			m_IsFadeOut = m_pTransformCom->MoveTo(XMLoadFloat3(&m_vStartPos), fTimeDelta * 5.f);
@@ -168,99 +158,6 @@ HRESULT CFloorChunk::Ready_Components(const _wstring strModelTag)
 	return S_OK;
 }
 
-void CFloorChunk::Play_Sound_FadeIn()
-{
-	SOUND_DESC desc = {};
-	/*desc.fMaxDistance = DEFAULT_DISTANCE;
-	XMStoreFloat3(&desc.vPos, Get_Position());*/
-	desc.fVolume = 0.125f;
-
-	switch (m_eInSound)
-	{
-	case SOUND_FLOOR_FADEIN_1:
-		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
-			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_1.ogg"), m_eInSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEIN_2:
-		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
-			m_pGameInstance->Set_SoundPosition(m_eInSound, 537);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_2.ogg"), m_eInSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEIN_3:
-		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
-			m_pGameInstance->Set_SoundPosition(m_eInSound, 525);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_3.ogg"), m_eInSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEIN_4:
-		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
-			m_pGameInstance->Set_SoundPosition(m_eInSound, 520);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_4.ogg"), m_eInSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEIN_5:
-		if (600 < m_pGameInstance->Get_SoundPosition(m_eInSound))
-			m_pGameInstance->Set_SoundPosition(m_eInSound, 523);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeIn_5.ogg"), m_eInSound, desc);
-		break;
-	}
-
-}
-
-void CFloorChunk::Play_Sound_FadeOut()
-{
-	SOUND_DESC desc = {};
-	//desc.fMaxDistance = DEFAULT_DISTANCE;
-	//XMStoreFloat3(&desc.vPos, Get_Position());
-	desc.fVolume = 0.125f;
-
-	switch (m_eOutSound)
-	{
-	case SOUND_FLOOR_FADEOUT_1:
-		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
-			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_1.ogg"), m_eOutSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEOUT_2:
-		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
-			m_pGameInstance->Set_SoundPosition(m_eOutSound, 135);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_2.ogg"), m_eOutSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEOUT_3:
-		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
-			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_3.ogg"), m_eOutSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEOUT_4:
-		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
-			m_pGameInstance->Set_SoundPosition(m_eOutSound, 136);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_4.ogg"), m_eOutSound, desc);
-		break;
-
-	case SOUND_FLOOR_FADEOUT_5:
-		if (140 < m_pGameInstance->Get_SoundPosition(m_eOutSound))
-			m_pGameInstance->Set_SoundPosition(m_eOutSound, 134);
-		else
-			m_pGameInstance->SoundPlay(TEXT("SFX_Labyrinth_Floor_FadeOut_5.ogg"), m_eOutSound, desc);
-		break;
-	}
-
-}
 
 CFloorChunk* CFloorChunk::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {

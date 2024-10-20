@@ -64,6 +64,8 @@ private:
 
 	_bool m_bPuzzleReplace = { false };
 
+	_bool m_bCunkIn = { false };
+
 private:
 	HRESULT Ready_Components();
 	HRESULT Ready_PuzzlePart_Pos();
@@ -95,6 +97,9 @@ private:
 	LOCATION Find_Location_ByPos(_fvector vPos);
 	_bool Check_OutFloor();
 	void Puzzle_Replace();
+
+	void PlaySound_FadeIn();
+	void PlaySound_FadeOut();
 
 public:
 	static CPuzzleBase* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

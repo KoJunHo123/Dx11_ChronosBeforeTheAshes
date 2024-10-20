@@ -53,6 +53,7 @@ void CUI_TextBox::Update(_float fTimeDelta)
 		if (TEXT("게임 시작") == m_strText)
 		{
 			m_bLevelChange = true;
+			m_pGameInstance->StopSoundSlowly(SOUND_BGM);
 		}
 		else if (TEXT("나가기") == m_strText)
 		{

@@ -179,19 +179,19 @@ void CBoss_Lab::Update(_float fTimeDelta)
 			{
 				_uint iRandomNum = (_uint)m_pGameInstance->Get_Random(0.f, 2.f);
 
-				//if (0 == iRandomNum)
-				//{
-				//	m_iState |= STATE_CHARGE;
-				//	static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
-				//	static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
-				//}
-				//else
+				if (0 == iRandomNum)
 				{
-					m_iState |= STATE_TELEPORT;
-					static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
-					static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
-					Add_TeleportEffect();
+					m_iState |= STATE_CHARGE;
+					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_LEFT])->Set_Loop(true);
+					static_cast<CBoss_Lab_Charge_Smoke*>(m_Parts[PART_CHARGE_SMOKE_RIGHT])->Set_Loop(true);
 				}
+				//else
+				//{
+				//	m_iState |= STATE_TELEPORT;
+				//	static_cast<CBoss_Lab_Teleport_Smoke*>(m_Parts[PART_TELEPORT_SMOKE])->Set_On(Get_Position());
+				//	static_cast<CBoss_Lab_Teleport_Stone*>(m_Parts[PART_TELEPORT_STONE])->Set_On(Get_Position());
+				//	Add_TeleportEffect();
+				//}
 			}
 		}
 		else

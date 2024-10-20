@@ -96,6 +96,7 @@ void CPuzzleBase::Update(_float fTimeDelta)
 	Set_FallCellDeactive(iSetIndex);
 	Set_FallCellDeactive(iPlayerCellIndex);
 
+
 	LOCATION eCurrentLocation = Find_CurrentLocation(iPlayerCellIndex);
 	_uint iPartIndex = { 0 };
 	for (auto& pPartObject : m_Parts)
@@ -726,6 +727,12 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 
 	if(iZ >= iStartZ + 3 && iZ <= iStartZ + 11 && iX >= iStartX + 3 && iX <= iStartX + 11)
 	{
+		if (false == m_bCunkIn)
+		{
+			PlaySound_FadeIn();
+			m_bCunkIn = true;
+		}
+
 		if (PART_PIECE_02 == iPartIndex)
 		{
 			if (0 == m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Teleport")))
@@ -755,10 +762,15 @@ void CPuzzleBase::PuzzlePart_Cell_Active(CPuzzlePart* pPart, _uint iCurrentCellI
 			}
 		}
 		// 여기서 몬스터 배치.
-		Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
+		//Add_Monster(iStartX + 3, iStartX + 11, iStartZ + 3, iStartZ + 11, iPartIndex);
 	}
 	else
 	{
+		if (true == m_bCunkIn)
+		{
+			PlaySound_FadeOut();
+			m_bCunkIn = false;
+		}
 		if (PART_PIECE_02 == iPartIndex)
 		{
 			m_pGameInstance->Clear_Layer(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"));
@@ -833,7 +845,8 @@ void CPuzzleBase::Set_NearCellActive(_uint iCellIndex, _uint iCount)
 	{
 		m_pNavigationCom->Set_CellActive(iAB, true);
 		m_pNavigationCom->Set_CellActive(iAB + 1, true);
-		Add_FloorChunk(iAB);
+		if(SUCCEEDED(Add_FloorChunk(iAB)))
+			PlaySound_FadeIn();
 
 		//Set_NearCellActive(iAB, iCount + 1);
 		//Set_NearCellActive(iAB + 1, iCount + 1);
@@ -843,7 +856,8 @@ void CPuzzleBase::Set_NearCellActive(_uint iCellIndex, _uint iCount)
 	{
 		m_pNavigationCom->Set_CellActive(iBC, true);
 		m_pNavigationCom->Set_CellActive(iBC + 1, true);
-		Add_FloorChunk(iBC);
+		if (SUCCEEDED(Add_FloorChunk(iBC)))
+			PlaySound_FadeIn();
 
 		//Set_NearCellActive(iBC, iCount + 1);
 		//Set_NearCellActive(iBC + 1, iCount + 1);
@@ -853,7 +867,8 @@ void CPuzzleBase::Set_NearCellActive(_uint iCellIndex, _uint iCount)
 	{
 		m_pNavigationCom->Set_CellActive(iCA, true);
 		m_pNavigationCom->Set_CellActive(iCA + 1, true);
-		Add_FloorChunk(iCA);
+		if (SUCCEEDED(Add_FloorChunk(iCA)))
+			PlaySound_FadeIn();
 
 		//Set_NearCellActive(iCA, iCount + 1);
 		//Set_NearCellActive(iCA + 1, iCount + 1);
@@ -880,7 +895,6 @@ void CPuzzleBase::Set_FallCellDeactive(_uint iCellIndex, _uint iCount)
 
 	if (iAB < m_iPuzzleCellIndex && CCell::TYPE_WALK == m_pNavigationCom->Get_CellType(iAB))
 	{
-		
 		m_pNavigationCom->Set_CellActive(iAB, false);
 		m_pNavigationCom->Set_CellActive(iAB + 1, false);
 
@@ -925,7 +939,7 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 	{
 		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
 		if (iCellIndex == pFloorChunk->Get_CellIndex())
-			return S_OK;
+			return E_FAIL;
 	}
 
 	CFloorChunk::FLOORCHUNK_DESC desc = {};
@@ -935,32 +949,22 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 	desc.vTargetPos = m_pNavigationCom->Get_CellZXCenter(iCellIndex);
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_A");
-	desc.eInSound = SOUND_FLOOR_FADEIN_1;
-	desc.eOutSound = SOUND_FLOOR_FADEOUT_1;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_B");
-	desc.eInSound = SOUND_FLOOR_FADEIN_2;
-	desc.eOutSound = SOUND_FLOOR_FADEOUT_2;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_C");
-	desc.eInSound = SOUND_FLOOR_FADEIN_3;
-	desc.eOutSound = SOUND_FLOOR_FADEOUT_3;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_D");
-	desc.eInSound = SOUND_FLOOR_FADEIN_4;
-	desc.eOutSound = SOUND_FLOOR_FADEOUT_4;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_E");
-	desc.eInSound = SOUND_FLOOR_FADEIN_5;
-	desc.eOutSound = SOUND_FLOOR_FADEOUT_5;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
 		return E_FAIL;
 
@@ -1159,6 +1163,30 @@ void CPuzzleBase::Puzzle_Replace()
 
 	Safe_Release(m_Parts[PART_PIECE_11]);
 
+}
+
+void CPuzzleBase::PlaySound_FadeIn()
+{
+	SOUND_DESC desc = {};
+	desc.fVolume = { 0.25f };
+
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeIn_1.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeIn_2.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeIn_3.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeIn_4.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeIn_5.ogg"), desc);
+}
+
+void CPuzzleBase::PlaySound_FadeOut()
+{
+	SOUND_DESC desc = {};
+	desc.fVolume = { 0.25f };
+
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeOut_1.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeOut_2.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeOut_3.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeOut_4.ogg"), desc);
+	m_pGameInstance->SoundPlay_Additional(TEXT("SFX_Labyrinth_Floor_FadeOut_5.ogg"), desc);
 }
 
 CPuzzleBase* CPuzzleBase::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

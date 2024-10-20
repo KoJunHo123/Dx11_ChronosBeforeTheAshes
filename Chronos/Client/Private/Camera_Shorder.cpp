@@ -2,6 +2,7 @@
 #include "..\Public\Camera_Shorder.h"
 
 #include "GameInstance.h"
+#include "Monster.h"
 
 CCamera_Shorder::CCamera_Shorder(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CCamera { pDevice, pContext }
@@ -83,7 +84,7 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 					if (0.f == fShortestLength || fNormalLength < fShortestLength)
 					{
 						fShortestLength = fNormalLength;
-						m_pTargetMonster = GameObject;
+						m_pTargetMonster = static_cast<CMonster*>(GameObject);
 					}
 				}
 			}
@@ -96,8 +97,8 @@ _uint CCamera_Shorder::Priority_Update(_float fTimeDelta)
 
 	if(nullptr != m_pTargetMonster)
 	{
-		if(true == m_pTargetMonster->Get_Dead())
-			m_pTargetMonster = nullptr;
+		if(m_pTargetMonster->Get_HP() <= 0.f)
+			m_pTargetMonster = nullptr;	
 		else
 		{
 			_vector vPlayerPos = m_pPlayerTransformCom->Get_State(CTransform::STATE_POSITION);

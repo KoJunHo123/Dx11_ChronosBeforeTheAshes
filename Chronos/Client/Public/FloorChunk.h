@@ -17,8 +17,6 @@ public:
 		_wstring	strModelTag;
 		_float3		vTargetPos;
 		_int		iCellIndex;
-		SOUND		eInSound;
-		SOUND		eOutSound;
 
 	} FLOORCHUNK_DESC;
 
@@ -64,16 +62,10 @@ private:
 	_bool m_IsFadeOut = { false };
 
 	_float m_fTime = { 0.f };
-	SOUND m_eInSound = { SOUND_END };
-	SOUND m_eOutSound = { SOUND_END };
-
-	_bool m_bFadeOutSound = { false };
 
 private:
 	HRESULT Ready_Components(const _wstring strModelTag);
 
-	void Play_Sound_FadeIn();
-	void Play_Sound_FadeOut();
 
 
 public:

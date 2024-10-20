@@ -136,5 +136,4 @@ void CLevel_Logo::Free()
 {
 	__super::Free();
 
-	m_pGameInstance->StopSoundSlowly(SOUND_BGM);
 }

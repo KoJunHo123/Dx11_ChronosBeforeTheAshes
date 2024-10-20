@@ -39,7 +39,7 @@ private:
 	_float				m_fSensor = { 0.f };	// °¨µµ
 	class CTransform*	m_pPlayerTransformCom = { nullptr };
 
-	class CGameObject* m_pTargetMonster = { nullptr };
+	class CMonster* m_pTargetMonster = { nullptr };
 
 	_float m_fOffset = { 0.f };
 	_float m_fDistance = { 0.f };

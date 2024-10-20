@@ -239,7 +239,7 @@ void CNavigation::Set_CellType(_int iIndex, _uint iCellState)
 
 void CNavigation::Set_CellActive(_int iIndex, _bool isActive)
 {
-	m_Cells[iIndex]->Set_Active(isActive);
+	return m_Cells[iIndex]->Set_Active(isActive);
 }
 
 void CNavigation::Set_CurrentCellIndex_ByPos(_fvector vPos)

@@ -77,7 +77,7 @@ HRESULT CCamera_Container::Ready_Cameras()
 
 	CCamera_Shorder::CAMERA_SHORDER_DESC		ShorderDesc{};
 
-	ShorderDesc.fSensor = 0.1f;
+	ShorderDesc.fSensor = 0.05f;
 	ShorderDesc.vEye = _float4(0.f, 10.f, -10.f, 1.f);
 	ShorderDesc.vAt = _float4(0.f, 0.f, 0.f, 1.f);
 	ShorderDesc.fFovy = XMConvertToRadians(60.0f);

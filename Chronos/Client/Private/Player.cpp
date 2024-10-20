@@ -119,7 +119,7 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
 
         }
         if (true == m_bRevive)
-        {
+        {   
             m_fDeathDelay += fTimeDelta;
             
             if(1.f < m_fDeathDelay)
@@ -160,8 +160,6 @@ void CPlayer::Update(_float fTimeDelta)
 
         //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
         //    m_pFSM->Set_State(STATE_JUMP);
-
-        // cout << m_pNavigationCom->Get_CurrentCellIndex() << endl;
 
         m_pFSM->Update(fTimeDelta);
 

@@ -153,7 +153,10 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 
 			if(BOSS_LAB_ATK_CHARGE_INTO == m_eBossAnim && 55 < m_pModelCom->Get_KeyFrameIndex())
 			{
-				m_pGameInstance->SoundPlay(TEXT("SFX_Lab_Boss_Attack_Roll_Loop_Mono.ogg"), SOUND_BOSS_CHARGE, m_SoundDesc);
+				if(false == m_pGameInstance->IsSoundPlaying(SOUND_BOSS_CHARGE))
+				{
+					m_pGameInstance->SoundPlay(TEXT("SFX_Lab_Boss_Attack_Roll_Loop_Mono.ogg"), SOUND_BOSS_CHARGE, m_SoundDesc);
+				}
 			}
 
 			if (BOSS_LAB_ATK_CHARGE == m_eBossAnim)
