@@ -346,6 +346,57 @@ void GS_SWORDPARTICLE_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> Conta
     Container.RestartStrip();
 }
 
+[maxvertexcount(6)] // 꼭 해줘야 함. 점을 몇 번 찍을 건지.(인덱스 갯수)
+void GS_FLOATYBITS_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> Container)
+{
+    GS_OUT Out[4];
+
+	// 빌보드용.
+    float3 vLook = (g_vCamPosition - In[0].vPosition).xyz;
+    float3 vRight = normalize(cross(float3(0.f, 1.f, 0.f), vLook));
+    float3 vUp = normalize(cross(vLook, vRight));
+    
+    vRight *= In[0].vPSize.x * 0.5f;
+    vUp *= In[0].vPSize.y * 3.f;
+    
+    Out[0].vPosition = float4(In[0].vPosition.xyz + vRight + vUp, 1.f);
+    Out[0].vTexcoord = float2(0.f, 0.f);
+    Out[0].vLifeTime = In[0].vLifeTime;
+    Out[0].vColor = In[0].vColor;
+
+    Out[1].vPosition = float4(In[0].vPosition.xyz - vRight + vUp, 1.f);
+    Out[1].vTexcoord = float2(1.f, 0.f);
+    Out[1].vLifeTime = In[0].vLifeTime;
+    Out[1].vColor = In[0].vColor;
+
+    Out[2].vPosition = float4(In[0].vPosition.xyz - vRight - vUp, 1.f);
+    Out[2].vTexcoord = float2(1.f, 1.f);
+    Out[2].vLifeTime = In[0].vLifeTime;
+    Out[2].vColor = In[0].vColor;
+
+    Out[3].vPosition = float4(In[0].vPosition.xyz + vRight - vUp, 1.f);
+    Out[3].vTexcoord = float2(0.f, 1.f);
+    Out[3].vLifeTime = In[0].vLifeTime;
+    Out[3].vColor = In[0].vColor;
+
+    matrix matVP = mul(g_ViewMatrix, g_ProjMatrix);
+
+    Out[0].vPosition = mul(Out[0].vPosition, matVP);
+    Out[1].vPosition = mul(Out[1].vPosition, matVP);
+    Out[2].vPosition = mul(Out[2].vPosition, matVP);
+    Out[3].vPosition = mul(Out[3].vPosition, matVP);
+
+    Container.Append(Out[0]);
+    Container.Append(Out[1]);
+    Container.Append(Out[2]);
+    Container.RestartStrip(); // 여기서부터 다시 찍겠다. 이거 안해주면 123으로 찍어버림.
+
+    Container.Append(Out[0]);
+    Container.Append(Out[2]);
+    Container.Append(Out[3]);
+    Container.RestartStrip();
+}
+
 
 struct PS_IN
 {
@@ -612,6 +663,41 @@ PS_OUT PS_SKILL_PUPPLE_MAIN(PS_IN In)
     return Out;
 }
 
+PS_OUT PS_FLOATYBITS_MAIN(PS_IN In)
+{
+    PS_OUT Out = (PS_OUT) 0;
+	
+    float2 vTexcoord = (float2) 0;
+    
+    float2 start = (float2) 0;
+    float2 over = (float2) 0;
+	
+    int iTexIndex = (int) (In.vColor.r * 100.f) % (int)(g_vTexDivide.x * g_vTexDivide.y);
+    
+    start.x = (1 / g_vTexDivide.x) * iTexIndex;
+    start.y = (1 / g_vTexDivide.y) * (int) (iTexIndex / g_vTexDivide.x);
+	
+    over.x = start.x + (1 / g_vTexDivide.x);
+    over.y = start.y + (1 / g_vTexDivide.y);
+	
+    vTexcoord = start + (over - start) * In.vTexcoord;
+    
+    Out.vColor = g_Texture.Sample(LinearSampler, vTexcoord);
+    
+    if (Out.vColor.a <= 0.1f)
+        discard;
+    
+    float fTimeRatio = (In.vLifeTime.y / In.vLifeTime.x);
+    
+    if(fTimeRatio < 0.5f)
+        Out.vColor.a *= fTimeRatio * 2.f;
+    else
+        Out.vColor.a *= (1.f - fTimeRatio) * 2.f;
+    
+    Out.vColor.rgb = 0.f;
+    
+    return Out;
+}
 
 technique11 DefaultTechnique
 {
@@ -746,5 +832,16 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_SWORDPARTICLE_MAIN();
         GeometryShader = compile gs_5_0 GS_SWORDPARTICLE_MAIN();
         PixelShader = compile ps_5_0 PS_SKILL_PUPPLE_MAIN();
+    }
+
+    pass FLOATY_BITS // 12
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, vector(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        VertexShader = compile vs_5_0 VS_SWORDPARTICLE_MAIN();
+        GeometryShader = compile gs_5_0 GS_FLOATYBITS_MAIN();
+        PixelShader = compile ps_5_0 PS_FLOATYBITS_MAIN();
     }
 }

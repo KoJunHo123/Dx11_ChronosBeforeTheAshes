@@ -31,6 +31,7 @@
 #include "Terrain.h"
 #include "FloorChunk.h"
 #include "Sky.h"
+#include "Statue.h"
 
 // 퍼즐
 #include "PuzzleBase.h"
@@ -52,6 +53,7 @@
 #include "Player_Skill_Particle_Fire.h"
 #include "Player_Skill_Particle_Smoke.h"
 #include "Player_UseSkill_Particle.h"
+#include "Player_Effect.h"
 
 // 몬스터
 #include "Particle_Monster_Death.h"
@@ -461,6 +463,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Effect/T_Dust_RGB_05.png"), 1))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_Texture_FloatyBits */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_FloatyBits"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/VFX/Particle/T_Enviro_Labyrinth_FloatyBits_1.png"), 1))))
+		return E_FAIL;
 #pragma endregion
 	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
 #pragma region VIBUFFER
@@ -714,6 +720,23 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
 		return E_FAIL;
 
+	/* For. Prototype_Component_VIBuffer_Particle_FloatyBits */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 50;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(20.f, 20.f, 20.f);
+	ParticleDesc.vExceptRange = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSize = _float2(0.1f, 0.2f);
+	ParticleDesc.vSpeed = _float2(0.2f, 0.4f);
+	ParticleDesc.vLifeTime = _float2(4.f, 8.f);
+	ParticleDesc.vMinColor = _float4(0.f, 0.f, 0.f, 1.f);
+	ParticleDesc.vMaxColor = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_FloatyBits"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+
 #pragma endregion
 #pragma region TRAIL_INSTANCE
 	CVIBuffer_Instancing::INSTANCE_DESC TrailInstance = {};
@@ -740,6 +763,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	PreTransformMatrix = XMMatrixIdentity();
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Labyrinth"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Labyrinth/Labyrinth", PreTransformMatrix))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Model_Statue */
+	PreTransformMatrix = XMMatrixIdentity();
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Statue"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/Statue/Statue_Left", PreTransformMatrix))))
 		return E_FAIL;
 #endif
 
@@ -796,6 +825,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_DoorLock"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Models/Labyrinth/DoorLock/DoorLock", PreTransformMatrix))))
 		return E_FAIL;
+
+
 #pragma endregion
 #pragma region PUZZLE
 	/* For. Prototype_Component_Model_Puzzle_Base */
@@ -1046,6 +1077,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FloorChunk"),
 		CFloorChunk::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Statue */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Statue"),
+		CStatue::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region PUZZLE
 	/* For. Prototype_GameObject_PuzzleBase */
@@ -1108,6 +1145,12 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_UseSkill_Particle"),
 		CPlayer_UseSkill_Particle::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	/* For. Prototype_GameObject_Player_Effect */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player_Effect"),
+		CPlayer_Effect::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 #pragma endregion
 #pragma region MONSTER
 	/* For. Prototype_GameObject_Particle_Monster_Death */

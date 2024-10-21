@@ -15,6 +15,7 @@
 #include "RuneKey.h"
 #include "DoorLock.h"
 #include "Inventory.h"
+#include "Statue.h"
 
 #include "UI_PlayerBase.h"
 
@@ -174,7 +175,25 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround()
 #ifndef _DEBUG
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Labyrinth"))))
 		return E_FAIL;
+
+	CStatue::STATUE_DESC StatueDesc = {};
+	StatueDesc.fRotationPerSec = XMConvertToRadians(90.f);
+	StatueDesc.fSpeedPerSec = 1.f;
+	StatueDesc.strModelTag = TEXT("Prototype_Component_Model_Statue");
+	StatueDesc.vPos = _float3(-300.f, 0.f, 700.f);
+	StatueDesc.vRotation = _float3(0.f, XMConvertToRadians(-60.f), 0.f);
+	StatueDesc.vScale = _float3(0.25f, 0.25f, 0.25f);
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Statue"), &StatueDesc)))
+		return E_FAIL;
+
+	StatueDesc.vPos = _float3(300.f, 0.f, 700.f);
+	StatueDesc.vRotation = _float3(0.f, XMConvertToRadians(60.f), 0.f);
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Statue"), &StatueDesc)))
+		return E_FAIL;
 #endif
+
 	return S_OK;
 }
 

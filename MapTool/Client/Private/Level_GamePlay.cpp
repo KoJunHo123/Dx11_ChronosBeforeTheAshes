@@ -459,8 +459,8 @@ HRESULT CLevel_GamePlay::Load_Monsters()
 
 HRESULT CLevel_GamePlay::Save_Cells()
 {
-	//if(FAILED(m_pNavigation->Save_Data()))
-	//	return E_FAIL;
+	if(FAILED(m_pNavigation->Save_Data()))
+		return E_FAIL;
 
 	return S_OK;
 }

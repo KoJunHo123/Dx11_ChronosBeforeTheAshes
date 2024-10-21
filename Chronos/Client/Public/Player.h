@@ -168,6 +168,7 @@ private:
 	HRESULT Ready_Shield(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
 	HRESULT Ready_Item(const CPlayer_Part::PLAYER_PART_DESC& BaseDesc);
 	HRESULT Ready_Skill();
+	HRESULT Ready_Effect();
 
 private:
 	void Anim_Frame_Control();

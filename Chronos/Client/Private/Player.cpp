@@ -17,6 +17,7 @@
 #include "Player_Skill_Particle_Fire.h"
 #include "Player_Skill_Particle_Smoke.h"
 #include "Player_UseSkill_Particle.h"
+#include "Player_Effect.h"
 
 #include "Camera_Container.h"
 #include "Camera_Shorder.h"
@@ -116,7 +117,6 @@ _uint CPlayer::Priority_Update(_float fTimeDelta)
 
             static_cast<CCamera_Shorder*>(m_pCurrentCamera)->Set_InitialState();
             static_cast<CPuzzleBase*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Interaction"), 0))->Set_ActivesFalse();
-
         }
         if (true == m_bRevive)
         {   
@@ -158,8 +158,8 @@ void CPlayer::Update(_float fTimeDelta)
 
         m_vCameraLook.y = 0.f;
 
-        if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
-            m_pFSM->Set_State(STATE_JUMP);
+        //if (1 == m_pNavigationCom->Get_CellType(m_pNavigationCom->Get_CurrentCellIndex()))
+        //    m_pFSM->Set_State(STATE_JUMP);
 
         m_pFSM->Update(fTimeDelta);
 
@@ -170,7 +170,7 @@ void CPlayer::Update(_float fTimeDelta)
 
     _float4x4		ViewMatrix;
     _vector vPos = Get_Position();
-    XMStoreFloat4x4(&ViewMatrix, XMMatrixLookAtLH(XMVectorSet(XMVectorGetX(vPos), XMVectorGetY(vPos) + 100.f, XMVectorGetZ(vPos) -30.f, 1.f), 
+    XMStoreFloat4x4(&ViewMatrix, XMMatrixLookAtLH(XMVectorSet(XMVectorGetX(vPos) + 60, XMVectorGetY(vPos) + 100.f, XMVectorGetZ(vPos) +30.f, 1.f), 
         vPos, XMVectorSet(0.f, 1.f, 0.f, 0.f)));
 
     m_pGameInstance->Set_Transform(CPipeLine::D3DTS_SHADOWVIEW, XMLoadFloat4x4(&ViewMatrix));
@@ -561,6 +561,9 @@ HRESULT CPlayer::Ready_Parts()
     if (FAILED(Ready_Skill()))
         return E_FAIL;
 
+    if (FAILED(Ready_Effect()))
+        return E_FAIL;
+
     return S_OK;
 }
 
@@ -729,6 +732,19 @@ HRESULT CPlayer::Ready_Skill()
     UseSkillDesc.pSkilDuration = &m_fSkillDuration;
 
     if (FAILED(__super::Add_PartObject(PART_USESKILL_PARTICLE, TEXT("Prototype_GameObject_Player_UseSkill_Particle"), &UseSkillDesc)))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CPlayer::Ready_Effect()
+{
+    CPlayer_Effect::EFFECT_DESC desc = {};
+    desc.fRotationPerSec = XMConvertToRadians(90.f);
+    desc.fSpeedPerSec = 1.f;
+    desc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+    if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Player_Effect"), &desc)))
         return E_FAIL;
 
     return S_OK;

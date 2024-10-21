@@ -180,6 +180,7 @@
     <ClInclude Include="..\public\Particle_Monster_Appear.h" />
     <ClInclude Include="..\public\Particle_Save.h" />
     <ClInclude Include="..\public\Particle_Teleport.h" />
+    <ClInclude Include="..\public\Player_Effect.h" />
     <ClInclude Include="..\public\Player_Skill.h" />
     <ClInclude Include="..\public\Player_Skill_Particle_Fire.h" />
     <ClInclude Include="..\public\Player_Skill_Particle_Smoke.h" />
@@ -251,6 +252,7 @@
     <ClInclude Include="..\public\Puzzle_InterColl.h" />
     <ClInclude Include="..\Public\Puzzle_Item.h" />
     <ClInclude Include="..\public\Sky.h" />
+    <ClInclude Include="..\public\Statue.h" />
     <ClInclude Include="..\public\Teleport.h" />
     <ClInclude Include="..\public\Teleport_Container.h" />
     <ClInclude Include="..\Public\Terrain.h" />
@@ -293,6 +295,7 @@
     <ClCompile Include="..\private\Particle_Monster_Appear.cpp" />
     <ClCompile Include="..\private\Particle_Save.cpp" />
     <ClCompile Include="..\private\Particle_Teleport.cpp" />
+    <ClCompile Include="..\private\Player_Effect.cpp" />
     <ClCompile Include="..\private\Player_Skill.cpp" />
     <ClCompile Include="..\private\Player_Skill_Particle_Fire.cpp" />
     <ClCompile Include="..\private\Player_Skill_Particle_Smoke.cpp" />
@@ -362,6 +365,7 @@
     <ClCompile Include="..\private\Puzzle_InterColl.cpp" />
     <ClCompile Include="..\Private\Puzzle_Item.cpp" />
     <ClCompile Include="..\private\Sky.cpp" />
+    <ClCompile Include="..\private\Statue.cpp" />
     <ClCompile Include="..\private\Teleport.cpp" />
     <ClCompile Include="..\private\Teleport_Container.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />

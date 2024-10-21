@@ -325,7 +325,7 @@ HRESULT CPlayer_Weapon::Ready_Components()
 
 	CBounding_OBB::BOUNDING_OBB_DESC			ColliderSkillOBBDesc{};
 	ColliderSkillOBBDesc.vAngles = _float3(0.f, 0.f, 0.f);
-	ColliderSkillOBBDesc.vExtents = _float3(.5f, .5f, 2.4f);
+	ColliderSkillOBBDesc.vExtents = _float3(.75f, .75f, 2.4f);
 	ColliderSkillOBBDesc.vCenter = _float3(0.f, 0.f, 1.6f);
 
 	CCollider::COLLIDER_DESC ColliderSkillDesc = {};
