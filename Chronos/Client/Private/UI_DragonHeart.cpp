@@ -145,6 +145,11 @@ CGameObject* CUI_DragonHeart::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_DragonHeart::Pooling()
+{
+	return new CUI_DragonHeart(*this);
+}
+
 void CUI_DragonHeart::Free()
 {
 	__super::Free();

@@ -194,6 +194,11 @@ CGameObject* CLab_Drum_Attack::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CLab_Drum_Attack::Pooling()
+{
+	return new CLab_Drum_Attack(*this);
+}
+
 void CLab_Drum_Attack::Free()
 {
 	__super::Free();

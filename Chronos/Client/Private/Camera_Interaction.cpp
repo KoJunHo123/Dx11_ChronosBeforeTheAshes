@@ -74,6 +74,11 @@ CGameObject* CCamera_Interaction::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CCamera_Interaction::Pooling()
+{
+    return new CCamera_Interaction(*this);
+}
+
 void CCamera_Interaction::Free()
 {
     __super::Free();

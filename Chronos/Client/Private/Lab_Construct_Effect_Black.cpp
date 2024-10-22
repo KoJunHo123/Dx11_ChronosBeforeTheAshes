@@ -137,6 +137,11 @@ CLab_Construct_Effect_Black* CLab_Construct_Effect_Black::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Construct_Effect_Black::Pooling()
+{
+    return new CLab_Construct_Effect_Black(*this);
+}
+
 void CLab_Construct_Effect_Black::Free()
 {
     __super::Free();

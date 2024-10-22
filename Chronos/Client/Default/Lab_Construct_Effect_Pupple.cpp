@@ -142,6 +142,11 @@ CLab_Construct_Effect_Pupple* CLab_Construct_Effect_Pupple::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Construct_Effect_Pupple::Pooling()
+{
+    return new CLab_Construct_Effect_Pupple(*this);
+}
+
 void CLab_Construct_Effect_Pupple::Free()
 {
     __super::Free();

@@ -233,6 +233,11 @@ CGameObject* CPedestal::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPedestal::Pooling()
+{
+	return new CPedestal(*this);
+}
+
 void CPedestal::Free()
 {
 	__super::Free();

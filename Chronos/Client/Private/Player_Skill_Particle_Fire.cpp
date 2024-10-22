@@ -220,6 +220,11 @@ CGameObject* CPlayer_Skill_Particle_Fire::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CPlayer_Skill_Particle_Fire::Pooling()
+{
+    return new CPlayer_Skill_Particle_Fire(*this);
+}
+
 void CPlayer_Skill_Particle_Fire::Free()
 {
     __super::Free();

@@ -140,6 +140,11 @@ CGameObject* CPuzzlePart::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPuzzlePart::Pooling()
+{
+	return new CPuzzlePart(*this);
+}
+
 void CPuzzlePart::Free()
 {
 	__super::Free();

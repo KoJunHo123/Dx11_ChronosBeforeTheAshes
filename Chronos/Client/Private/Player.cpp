@@ -48,7 +48,7 @@ HRESULT CPlayer::Initialize_Prototype()
 
 HRESULT CPlayer::Initialize(void* pArg)
 {
-    m_fSpeed = 4.f;
+    m_fSpeed = 4.f * 5.f;
     m_fStartSpeed = m_fSpeed;
 
     m_fMaxHP = 100;
@@ -895,6 +895,11 @@ CGameObject* CPlayer::Clone(void* pArg)
     }
 
     return pInstance;
+}
+
+CGameObject* CPlayer::Pooling()
+{
+    return new CPlayer(*this);
 }
 
 void CPlayer::Free()

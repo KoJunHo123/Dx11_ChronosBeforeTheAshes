@@ -122,6 +122,11 @@ CGameObject* CParticle_Snow::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CParticle_Snow::Pooling()
+{
+	return new CParticle_Snow(*this);
+}
+
 void CParticle_Snow::Free()
 {
 	__super::Free();

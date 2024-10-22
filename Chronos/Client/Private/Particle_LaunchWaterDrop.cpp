@@ -123,6 +123,11 @@ CGameObject* CParticle_LaunchWaterDrop::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_LaunchWaterDrop::Pooling()
+{
+    return new CParticle_LaunchWaterDrop(*this);
+}
+
 void CParticle_LaunchWaterDrop::Free()
 {
     __super::Free();

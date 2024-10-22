@@ -102,7 +102,7 @@ private:
 	HRESULT Ready_Components(_int iStartCellIndex);
 
 public:
-	
+	virtual CGameObject* Pooling() = 0;
 	virtual CGameObject* Clone(void* pArg) = 0;
 	virtual void Free() override;
 

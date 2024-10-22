@@ -187,6 +187,11 @@ CGameObject* CParticle_Monster_Appear::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_Monster_Appear::Pooling()
+{
+    return new CParticle_Monster_Appear(*this);
+}
+
 void CParticle_Monster_Appear::Free()
 {
     __super::Free();

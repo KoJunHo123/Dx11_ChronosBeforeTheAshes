@@ -127,6 +127,11 @@ CGameObject* CUI_BossHPBarDeco::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_BossHPBarDeco::Pooling()
+{
+	return new CUI_BossHPBarDeco(*this);
+}
+
 void CUI_BossHPBarDeco::Free()
 {
 	__super::Free();

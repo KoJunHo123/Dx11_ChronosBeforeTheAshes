@@ -184,6 +184,11 @@ CGameObject* CPlayer_UseSkill_Particle::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPlayer_UseSkill_Particle::Pooling()
+{
+	return new CPlayer_UseSkill_Particle(*this);
+}
+
 void CPlayer_UseSkill_Particle::Free()
 {
 	__super::Free();

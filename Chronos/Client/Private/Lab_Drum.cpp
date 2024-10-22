@@ -411,6 +411,11 @@ CGameObject* CLab_Drum::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Drum::Pooling()
+{
+    return new CLab_Drum(*this);
+}
+
 void CLab_Drum::Free()
 {
     __super::Free();

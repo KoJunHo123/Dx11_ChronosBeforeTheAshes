@@ -169,6 +169,11 @@ CGameObject* CEffect_BloodSpray::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CEffect_BloodSpray::Pooling()
+{
+    return new CEffect_BloodSpray(*this);
+}
+
 void CEffect_BloodSpray::Free()
 {
     __super::Free();

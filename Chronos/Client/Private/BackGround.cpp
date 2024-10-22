@@ -142,6 +142,11 @@ CGameObject * CBackGround::Clone(void * pArg)
 	return pInstance;
 }
 
+CGameObject* CBackGround::Pooling()
+{
+	return new CBackGround(*this);
+}
+
 void CBackGround::Free()
 {
 	__super::Free();

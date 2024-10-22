@@ -126,6 +126,11 @@ CGameObject* CStatue::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CStatue::Pooling()
+{
+	return new CStatue(*this);
+}
+
 void CStatue::Free()
 {
 	__super::Free();

@@ -124,6 +124,11 @@ CGameObject* CPlayer_Effect::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPlayer_Effect::Pooling()
+{
+	return new CPlayer_Effect(*this);
+}
+
 void CPlayer_Effect::Free()
 {
 	__super::Free();

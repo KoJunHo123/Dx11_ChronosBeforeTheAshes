@@ -174,6 +174,7 @@ CParticle_Monster_Death* CParticle_Monster_Death::Create(ID3D11Device* pDevice, 
     return pInstance;
 }
 
+
 CGameObject* CParticle_Monster_Death::Clone(void* pArg)
 {
     CParticle_Monster_Death* pInstance = new CParticle_Monster_Death(*this);
@@ -185,6 +186,11 @@ CGameObject* CParticle_Monster_Death::Clone(void* pArg)
     }
 
     return pInstance;
+}
+
+CGameObject* CParticle_Monster_Death::Pooling()
+{
+    return new CParticle_Monster_Death(*this);
 }
 
 void CParticle_Monster_Death::Free()

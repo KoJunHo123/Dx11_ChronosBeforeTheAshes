@@ -159,6 +159,11 @@ CGameObject* CBoss_Lab_Attack::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CBoss_Lab_Attack::Pooling()
+{
+	return new CBoss_Lab_Attack(*this);
+}
+
 void CBoss_Lab_Attack::Free()
 {
 	__super::Free();

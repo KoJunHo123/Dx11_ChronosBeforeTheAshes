@@ -188,6 +188,11 @@ CGameObject* CTrail_Revolve::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CTrail_Revolve::Pooling()
+{
+	return new CTrail_Revolve(*this);
+}
+
 void CTrail_Revolve::Free()
 {
 	__super::Free();

@@ -88,3 +88,8 @@ void CUIObject::Free()
 	__super::Free();
 
 }
+
+void CUIObject::Return()
+{
+	__super::Return();
+}

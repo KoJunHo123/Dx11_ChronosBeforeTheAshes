@@ -69,6 +69,7 @@ private:
 public:
 	static CLab_Troll_Weapon* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CLab_Troll_Weapon* Clone(void* pArg) override;
+	virtual CGameObject* Pooling() override;
 	virtual void Free() override;
 };
 END

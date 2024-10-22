@@ -253,6 +253,11 @@ CLab_Troll_Weapon* CLab_Troll_Weapon::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Troll_Weapon::Pooling()
+{
+    return new CLab_Troll_Weapon(*this);
+}
+
 void CLab_Troll_Weapon::Free()
 {
     __super::Free();

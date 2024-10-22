@@ -209,6 +209,11 @@ CGameObject* CPlayer_Skill::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPlayer_Skill::Pooling()
+{
+	return new CPlayer_Skill(*this);
+}
+
 void CPlayer_Skill::Free()
 {
 	__super::Free();

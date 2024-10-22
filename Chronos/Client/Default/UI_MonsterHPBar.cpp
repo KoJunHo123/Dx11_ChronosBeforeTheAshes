@@ -150,6 +150,11 @@ CGameObject* CUI_MonsterHPBar::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_MonsterHPBar::Pooling()
+{
+	return new CUI_MonsterHPBar(*this);
+}
+
 void CUI_MonsterHPBar::Free()
 {
 	__super::Free();

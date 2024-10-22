@@ -401,6 +401,10 @@ CGameObject* CLab_Construct_Body::Clone(void* pArg)
 
     return pInstance;
 }
+CGameObject* CLab_Construct_Body::Pooling()
+{
+    return new CLab_Construct_Body(*this);
+}
 void CLab_Construct_Body::Free()
 {
     __super::Free();

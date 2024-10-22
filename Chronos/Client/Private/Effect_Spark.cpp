@@ -146,6 +146,11 @@ CGameObject* CEffect_Spark::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CEffect_Spark::Pooling()
+{
+    return new CEffect_Spark(*this);
+}
+
 void CEffect_Spark::Free()
 {
     __super::Free();

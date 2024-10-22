@@ -148,6 +148,11 @@ CGameObject* CPuzzle_InterColl::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPuzzle_InterColl::Pooling()
+{
+	return new CPuzzle_InterColl(*this);
+}
+
 void CPuzzle_InterColl::Free()
 {
 	__super::Free();

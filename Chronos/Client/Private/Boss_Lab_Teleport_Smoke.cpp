@@ -169,6 +169,11 @@ CGameObject* CBoss_Lab_Teleport_Smoke::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CBoss_Lab_Teleport_Smoke::Pooling()
+{
+    return new CBoss_Lab_Teleport_Smoke(*this);
+}
+
 void CBoss_Lab_Teleport_Smoke::Free()
 {
     __super::Free();

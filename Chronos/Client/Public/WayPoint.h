@@ -52,6 +52,7 @@ private:
 public:
 	static CWayPoint* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
+	virtual CGameObject* Pooling() override;
 	virtual void Free() override;
 
 };

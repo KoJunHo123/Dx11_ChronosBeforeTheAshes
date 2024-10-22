@@ -137,6 +137,11 @@ CGameObject* CUI_BossHPBar::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_BossHPBar::Pooling()
+{
+	return new CUI_BossHPBar(*this);
+}
+
 void CUI_BossHPBar::Free()
 {
 	__super::Free();

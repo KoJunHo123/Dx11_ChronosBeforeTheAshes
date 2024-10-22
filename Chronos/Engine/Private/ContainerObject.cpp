@@ -77,3 +77,11 @@ void CContainerObject::Free()
 	for (auto& Part : m_Parts)
 		Safe_Release(Part);
 }
+
+void CContainerObject::Return()
+{
+	__super::Return();
+
+	for (auto& Part : m_Parts)
+		Safe_Release(Part);
+}

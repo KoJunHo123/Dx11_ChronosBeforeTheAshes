@@ -45,6 +45,7 @@ protected:
 
 public:
 	virtual CGameObject* Clone(void* pArg) = 0;
+	virtual CGameObject* Pooling() = 0;
 	virtual void Free() override;
 };
 END

@@ -126,6 +126,11 @@ CGameObject * CTerrain::Clone(void * pArg)
 	return pInstance;
 }
 
+CGameObject* CTerrain::Pooling()
+{
+	return new CTerrain(*this);
+}
+
 void CTerrain::Free()
 {
 	__super::Free();

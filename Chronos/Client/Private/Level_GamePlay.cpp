@@ -54,6 +54,9 @@ HRESULT CLevel_GamePlay::Initialize(_uint iLevelIndex)
 	if (FAILED(Ready_Layer_UI()))
 		return E_FAIL;
 
+	if (FAILED(Ready_PoolingLayer_FloorChunk()))
+		return E_FAIL;
+
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Monster"), TEXT("Coll_Monster"));
 	m_pGameInstance->Add_CollisionKeys(TEXT("Coll_Player_Attack"), TEXT("Coll_Monster"));
@@ -517,6 +520,14 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster_Red()
 
 	desc.iStartCellIndex = 4347;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Monster"), TEXT("Prototype_GameObject_Boss_Lab"), &desc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_PoolingLayer_FloorChunk()
+{
+	if (FAILED(m_pGameInstance->Add_PoolingObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), 420)))
 		return E_FAIL;
 
 	return S_OK;

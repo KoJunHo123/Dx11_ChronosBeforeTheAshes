@@ -125,6 +125,11 @@ CGameObject* CParticle_LaunchStone::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_LaunchStone::Pooling()
+{
+    return new CParticle_LaunchStone(*this);
+}
+
 void CParticle_LaunchStone::Free()
 {
     __super::Free();

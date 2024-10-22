@@ -135,6 +135,11 @@ CGameObject* CEffect_Distortion::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CEffect_Distortion::Pooling()
+{
+	return new CEffect_Distortion(*this);
+}
+
 void CEffect_Distortion::Free()
 {
 	__super::Free();

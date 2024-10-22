@@ -56,5 +56,9 @@ HRESULT CBlendObject::Compute_ViewZ()
 void CBlendObject::Free()
 {
 	__super::Free();
+}
 
+void CBlendObject::Return()
+{
+	__super::Return();
 }

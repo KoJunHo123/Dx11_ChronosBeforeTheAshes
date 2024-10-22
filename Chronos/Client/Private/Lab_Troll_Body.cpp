@@ -515,6 +515,10 @@ CGameObject* CLab_Troll_Body::Clone(void* pArg)
 
     return pInstance;
 }
+CGameObject* CLab_Troll_Body::Pooling()
+{
+    return new CLab_Troll_Body(*this);
+}
 void CLab_Troll_Body::Free()
 {
     __super::Free();

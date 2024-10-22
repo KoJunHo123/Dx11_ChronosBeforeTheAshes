@@ -180,6 +180,11 @@ CGameObject * CLabyrinth::Clone(void * pArg)
 	return pInstance;
 }
 
+CGameObject* CLabyrinth::Pooling()
+{
+	return new CLabyrinth(*this);
+}
+
 void CLabyrinth::Free()
 {
 	__super::Free();

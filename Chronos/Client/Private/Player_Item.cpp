@@ -125,6 +125,10 @@ CGameObject* CPlayer_Item::Clone(void* pArg)
 
 	return pInstance;
 }
+CGameObject* CPlayer_Item::Pooling()
+{
+	return new CPlayer_Item(*this);
+}
 void CPlayer_Item::Free()
 {
 	__super::Free();

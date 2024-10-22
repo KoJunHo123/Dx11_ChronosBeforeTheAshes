@@ -594,6 +594,10 @@ CGameObject* CLab_Mage_Body::Clone(void* pArg)
 
     return pInstance;
 }
+CGameObject* CLab_Mage_Body::Pooling()
+{
+    return new CLab_Mage_Body(*this);
+}
 void CLab_Mage_Body::Free()
 {
     __super::Free();

@@ -213,6 +213,11 @@ CGameObject * CCamera_Shorder::Clone(void * pArg)
 	return pInstance;
 }
 
+CGameObject* CCamera_Shorder::Pooling()
+{
+	return new CCamera_Shorder(*this);
+}
+
 void CCamera_Shorder::Free()
 {
 	__super::Free();

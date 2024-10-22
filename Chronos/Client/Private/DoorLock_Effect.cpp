@@ -143,6 +143,11 @@ CGameObject* CDoorLock_Effect::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CDoorLock_Effect::Pooling()
+{
+	return new CDoorLock_Effect(*this);
+}
+
 void CDoorLock_Effect::Free()
 {
 	__super::Free();

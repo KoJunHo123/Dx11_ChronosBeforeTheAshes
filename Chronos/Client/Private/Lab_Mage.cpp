@@ -330,6 +330,11 @@ CGameObject* CLab_Mage::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Mage::Pooling()
+{
+    return new CLab_Mage(*this);
+}
+
 void CLab_Mage::Free()
 {
     __super::Free();

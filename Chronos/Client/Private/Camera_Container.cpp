@@ -141,6 +141,11 @@ CGameObject* CCamera_Container::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CCamera_Container::Pooling()
+{
+	return new CCamera_Container(*this);
+}
+
 void CCamera_Container::Free()
 {
 	__super::Free();

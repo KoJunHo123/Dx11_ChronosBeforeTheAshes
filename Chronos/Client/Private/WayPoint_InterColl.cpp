@@ -130,6 +130,11 @@ CGameObject* CWayPoint_InterColl::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CWayPoint_InterColl::Pooling()
+{
+	return new CWayPoint_InterColl(*this);
+}
+
 void CWayPoint_InterColl::Free()
 {
 	__super::Free();

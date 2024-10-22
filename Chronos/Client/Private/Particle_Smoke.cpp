@@ -154,6 +154,11 @@ CGameObject* CParticle_Smoke::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_Smoke::Pooling()
+{
+    return new CParticle_Smoke(*this);
+}
+
 void CParticle_Smoke::Free()
 {
     __super::Free();

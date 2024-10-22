@@ -57,6 +57,7 @@ private:
 public:
 	static CCamera_Shorder* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg) override;
+	virtual CGameObject* Pooling() override;
 	virtual void Free() override;
 
 };

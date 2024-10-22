@@ -19,6 +19,9 @@ HRESULT CFloorChunk::Initialize_Prototype()
 
 HRESULT CFloorChunk::Initialize(void* pArg)
 {
+	if (nullptr == pArg)
+		return S_OK;
+
 	if(FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
@@ -40,17 +43,13 @@ HRESULT CFloorChunk::Initialize(void* pArg)
 
 	m_pTransformCom->Set_Scaled(0.1f, 0.1f, 0.1f);
 
-	m_pPlayerTransformCom = static_cast<CTransform*>(m_pGameInstance->Find_Component(LEVEL_GAMEPLAY, TEXT("Layer_Player"), g_strTransformTag));
-	Safe_AddRef(m_pPlayerTransformCom);
-
-
     return S_OK;
 }
 
 _uint CFloorChunk::Priority_Update(_float fTimeDelta)
 {
 	if (true == m_bDead)
-		return OBJ_DEAD;
+		return OBJ_RETURN;
 
 
 	return OBJ_NOEVENT;
@@ -185,6 +184,10 @@ CGameObject* CFloorChunk::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CFloorChunk::Pooling()
+{
+	return new CFloorChunk(*this);
+}
 
 void CFloorChunk::Free()
 {
@@ -192,5 +195,22 @@ void CFloorChunk::Free()
 
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
-	Safe_Release(m_pPlayerTransformCom);
+}
+
+void CFloorChunk::Return()
+{
+	__super::Return();
+
+	Safe_Release(m_pModelCom);
+	Safe_Release(m_pShaderCom);
+
+	m_vTargetPos = {};
+	m_vStartPos = {};
+	m_iCellIndex = { -1 };
+	m_bDisappear = { false };
+	m_bAppearMove = { false };
+	m_bDisappearMove = { false };
+	m_IsFadeIn = { false };
+	m_IsFadeOut = { false };
+	m_fTime = { 0.f };
 }
