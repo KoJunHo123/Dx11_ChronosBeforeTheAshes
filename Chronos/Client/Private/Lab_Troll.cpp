@@ -120,12 +120,14 @@ void CLab_Troll::Update(_float fTimeDelta)
 
     m_fAttackDelay += fTimeDelta;
 
+    if(STATE_DEATH == m_iState)
+        m_fRatio += fTimeDelta * 0.5f;
+
     if (m_fHP <= 0.f)
     {
         m_iState = STATE_DEATH;
         m_isFinished = false;
         static_cast<CParticle_Monster_Death*>(m_Parts[PART_EFFECT_DEATH])->Set_On();
-        m_fRatio += fTimeDelta * 0.5f;
         m_pColliderCom->Set_OnCollision(false);
 
         if(false == m_bScream)
