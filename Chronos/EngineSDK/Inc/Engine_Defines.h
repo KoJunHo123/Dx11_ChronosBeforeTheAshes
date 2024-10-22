@@ -2,6 +2,7 @@
 
 #define OBJ_NOEVENT     0
 #define OBJ_DEAD        1
+#define OBJ_RETURN      2
 
 #define VK_MAX	0xff
 #define OFFSET	0x0000

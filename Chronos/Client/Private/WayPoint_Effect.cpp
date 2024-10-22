@@ -117,6 +117,11 @@ CGameObject* CWayPoint_Effect::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CWayPoint_Effect::Pooling()
+{
+    return new CWayPoint_Effect(*this);
+}
+
 void CWayPoint_Effect::Free()
 {
     __super::Free();

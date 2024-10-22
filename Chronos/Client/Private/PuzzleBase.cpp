@@ -118,7 +118,7 @@ void CPuzzleBase::Update(_float fTimeDelta)
 	Set_NearCellActive(iPlayerCellIndex);
 
 	auto& FloorChunkList = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"));
-
+	_uint iIndex = { 0 };
 	for (auto& FloorChunk : FloorChunkList)
 	{
 		CFloorChunk* pFloorChunk = static_cast<CFloorChunk*>(FloorChunk);
@@ -127,8 +127,8 @@ void CPuzzleBase::Update(_float fTimeDelta)
 			pFloorChunk->Set_Dead();
 			if (0 != m_pGameInstance->Get_ObjectSize(LEVEL_GAMEPLAY, TEXT("Layer_Teleport")))
 				m_pGameInstance->Release_Object(LEVEL_GAMEPLAY, TEXT("Layer_Teleport"));
-
 		}
+		++iIndex;
 	}
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
@@ -949,23 +949,33 @@ HRESULT CPuzzleBase::Add_FloorChunk(_int iCellIndex)
 	desc.vTargetPos = m_pNavigationCom->Get_CellZXCenter(iCellIndex);
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_A");
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Object_From_Pooling(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_B");
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Object_From_Pooling(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_C");
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Object_From_Pooling(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_D");
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Object_From_Pooling(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	desc.strModelTag = TEXT("Prototype_Component_Model_FloorChunk_E");
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), TEXT("Prototype_GameObject_FloorChunk"), &desc)))
+	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Object_From_Pooling(LEVEL_GAMEPLAY, TEXT("Layer_FloorChunk"), &desc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -1211,6 +1221,11 @@ CGameObject* CPuzzleBase::Clone(void* pArg)
 		Safe_Release(pInstance);
 	}
 	return pInstance;
+}
+
+CGameObject* CPuzzleBase::Pooling()
+{
+	return new CPuzzleBase(*this);
 }
 
 void CPuzzleBase::Free()

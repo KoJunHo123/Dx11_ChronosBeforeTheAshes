@@ -57,3 +57,8 @@ void CPartObject::Free()
 	__super::Free();
 
 }
+
+void CPartObject::Return()
+{
+	__super::Return();
+}

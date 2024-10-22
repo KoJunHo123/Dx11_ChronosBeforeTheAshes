@@ -38,14 +38,21 @@ public:
 	CGameObject* Clone_GameObject(const _wstring& strPrototypeTag, void* pArg);
 	class CComponent* Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
 
-private:
+	HRESULT Add_PoolingObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, _uint iCount);
+	class CLayer* Find_PoolingLayer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Add_Object_From_Pooling(_uint iLevelIndex, const _wstring& strLayerTag, void* pArg);
+	HRESULT Release_Object_ByIndex(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
 
+private:
 	/* 원형객체들을 보관한다. */
 	map<const _wstring, class CGameObject*>		m_Prototypes;
 
 	/* 레벨별로, 사본객체들을 그룹별로 모아서 보관한다. */
 	_uint										m_iNumLevels = {};
+
 	map<const _wstring, class CLayer*>*			m_pLayers = { nullptr };
+	map<const _wstring, class CLayer*>*			m_pPoolingLayers = { nullptr };
+
 	typedef map<const _wstring, class CLayer*>		LAYERS;
 
 private:

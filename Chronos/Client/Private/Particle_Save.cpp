@@ -119,6 +119,11 @@ CGameObject* CParticle_Save::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CParticle_Save::Pooling()
+{
+	return new CParticle_Save(*this);
+}
+
 void CParticle_Save::Free()
 {
 	__super::Free();

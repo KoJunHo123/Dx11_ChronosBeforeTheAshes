@@ -148,6 +148,11 @@ CGameObject* CDragonHeart::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CDragonHeart::Pooling()
+{
+	return new CDragonHeart(*this);
+}
+
 void CDragonHeart::Free()
 {
 	__super::Free();

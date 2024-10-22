@@ -140,6 +140,11 @@ CGameObject* CEffect_Flare::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CEffect_Flare::Pooling()
+{
+    return new CEffect_Flare(*this);
+}
+
 void CEffect_Flare::Free()
 {
     __super::Free();

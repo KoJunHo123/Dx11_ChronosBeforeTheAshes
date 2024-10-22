@@ -162,6 +162,11 @@ CGameObject* CUI_TextBox::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_TextBox::Pooling()
+{
+	return new CUI_TextBox(*this);
+}
+
 void CUI_TextBox::Free()
 {
 	__super::Free();

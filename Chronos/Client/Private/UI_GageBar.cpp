@@ -183,6 +183,11 @@ CGameObject* CUI_GageBar::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_GageBar::Pooling()
+{
+	return new CUI_GageBar(*this);
+}
+
 void CUI_GageBar::Free()
 {
 	__super::Free();

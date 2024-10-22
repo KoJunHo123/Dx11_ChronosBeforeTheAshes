@@ -182,6 +182,11 @@ CGameObject* CLab_Mage_Attack::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CLab_Mage_Attack::Pooling()
+{
+	return new CLab_Mage_Attack(*this);
+}
+
 void CLab_Mage_Attack::Free()
 {
 	__super::Free();

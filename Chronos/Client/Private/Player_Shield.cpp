@@ -179,6 +179,10 @@ CGameObject* CPlayer_Shield::Clone(void* pArg)
 
 	return pInstance;
 }
+CGameObject* CPlayer_Shield::Pooling()
+{
+	return new CPlayer_Shield(*this);
+}
 void CPlayer_Shield::Free()
 {
 	__super::Free();

@@ -120,6 +120,11 @@ CGameObject* CSky::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CSky::Pooling()
+{
+	return new CSky(*this);
+}
+
 void CSky::Free()
 {
 	__super::Free();

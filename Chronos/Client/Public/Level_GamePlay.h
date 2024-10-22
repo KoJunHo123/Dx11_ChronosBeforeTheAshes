@@ -54,6 +54,8 @@ private:
 	HRESULT Ready_Layer_Monster_Pupple();
 	HRESULT Ready_Layer_Monster_Red();
 
+	HRESULT Ready_PoolingLayer_FloorChunk();
+
 public:
 	static CLevel_GamePlay* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iLevelIndex);
 	virtual void Free() override;

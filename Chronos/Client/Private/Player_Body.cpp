@@ -414,6 +414,11 @@ CGameObject* CPlayer_Body::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPlayer_Body::Pooling()
+{
+	return new CPlayer_Body(*this);
+}
+
 void CPlayer_Body::Free()
 {
 	__super::Free();

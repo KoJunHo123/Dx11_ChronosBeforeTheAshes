@@ -87,3 +87,8 @@ void CBlend_UI_Object::Free()
 	__super::Free();
 
 }
+
+void CBlend_UI_Object::Return()
+{
+	__super::Return();
+}

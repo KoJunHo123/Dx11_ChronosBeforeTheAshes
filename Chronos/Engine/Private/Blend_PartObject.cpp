@@ -57,3 +57,8 @@ void CBlend_PartObject::Free()
 	__super::Free();
 
 }
+
+void CBlend_PartObject::Return()
+{
+	__super::Return();
+}

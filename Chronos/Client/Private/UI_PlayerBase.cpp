@@ -217,6 +217,11 @@ CGameObject* CUI_PlayerBase::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_PlayerBase::Pooling()
+{
+	return new CUI_PlayerBase(*this);
+}
+
 void CUI_PlayerBase::Free()
 {
 	__super::Free();

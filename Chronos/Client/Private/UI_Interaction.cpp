@@ -151,6 +151,11 @@ CGameObject* CUI_Interaction::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_Interaction::Pooling()
+{
+	return new CUI_Interaction(*this);
+}
+
 void CUI_Interaction::Free()
 {
 	__super::Free();

@@ -416,7 +416,7 @@ void CBoss_Lab_Body::Update(_float fTimeDelta)
 				{
 					CCamera_Shorder* m_pCamera = dynamic_cast<CCamera_Shorder*>(static_cast<CCamera_Container*>(m_pGameInstance->Get_GameObject(LEVEL_GAMEPLAY, TEXT("Layer_Camera"), 0))->Get_PartObject(CCamera_Container::CAMERA_SHORDER));
 
-					m_pCamera->Set_Shaking(3.f);
+					m_pCamera->Set_Shaking(1.5f);
 
 					m_pGameInstance->SoundPlay_Additional(TEXT("Voc_Lab_Boss_Alert_01a.ogg"), m_SoundDesc);
 					m_bLaunch = false;
@@ -626,6 +626,11 @@ CGameObject* CBoss_Lab_Body::Clone(void* pArg)
 	}
 
 	return pInstance;
+}
+
+CGameObject* CBoss_Lab_Body::Pooling()
+{
+	return new CBoss_Lab_Body(*this);
 }
 
 void CBoss_Lab_Body::Free()

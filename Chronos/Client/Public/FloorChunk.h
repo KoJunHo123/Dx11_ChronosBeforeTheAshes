@@ -46,7 +46,6 @@ public:
 private:
 	class CShader* m_pShaderCom = { nullptr };
 	class CModel* m_pModelCom = { nullptr };
-	class CTransform* m_pPlayerTransformCom = { nullptr };
 
 	_float3 m_vTargetPos = {};
 	_float3 m_vStartPos = {};
@@ -66,11 +65,11 @@ private:
 private:
 	HRESULT Ready_Components(const _wstring strModelTag);
 
-
-
 public:
 	static CFloorChunk* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
+	virtual CGameObject* Pooling() override;
 	virtual void Free() override;
+	virtual void Return();
 };
 END

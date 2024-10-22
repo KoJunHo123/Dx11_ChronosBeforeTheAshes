@@ -64,3 +64,8 @@ void CCamera::Free()
 	__super::Free();
 
 }
+
+void CCamera::Return()
+{
+	__super::Return();
+}

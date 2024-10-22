@@ -129,6 +129,11 @@ CGameObject* CUI_GlowStar::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_GlowStar::Pooling()
+{
+	return new CUI_GlowStar(*this);
+}
+
 void CUI_GlowStar::Free()
 {
 	__super::Free();

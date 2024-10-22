@@ -123,6 +123,11 @@ CGameObject* CRuneKey::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CRuneKey::Pooling()
+{
+	return new CRuneKey(*this);
+}
+
 void CRuneKey::Free()
 {
 	__super::Free();

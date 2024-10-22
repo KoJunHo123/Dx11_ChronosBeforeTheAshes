@@ -145,6 +145,11 @@ CGameObject* CPuzzle_Item::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPuzzle_Item::Pooling()
+{
+	return new CPuzzle_Item(*this);
+}
+
 void CPuzzle_Item::Free()
 {
 	__super::Free();

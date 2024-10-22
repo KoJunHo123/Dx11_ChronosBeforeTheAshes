@@ -260,6 +260,11 @@ CGameObject* CWayPoint::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CWayPoint::Pooling()
+{
+	return new CWayPoint(*this);
+}
+
 void CWayPoint::Free()
 {
 	__super::Free();

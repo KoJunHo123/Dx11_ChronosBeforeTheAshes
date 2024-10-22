@@ -338,7 +338,7 @@ PS_OUT PS_MAIN_BLUR_FINAL(PS_IN In)
     //Out.vColor.rgb = float3(fGray, fGray, fGray);
     
         return Out;
-    }
+}
 
 
 technique11 DefaultTechnique

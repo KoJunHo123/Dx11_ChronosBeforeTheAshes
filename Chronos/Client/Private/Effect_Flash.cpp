@@ -147,6 +147,11 @@ CGameObject* CEffect_Flash::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CEffect_Flash::Pooling()
+{
+    return new CEffect_Flash(*this);
+}
+
 void CEffect_Flash::Free()
 {
     __super::Free();

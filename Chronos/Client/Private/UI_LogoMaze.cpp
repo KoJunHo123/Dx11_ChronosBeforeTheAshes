@@ -121,6 +121,11 @@ CGameObject* CUI_LogoMaze::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_LogoMaze::Pooling()
+{
+	return new CUI_LogoMaze(*this);
+}
+
 void CUI_LogoMaze::Free()
 {
 	__super::Free();

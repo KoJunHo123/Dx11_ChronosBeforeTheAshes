@@ -112,6 +112,11 @@ CGameObject* CInventory::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CInventory::Pooling()
+{
+    return new CInventory(*this);
+}
+
 void CInventory::Free()
 {
     __super::Free();

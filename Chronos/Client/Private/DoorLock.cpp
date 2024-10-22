@@ -270,6 +270,11 @@ CGameObject* CDoorLock::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CDoorLock::Pooling()
+{
+	return new CDoorLock(*this);
+}
+
 void CDoorLock::Free()
 {
 	__super::Free();

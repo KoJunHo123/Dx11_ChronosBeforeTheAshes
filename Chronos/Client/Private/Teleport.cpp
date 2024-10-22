@@ -165,6 +165,11 @@ CGameObject* CTeleport::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CTeleport::Pooling()
+{
+    return new CTeleport(*this);
+}
+
 void CTeleport::Free()
 {
     __super::Free();

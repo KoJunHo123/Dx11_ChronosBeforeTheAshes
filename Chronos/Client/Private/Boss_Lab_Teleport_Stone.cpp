@@ -127,6 +127,11 @@ CGameObject* CBoss_Lab_Teleport_Stone::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CBoss_Lab_Teleport_Stone::Pooling()
+{
+    return new CBoss_Lab_Teleport_Stone(*this);
+}
+
 void CBoss_Lab_Teleport_Stone::Free()
 {
     __super::Free();

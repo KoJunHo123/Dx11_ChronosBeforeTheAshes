@@ -117,6 +117,11 @@ CGameObject* CUI_LogoTitle::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_LogoTitle::Pooling()
+{
+	return new CUI_LogoTitle(*this);
+}
+
 void CUI_LogoTitle::Free()
 {
 	__super::Free();

@@ -152,6 +152,11 @@ CGameObject* CBoss_Lab_Charge_Smoke::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CBoss_Lab_Charge_Smoke::Pooling()
+{
+	return new CBoss_Lab_Charge_Smoke(*this);
+}
+
 void CBoss_Lab_Charge_Smoke::Free()
 {
 	__super::Free();

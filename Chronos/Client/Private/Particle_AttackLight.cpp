@@ -128,6 +128,11 @@ CGameObject* CParticle_AttackLight::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_AttackLight::Pooling()
+{
+    return new CParticle_AttackLight(*this);
+}
+
 void CParticle_AttackLight::Free()
 {
     __super::Free();

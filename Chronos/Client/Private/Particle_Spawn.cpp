@@ -208,6 +208,11 @@ CGameObject* CParticle_Spawn::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CParticle_Spawn::Pooling()
+{
+    return new CParticle_Spawn(*this);
+}
+
 void CParticle_Spawn::Free()
 {
     __super::Free();

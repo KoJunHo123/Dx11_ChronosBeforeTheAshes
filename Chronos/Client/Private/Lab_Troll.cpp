@@ -358,6 +358,11 @@ CGameObject* CLab_Troll::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CLab_Troll::Pooling()
+{
+    return new CLab_Troll(*this);
+}
+
 void CLab_Troll::Free()
 {
     __super::Free();

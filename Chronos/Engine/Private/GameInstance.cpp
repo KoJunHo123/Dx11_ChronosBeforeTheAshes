@@ -245,6 +245,22 @@ CGameObject* CGameInstance::Get_GameObject(_uint iLevelIndex, const _wstring& st
 {
 	return m_pObject_Manager->Get_GameObject(iLevelIndex, strLayerTag, iObjectIndex);
 }
+HRESULT CGameInstance::Add_PoolingObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, _uint iCount)
+{
+	return m_pObject_Manager->Add_PoolingObject_ToLayer(iLevelIndex, strLayerTag, strPrototypeTag, iCount);
+}
+CLayer* CGameInstance::Find_PoolingLayer(_uint iLevelIndex, const _wstring& strLayerTag)
+{
+	return m_pObject_Manager->Find_PoolingLayer(iLevelIndex, strLayerTag);
+}
+HRESULT CGameInstance::Add_Object_From_Pooling(_uint iLevelIndex, const _wstring& strLayerTag, void* pArg)
+{
+	return m_pObject_Manager->Add_Object_From_Pooling(iLevelIndex, strLayerTag, pArg);
+}
+HRESULT CGameInstance::Release_Object_ByIndex(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex)
+{
+	return m_pObject_Manager->Release_Object_ByIndex(iLevelIndex, strLayerTag, iIndex);
+}
 #pragma endregion
 
 #pragma region COMPONENT_MANAGER

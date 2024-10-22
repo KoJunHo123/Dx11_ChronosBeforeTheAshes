@@ -131,6 +131,11 @@ CGameObject* CPedestal_InterColl::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CPedestal_InterColl::Pooling()
+{
+	return new CPedestal_InterColl(*this);
+}
+
 void CPedestal_InterColl::Free()
 {
 	__super::Free();

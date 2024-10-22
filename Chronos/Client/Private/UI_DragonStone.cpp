@@ -154,6 +154,11 @@ CGameObject* CUI_DragonStone::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_DragonStone::Pooling()
+{
+	return new CUI_DragonStone(*this);
+}
+
 void CUI_DragonStone::Free()
 {
 	__super::Free();

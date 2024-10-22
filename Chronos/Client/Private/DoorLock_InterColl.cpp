@@ -123,6 +123,11 @@ CGameObject* CDoorLock_InterColl::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CDoorLock_InterColl::Pooling()
+{
+	return new CDoorLock_InterColl(*this);
+}
+
 void CDoorLock_InterColl::Free()
 {
 	__super::Free();

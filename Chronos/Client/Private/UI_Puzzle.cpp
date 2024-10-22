@@ -153,6 +153,11 @@ CGameObject* CUI_Puzzle::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_Puzzle::Pooling()
+{
+	return new CUI_Puzzle(*this);
+}
+
 void CUI_Puzzle::Free()
 {
 	__super::Free();

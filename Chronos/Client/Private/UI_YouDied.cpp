@@ -152,6 +152,11 @@ CGameObject* CUI_YouDied::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_YouDied::Pooling()
+{
+	return new CUI_YouDied(*this);
+}
+
 void CUI_YouDied::Free()
 {
 	__super::Free();

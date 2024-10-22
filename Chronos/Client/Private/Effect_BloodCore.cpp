@@ -166,6 +166,11 @@ CGameObject* CEffect_BloodCore::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CEffect_BloodCore::Pooling()
+{
+    return new CEffect_BloodCore(*this);
+}
+
 void CEffect_BloodCore::Free()
 {
     __super::Free();

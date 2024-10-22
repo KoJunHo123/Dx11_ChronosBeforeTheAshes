@@ -65,6 +65,10 @@ public:
 	size_t Get_ObjectSize(_uint iLevelIndex, const _wstring& strLayerTag);
 	class CComponent* Find_PartComponent(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex, _uint iPartObjIndex);
 	class CGameObject* Get_GameObject(_uint iLevelIndex, const _wstring& strLayerTag, _uint iObjectIndex);
+	HRESULT Add_PoolingObject_ToLayer(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strPrototypeTag, _uint iCount);
+	class CLayer* Find_PoolingLayer(_uint iLevelIndex, const _wstring& strLayerTag);
+	HRESULT Add_Object_From_Pooling(_uint iLevelIndex, const _wstring& strLayerTag, void* pArg);
+	HRESULT Release_Object_ByIndex(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
 #pragma endregion
 
 

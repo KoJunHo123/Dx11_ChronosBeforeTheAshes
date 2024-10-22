@@ -119,6 +119,11 @@ CGameObject* CParticle_Teleport::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CParticle_Teleport::Pooling()
+{
+	return new CParticle_Teleport(*this);
+}
+
 void CParticle_Teleport::Free()
 {
 	__super::Free();

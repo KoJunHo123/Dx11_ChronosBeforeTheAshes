@@ -27,6 +27,12 @@ HRESULT CLayer::Priority_Update(_float fTimeDelta)
 			Safe_Release(*iter);
 			iter = m_GameObjects.erase(iter);
 		}
+		else if (OBJ_RETURN == iResult && nullptr != m_pPoolingLayer)
+		{
+			(*iter)->Return();
+			m_pPoolingLayer->Add_GameObject(*iter);
+			iter = m_GameObjects.erase(iter);
+		}
 		else
 		{
 			iter++;
@@ -66,6 +72,20 @@ CGameObject* CLayer::Get_GameObject(_uint iObjectIndex)
 	return nullptr;
 }
 
+CGameObject* CLayer::Get_FrontGameObject()
+{
+	auto& iter = m_GameObjects.begin();
+
+	if (iter == m_GameObjects.end())
+		return nullptr;
+
+	CGameObject* pGameObject = *iter;
+	m_GameObjects.erase(iter);
+
+	return pGameObject;
+}
+
+
 CComponent * CLayer::Find_Component(const _wstring & strComponentTag, _uint iIndex)
 {
 	if (iIndex >= m_GameObjects.size())
@@ -102,6 +122,25 @@ void CLayer::Release_Object()
 	m_GameObjects.pop_back();
 }
 
+void CLayer::Release_Object(_uint iIndex)
+{
+	if (true == m_GameObjects.empty())
+		return;
+
+	auto& iter = m_GameObjects.begin();
+	for (_uint i = 0; i < m_GameObjects.size(); ++i)
+	{
+		if (iIndex == i)
+		{
+			Safe_Release(*iter);
+			iter = m_GameObjects.erase(iter);
+			return;
+		}
+		else
+			++iter;
+	}
+}
+
 void CLayer::Clear()
 {
 	for (auto& pGameObject : m_GameObjects)
@@ -125,5 +164,7 @@ void CLayer::Free()
 	for (auto& pGameObject : m_GameObjects)
 		Safe_Release(pGameObject);
 	m_GameObjects.clear();
+
+	Safe_Release(m_pPoolingLayer);
 }
 

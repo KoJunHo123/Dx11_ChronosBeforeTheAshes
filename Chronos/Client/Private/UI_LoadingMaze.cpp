@@ -118,6 +118,11 @@ CGameObject* CUI_LoadingMaze::Clone(void* pArg)
 	return pInstance;
 }
 
+CGameObject* CUI_LoadingMaze::Pooling()
+{
+	return new CUI_LoadingMaze(*this);
+}
+
 void CUI_LoadingMaze::Free()
 {
 	__super::Free();

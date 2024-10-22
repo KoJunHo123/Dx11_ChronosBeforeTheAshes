@@ -171,6 +171,11 @@ CGameObject* CTeleport_Container::Clone(void* pArg)
     return pInstance;
 }
 
+CGameObject* CTeleport_Container::Pooling()
+{
+    return new CTeleport_Container(*this);
+}
+
 void CTeleport_Container::Free()
 {
     __super::Free();
