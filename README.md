@@ -1,1 +1,3 @@
-DirectX11을 이용한 크로노스:비포 디 애쉬즈 모작
+# Dx11_Chronos:Before the ashes
+DirectX11로 모작한 크로노스 비포 디 애쉬즈
+
